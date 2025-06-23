@@ -283,7 +283,7 @@ void TSelector::EvLButtonUp(UINT, TPoint&)
 	 ::InvalidateRect(HWindow, NULL, TRUE);
   }
 
-  DefaultProcessing();
+  // DefaultProcessing(); - Not needed in modern OWL
 }
 
 
