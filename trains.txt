@@ -1,0 +1,1013 @@
+0518,  Dunblane
+0555,  Falkirk High
+0630,  Falkirk High
+0633,  Dunblane
+0640,  Perth
+
+
+=========
+CLASS 156
+=========
+
+CK213
+-----
+2Y56 0616 Glasgow Central to Edinburgh with (CK219) 
+2P27 0803 Edinburgh to Dunblane 
+2P32 0926 Dunblane to Edinburgh 
+2B19 1037 Edinburgh to Bathgate 
+2B20 1114 Bathgate to Edinburgh 
+2B35 1307 Edinburgh to Bathgate 
+2B36 1344 Bathgate to Edinburgh 
+2P05 1433 Edinburgh to Dunblane 
+2P92 1556 Dunblane to Edinburgh 
+2Y77 1722 Edinburgh to Motherwell with (CK218)
+
+CK214
+-----
+2Y60 0713 Glasgow Central to Edinburgh with (CK218) 
+2Y69 1023 Edinburgh to Glasgow Central 
+
+CK218
+-----
+2Y60 0713 Glasgow Central to Edinburgh with (CK214) 
+2Y77 0926 Edinburgh to Glasgow Central  
+2Y68 1115 Glasgow Central to Edinburgh 
+2Y63 1324 Edinburgh to Glasgow Central 
+2Y48 1515 Glasgow Central to Edinburgh 
+2Y77 1722 Edinburgh to Motherwell with (CK213) 
+5Y77 1839 Motherwell to Glasgow Central with (CK213) 
+2Y46 2015 Glasgow Central to Edinburgh 
+2Y69 2211 Edinburgh to Glasgow Central with (CK267)
+
+CK219
+-----
+2Y56 0616 Glasgow Central to Edinburgh with (CK213) 
+2Y45 0826 Edinburgh to Glasgow Central 
+2Y42 1215 Glasgow Central to Edinburgh 
+2Y45 1422 Edinburgh to Glasgow Central 
+2Y50 1615 Glasgow Central to Edinburgh with (CK253) 
+2Y51 1756 Edinburgh to Glasgow Central with (CK253)
+
+CK252
+-----
+2Y78 0915 Glasgow Central to Edinburgh 
+2Y71 1122 Edinburgh to Glasgow Central 
+2Y44 1315 Glasgow Central to Edinburgh 
+2Y67 1524 Edinburgh to Glasgow Central
+
+CK253
+-----
+2Y50 1615 Glasgow Central to Edinburgh with (CK219) 
+2Y51 1756 Edinburgh to Glasgow Central with (CK219) 
+
+CK254
+-----
+2Y78 1720 Glasgow Central to Edinburgh with (CK267) 
+2Y65 2024 Edinburgh to Glasgow Central 
+
+CK261
+-----
+2Y52 1015 Glasgow Central to Edinburgh 
+2Y41 1224 Edinburgh to Glasgow Central 
+2Y66 1415 Glasgow Central to Edinburgh 
+2Y49 1622 Edinburgh to Glasgow Central 
+
+CK267
+-----
+2Y78 1720 Glasgow Central to Edinburgh with (CK254) 
+2Y83 1922 Edinburgh to West Calder 
+2Y84 2010 West Calder to Edinburgh 
+2Y69 2211 Edinburgh to Glasgow Central with (CK218) 
+
+CK268
+-----
+2Y72 2306 Glasgow Central to Edinburgh 
+
+CK270
+-----
+2Y62 1815 Glasgow Central to Edinburgh with (CK272)
+
+CK271
+-----
+2Y57 0656 Edinburgh to Glasgow Central with (CK273) 
+
+CK273
+-----
+2Y57 0656 Edinburgh to Glasgow Central with (CK271) 
+
+
+=========
+CLASS 158
+=========
+
+IS802
+-----
+2P12 0637 Perth to Edinburgh with (IS806) 
+5P12 0817 Edinburgh to Slateford Yard with (IS806) 
+5A80 1321 Slateford Yard to Edinburgh with (IS806) 
+1A80 1406 Edinburgh to Dyce with (HA722) as far as Aberdeen 
+
+IS805
+-----
+2K01 0733 Glenrothes to Edinburgh with (IS811) and (HA682) 
+2P29 0903 Edinburgh to Dunblane 
+2P94 1029 Dunblane to Edinburgh 
+2B23 1137 Edinburgh to Bathgate 
+2B24 1214 Bathgate to Edinburgh 
+2P39 1303 Edinburgh to Dunblane 
+2P70 1426 Dunblane to Edinburgh 
+2B47 1607 Edinburgh to Bathgate with (IS810) 
+2B48 1644 Bathgate to Edinburgh with (IS810) 
+2P11 1733 Edinburgh to Dunblane with (IS810) 
+2P88 1856 Dunblane to Edinburgh with (IS810) 
+2P29 2133 Edinburgh to Perth with (IS803) and (IS810) 
+
+
+IS806
+-----
+2P12 0637 Perth to Edinburgh with (IS802) 
+5P12 0817 Edinburgh to Slateford Yard with (IS802) 
+5A80 1321 Slateford Yard to Edinburgh with (IS802) 
+1A79 1605 Edinburgh to Aberdeen with (HA721) as far as Dundee 
+
+IS807
+-----
+1B10 0800 Dundee to Edinburgh 
+1L37 0937 Edinburgh to Perth with (HA741) 
+1B30 1108 Perth to Edinburgh with (HA741) 
+1H13 1335 Edinburgh to Inverness with (HA741) 
+
+IS808
+-----
+1B22 1052 Inverness to Edinburgh with (HA744) 
+5B22 1430 Edinburgh to Haymarket TMD with (HA744) 
+5A81 1641 Haymarket TMD to Edinburgh with (HA744) 
+1A81 1703 Edinburgh to Dyce with (HA717) as far as Dundee 
+
+IS809
+-----
+IS809 
+1B02 0616 Dundee to Edinburgh with (IS810) 
+2G03 0813 Edinburgh to Edinburgh (via Fife Circle Clockwise) 
+2N16 1025 Edinburgh to Newcraighall 
+2N19 1049 Newcraighall to Edinburgh 
+2N20 1125 Edinburgh to Newcraighall 
+2N23 1149 Newcraighall to Edinburgh 
+2P37 1203 Edinburgh to Dunblane 
+2P00 1326 Dunblane to Edinburgh 
+2B41 1437 Edinburgh to Bathgate  
+2B42 1514 Bathgate to Edinburgh 
+2P83 1603 Edinburgh to Dunblane 
+2P36 1726 Dunblane to Edinburgh 
+2G23 2051 Edinburgh to Glenrothes (via Dunfermline) 
+2K28 2157 Glenrothes to Edinburgh (via Dunfermline) 
+2G17 2320 Edinburgh to Glenrothes (via Dunfermline)
+
+IS810
+-----
+IS810 
+1B02 0616 Dundee to Edinburgh with (IS809) 
+2B09 0820 Edinburgh to Bathgate 
+2B10 0856 Bathgate to Edinburgh 
+2P57 0934 Edinburgh to Dunblane 
+2P82 1056 Dunblane to Edinburgh 
+2B25 1207 Edinburgh to Bathgate  
+2B32 1244 Bathgate to Edinburgh 
+2P65 1333 Edinburgh to Dunblane 
+2P90 1456 Dunblane to Edinburgh 
+2B47 1607 Edinburgh to Bathgate with (IS805) 
+2B48 1644 Bathgate to Edinburgh with (IS805) 
+2P11 1733 Edinburgh to Dunblane with (IS805) 
+2P88 1856 Dunblane to Edinburgh with (IS805) 
+2P29 2133 Edinburgh to Perth with (IS803) and (IS805)
+
+IS811
+-----
+2K01 0733 Glenrothes to Edinburgh with (IS805) and (HA682) 
+2G47 0850 Edinburgh to Edinburgh (via Fife Circle Clockwise) 
+2K55 1112 Edinburgh to Markinch 
+2K56 1219 Markinch to Edinburgh 
+2K43 1342 Edinburgh to Haymarket 
+2G61 1553 Haymarket to Edinburgh with (HA860) 
+2K71 1747 Edinburgh to Edinburgh (via Fife Circle Anti clockwise) with (HA860)
+
+IS812
+-----
+5N02 0553 Haymarket TMD to Newcraighall with (HA784) as far as Edinburgh 
+2N01 0619 Newcraighall to Edinburgh 
+2N04 0655 Edinburgh to Newcraighall 
+2N05 0719 Newcraighall to Edinburgh 
+2N06 0752 Edinburgh to Newcraighall 
+2N09 0819 Newcraighall to Edinburgh 
+2N10 0855 Edinburgh to Newcraighall 
+2N13 0919 Newcraighall to Edinburgh 
+2N14 0955 Edinburgh to Newcraighall 
+2N17 1019 Newcraighall to Edinburgh 
+2N18 1055 Edinburgh to Newcraighall 
+2N21 1119 Newcraighall to Edinburgh 
+2N22 1155 Edinburgh to Newcraighall 
+2N25 1219 Newcraighall to Edinburgh 
+2N26 1255 Edinburgh to Newcraighall 
+2N29 1319 Newcraighall to Edinburgh 
+2N30 1355 Edinburgh to Newcraighall 
+2N33 1419 Newcraighall to Edinburgh 
+2N38 1555 Edinburgh to Newcraighall 
+2N41 1619 Newcraighall to Edinburgh 
+2N42 1655 Edinburgh to Newcraighall 
+2N45 1719 Newcraighall to Edinburgh 
+2N46 1755 Edinburgh to Newcraighall 
+2N49 1819 Newcraighall to Edinburgh 
+2N50 1858 Edinburgh to Newcraighall 
+2N53 1919 Newcraighall to Edinburgh 
+2N54 1955 Edinburgh to Newcraighall 
+2N57 2019 Newcraighall to Edinburgh 
+5N57 2039 Edinburgh to Slateford Yard 
+
+IS813 
+-----
+5P53 0713 Haymarket TMD to Edinburgh 
+2P53 0733 Edinburgh to Dunblane 
+2P78 0856 Dunblane to Edinburgh 
+2B17 1007 Edinburgh to Bathgate 
+2B18 1044 Bathgate to Edinburgh 
+2P61 1133 Edinburgh to Dunblane 
+2P96 1256 Dunblane to Edinburgh 
+2B39 1407 Edinburgh to Bathgate 
+2B40 1444 Bathgate to Edinburgh 
+2P07 1533 Edinburgh to Dunblane 
+2P94 1656 Dunblane to Edinburgh 
+1A87 1810 Edinburgh to Inverurie with (HA702)
+
+HA851
+-----
+5B03 0609 Haymarket TMD to Edinburgh with (HA854) 
+2B03 0637 Edinburgh to Bathgate with (HA854) 
+2B04 0715 Bathgate to Edinburgh with (HA854) 
+2B07 0749 Edinburgh to Bathgate with (HA854) 
+2B08 0827 Bathgate to Edinburgh with (HA854) 
+5B08 0909 Edinburgh to Haymarket TMD with (HA854) 
+5G09 1713 Cowdenbeath to Edinburgh 
+2G09 1755 Edinburgh to Edinburgh (via Fife Circle Clockwise) 
+2B07 2007 Edinburgh to Bathgate 
+2B08 2044 Bathgate to Edinburgh 
+2P33 2333 Edinburgh to Dunblane with (HA856) and (HA859)
+
+HA852
+-----
+2P96 2259 Dunblane to Edinburgh 
+5P96 0022 Edinburgh to Haymarket TMD 
+
+HA853 
+-----
+2P49 0518 Edinburgh to Dunblane 
+2P10 0626 Dunblane to Newcraighall 
+2N07 0749 Newcraighall to Edinburgh 
+2N08 0825 Edinburgh to Newcraighall 
+2N11 0849 Newcraighall to Edinburgh 
+2N12 0925 Edinburgh to Newcraighall 
+2N15 0949 Newcraighall to Edinburgh 
+
+Sits spare in platform 3 at Edinburgh Waverley until 
+
+2N24 1225 Edinburgh to Newcraighall 
+2N27 1249 Newcraighall to Edinburgh 
+2N28 1325 Edinburgh to Newcraighall 
+2N31 1349 Newcraighall to Edinburgh 
+2N32 1425 Edinburgh to Newcraighall 
+2N35 1449 Newcraighall to Edinburgh 
+2N36 1525 Edinburgh to Newcraighall 
+2N39 1549 Newcraighall to Edinburgh 
+2N40 1625 Edinburgh to Newcraighall 
+2N43 1649 Newcraighall to Edinburgh 
+2N44 1725 Edinburgh to Newcraighall 
+2N47 1749 Newcraighall to Edinburgh 
+2N48 1825 Edinburgh to Newcraighall 
+2N51 1849 Newcraighall to Edinburgh 
+2N52 1925 Edinburgh to Newcraighall 
+2N55 1949 Newcraighall to Edinburgh 
+2N56 2032 Edinburgh to Newcraighall 
+2N59 2104 Newcraighall to Edinburgh 
+2N58 2132 Edinburgh to Newcraighall 
+2N61 2204 Newcraighall to Edinburgh 
+2N60 2232 Edinburgh to Newcraighall 
+2N63 2304 Newcraighall to Edinburgh 
+2N62 2332 Edinburgh to Newcraighall 
+2B65 2353 Newcraighall to Haymarket
+
+HA854 
+-----
+5B03 0609 Haymarket TMD to Edinburgh with (HA851) 
+2B03 0637 Edinburgh to Bathgate with (HA851) 
+2B04 0715 Bathgate to Edinburgh with (HA851) 
+2B07 0749 Edinburgh to Bathgate with (HA851) 
+2B08 0827 Bathgate to Edinburgh with (HA851) 
+5B08 0909 Edinburgh to Haymarket TMD with (HA851) 
+2G41 1952 Edinburgh to Glenrothes 
+2K26 2059 Glenrothes to Edinburgh 
+5K26 2217 Edinburgh to Slateford Yard 
+
+HA855 
+-----
+5K21 0555 Slateford Yard to Edinburgh with (HA858) and (HA861) 
+2K21 0622 Edinburgh to Kirkcaldy with with (HA858) and (HA861) 
+2K33 0730 Kirkcaldy to Edinburgh (Via Dunfermline) with (HA855) (HA861) 
+5K33 0845 Edinburgh to Slateford Yard with (HA858) and (HA861) 
+5K63 1421 Slateford Yard to Edinburgh with (HA858) and (HA861) 
+2B45 1537 Edinburgh to Bathgate with (HA858) 
+2B46 1614 Bathgate to Edinburgh with (HA858) 
+2P85 1703 Edinburgh to Dunblane with (HA858) 
+2P38 1826 Dunblane to Edinburgh with (HA858) 
+2B09 2107 Edinburgh to Bathgate with (HA858) 
+2B10 2144 Bathgate to Edinburgh with (HA858) 
+2P31 2233 Edinburgh to Dunblane with (HA858)
+
+HA856 
+-----
+Spare at Haymarket TMD until 
+
+5P69 1322 Haymarket TMD to Edinburgh with (HA859) 
+2P69 1504 Edinburgh to Dunblane with (HA859) 
+2P34 1626 Dunblane to Edinburgh with (HA859) 
+2B53 1737 Edinburgh to Bathgate with (HA859) 
+2B54 1814 Bathgate to Edinburgh with (HA859) 
+2P89 1903 Edinburgh to Dunblane with (HA859) 
+2P16 2026 Dunblane to Edinburgh with (HA859) 
+2B11 2207 Edinburgh to Bathgate with (HA859) 
+2B12 2244 Bathgate to Edinburgh with (HA859) 
+2P33 2333 Edinburgh to Dunblane with (HA851) and (HA859)
+
+HA857 
+-----
+1P06 0732 Dunblane to Edinburgh with (HA860) 
+5P06 0839 Edinburgh to Haymarket TMD with (HA860) 
+2G59 1453 Haymarket to Edinburgh with (HA786) 
+1L11 1712 Edinburgh to Carnoustie with (HA786)
+
+HA858 
+-----
+5K21 0555 Slateford Yard to Edinburgh with (HA855) and (HA861) 
+2K21 0622 Edinburgh to Kirkcaldy with with (HA855) and (HA861) 
+2K33 0730 Kirkcaldy to Edinburgh (Via Dunfermline) with (HA855) (HA861) 
+5K33 0845 Edinburgh to Slateford Yard with (HA855) and (HA861) 
+5K63 1421 Slateford Yard to Edinburgh with (HA855) and (HA861) 
+2B45 1537 Edinburgh to Bathgate with (HA855) 
+2B46 1614 Bathgate to Edinburgh with (HA855) 
+2P85 1703 Edinburgh to Dunblane with (HA855) 
+2P38 1826 Dunblane to Edinburgh with (HA855) 
+2B09 2107 Edinburgh to Bathgate with (HA855) 
+2B10 2144 Bathgate to Edinburgh with (HA855) 
+2P31 2233 Edinburgh to Dunblane with (HA855)
+
+HA859 
+-----
+Spare at Haymarket TMD until 
+
+5P69 1322 Haymarket TMD to Edinburgh with (HA856) 
+2P69 1504 Edinburgh to Dunblane with (HA856)  
+2P34 1626 Dunblane to Edinburgh with (HA856)  
+2B53 1737 Edinburgh to Bathgate with (HA856)  
+2B54 1814 Bathgate to Edinburgh with (HA856)  
+2P89 1903 Edinburgh to Dunblane with (HA856)  
+2P16 2026 Dunblane to Edinburgh with (HA856)  
+2B11 2207 Edinburgh to Bathgate with (HA856)  
+2B12 2244 Bathgate to Edinburgh with (HA856)  
+2P33 2333 Edinburgh to Dunblane with (HA851) and (HA856)
+
+HA860 
+-----
+1P06 0732 Dunblane to Edinburgh with (HA857)  
+5P06 0839 Edinburgh to Haymarket TMD with (HA857) 
+2G61 1553 Haymarket to Edinburgh with (IS811) 
+2K71 1747 Edinburgh to Edinburgh with (IS811)
+
+HA861 
+-----
+5K21 0555 Slateford Yard to Edinburgh with (HA855) and (HA858) 
+2K21 0622 Edinburgh to Kirkcaldy with with (HA855) and (HA858) 
+2K33 0730 Kirkcaldy to Edinburgh (Via Dunfermline) with (HA855) (HA858) 
+5K33 0845 Edinburgh to Slateford Yard with (HA855) and (HA858) 
+5K63 1421 Slateford Yard to Edinburgh with (HA855) and (HA858) 
+2K63 1510 Edinburgh to Markinch with (HA782) 
+2K64 1614 Markinch to Edinburgh with (HA782) 
+2L69 1727 Edinburgh to Perth with (HA782) 
+
+HA862 
+-----
+2K01 0733 Glenrothes to Edinburgh with (IS805) and (IS811) 
+2K05 0847 Edinburgh to Haymarket (via Fife Circle anti clockwise) 
+2G51 1053 Haymarket to Edinburgh (via Fife Circle) 
+2K59 1312 Edinburgh to Markinch 
+2K60 1419 Markinch to Edinburgh 
+2B51 1708 Edinburgh to Bathgate with (HA744) 
+2B52 1744 Bathgate to Edinburgh with (HA744) 
+2P13 1833 Edinburgh to Dunblane with (HA744) 
+2P80 2000 Dunblane to Edinburgh with (HA744) 
+
+=========
+CLASS 170
+=========
+
+HA701 
+-----
+5R21 0629 Haymarket TMD to Edinburgh (ECS) with (HA715) 
+1R21 0700 Edinburgh to Glasgow Queen St with (HA715) 
+1R82 0800 Glasgow Queen St to Edinburgh with (HA715) 
+1R25 0900 Edinburgh to Glasgow Queen St with (HA715) 
+1R66 1015 Glasgow Queen St to Edinburgh 
+1R49 1115 Edinburgh to Glasgow Queen St 
+1R32 1230 Glasgow Queen St to Edinburgh 
+1R93 1330 Edinburgh to Glasgow Queen St 
+1R54 1445 Glasgow Queen St to Edinburgh 
+1R41 1615 Edinburgh to Glasgow Queen St with (HA715) 
+1R16 1715 Glasgow Queen St to Edinburgh with (HA715) 
+2B03 1838 Edinburgh to Bathgate 
+2B04 1914 Bathgate to Edinburgh 
+2P25 2003 Edinburgh to Dunblane
+
+HA702
+-----
+1B18 0851 Aberdeen to Edinburgh 
+1A75 1206 Edinburgh to Dyce 
+1B33 1508 Dyce to Edinburgh 
+1A82 1810 Edinburgh to Inverurie via Aberdeen with (IS813) 
+
+HA703
+-----
+1R26 2100 Glasgow Queen St to Edinburgh 
+1R07 2230 Edinburgh to Glasgow Queen St 
+
+HA704
+-----
+1R22 0730 Glasgow Queen St to Edinburgh with (HA726) 
+1R83 0831 Edinburgh to Glasgow Queen St with (HA726) 
+1R38 0945 Glasgow Queen St to Edinburgh with (HA726) 
+1R09 1045 Edinburgh to Glasgow Queen St 
+1R90 1200 Glasgow Queen St to Edinburgh 
+1R33 1301 Edinburgh to Glasgow Queen St 
+1R40 1415 Glasgow Queen St to Edinburgh 
+1R47 1545 Edinburgh to Glasgow Queen St with (HA726) 
+1R58 1645 Glasgow Queen St to Edinburgh with (HA726) 
+1R43 1745 Edinburgh to Glasgow Queen St with (HA726) 
+1R62 1845 Glasgow Queen St to Edinburgh  
+1R83 2000 Edinburgh to Glasgow Queen St 
+1R84 2130 Glasgow Queen St to Edinburgh 
+1R09 2300 Edinburgh to Glasgow Queen St 
+
+HA705
+-----
+1R08 0700 Glasgow Queen St to Edinburgh with (HA727) 
+1R23 0800 Edinburgh to Glasgow Queen St with (HA727) 
+1R84 0900 Glasgow Queen St to Edinburgh with (HA727) 
+5R84 0957 Edinburgh to Haymarket TMD with (HA727) 
+5R27 1548 Haymarket TMD to Edinburgh with (HA727) 
+1R57 1600 Edinburgh to Glasgow Queen St with (HA727) 
+1R74 1700 Glasgow Queen St to Edinburgh with (HA727) 
+1R19 1800 Edinburgh to Glasgow Queen St with (HA727)
+
+HA706
+-----
+1R02 0600 Glasgow Queen St to Edinburgh with (HA728) 
+1R35 0715 Edinburgh to Glasgow Queen St with (HA728) 
+1R60 0815 Glasgow Queen St to Edinburgh with (HA728) 
+1R59 0915 Edinburgh to Glasgow Queen St 
+1R88 1100 Glasgow Queen St to Edinburgh 
+1R31 1200 Edinburgh to Glasgow Queen St 
+1R68 1315 Glasgow Queen St to Edinburgh 
+1R37 1415 Edinburgh to Glasgow Queen St 
+1R96 1530 Glasgow Queen St to Edinburgh 
+1R67 1630 Edinburgh to Glasgow Queen St with (HA728) 
+1R76 1730 Glasgow Queen St to Edinburgh with (HA728) 
+1R79 1830 Edinburgh to Glasgow Queen St with (HA728)
+
+HA707
+-----
+1R10 0715 Glasgow Queen St to Edinburgh with (HA729) 
+1R47 0815 Edinburgh to Glasgow Queen St with (HA729) 
+1R26 0930 Glasgow Queen St to Edinburgh with  
+1R87 1030 Edinburgh to Glasgow Queen St  
+1R44 1145 Glasgow Queen St to Edinburgh with (HA729) 
+1R11 1245 Edinburgh to Glasgow Queen St with (HA729) 
+5R11 1435 Glasgow Queen St to Eastfield with (HA729) 
+5R66 1540 Eastfield to Glasgow Queen St with (HA729) 
+1R66 1615 Glasgow Queen St to Edinburgh with (HA729) 
+1R15 1715 Edinburgh to Glasgow Queen St with (HA729) 
+1R70 1815 Glasgow Queen St to Edinburgh 
+1R21 1930 Edinburgh to Glasgow Queen St 
+
+HA708 
+-----
+1B08 0600 Aberdeen to Edinburgh 
+1A55 0906 Edinburgh to Aberdeen 
+1B28 1225 Aberdeen to Edinburgh 
+1R39 1515 Edinburgh to Glasgow Queen St 
+
+HA709
+-----
+1R06 0630 Glasgow Queen St to Edinburgh 
+1R13 0745 Edinburgh to Glasgow Queen St with (HA718) 
+1R36 0845 Glasgow Queen St to Edinburgh with (HA718) 
+1R27 1000 Edinburgh to Glasgow Queen St 
+1R30 1130 Glasgow Queen St to Edinburgh 
+1R91 1230 Edinburgh to Glasgow Queen St 
+1R56 1345 Glasgow Queen St to Edinburgh 
+1R17 1445 Edinburgh to Glasgow Queen St 
+1R56 1545 Glasgow Queen St to Edinburgh with (HA718) 
+1R59 1645 Edinburgh to Glasgow Queen St with (HA718) 
+1R60 1745 Glasgow Queen St to Edinburgh with (HA718) 
+1R81 1900 Edinburgh to Glasgow Queen St 
+1R82 2030 Glasgow Queen St to Edinburgh 
+1R27 2200 Edinburgh to Glasgow Queen St 
+1R10 2330 Glasgow Queen St to Edinburgh 
+5R10 0044 Edinburgh to Haymarket TMD 
+
+HA710
+-----
+1A45 0706 Edinburgh to Dyce 
+1B19 1008 Dyce to Edinburgh 
+1A65 1306 Edinburgh to Aberdeen 
+1B40 1622 Aberdeen to Edinburgh 
+1A88 1910 Edinburgh to Aberdeen 
+
+HA713
+-----
+1R94 1400 Glasgow Queen St to Edinburgh 
+1R65 1530 Edinburgh to Glasgow Queen St 
+1R98 1630 Glasow Queen St to Edinburgh 
+1R77 1730 Edinburgh to Glasgow Queen St 
+1R20 1830 Glasgow Queen St to Edinburgh 
+5R20 1925 Edinburgh to Haymarket TMD 
+
+HA714
+-----
+HA714 
+5R81 0658 Haymarket TMD to Edinburgh with (HA730) 
+1R81 0730 Edinburgh to Glasgow Queen St with (HA730) 
+1R24 0830 Glasgow Queen St to Edinburgh with (HA730) 
+5R24 0930 Edinburgh to Haymarket TMD with (HA730) 
+5R25 1432 Haymarket TMD to Edinburgh with (HA730) 
+1R25 1500 Edinburgh to Glasgow Queen St with (HA730) 
+1R36 1600 Glasgow Queen St to Edinburgh with (HA730) 
+1R75 1700 Edinburgh to Glasgow Queen St with (HA730) 
+1R18 1800 Glasgow Queen St to Edinburgh with (HA730) 
+5R18 1905 Edinburgh to Haymarket TMD with (HA730) 
+5P29 2101 Haymarket TMD to Edinburgh with (1S803) 
+
+HA715
+-----
+HA715 
+5R21 0629 Haymarket TMD to Edinburgh (ECS) with (HA701) 
+1R21 0700 Edinburgh to Glasgow Queen St with (HA701) 
+1R82 0800 Glasgow Queen St to Edinburgh with (HA701) 
+1R25 0900 Edinburgh to Glasgow Queen St with (HA701) 
+1R28 1030 Glasgow Queen St to Edinburgh 
+1R89 1130 Edinburgh to Glasgow Queen St 
+1R50 1245 Glasgow Queen St to Edinburgh 
+1R63 1345 Edinburgh to Glasgow Queen St 
+1R99 1500 Glasgow Queen St to Edinburgh 
+1R41 1615 Edinburgh to Glasgow Queen St with (HA701) 
+1R16 1715 Glasgow Queen St to Edinburgh with (HA701) 
+1R61 1815 Edinburgh to Glasgow Queen St 
+1R80 1930 Glasgow Queen St to Edinburgh 
+1R85 2100 Edinburgh to Glasgow Queen St 
+1R86 2230 Glasgow Queen St to Edinburgh 
+
+HA716 
+-----
+1R03 0630 Edinburgh to Glasgow Queen St 
+1R34 0745 Glasgow Queen St to Edinburgh with (HA725) 
+1R05 0845 Edinburgh to Glasgow Queen St with (HA725)
+
+HA717
+-----
+1R86 1000 Glasgow Queen St to Edinburgh 
+1A71 1106 Edinburgh to Aberdeen 
+1B35 1425 Aberdeen to Edinburgh 
+1A81 1703 Edinburgh to Dyce 
+
+HA718
+-----
+2K22 0623 Markinch to Edinburgh 
+1R13 0745 Edinburgh to Glasgow Queen St with (HA709) 
+1R36 0845 Glasgow Queen St to Edinburgh with (HA709) 
+1R07 0946 Edinburgh to Glasgow Queen St 
+1R42 1115 Glasgow Queen St to Edinburgh 
+1R51 1215 Edinburgh to Glasgow Queen St 
+1R72 1330 Glasgow Queen St to Edinburgh 
+1R95 1430 Edinburgh to Glasgow Queen St 
+1R56 1545 Glasgow Queen St to Edinburgh with (HA709) 
+1R59 1645 Edinburgh to Glasgow Queen St with (HA709) 
+1R60 1745 Glasgow Queen St to Edinburgh with (HA709) 
+1R45 1845 Edinburgh to Glasgow Queen St 
+1R24 2000 Glasgow Queen St to Edinburgh 
+1R25 2130 Edinburgh to Glasgow Queen St 
+1R12 2300 Glasgow Queen St to Edinburgh 
+
+HA719
+-----
+5L33 0619 Haymarket TMD to Edinburgh 
+1L33 0640 Edinburgh to Dundee (via Perth)
+
+HA721
+-----
+1B14 0500 Inverness to Edinburgh with (IS808) as far as Aberdeen 
+1A39 1006 Edinburgh to Aberdeen 
+1B32 1323 Aberdeen to Edinburgh 
+1A79 1605 Edinburgh to Dyce 
+1B47 1905 Dyce to Edinburgh 
+2L85 2310 Edinburgh to Dundee 
+
+HA722
+-----
+HA722 
+2K32 0615 Perth to Edinburgh 
+1A49 0806 Edinburgh to Aberdeen 
+1B24 1123 Aberdeen to Edinburgh 
+1A80 1406 Edinburgh to Dyce with (IS802) as far as Aberdeen 
+1B43 1700 Dyce to Edinburgh 
+2L79 2011 Edinburgh to Dundee 
+
+HA723 
+-----
+1B05 0703 Perth to Edinburgh 
+1H07 0836 Edinburgh to Inverness 
+1B31 1240 Inverness to Edinburgh 
+1H17 1739 Edinburgh to Inverness 
+
+HA724
+-----
+1B42 2122 Aberdeen to Edinburgh 
+5B42 0016 Edinburgh to Slateford Yard 
+
+HA725
+-----
+HA725 
+5R01 0448 Slateford Yard to Edinburgh 
+1R01 0555 Edinburgh to Glasgow Queen St 
+1R34 0745 Glasgow Queen St to Edinburgh with (HA716) 
+1R05 0845 Edinburgh to Glasgow Queen St with (HA716) 
+
+HA726
+-----
+1R22 0730 Glasgow Queen St to Edinburgh with (HA704) 
+1R83 0831 Edinburgh to Glasgow Queen St with (HA704)  
+1R38 0945 Glasgow Queen St to Edinburgh with (HA704) 
+1R29 1100 Edinburgh to Glasgow Queen St  
+1R48 1215 Glasgow Queen St to Edinburgh 
+1R53 1315 Edinburgh to Glasgow Queen St 
+1R78 1430 Glasgow Queen St to Edinburgh 
+1R47 1545 Edinburgh to Glasgow Queen St with (HA704) 
+1R58 1645 Glasgow Queen St to Edinburgh with (HA704) 
+1R43 1745 Edinburgh to Glasgow Queen St with (HA704) 
+1R22 1900 Glasgow Queen St to Edinburgh 
+1R23 2030 Edinburgh to Glasgow Queen St 
+
+HA727
+-----
+1R08 0700 Glasgow Queen St to Edinburgh with (HA705) 
+1R23 0800 Edinburgh to Glasgow Queen St with (HA705) 
+1R84 0900 Glasgow Queen St to Edinburgh with (HA705) 
+5R84 0957 Edinburgh to Haymarket TMD with (HA705) 
+5R27 1548 Haymarket TMD to Edinburgh with (HA705) 
+1R57 1600 Edinburgh to Glasgow Queen St with (HA705) 
+1R74 1700 Glasgow Queen St to Edinburgh with (HA705) 
+1R19 1800 Edinburgh to Glasgow Queen St with (HA705) 
+
+HA728
+-----
+1R02 0600 Glasgow Queen St to Edinburgh with (HA706) 
+1R35 0715 Edinburgh to Glasgow Queen St with (HA706) 
+1R60 0815 Glasgow Queen St to Edinburgh with (HA706) 
+1R85 0930 Edinburgh to Glasgow Queen St 
+1R46 1045 Glasgow Queen St to Edinburgh 
+1R73 1145 Edinburgh to Glasgow Queen St 
+1R92 1300 Glasgow Queen St to Edinburgh 
+1R35 1400 Edinburgh to Glasgow Queen St 
+1R97 1515 Glasgow Queen St to Edinburgh 
+1R67 1630 Edinburgh to Glasgow Queen St with (HA706) 
+1R76 1730 Glasgow Queen St to Edinburgh with (HA706) 
+1R79 1830 Edinburgh to Glasgow Queen St with (HA706)
+
+HA729
+-----
+1R10 0715 Glasgow Queen St to Edinburgh with (HA707) 
+1R47 0815 Edinburgh to Glasgow Queen St with (HA707)  
+1R64 0915 Glasgow Queen St to Edinburgh  
+1R61 1015 Edinburgh to Glasgow Queen St 
+1R44 1145 Glasgow Queen St to Edinburgh with (HA707)  
+1R11 1245 Edinburgh to Glasgow Queen St with (HA707)  
+5R11 1435 Glasgow Queen St to Eastfield with (HA707)  
+5R66 1540 Eastfield to Glasgow Queen St with (HA707)  
+1R66 1615 Glasgow Queen St to Edinburgh with (HA707)  
+1R15 1715 Edinburgh to Glasgow Queen St with (HA707)
+
+HA730
+-----
+HA730 
+5R81 0658 Haymarket TMD to Edinburgh with (HA714)  
+1R81 0730 Edinburgh to Glasgow Queen St with (HA714) 
+1R24 0830 Glasgow Queen St to Edinburgh with (HA714) 
+5R24 0930 Edinburgh to Haymarket TMD with (HA714) 
+5R25 1432 Haymarket TMD to Edinburgh with (HA714) 
+1R25 1500 Edinburgh to Glasgow Queen St with (HA714) 
+1R36 1600 Glasgow Queen St to Edinburgh with (HA714) 
+1R75 1700 Edinburgh to Glasgow Queen St with (HA714) 
+1R18 1800 Glasgow Queen St to Edinburgh with (HA714) 
+5R18 1905 Edinburgh to Haymarket TMD with (HA714)
+
+HA741 
+-----
+5B01 0455 Haymarket TMD to Edinburgh (ECS) 
+2B01 0605 Edinburgh to Bathgate 
+2B02 0640 Bathgate to Edinburgh 
+2G01 0721 Edinburgh to Edinburgh 
+1L37 0937 Edinburgh to Perth with (1S807) 
+1B30 1108 Perth to Edinburgh with (IS807) 
+1H13 1335 Edinburgh to Inverness 
+1B44 1831 Inverness to Edinburgh 
+
+HA742
+-----
+1B34 1440 Inverness to Edinburgh 
+1H19 1940 Edinburgh to Inverness 
+
+HA743
+-----
+1B08 0645 Inverness to Edinburgh 
+5B08 1015 Edinburgh to Haymarket TMD
+5H11 1119 Haymarket TMD to Edinburgh 
+1H11 1140 Edinburgh to Inverness 
+
+HA744
+-----
+1B22 1052 Inverness to Edinburgh 
+5B22 1430 Edinburgh to Haymarket TMD 
+5A81 1641 Haymarket TMD to Edinburgh with (IS808) 
+2B51 1708 Edinburgh to Bathgate with (HA862) 
+2B52 1744 Bathgate to Edinburgh with (HA862) 
+2P13 1833 Edinburgh to Dunblane with (HA862) 
+2P80 2000 Dunblane to Edinburgh with (HA862) 
+
+
+HA781 
+-----
+5B05 0648 Haymarket TMD to Edinburgh with (HA791) 
+2B05 0706 Edinburgh to Bathgate with (HA791) 
+2B06 0747 Bathgate to Edinburgh with (HA791) 
+2P55 0834 Edinburgh to Dunblane 
+2P80 0956 Dunblane to Edinburgh 
+2B21 1107 Edinburgh to Bathgate 
+2B22 1145 Bathgate to Edinburgh 
+2P63 1233 Edinburgh to Dunblane 
+2P08 1356 Dunblane to Edinburgh 
+2B43 1508 Edinburgh to Bathgate 
+2B44 1545 Bathgate to Edinburgh 
+2P09 1634 Edinburgh to Dunblane 
+2P89 1756 Dunblane to Edinburgh 
+2B05 1907 Edinburgh to Bathgate 
+2B06 1944 Bathgate to Edinburgh 
+2P27 2034 Edinburgh to Dunblane 
+2P84 2156 Dunblane to Edinburgh 
+2B13 2318 Edinburgh to Bathgate 
+2B14 2352 Bathgate to Edinburgh 
+5B14 0032 Edinburgh to Slateford Yard 
+
+HA782 
+-----
+2G11 0617 Edinburgh to Haymarket via Fife Circle with (HA786) 
+5G16 08xx Haymarket to Kirkcaldy with (HA786) 
+2G16 0907 Kirkcaldy to Edinburgh with (HA786) 
+2K09 1042 Edinburgh to Haymarket via Fife Circle 
+2G55 1253 Haymarket to Edinburgh via Fife Circle 
+2K63 1510 Edinburgh to Markinch with (HA861) 
+2K64 1614 Markinch to Edinburgh with (HA861) 
+2L69 1727 Edinburgh to Perth with (HA861) 
+
+HA783 
+-----
+2G22 0756 Kirkcaldy to Edinburgh with (HA787) 
+2K51 0913 Edinburgh to Markinch 
+2K52 1018 Markinch to Edinburgh 
+2K11 1143 Edinburgh to Haymarket via Fife Circle 
+2G57 1353 Haymarket to Edinburgh via Fife Circle 
+2K31 1609 Edinburgh to Edinburgh via Fife Circle 
+2K13 1814 Edinburgh to Edinburgh via Fife Circle 
+5K13 20xx Edinburgh to Haymarket TMD 
+
+HA784 
+-----
+5N02 0553 Haymarket TMD to Edinburgh with (IS812) 
+2N02 0625 Edinburgh to Newcraighall  
+2P25 0649 Newcraighall to Dunblane 
+2P30 0826 Dunblane to Edinburgh 
+2B15 0937 Edinburgh to Bathgate 
+2B16 1014 Bathgate to Edinburgh 
+2P35 1103 Edinburgh to Dunblane 
+2P98 1226 Dunblane to Edinburgh 
+2B37 1338 Edinburgh to Bathgate 
+2B38 1416 Bathgate to Edinburgh 
+2N34 1455 Edinburgh to Newcraighall 
+2N37 1519 Newcraighall to Edinburgh 
+2K47 1542 Edinburgh to Haymarket via Fife Circle 
+2B55 1807 Edinburgh to Bathgate 
+2B02 1844 Bathgate to Edinburgh 
+2P15 1933 Edinburgh Dunblane 
+2P82 2056 Dunblane to Edinburgh 
+2L83 2233 Edinburgh to Dundee 
+
+HA785 
+-----
+5G13 1651 Haymarket TMD to Edinburgh 
+2G13 1708 Edinburgh to Edinburgh via Fife Circle 
+2K27 1915 Edinburgh to Markinch 
+2G27 2032 Markinch to Edinburgh 
+2G25 2152 Edinburgh to Glenrothes via Cowdenbeath 
+2K30 2300 Glenrothes to Edinburgh via Dunfermline 
+
+HA786 
+-----
+2G11 0617 Edinburgh to Haymarket via Fife Circle with (HA782) 
+2G16 0907 Kirkcaldy to Edinburgh with (HA782) 
+2K53 1012 Edinburgh to Markinch 
+2K54 1119 Markinch to Edinburgh 
+2K41 1242 Edinburgh to Haymarket via Fife Circle 
+2G59 1453 Haymarket to Edinburgh via Fife Circle with (HA857) 
+1L11 1714 Edinburgh to Carnoustie with (HA857) 
+
+HA787 
+-----
+2G22 0756 Kirkcaldy to Edinburgh with (HA783) 
+2K07 0942 Edinburgh to Haymarket via Fife Circle 
+2G53 1153 Haymarket to Edinburgh via Fife Circle 
+2K61 1412 Edinburgh to Markinch 
+2K62 1523 Markinch to Edinburgh 
+2K49 1640 Edinburgh to Edinburgh via Fife Circle 
+2G39 1850 Edinburgh to Glenrothes via Dunfermline 
+2K24 1958 Glenrothes to Edinburgh via Dunfermline 
+5K24 2114 Edinburgh to Haymarket TMD with (HA790) 
+
+HA788 
+-----
+2K18 0707 Dunfermline Town to Edinburgh 
+2K03 0745 Edinburgh to Haymarket via Fife Circle 
+2G49 0953 Haymarket to Edinburgh via Fife Circle 
+2K57 1212 Edinburgh to Markinch 
+2K58 1319 Markinch to Edinburgh 
+2K45 1442 Edinburgh to Haymarket via Fife Circle 
+2G13 1653 Haymarket to Cowdenbeath 
+5G13 1738 Cowdenbeath to Haymarket 
+2G15 1825 Edinburgh to Edinburgh via Fife Circle 
+5G15 2100 Edinburgh to Haymarket TMD 
+
+HA789 
+-----
+2G24 0555 Kirkcaldy to Edinburgh 
+2K13 0713 Edinburgh to Haymarket via Fife Circle 
+2xxx 1526 Cowdenbeath to Edinburgh 
+1P07 1725 Edinburgh to Stirling 
+5Pxx 18xx Stirling to Edinburgh 
+
+HA790 
+-----
+2P51 0633 Edinburgh to Dunblane 
+2P14 0753 Dunblane to Edinburgh 
+2B13 0907 Edinburgh to Bathgate 
+2B14 0944 Bathgate to Edinburgh 
+2P59 1033 Edinburgh to Dunblane 
+2P84 1156 Dunblane to Edinburgh 
+5P84 1327 Edinburgh to Haymarket TMD 
+
+HA791 
+-----
+5B05 0648 Haymarket TMD to Edinburgh with (HA791) 
+2B05 0706 Edinburgh to Bathgate with (HA791) 
+2B06 0747 Bathgate to Edinburgh with (HA791) 
+2B11 0848 Edinburgh to Livingston North 
+2B12 0919 Livingston North to Edinburgh 
+2P33 1003 Edinburgh to Dunblane 
+2P96 1126 Dunblane to Edinburgh 
+2B33 1237 Edinburgh to Bathgate 
+2B34 1314 Bathgate to Edinburgh 
+2P67 1403 Edinburgh to Dunblane 
+2P72 1526 Dunblane to Edinburgh 
+2B49 1639 Edinburgh to Bathgate 
+2B50 1715 Bathgate to Edinburgh 
+2P87 1803 Edinburgh to Dunblane 
+2P40 1926 Dunblane to Edinburgh 
+5P40 2040 Edinburgh to Haymarket TMD 
+
+
+===
+HST
+===
+
+EC001 
+-----
+1S12 1030 London Kings Cross to Aberdeen 
+1B75 1823 Aberdeen to Edinburgh 
+5B75 2110 Edinburgh to Craigentinny 
+
+EC003 
+-----
+1S03 0710 Leeds to Aberdeen 
+1E24 1451 Aberdeen to London Kings Cross 
+
+EC005 
+-----
+1S15 1200 London Kings Cross to Inverness
+
+EC006 
+-----
+5E03 0634 Craigentinny to Edinburgh 
+1E03 0700 Edinburgh to London Kings Cross 
+1S19 1400 London Kings Cross to Aberdeen 
+
+EC007 
+-----
+5E08 0904 Craigentinny to Edinburgh 
+1E08 0931 Edinburgh to London Kings Cross 
+
+EC008 
+-----
+1E10 0755 Aberdeen to London Kings Cross 
+1S23 1600 London Kings Cross to Aberdeen 
+
+EC009 
+-----
+1E14 0955 Aberdeen to London Kings Cross 
+
+EC010 
+-----
+1E12 0755 Inverness to London Kings Cross 
+
+EC012 
+-----
+1S22 1530 London Kings Cross to Edinburgh 
+5S22 2035 Edinburgh to Craigentinny 
+
+
+=======
+SLEEPER
+=======
+CE801
+-----
+1S25 2115 London Euston-Edinburgh Waverley    (90)
+1S25 04.20 Edinburgh Waverley - Inverness     (67)
+1A25 04.40 Edinburgh Waverley - Aberdeen      (67)
+1Y11 04.50 Edinburgh Waverley - Fort William  (67)
+
+CE804
+-----
+1C11 2340 Edinburgh Waverley-Carstairs  
+1B26 0635 Carstairs-Edinburgh Waverley 
+
+CE805
+-----
+1M16 20.40 Inverness-Edinburgh Waverley       (67)
+1B16 21.40 Aberdeen - Edinburgh Waverley      (67)
+1B01 19.55 Fort William - Edinburgh Waverley  (67)
+1M16 0117 Edinburgh Waverley-London Euston    (90)
+
+================
+NETWORK RAIL NMT
+================
+1Q20 10:46 Heaton - Edinburgh 
+1Q21 12:39 Edinburgh - Newcastle via Fife Circle 
+1Q21 15:10 / 15:12 Edinburgh - Newcastle
+
+======
+FLASKS
+======
+6S43 Carlisle - Torness
+6M50 Torness - Carlisle
+
+=======
+FREIGHT
+=======
+Ballast
+6P29 Carlisle Yard - Millerhill
+6P30 Millerhill - Carlisle Yard
+
+Cement 
+6D62 0755 Oxwellmains - View Park   
+6B34 1515 View Park - Oxwellmains   
+6A65 0612 Oxwellmains - Aberdeen   
+6B32 1651 Aberdeen - Oxwellmains   
+6Z64 0755 Oxwellmains - Ayr Harbour   
+6Z65 1625 Ayr Harbour - Oxwellmains   
+6H51 0308 Oxwellmains - Inverness   
+6B31 1700 Inverness - Oxwellmains   
+6M01 Oxwellmains - Brunthill (Carlisle)   
+6S09 Brunthill - Oxwellmains 
+
+Millerhill Engineers 
+6M49 0537 Millerhill - Carlisle   
+6S50 1305 Carlisle - Millerhill 
+
+Steel 
+6S58 Lackenby - Dalzell (Motherwell) Loaded steel slabs. Booked a 60   
+6E30 Dalzell - Lackenby Empty steel slabs. EWD. Booked a 60 
+
+Mudoil  
+6S60 2250 Harwich - Aberdeen Via Stirling   
+6L59 0730 Aberdeen - Harwich 
+
