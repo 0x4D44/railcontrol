@@ -25,11 +25,12 @@
 #define APPNAME        "Rail Control"
 
 // --- OWL INCLUDES ---
-#include <owl\applicat.h>
-#include <owl\framewin.h>
-#include <owl\dialog.h>
-#include <owl\window.h>
-#include <owl\dc.h>
+#include <owl/compat.h>
+#include <owl/applicat.h>
+#include <owl/framewin.h>
+#include <owl/dialog.h>
+#include <owl/window.h>
+#include <owl/dc.h>
 
 // --- ADDITIONAL SYSTEM HEADERS ---
 // Skip shellapi.h for now to avoid OLE2 conflicts
