@@ -67,7 +67,7 @@ void TToolbutton::SetupWindow()
 }
 
 
-void TToolbutton::Paint(TDC& dc, BOOL, TRect&)
+void TToolbutton::Paint(TDC& dc, bool erase, TRect& rect)
 {
   // Draw the button in
   DrawScreen(dc);

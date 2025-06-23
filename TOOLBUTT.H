@@ -59,7 +59,7 @@ class TToolbutton : public TFrameWindow
 		char* DownTxt);
     ~TToolbutton();
 	 void SetupWindow();
-	 void Paint(TDC& dc, BOOL erase, TRect& rect);
+	 virtual void Paint(TDC& dc, bool erase, TRect& rect);
 	 void DrawScreen(HDC TheDC);
 	 void GetWindowClass(WNDCLASS &WndClass);
 	 LPSTR GetClassName();

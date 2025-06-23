@@ -66,7 +66,7 @@ void TArrivals::SetupWindow()
 }
 
 
-BOOL TArrivals::CanClose()
+bool TArrivals::CanClose()
 {
   HMENU  TheMenu;
 
@@ -111,7 +111,7 @@ void TArrivals::EvMove(TPoint& point)
 }
 
 
-void TArrivals::Paint(TDC& dc, BOOL, TRect&)
+void TArrivals::Paint(TDC& dc, bool erase, TRect& rect)
 {
   // Call main painting routine
   UpdateDisplay(dc, TRUE);

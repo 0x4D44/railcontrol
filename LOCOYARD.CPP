@@ -72,7 +72,7 @@ void TLocoyard::SetupWindow()
 }
 
 
-BOOL TLocoyard::CanClose()
+bool TLocoyard::CanClose()
 {
   HMENU  TheMenu;
 
@@ -277,7 +277,7 @@ void TLocoyard::EvMouseMove(UINT, TPoint& pnt)
 }
 
 
-void TLocoyard::Paint(TDC& dc, BOOL, TRect&)
+void TLocoyard::Paint(TDC& dc, bool erase, TRect& rect)
 {
   // Call main painting routine
   UpdateDisplay(dc, TRUE);

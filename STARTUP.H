@@ -36,7 +36,7 @@ public:
   TStartup(TFrameWindow* parent);
   ~TStartup();
   void SetupWindow(void);
-  void Paint(TDC& dc, BOOL erase, TRect& rect);
+  virtual void Paint(TDC& dc, bool erase, TRect& rect);
 };
 
 

@@ -65,7 +65,7 @@ void TDepartur::SetupWindow()
 }
 
 
-BOOL TDepartur::CanClose()
+bool TDepartur::CanClose()
 {
   HMENU  TheMenu;
 
@@ -110,7 +110,7 @@ void TDepartur::EvMove(TPoint& pnt)
 }
 
 
-void TDepartur::Paint(TDC& dc, BOOL erase, TRect& rect)
+void TDepartur::Paint(TDC& dc, bool erase, TRect& rect)
 {
   // Call ancestor method
   TFrameWindow::Paint(dc, erase, rect);

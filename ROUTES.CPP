@@ -15,8 +15,7 @@
 *
 */
 
-#include <windows.h>
-#include "routes.h"
+#include "classdef.h"
 
 // The actual class code
 TRoutes::TRoutes(int GFrom, int GTo, long ClearBy[6])

@@ -38,10 +38,10 @@ public:
   void GetWindowClass(WNDCLASS& WndClass);
   LPSTR GetClassName();
   void SetupWindow(void);
-  BOOL CanClose();
+  virtual bool CanClose();
   void EvSize(UINT, TSize&);
   void EvMove(TPoint&);
-  void Paint(TDC& dc, BOOL erase, TRect& rect);
+  virtual void Paint(TDC& dc, bool erase, TRect& rect);
   void UpdateDisplay(HDC TheDC, BOOL Redraw);
 
   DECLARE_RESPONSE_TABLE( TPlatform );

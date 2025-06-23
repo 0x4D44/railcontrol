@@ -156,7 +156,7 @@ void TLayout::SetupWindow()
 }
 
 
-BOOL TLayout::CanClose()
+bool TLayout::CanClose()
 {
   return TRUE;
 }
@@ -234,7 +234,7 @@ void TLayout::EvTimer(UINT timerID)
 }
 
 
-void TLayout::Paint(TDC& dc, BOOL, TRect&)
+void TLayout::Paint(TDC& dc, bool erase, TRect& rect)
 {
   // Update the display
   UpdateDisplay(dc);

@@ -134,7 +134,7 @@ void TSelector::SetupWindow()
 }
 
 
-void TSelector::Paint(TDC& dc, BOOL, TRect&)
+void TSelector::Paint(TDC& dc, bool erase, TRect& rect)
 {
   // Actually paint the button
   PaintButton(dc);
