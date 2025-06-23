@@ -337,7 +337,9 @@ void TSelector::Reset()
 void TSelector::SetText(char *TextString)
 {
   // Sets the window text to that specified in TextString
-  strncpy(MainText, TextString, 4);
+  // Ensure the string is always NUL terminated
+  strncpy(MainText, TextString, sizeof(MainText) - 1);
+  MainText[sizeof(MainText) - 1] = '\0';
 }
 
 
