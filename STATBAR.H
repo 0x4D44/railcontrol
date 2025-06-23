@@ -39,7 +39,7 @@ class TStatbar : public TFrameWindow
 	 TStatbar(TWindow* AParent);
 	 ~TStatbar();
 	 void SetupWindow();
-	 void Paint(TDC& dc, BOOL erase, TRect& rect);
+	 void Paint(TDC& dc, bool erase, TRect& rect);
 	 void DrawScreen(HDC TheDC, BOOL TextChanged);
 	 void GetWindowClass(WNDCLASS &WndClass);
 	 LPSTR GetClassName();

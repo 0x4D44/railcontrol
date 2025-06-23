@@ -68,7 +68,7 @@ void TStatbar::SetupWindow()
 }
 
 
-void TStatbar::Paint(TDC& dc, BOOL, TRect&)
+void TStatbar::Paint(TDC& dc, bool erase, TRect& rect)
 {
   DrawScreen(dc, FALSE);
 }

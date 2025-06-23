@@ -50,7 +50,7 @@ public:
   virtual void GetWindowClass(WNDCLASS& WndClass);
   virtual LPSTR GetClassName();
   virtual void SetupWindow();
-  void Paint(TDC& dc, BOOL erase, TRect& rect);
+  void Paint(TDC& dc, bool erase, TRect& rect);
   void PaintButton(HDC TheDC);
   void EvLButtonDown( UINT, TPoint& );
   void EvLButtonUp( UINT, TPoint& );

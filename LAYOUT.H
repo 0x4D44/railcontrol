@@ -79,11 +79,11 @@ public:
   void GetWindowClass(WNDCLASS& WndClass);
   LPSTR GetClassName();
   void SetupWindow(void);
-  BOOL CanClose();
+  virtual bool CanClose();
   void QuitProgram();
   void EvSize( UINT, TSize& );
   void EvTimer( UINT );
-  void Paint(TDC& dc, BOOL erase, TRect& rect);
+  virtual void Paint(TDC& dc, bool erase, TRect& rect);
   void UpdateDisplay(HDC TheDC);
   void IniVariables();
   BOOL StartNew();

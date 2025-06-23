@@ -53,7 +53,7 @@ void TStartup::SetupWindow()
 }
 
 
-void TStartup::Paint(TDC& dc, BOOL, TRect&)
+void TStartup::Paint(TDC& dc, bool erase, TRect& rect)
 {
   HDC   MemDC;
 

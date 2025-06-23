@@ -1,4 +1,3 @@
-// OWLCVT 05/11/95 22:34:01
 /* RAILC.CPP
 *  =========
 *
@@ -15,7 +14,6 @@
 *
 */
 
-//#include "owl\compat.h"
 #include "classdef.h"
 
 /*************************************************************************/
@@ -41,7 +39,7 @@ LPSTR lpCmdLine, int nCmdShow)
 
   // Unload the 3D custom controls
   Ctl3dUnregister(hInstance);
-  return 0;  // Standard success return for WinMain
+  return Manager.Status;
 }
 
 
@@ -49,56 +47,33 @@ LPSTR lpCmdLine, int nCmdShow)
 /* Methods of TMainWindow follow...*/
 
 
-TMainWindow::TMainWindow(TWindow * AParent, LPSTR ATitle)
-  : TFrameWindow(AParent, ATitle)
+TMainWindow::TMainWindow(PTWindowsObject AParent, LPSTR ATitle)
+  : TWindow(AParent, ATitle)
 {
-  LOGFONT    lFont = {0}; 
-
-#ifdef MDDEBUG
-  // Initialize debug strings.
-  lDbgStates[0] = "ST_NONE";
-  lDbgStates[1] = "ST_DUE";
-  lDbgStates[2] = "ST_APPROACH";
-  lDbgStates[3] = "ST_HELD";
-  lDbgStates[4] = "ST_HOLBY";
-  lDbgStates[5] = "ST_SETPLAT";
-  lDbgStates[6] = "ST_ARRA";
-  lDbgStates[7] = "ST_ARRB";
-  lDbgStates[8] = "ST_ARRC";
-  lDbgStates[9] = "ST_ARRD";
-  lDbgStates[10] = "ST_ARRE";
-  lDbgStates[11] = "ST_ARRF";
-  lDbgStates[12] = "ST_INPLAT";
-  lDbgStates[13] = "ST_RELEASE";
-  lDbgStates[14] = "ST_STOCKOK";
-  lDbgStates[15] = "ST_READYDEP";
-  lDbgStates[16] = "ST_STARTDEP";
-  lDbgStates[17] = "ST_DEPA";
-  lDbgStates[18] = "ST_DEPB";
-  lDbgStates[19] = "ST_DEPC";
-  lDbgStates[20] = "ST_DEPD";
-  lDbgStates[21] = "ST_DEPE";
-  lDbgStates[22] = "ST_DEPF";
-  lDbgStates[30] = "ST_TWINASSOC";
-#endif
+  MSG msg;
 
   // Display startup title window
   TitleWin = GetApplication()->MakeWindow(new TStartup(this));
-  ::ShowWindow(TitleWin->HWindow, SW_SHOW);
+  ShowWindow(TitleWin->HWindow, SW_SHOW);
 
-  TRC_NRM((TB, "RAIL CONTROL STARTING"));
-  TRC_NRM((TB, "====================="));
+  // Yield to other applications
+  while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+  {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+  }
 
   // Assign menu to the window
   AssignMenu("MAIN_MENU");
+
+  long i;
+  for (i=1; i<=1000000; i++) {};
 
   // Window attributes
   Attr.X = GetPrivateProfileInt("Main Window", "X position", 0, INIFILENAME);
   Attr.Y = GetPrivateProfileInt("Main Window", "Y position", 0, INIFILENAME);
   Attr.W = GetPrivateProfileInt("Main Window", "Width", 600, INIFILENAME);
   Attr.H = GetPrivateProfileInt("Main Window", "Height", 400, INIFILENAME);
-  MainWinX = Attr.X;
-  MainWinY = Attr.Y;
 
   // Reset pointers
   ToolbarHan = NULL;
@@ -111,10 +86,8 @@ TMainWindow::TMainWindow(TWindow * AParent, LPSTR ATitle)
   // Create brushes
   RedBrush    = CreateSolidBrush(RGB(255, 0, 0));
   GreenBrush  = CreateSolidBrush(RGB(0, 255, 0));
-  DkGrayBrush = CreateSolidBrush(RGB(128, 128, 128));
-  BlueBrush   = CreateSolidBrush(RGB(0, 128, 255));
+  BlueBrush   = CreateSolidBrush(RGB(0, 0, 255));
   YellowBrush = CreateSolidBrush(RGB(255, 255, 0));
-  WhiteBrush  = CreateSolidBrush(RGB(255, 255, 255));
 
   // Create pens
   RedPen    = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
@@ -122,57 +95,6 @@ TMainWindow::TMainWindow(TWindow * AParent, LPSTR ATitle)
   YellowPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 0));
   DkGrayPen = CreatePen(PS_SOLID, 1, RGB(128, 128, 128));
   LtGrayPen = CreatePen(PS_SOLID, 1, RGB(192, 192, 192));
-
-  // Text font record
-  lFont.lfHeight = 16;
-  lFont.lfWidth = 0;
-  lFont.lfEscapement = 0;
-  lFont.lfOrientation = 0;
-  lFont.lfWeight = FW_NORMAL;
-  lFont.lfItalic = 0;
-  lFont.lfUnderline = 0;
-  lFont.lfStrikeOut = 0;
-  lFont.lfCharSet = ANSI_CHARSET;
-  lFont.lfOutPrecision = OUT_STROKE_PRECIS;
-  lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-  lFont.lfQuality = PROOF_QUALITY;
-  lFont.lfPitchAndFamily = FF_DONTCARE;
-  strcpy(lFont.lfFaceName, "Arial");
-  mTextFont = CreateFontIndirect(&lFont);
-
-   // Header font record
-  lFont.lfHeight = 14;
-  lFont.lfWidth = 0;
-  lFont.lfEscapement = 0;
-  lFont.lfOrientation = 0;
-  lFont.lfWeight = FW_BOLD;
-  lFont.lfItalic = 0;
-  lFont.lfUnderline = 0;
-  lFont.lfStrikeOut = 0;
-  lFont.lfCharSet = ANSI_CHARSET;
-  lFont.lfOutPrecision = OUT_STROKE_PRECIS;
-  lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-  lFont.lfQuality = PROOF_QUALITY;
-  lFont.lfPitchAndFamily = FF_DONTCARE;
-  strcpy(lFont.lfFaceName, "Arial");
-  mHeaderFont = CreateFontIndirect(&lFont);
-
-   // Small font record
-  lFont.lfHeight = 12;
-  lFont.lfWidth = 0;
-  lFont.lfEscapement = 0;
-  lFont.lfOrientation = 0;
-  lFont.lfWeight = FW_BOLD;
-  lFont.lfItalic = 0;
-  lFont.lfUnderline = 0;
-  lFont.lfStrikeOut = 0;
-  lFont.lfCharSet = ANSI_CHARSET;
-  lFont.lfOutPrecision = OUT_STROKE_PRECIS;
-  lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-  lFont.lfQuality = PROOF_QUALITY;
-  lFont.lfPitchAndFamily = FF_DONTCARE;
-  strcpy(lFont.lfFaceName, "Arial");
-  mSmallFont = CreateFontIndirect(&lFont);
 
   // Initialize variables
   ArrivalHan = NULL;
@@ -182,7 +104,6 @@ TMainWindow::TMainWindow(TWindow * AParent, LPSTR ATitle)
   MainWinIcon = FALSE;
   GamePaused = FALSE;
   GameInProgress = FALSE;
-  LocoyardEnabled = TRUE;
 }
 
 
@@ -191,27 +112,22 @@ TMainWindow::~TMainWindow()
   // Delete brushes etc
   DeleteObject(RedBrush);
   DeleteObject(GreenBrush);
-  DeleteObject(DkGrayBrush);
   DeleteObject(BlueBrush);
   DeleteObject(YellowBrush);
-  DeleteObject(WhiteBrush);
   DeleteObject(RedPen);
   DeleteObject(GreenPen);
   DeleteObject(YellowPen);
   DeleteObject(DkGrayPen);
   DeleteObject(LtGrayPen);
   DeleteObject(ToolbarBitmaps);
-  DeleteObject(mTextFont);
-  DeleteObject(mHeaderFont);
-  DeleteObject(mSmallFont);
 }
 
 
 void TMainWindow::GetWindowClass(WNDCLASS& WndClass)
 {
-  TFrameWindow::GetWindowClass(WndClass);
-  WndClass.hIcon = LoadIcon(*GetApplication(), "AMAIN");
-  WndClass.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
+  TWindow::GetWindowClass(WndClass);
+  WndClass.hIcon = LoadIcon(GetApplication()->hInstance, "AMAIN");
+  WndClass.hbrBackground = (HBRUSH) GetStockObject(LTGRAY_BRUSH);
 }
 
 
@@ -228,27 +144,22 @@ void TMainWindow::SetupWindow()
   HMENU TheMenu;
 
   // Call ancestor method
-  TFrameWindow::SetupWindow();
+  TWindow::SetupWindow();
 
   // Get client window size
-  ::GetClientRect(HWindow, &WinRect);
+  GetClientRect(HWindow, &WinRect);
 
   // Create status bar
   StatbarHan = new TStatbar(this);
   GetApplication()->MakeWindow(StatbarHan);
   StatbarExist = TRUE;
 
-  /**************************************************************************/
-  /* Get the menu handle.                                                   */
-  /**************************************************************************/
-  TheMenu = ::GetMenu(HWindow);
-
   // Set up the tool button X positions
   ToolButtData.XPos[1] = 10;
   ToolButtData.WParam[1] = CM_MNUFILNEW;
   ToolButtData.LParam[1] = 0;
   ToolButtData.SentWindow[1] = HWindow;
-  ToolButtData.StatWindow[1] = StatbarHan->HWindow;
+  ToolButtData.StatWindow[1] = PStatbar(StatbarHan)->HWindow;
   strcpy(ToolButtData.UpText[1], "");
   strcpy(ToolButtData.DownText[1], "Start a new session");
 
@@ -341,7 +252,7 @@ void TMainWindow::SetupWindow()
   strcpy(ToolButtData.DownText[12], "Display information about Rail Control");
 
   // Load toolbar button bitmaps
-  ToolbarBitmaps = LoadBitmap(*GetApplication(), "TB_MAINWIN");
+  ToolbarBitmaps = LoadBitmap(GetApplication()->hInstance, "TB_MAINWIN");
 
   // Then create the toolbar
   ToolbarHan = new TToolbar(this, 12, ToolButtData, ToolbarBitmaps);
@@ -352,7 +263,7 @@ void TMainWindow::SetupWindow()
   ToolbarHan->PToolbutt[2]->Enable(FALSE);
   ToolbarHan->PToolbutt[3]->Enable(FALSE);
   ToolbarHan->PToolbutt[4]->Enable(FALSE);
-  ::ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
+  ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
 
   // Create the main display window
   if (ToolbarExist)
@@ -395,41 +306,62 @@ void TMainWindow::SetupWindow()
   if (BOOL(GetPrivateProfileInt("Arrival Window", "Exists", 1, INIFILENAME)))
   {
     // Create a new arrivals window
-    CheckMenuItem(TheMenu, CM_WINARRIVA, MF_BYCOMMAND | MF_UNCHECKED);
-    CMWinArriva();
+    if (ArrivalHan == NULL)
+    {
+      ArrivalHan = new TArrivals(this, ArrivalX, ArrivalY);
+      GetApplication()->MakeWindow(ArrivalHan);
+    }
+    TheMenu = GetMenu(HWindow);
+    CheckMenuItem(TheMenu, CM_WINARRIVA, MF_BYCOMMAND | MF_CHECKED);
   }
 
-  // Check to see if we need to create a departure window
+  // Check to see if we need to create an departure window
   if (BOOL(GetPrivateProfileInt("Departure Window", "Exists", 1, INIFILENAME)))
   {
     // Create a new departure window
-    CheckMenuItem(TheMenu, CM_WINDEPART, MF_BYCOMMAND | MF_UNCHECKED);
-    CMWinDepart();
+    if (DeparturHan == NULL)
+    {
+      DeparturHan = new TDepartur(this, DeparturX, DeparturY);
+      GetApplication()->MakeWindow(DeparturHan);
+    }
+    TheMenu = GetMenu(HWindow);
+    CheckMenuItem(TheMenu, CM_WINDEPART, MF_BYCOMMAND | MF_CHECKED);
   }
 
   // Check to see if we need to create a platform window
   if (BOOL(GetPrivateProfileInt("Platform Window", "Exists", 1, INIFILENAME)))
   {
     // Create a new platform window
-    CheckMenuItem(TheMenu, CM_WINPLATFO, MF_BYCOMMAND | MF_UNCHECKED);
-    CMWinPlatfo();
+    if (PlatformHan == NULL)
+    {
+      PlatformHan = new TPlatform(this, PlatformX, PlatformY);
+      GetApplication()->MakeWindow(PlatformHan);
+    }
+    TheMenu = GetMenu(HWindow);
+    CheckMenuItem(TheMenu, CM_WINPLATFO, MF_BYCOMMAND | MF_CHECKED);
   }
 
   // Check to see if we need to create a locoyard window
   if (BOOL(GetPrivateProfileInt("Locoyard Window", "Exists", 1, INIFILENAME)))
   {
-    // Create a new locoyard window
-    CheckMenuItem(TheMenu, CM_WINLOCOYA, MF_BYCOMMAND | MF_UNCHECKED);
-    CMWinLocoya();
+    // Create a new platform window
+    if (LocoyardHan == NULL)
+    {
+      LocoyardHan = new TLocoyard(this, LocoyardX, LocoyardY);
+      GetApplication()->MakeWindow(LocoyardHan);
+    }
+    TheMenu = GetMenu(HWindow);
+    CheckMenuItem(TheMenu, CM_WINLOCOYA, MF_BYCOMMAND | MF_CHECKED);
   }
 
   // Check to see if we should optimize the display
   if (StartOptim)
   {
-    ::SendMessage(HWindow, WM_COMMAND, CM_OPTOPTIMI, 0);
+    SendMessage(HWindow, WM_COMMAND, CM_OPTOPTIMI, 0);
   }
 
   // Disable the menu items
+  TheMenu = GetMenu(HWindow);
   EnableMenuItem(TheMenu, CM_MNUFIPAUS, MF_GRAYED);
   EnableMenuItem(TheMenu, CM_MNUFISTOP, MF_GRAYED);
 
@@ -438,13 +370,13 @@ void TMainWindow::SetupWindow()
 }
 
 
-bool TMainWindow::CanClose()
+BOOL TMainWindow::CanClose()
 {
   // Call file saving routine
   QuitProgram();
 
   // Call ancestor method
-  TFrameWindow::CanClose();
+  TWindow::CanClose();
 
   // Pass return value
   return TRUE;
@@ -551,222 +483,167 @@ void TMainWindow::QuitProgram()
 }
 
 
-void TMainWindow::EvSize(UINT sizeType, TSize& size)
+void TMainWindow::WMSize(RTMessage Msg)
 {
   // Call ancestor method - update window
-  TFrameWindow::EvSize(sizeType, size);
-  Invalidate(TRUE);
+  TWindow::WMSize(Msg);
 
   // Redraw children
   RedoChildren();
 
-  // If this window has just been maximized then restore the sub-windows to their
+  // If this window has just been maximized then restore an sub-windows to their
   // original state
-  if (!::IsIconic(HWindow) && MainWinIcon)
+  if (!IsIconic(HWindow) && MainWinIcon)
   {
     // If the Arrival window exists...
     if (ArrivalHan != NULL)
     {
       if (ArrivalIcon)
       {
-        ArrivalHan->Show(SW_SHOWMINIMIZED);
+	PArrivals(ArrivalHan)->Show(SW_SHOWMINIMIZED);
       }
       else
       {
-        ArrivalHan->Show(SW_SHOWNORMAL);
+	PArrivals(ArrivalHan)->Show(SW_SHOWNORMAL);
       }
-   }
+    }
 
-   // If the Departure window exists...
-   if (DeparturHan != NULL)
-   {
-     if (DeparturIcon)
-     {
-       PDepartur(DeparturHan)->Show(SW_SHOWMINIMIZED);
-     }
-     else
-     {
-       PDepartur(DeparturHan)->Show(SW_SHOWNORMAL);
-     }
-   }
+    // If the Departure window exists...
+    if (DeparturHan != NULL)
+    {
+      if (DeparturIcon)
+      {
+	PDepartur(DeparturHan)->Show(SW_SHOWMINIMIZED);
+      }
+      else
+      {
+	PDepartur(DeparturHan)->Show(SW_SHOWNORMAL);
+      }
+    }
 
-   // If the Platform window exists...
-   if (PlatformHan != NULL)
-   {
-    if (PlatformIcon)
+    // If the Platform window exists...
+    if (PlatformHan != NULL)
     {
-      PPlatform(PlatformHan)->Show(SW_SHOWMINIMIZED);
+      if (PlatformIcon)
+      {
+	PPlatform(PlatformHan)->Show(SW_SHOWMINIMIZED);
+      }
+      else
+      {
+	PPlatform(PlatformHan)->Show(SW_SHOWNORMAL);
+      }
     }
-    else
-    {
-      PPlatform(PlatformHan)->Show(SW_SHOWNORMAL);
-    }
-   }
 
-   // If the Locoyard window exists...
-   if (LocoyardHan != NULL)
-   {
-    if (LocoyardIcon)
+    // If the Locoyard window exists...
+    if (LocoyardHan != NULL)
     {
-      PLocoyard(LocoyardHan)->Show(SW_SHOWMINIMIZED);
+      if (LocoyardIcon)
+      {
+	PLocoyard(LocoyardHan)->Show(SW_SHOWMINIMIZED);
+      }
+      else
+      {
+	PLocoyard(LocoyardHan)->Show(SW_SHOWNORMAL);
+      }
     }
-    else
-    {
-      PLocoyard(LocoyardHan)->Show(SW_SHOWNORMAL);
-    }
-   }
   }
 
   // Get current windows state
-  MainWinIcon = ::IsIconic(HWindow);
-}
-
-void TMainWindow::EvMove(TPoint &clientOrigin)
-{
-  int   OffsetX, OffsetY;
-  RECT  lWinRect;
-
-  // Call ancestor method - update window
-  TFrameWindow::EvMove(clientOrigin);
-
-  /**************************************************************************/
-  /* Work out the offset.                                                   */
-  /**************************************************************************/
-  ::GetWindowRect(HWindow, &lWinRect);
-  OffsetX  = lWinRect.left - MainWinX;
-  OffsetY  = lWinRect.top - MainWinY;
-  MainWinX = lWinRect.left;
-  MainWinY = lWinRect.top;
-
-  /**************************************************************************/
-  /* Move the child windows as well.                                        */
-  /**************************************************************************/
-  ArrivalX += OffsetX;
-  ArrivalY += OffsetY;
-  if (ArrivalHan != NULL)
-  {
-    ::MoveWindow(ArrivalHan->HWindow, ArrivalX, ArrivalY, ArrivalHan->Attr.W, ArrivalHan->Attr.H, TRUE);
-  }
-
-  // Move departure window
-  DeparturX += OffsetX;
-  DeparturY += OffsetY;
-  if (DeparturHan != NULL)
-  {
-    ::MoveWindow(DeparturHan->HWindow, DeparturX, DeparturY, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
-  }
-
-  // Move platform window
-  PlatformX += OffsetX;
-  PlatformY += OffsetY;
-  if (PlatformHan != NULL)
-  {
-    ::MoveWindow(PlatformHan->HWindow, PlatformX, PlatformY, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
-  }
-
-  // Move locoyard window
-  LocoyardX += OffsetX;
-  LocoyardY += OffsetY;
-  if (LocoyardHan != NULL)
-  {
-    ::MoveWindow(LocoyardHan->HWindow, LocoyardX, LocoyardY, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
-  }
+  MainWinIcon = IsIconic(HWindow);
 }
 
 
-void TMainWindow::EvMenuSelect( UINT, UINT, HMENU )
+void TMainWindow::WMMenuSelect(RTMessage Msg)
 {
-/*
   HMENU  hMenu1, hMenu2, hMenu3, hMenu4;
   char   OldText[100], TextString[80];
 
   // Handle menu selections by describing menu item's function in the status bar
   // - if it exists
-  hMenu1 = GetSubMenu(::GetMenu(HWindow), 0);
-  hMenu2 = GetSubMenu(::GetMenu(HWindow), 1);
-  hMenu3 = GetSubMenu(::GetMenu(HWindow), 2);
-  hMenu4 = GetSubMenu(::GetMenu(HWindow), 3);
+  hMenu1 = GetSubMenu(GetMenu(HWindow), 0);
+  hMenu2 = GetSubMenu(GetMenu(HWindow), 1);
+  hMenu3 = GetSubMenu(GetMenu(HWindow), 2);
+  hMenu4 = GetSubMenu(GetMenu(HWindow), 3);
 
   // Get the current status bar text
   strcpy(OldText, StatbarHan->GetText());
 
   switch (Msg.WParam)
   {
-   case CM_MNUFILNEW       : strcpy(TextString, "Start a new session"); break;
-   case CM_MNUFIPAUS       : {
-        if (GamePaused)
-                      {
-          strcpy(TextString, "Continue the current session");
-        }
-        else
-        {
-          strcpy(TextString, "Pause the current session");
-        }
-                      break;
-                    }
-   case CM_MNUFISTOP       : strcpy(TextString, "Stop the current session"); break;
-   case CM_MNUFISETD       : strcpy(TextString, "Set the RCD data file name"); break;
-   case CM_MNUFIEXIT       : strcpy(TextString, "Exit from Rail Control"); break;
-   case CM_OPTOPTIMI       : strcpy(TextString, "Optimize the display of all windows"); break;
-   case CM_OPTCONFIG       : strcpy(TextString, "Configure game and program options"); break;
-   case CM_WINARRIVA       : strcpy(TextString, "Display or hide the Arrivals window"); break;
-   case CM_WINDEPART       : strcpy(TextString, "Display or hide the Departures window"); break;
-   case CM_WINPLATFO       : strcpy(TextString, "Display or hide the Platform window"); break;
-   case CM_WINLOCOYA       : strcpy(TextString, "Display or hide the Locoyard window"); break;
-   case CM_MNUHECTNT       : strcpy(TextString, "Display the help contents page"); break;
-   case CM_MNUHEHELP       : strcpy(TextString, "Help on using Windows help"); break;
-   case CM_MNUHEABOT       : strcpy(TextString, "Display information about Rail Control"); break;
+    case CM_MNUFILNEW       : strcpy(TextString, "Start a new session"); break;
+    case CM_MNUFIPAUS       : {
+				if (GamePaused)
+                                {
+				  strcpy(TextString, "Continue the current session");
+				}
+				else
+				{
+				  strcpy(TextString, "Pause the current session");
+				}
+                                break;
+                              } 
+    case CM_MNUFISTOP       : strcpy(TextString, "Stop the current session"); break;
+    case CM_MNUFISETD       : strcpy(TextString, "Set the RCD data file name"); break;
+    case CM_MNUFIEXIT       : strcpy(TextString, "Exit from Rail Control"); break;
+    case CM_OPTOPTIMI       : strcpy(TextString, "Optimize the display of all windows"); break;
+    case CM_OPTCONFIG       : strcpy(TextString, "Configure game and program options"); break;
+    case CM_WINARRIVA       : strcpy(TextString, "Display or hide the Arrivals window"); break;
+    case CM_WINDEPART       : strcpy(TextString, "Display or hide the Departures window"); break;
+    case CM_WINPLATFO       : strcpy(TextString, "Display or hide the Platform window"); break;
+    case CM_WINLOCOYA       : strcpy(TextString, "Display or hide the Locoyard window"); break;
+    case CM_MNUHECTNT       : strcpy(TextString, "Display the help contents page"); break;
+    case CM_MNUHEHELP       : strcpy(TextString, "Help on using Windows help"); break;
+    case CM_MNUHEABOT       : strcpy(TextString, "Display information about Rail Control"); break;
 
-   default:
-    if (::IsIconic(HWindow))
-    {
-  strcpy(TextString, OldText);
-    }
-    else
-    {
-      strcpy(TextString, "");
-    }
+    default:
+      if (IsIconic(HWindow))
+      {
+	strcpy(TextString, OldText);
+      }
+      else
+      {
+        strcpy(TextString, "");
+      }
   }
 
-  // Check for main menu selections
+  // Check for main menu selections 
   if ((HMENU(Msg.WParam) == hMenu1) && (hMenu1 != 0))  strcpy(TextString, "Game menu");
   if ((HMENU(Msg.WParam) == hMenu2) && (hMenu2 != 0))  strcpy(TextString, "Options menu");
   if ((HMENU(Msg.WParam) == hMenu3) && (hMenu3 != 0))  strcpy(TextString, "Window menu");
   if ((HMENU(Msg.WParam) == hMenu4) && (hMenu4 != 0))  strcpy(TextString, "Help menu");
 
   // Update the status bar
-  ::SendMessage(StatbarHan->HWindow,
-      SB_SETTEXT,
-          0,
-      (LPARAM) ((LPSTR) TextString));
-         */
+  SendMessage(StatbarHan->HWindow,
+	      SB_SETTEXT,
+       	      0,
+	      (LPARAM) ((LPSTR) TextString));
 }
 
 
-void TMainWindow::Paint(TDC& dc, bool erase, TRect& rect)
+void TMainWindow::Paint(HDC PaintDC, PAINTSTRUCT _FAR & PaintInfo)
 {
-  TFrameWindow::Paint(dc, erase, rect);
+  TWindow::Paint(PaintDC, PaintInfo);
 }
 
 
 void TMainWindow::RedoChildren()
 {
-  int  YPos, Width, Height;
+  int  XPos, YPos, Width, Height;
   RECT WinRect;
 
   // Get client window size
-  ::GetClientRect(HWindow, &WinRect);
+  GetClientRect(HWindow, &WinRect);
 
   // Reset the position of the Toolbar window
   if (ToolbarExist)
   {
-    ::MoveWindow(ToolbarHan->HWindow, 0, 0, (WinRect.right-WinRect.left), 30, TRUE);
+    MoveWindow(ToolbarHan->HWindow, 0, 0, (WinRect.right-WinRect.left), 30, TRUE);
   }
 
   if (StatbarExist)
   {
-    ::MoveWindow(StatbarHan->HWindow, 0, (WinRect.bottom-22),
-         (WinRect.right-WinRect.left), 22, TRUE);
+    MoveWindow(StatbarHan->HWindow, 0, (WinRect.bottom-22),
+	       (WinRect.right-WinRect.left), 22, TRUE);
   }
 
   // Move the layout window
@@ -787,20 +664,19 @@ void TMainWindow::RedoChildren()
 
     Width = (WinRect.right-WinRect.left);
 
-    ::MoveWindow(DisplayHan->HWindow, 0, YPos, Width, Height, TRUE);
+    MoveWindow(DisplayHan->HWindow, 0, YPos, Width, Height, TRUE);
   }
 }
 
 
-void TMainWindow::CMMnuFilNew()
+void TMainWindow::CMMnuFilNew(RTMessage)
 {
-
   HMENU  TheMenu;
   MSG    msg;
 
   // Firstly set up a new timer and kill any old ones in the process
   if (GameInProgress)
-    ::KillTimer(DisplayHan->HWindow, ID_TIMER);
+    KillTimer(DisplayHan->HWindow, ID_TIMER);
 
   // Reset the time for the window
   if (!DisplayHan->StartNew())
@@ -809,25 +685,13 @@ void TMainWindow::CMMnuFilNew()
     return;
   }
 
-  /**************************************************************************/
-  /* Decide whether to enable or disable the locoyard toolbar button.       */
-  /**************************************************************************/
-  if (LocoyardEnabled)
-  {
-    ToolbarHan->PToolbutt[10]->Enable(TRUE);
-  }
-  else
-  {
-    CMWinLocoya();
-  }
-
-  // Start a new game
+  // Start a new game off
   GameInProgress = TRUE;
   GamePaused = FALSE;
 
   // Update the display
   DisplayHan->SizeSelectors();
-  ::InvalidateRect(DisplayHan->HWindow, 0, TRUE);
+  InvalidateRect(DisplayHan->HWindow, 0, TRUE);
 
   while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
   {
@@ -836,7 +700,7 @@ void TMainWindow::CMMnuFilNew()
   }
 
   // Disable the menu items
-  TheMenu = ::GetMenu(HWindow);
+  TheMenu = GetMenu(HWindow);
   EnableMenuItem(TheMenu, CM_MNUFIPAUS, MF_ENABLED);
   EnableMenuItem(TheMenu, CM_MNUFISTOP, MF_ENABLED);
 
@@ -844,71 +708,68 @@ void TMainWindow::CMMnuFilNew()
   ToolbarHan->PToolbutt[2]->Enable(TRUE);
   ToolbarHan->PToolbutt[3]->Enable(TRUE);
   ToolbarHan->PToolbutt[4]->Enable(TRUE);
-  ::ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
-  ::ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, TRUE);
+  ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
+  ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, TRUE);
 
   // Update any child windows as well
   if (ArrivalHan != NULL)
-    ::InvalidateRect(ArrivalHan->HWindow, 0, TRUE);
+    InvalidateRect(ArrivalHan->HWindow, 0, TRUE);
   if (DeparturHan != NULL)
-    ::InvalidateRect(DeparturHan->HWindow, 0, TRUE);
+    InvalidateRect(DeparturHan->HWindow, 0, TRUE);
   if (PlatformHan != NULL)
-    ::InvalidateRect(PlatformHan->HWindow, 0, TRUE);
+    InvalidateRect(PlatformHan->HWindow, 0, TRUE);
   if (LocoyardHan != NULL)
-    ::InvalidateRect(LocoyardHan->HWindow, 0, TRUE);
+    InvalidateRect(LocoyardHan->HWindow, 0, TRUE);
 
   // Display startup info
   GetApplication()->ExecDialog(new TStart(this, "START"));
 
-
   // Create a new timer
-  ::SetTimer(DisplayHan->HWindow, ID_TIMER, 100, NULL);
+  SetTimer(DisplayHan->HWindow, ID_TIMER, 100, NULL);
 }
 
 
-void TMainWindow::CMMnuFiPaus()
+void TMainWindow::CMMnuFiPaus(RTMessage)
 {
-
   HMENU  TheMenu;
 
   // Pause the current session
-  TheMenu = ::GetMenu(HWindow);
+  TheMenu = GetMenu(HWindow);
   if (GamePaused)
   {   
-    ::SetTimer(DisplayHan->HWindow, ID_TIMER, 100, NULL);
+    SetTimer(DisplayHan->HWindow, ID_TIMER, 100, NULL);
     GamePaused = FALSE;
 
     // Modify the menu as well
     ModifyMenu(TheMenu, CM_MNUFIPAUS, MF_BYCOMMAND | MF_STRING, CM_MNUFIPAUS, "&Pause");
-    ::DrawMenuBar(HWindow);
-    ::ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
-    ::ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, TRUE);
+    DrawMenuBar(HWindow);
+    ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
+    ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, TRUE);
   }
   else
   {
-    ::KillTimer(DisplayHan->HWindow, ID_TIMER);
+    KillTimer(DisplayHan->HWindow, ID_TIMER);
     GamePaused = TRUE;
 
     // Modify the menu as well
     ModifyMenu(TheMenu, CM_MNUFIPAUS, MF_BYCOMMAND | MF_STRING, CM_MNUFIPAUS, "&Restart");
-    ::DrawMenuBar(HWindow);
-    ::ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, TRUE);
-    ::ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, FALSE);
+    DrawMenuBar(HWindow);
+    ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, TRUE);
+    ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, FALSE);
   }
 }
 
 
-void TMainWindow::CMMnuFiStop()
+void TMainWindow::CMMnuFiStop(RTMessage)
 {
-
   HMENU TheMenu;
 
   // Stop a session currently in progress
   GameInProgress = FALSE;
-  ::KillTimer(DisplayHan->HWindow, ID_TIMER);
+  KillTimer(DisplayHan->HWindow, ID_TIMER);
 
   // Disable the pause option
-  TheMenu = ::GetMenu(HWindow);
+  TheMenu = GetMenu(HWindow);
   EnableMenuItem(TheMenu, CM_MNUFIPAUS, MF_GRAYED);
   EnableMenuItem(TheMenu, CM_MNUFISTOP, MF_GRAYED);
 
@@ -916,8 +777,8 @@ void TMainWindow::CMMnuFiStop()
   ToolbarHan->PToolbutt[2]->Enable(FALSE);
   ToolbarHan->PToolbutt[3]->Enable(FALSE);
   ToolbarHan->PToolbutt[4]->Enable(FALSE);
-  ::ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
-  ::ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, TRUE);
+  ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
+  ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, TRUE);
 
   // Clear all the data
   DisplayHan->IniVariables();
@@ -925,51 +786,50 @@ void TMainWindow::CMMnuFiStop()
 
   // Redraw the screen
   DisplayHan->UpdateSelectors();
-  ::InvalidateRect(DisplayHan->HWindow, 0, TRUE);
+  InvalidateRect(DisplayHan->HWindow, 0, TRUE);
 
   // Update any child windows as well
   if (ArrivalHan != NULL)
-    ::InvalidateRect(ArrivalHan->HWindow, 0, TRUE);
+    InvalidateRect(ArrivalHan->HWindow, 0, TRUE);
   if (DeparturHan != NULL)
-    ::InvalidateRect(DeparturHan->HWindow, 0, TRUE);
+    InvalidateRect(DeparturHan->HWindow, 0, TRUE);
   if (PlatformHan != NULL)
-    ::InvalidateRect(PlatformHan->HWindow, 0, TRUE);
+    InvalidateRect(PlatformHan->HWindow, 0, TRUE);
   if (LocoyardHan != NULL)
-    ::InvalidateRect(LocoyardHan->HWindow, 0, TRUE);
+    InvalidateRect(LocoyardHan->HWindow, 0, TRUE);
 }
 
 
-void TMainWindow::CMMnuFiSetD()
+void TMainWindow::CMMnuFiSetD(RTMessage)
 {
-
   // Set the datafile name
   OPENFILENAME ofn;             // File structure
   char         szName[256];     // File name
-  char         buf[5];          // Error buffer
+  char         buf[5];	        // Error buffer
   char         szTemp[] = "All Files (*.*)\0*.*\0Rail Control files (*.rcd)\0*.rcd\0";
-  DWORD        Errval;    // Error value
+  DWORD        Errval;   	// Error value
 
 
   if (GameInProgress)
   {
-    if (!GamePaused)  ::SendMessage(HWindow, WM_COMMAND, CM_MNUFIPAUS, 0);
-    if (::MessageBox(HWindow,
-       "A game is currently in progress. Are you sure?",
-       APPNAME,
-       MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+    if (!GamePaused)  SendMessage(HWindow, WM_COMMAND, CM_MNUFIPAUS, 0);
+    if (MessageBox(HWindow,
+		   "A game is currently in progress. Are you sure?",
+		   APPNAME,
+		   MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
     {
-      ::SendMessage(HWindow, WM_COMMAND, CM_MNUFISTOP, 0);
+      SendMessage(HWindow, WM_COMMAND, CM_MNUFISTOP, 0);
     }
     else
     {
-      ::SendMessage(HWindow, WM_COMMAND, CM_MNUFIPAUS, 0);
+      SendMessage(HWindow, WM_COMMAND, CM_MNUFIPAUS, 0);
       return;
     }
   }
 
   // Update the status bar
-  ::SendMessage(StatbarHan->HWindow, SB_SETTEXT, 0,
-        (LPARAM) ((LPSTR) "Please select a filename..."));
+  SendMessage(StatbarHan->HWindow, SB_SETTEXT, 0,
+	      (LPARAM) ((LPSTR) "Please select a filename..."));
 
   // Set all structure members to zero
   memset(&ofn, 0, sizeof(OPENFILENAME));
@@ -1006,11 +866,11 @@ void TMainWindow::CMMnuFiSetD()
     {
       wsprintf(buf, "%ld", Errval);
       strcat(Errstr, buf);
-      ::MessageBox(HWindow, Errstr, APPNAME, MB_OK|MB_ICONSTOP);
+      MessageBox(HWindow, Errstr, APPNAME, MB_OK|MB_ICONSTOP);
     }
 
     // Update the status bar
-    ::SendMessage(StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) ""));
+    SendMessage(StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) ""));
   }
   else
   {
@@ -1018,203 +878,169 @@ void TMainWindow::CMMnuFiSetD()
     strcpy(DataFileName, szName);
 
     // Update the status bar
-    ::SendMessage(StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) ""));
+    SendMessage(StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) ""));
   }
 }
 
 
-void TMainWindow::CMOptOptimi()
+void TMainWindow::CMOptOptimi(RTMessage)
 {
   RECT TheRect;
-  RECT lWinRect;
-  int  lWidth, lHeight;
 
-  ::GetWindowRect(::GetDesktopWindow(), &TheRect);
+  GetWindowRect(GetDesktopWindow(), &TheRect);
 
   switch (TheRect.right)
   {
     case 640:
-       // Optimize the main window display
-       MainWinX = 0;
-       MainWinY = 0;
-       ::MoveWindow(HWindow, MainWinX, MainWinY, 405, 360, TRUE);
+	     // Optimize the main window display
+	     MoveWindow(HWindow, 0, 0, 405, 360, TRUE);
 
-       // Move arrival window
-       if (ArrivalHan != NULL)
-       {
-         if (ArrivalIcon) OpenIcon(ArrivalHan->HWindow);
-         ArrivalX = 0;
-         ArrivalY = 360;
-         ::MoveWindow(ArrivalHan->HWindow, 0, 360, ArrivalHan->Attr.W, ArrivalHan->Attr.H, TRUE);
-       }
+	     // Move arrival window
+	     if (ArrivalHan != NULL)
+	     {
+	       if (ArrivalIcon) OpenIcon(ArrivalHan->HWindow);
+	       ArrivalX = 0;
+	       ArrivalY = 360;
+	       MoveWindow(ArrivalHan->HWindow, 0, 360, ArrivalHan->Attr.W, ArrivalHan->Attr.H, TRUE);
+	     }
 
-       // Move departure window
-       if (DeparturHan != NULL)
-       {
-         if (DeparturIcon) OpenIcon(DeparturHan->HWindow);
-         DeparturX = 405;
-         DeparturY = -13;
-         ::MoveWindow(DeparturHan->HWindow, 405, -13, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
-       }
+	     // Move departure window
+	     if (DeparturHan != NULL)
+	     {
+	       if (DeparturIcon) OpenIcon(DeparturHan->HWindow);
+	       DeparturX = 405;
+	       DeparturY = -13;
+	       MoveWindow(DeparturHan->HWindow, 405, -13, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
+	     }
 
-       // Move platform window
-       if (PlatformHan != NULL)
-       {
-         if (PlatformIcon) OpenIcon(PlatformHan->HWindow);
-         PlatformX = 405;
-         PlatformY = 107;
-         ::MoveWindow(PlatformHan->HWindow, 405, 107, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
-       }
+	     // Move platform window
+	     if (PlatformHan != NULL)
+	     {
+	       if (PlatformIcon) OpenIcon(PlatformHan->HWindow);
+	       PlatformX = 405;
+	       PlatformY = 107;
+	       MoveWindow(PlatformHan->HWindow, 405, 107, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
+	     }
 
-       // Move locoyard window
-       if (LocoyardHan != NULL)
-       {
-         if (LocoyardIcon) OpenIcon(LocoyardHan->HWindow);
-         LocoyardX = 455;
-         LocoyardY = 360;
-         ::MoveWindow(LocoyardHan->HWindow, LocoyardX, LocoyardY, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
-       }
-       break;
+	     // Move locoyard window
+	     if (LocoyardHan != NULL)
+	     {
+	       if (LocoyardIcon) OpenIcon(LocoyardHan->HWindow);
+	       LocoyardX = 455;
+	       LocoyardY = 360;
+	       MoveWindow(LocoyardHan->HWindow, 455, 360, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
+	     }
+	     break;
 
     case 800:
-       // Optimize the main window display - 800x600 and above
-       MainWinX = 0;
-       MainWinY = 0;
-       ::MoveWindow(HWindow, MainWinX, MainWinY, 550, 373, TRUE);
+	     // Optimize the main window display - 800x600 and above
+	     MoveWindow(HWindow, 0, 0, 550, 373, TRUE);
 
-       // Move arrival window
-       if (ArrivalHan != NULL)
-       {
-         if (ArrivalIcon) OpenIcon(ArrivalHan->HWindow);
-         ArrivalX = 0;
-         ArrivalY = 373;
-         ::MoveWindow(ArrivalHan->HWindow, ArrivalX, ArrivalY, ArrivalHan->Attr.W, ArrivalHan->Attr.H, TRUE);
-       }
+	     // Move arrival window
+	     if (ArrivalHan != NULL)
+	     {
+	       if (ArrivalIcon) OpenIcon(ArrivalHan->HWindow);
+	       ArrivalX = 0;
+	       ArrivalY = 373;
+	       MoveWindow(ArrivalHan->HWindow, 0, 373, ArrivalHan->Attr.W, ArrivalHan->Attr.H, TRUE);
+	     }
 
-       // Move departure window
-       if (DeparturHan != NULL)
-       {
-         if (DeparturIcon) OpenIcon(DeparturHan->HWindow);
-         DeparturX = 550;
-         DeparturY = 0;
-         ::MoveWindow(DeparturHan->HWindow, DeparturX, DeparturY, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
-       }
+	     // Move departure window
+	     if (DeparturHan != NULL)
+	     {
+	       if (DeparturIcon) OpenIcon(DeparturHan->HWindow);
+	       DeparturX = 550;
+	       DeparturY = 0;
+	       MoveWindow(DeparturHan->HWindow, 550, 0, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
+	     }
 
-       // Move platform window
-       if (PlatformHan != NULL)
-       {
-         if (PlatformIcon) OpenIcon(PlatformHan->HWindow);
-         PlatformX = 550;
-         PlatformY = 120;
-         ::MoveWindow(PlatformHan->HWindow, PlatformX, PlatformY, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
-       }
+	     // Move platform window
+	     if (PlatformHan != NULL)
+	     {
+	       if (PlatformIcon) OpenIcon(PlatformHan->HWindow);
+	       PlatformX = 550;
+	       PlatformY = 120;
+	       MoveWindow(PlatformHan->HWindow, 550, 120, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
+	     }
 
-       // Move locoyard window
-       if (LocoyardHan != NULL)
-       {
-         if (LocoyardIcon) OpenIcon(LocoyardHan->HWindow);
-         LocoyardX = 600;
-         LocoyardY = 373;
-         ::MoveWindow(LocoyardHan->HWindow, LocoyardX, LocoyardY, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
-       }
-       break;
+	     // Move locoyard window
+	     if (LocoyardHan != NULL)
+	     {
+	       if (LocoyardIcon) OpenIcon(LocoyardHan->HWindow);
+	       LocoyardX = 600;
+	       LocoyardY = 373;
+	       MoveWindow(LocoyardHan->HWindow, 600, 373, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
+	     }
+	     break;
 
     case 1024:
     default:
-    {
-      if (TheRect.bottom == 600)
-      {
-        /********************************************************************/
-        /* Optimize the main window display - 1024x600.                     */
-        /********************************************************************/
-        MainWinX = 0;
-        MainWinY = 0;
-        lWidth  = 720;
-        lHeight = (600 - 192);
-      }
-      else
-      {
-        // Optimize the main window display - 1024x768 and above
-        lWidth  = 720;
-        lHeight = 480;
+	     // Optimize the main window display - 1024x768 and above
+	     MoveWindow(HWindow, 40, 90, 720, 480, TRUE);
 
-        ::GetWindowRect(HWindow, &lWinRect);
-        MainWinX = lWinRect.left;
-        MainWinY = lWinRect.top;
-      }
+	     // Move arrival window
+	     if (ArrivalHan != NULL)
+	     {
+	       if (ArrivalIcon) OpenIcon(ArrivalHan->HWindow);
+	       ArrivalX = 40;
+	       ArrivalY = 570;
+	       MoveWindow(ArrivalHan->HWindow, 40, 570, ArrivalHan->Attr.W, ArrivalHan->Attr.H, TRUE);
+	     }
 
-      ::MoveWindow(HWindow, MainWinX, MainWinY, lWidth, lHeight, TRUE);
+	     // Move departure window
+	     if (DeparturHan != NULL)
+	     {
+	       if (DeparturIcon) OpenIcon(DeparturHan->HWindow);
+	       DeparturX = 640;
+	       DeparturY = 570;
+	       MoveWindow(DeparturHan->HWindow, 640, 570, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
+	     }
 
-      // Move arrival window
-      if (ArrivalHan != NULL)
-      {
-        if (ArrivalIcon) OpenIcon(ArrivalHan->HWindow);
-        ArrivalX = MainWinX;
-        ArrivalY = MainWinY + lHeight;
-        ::MoveWindow(ArrivalHan->HWindow, ArrivalX, ArrivalY, ArrivalHan->Attr.W, ArrivalHan->Attr.H, TRUE);
-      }
+	     // Move platform window
+	     if (PlatformHan != NULL)
+	     {
+	       if (PlatformIcon) OpenIcon(PlatformHan->HWindow);
+	       PlatformX = 760;
+	       PlatformY = 313;
+	       MoveWindow(PlatformHan->HWindow, 760, 313, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
+	     }
 
-      // Move departure window
-      if (DeparturHan != NULL)
-      {
-        if (DeparturIcon) OpenIcon(DeparturHan->HWindow);
-        DeparturX = MainWinX + lWidth;
-        DeparturY = MainWinY + 259;
-        ::MoveWindow(DeparturHan->HWindow, DeparturX, DeparturY, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
-      }
-
-      // Move platform window
-      if (PlatformHan != NULL)
-      {
-        if (PlatformIcon) OpenIcon(PlatformHan->HWindow);
-        PlatformX = MainWinX + lWidth;
-        PlatformY = MainWinY;
-        ::MoveWindow(PlatformHan->HWindow, PlatformX, PlatformY, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
-      }
-
-      // Move locoyard window
-      if (LocoyardHan != NULL)
-      {
-        if (LocoyardIcon) OpenIcon(LocoyardHan->HWindow);
-        LocoyardX = MainWinX + lWidth;
-        LocoyardY = MainWinY + 259 + 192;
-        ::MoveWindow(LocoyardHan->HWindow, LocoyardX, LocoyardY, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
-      }
-    }
-    break;
+	     // Move locoyard window
+	     if (LocoyardHan != NULL)
+	     {
+	       if (LocoyardIcon) OpenIcon(LocoyardHan->HWindow);
+	       LocoyardX = 760;
+	       LocoyardY = 193;
+	       MoveWindow(LocoyardHan->HWindow, 760, 193, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
+	     }
+	     break;
   }
 }
 
 
-void TMainWindow::CMOptConfig()
+void TMainWindow::CMOptConfig(RTMessage)
 {
-
   BOOL CurrentlyPaused;
 
   // Pause the game
   CurrentlyPaused = GamePaused;
   if (GameInProgress && !GamePaused)
-  {
-      ::SendMessage(HWindow, WM_COMMAND, CM_MNUFIPAUS, 0);
-  }
+    SendMessage(HWindow, WM_COMMAND, CM_MNUFIPAUS, 0);
 
   // Execute the Configuration dialog box
   GetApplication()->ExecDialog(new TConfigur(this, "CONFIG"));
 
   // Un-pause the game
   if (GameInProgress && !CurrentlyPaused)
-  {
-      ::SendMessage(HWindow, WM_COMMAND, CM_MNUFIPAUS, 0);
-  }
+    SendMessage(HWindow, WM_COMMAND, CM_MNUFIPAUS, 0);
 }
 
 
-void TMainWindow::CMWinArriva()
+void TMainWindow::CMWinArriva(RTMessage)
 {
-
   HMENU TheMenu;
 
-  TheMenu = ::GetMenu(HWindow);
+  TheMenu = GetMenu(HWindow);
   if (GetMenuState(TheMenu, CM_WINARRIVA, MF_BYCOMMAND) == MF_CHECKED)
   {
     // Get rid of the Arrivals window
@@ -1232,20 +1058,17 @@ void TMainWindow::CMWinArriva()
     {
       ArrivalHan = new TArrivals(this, ArrivalX, ArrivalY);
       GetApplication()->MakeWindow(ArrivalHan);
-      ArrivalHan->Show(SW_SHOWNORMAL);
-      SetFocus();
     }
     CheckMenuItem(TheMenu, CM_WINARRIVA, MF_BYCOMMAND | MF_CHECKED);
   }
 }
 
 
-void TMainWindow::CMWinDepart()
+void TMainWindow::CMWinDepart(RTMessage)
 {
-
   HMENU TheMenu;
 
-  TheMenu = ::GetMenu(HWindow);
+  TheMenu = GetMenu(HWindow);
   if (GetMenuState(TheMenu, CM_WINDEPART, MF_BYCOMMAND) == MF_CHECKED)
   {
     // Get rid of the Departure window
@@ -1263,20 +1086,17 @@ void TMainWindow::CMWinDepart()
     {
       DeparturHan = new TDepartur(this, DeparturX, DeparturY);
       GetApplication()->MakeWindow(DeparturHan);
-      DeparturHan->Show(SW_SHOWNORMAL);
-      SetFocus();
     }
     CheckMenuItem(TheMenu, CM_WINDEPART, MF_BYCOMMAND | MF_CHECKED);
   }
 }
 
 
-void TMainWindow::CMWinPlatfo()
+void TMainWindow::CMWinPlatfo(RTMessage)
 {
-
   HMENU TheMenu;
 
-  TheMenu = ::GetMenu(HWindow);
+  TheMenu = GetMenu(HWindow);
   if (GetMenuState(TheMenu, CM_WINPLATFO, MF_BYCOMMAND) == MF_CHECKED)
   {
     // Get rid of the Platform window
@@ -1294,20 +1114,17 @@ void TMainWindow::CMWinPlatfo()
     {
       PlatformHan = new TPlatform(this, PlatformX, PlatformY);
       GetApplication()->MakeWindow(PlatformHan);
-      PlatformHan->Show(SW_SHOWNORMAL);
-      SetFocus();
     }
     CheckMenuItem(TheMenu, CM_WINPLATFO, MF_BYCOMMAND | MF_CHECKED);
   }
 }
 
 
-void TMainWindow::CMWinLocoya()
+void TMainWindow::CMWinLocoya(RTMessage)
 {
-
   HMENU TheMenu;
 
-  TheMenu = ::GetMenu(HWindow);
+  TheMenu = GetMenu(HWindow);
   if (GetMenuState(TheMenu, CM_WINLOCOYA, MF_BYCOMMAND) == MF_CHECKED)
   {
     // Get rid of the locoyard window
@@ -1318,106 +1135,37 @@ void TMainWindow::CMWinLocoya()
     }
     CheckMenuItem(TheMenu, CM_WINLOCOYA, MF_BYCOMMAND | MF_UNCHECKED);
   }
-  else if (LocoyardEnabled)
+  else
   {
     // Create a new locoyard window
     if (LocoyardHan == NULL)
     {
       LocoyardHan = new TLocoyard(this, LocoyardX, LocoyardY);
       GetApplication()->MakeWindow(LocoyardHan);
-      LocoyardHan->Show(SW_SHOWNORMAL);
-      SetFocus();
     }
     CheckMenuItem(TheMenu, CM_WINLOCOYA, MF_BYCOMMAND | MF_CHECKED);
   }
-
-  /**************************************************************************/
-  /* Decide whether to enable or disable the locoyard toolbar button.       */
-  /**************************************************************************/
-  if (LocoyardEnabled)
-  {
-    ToolbarHan->PToolbutt[10]->Enable(TRUE);
-  }
-  else
-  {
-    ToolbarHan->PToolbutt[10]->Enable(FALSE);
-  }
 }
 
 
-void TMainWindow::CMMnuHeCtnt()
+void TMainWindow::CMMnuHeCtnt(RTMessage)
 {
-
   // Display help contents
-  ::WinHelp(HWindow, HELPFILENAME, HELP_CONTENTS, 0L);
+  WinHelp(HWindow, HELPFILENAME, HELP_CONTENTS, 0L);
 }
 
 
-void TMainWindow::CMMnuHeHelp()
+void TMainWindow::CMMnuHeHelp(RTMessage)
 {
-
   // Display help contents
-  ::WinHelp(HWindow, HELPFILENAME, HELP_HELPONHELP, 0L);
+  WinHelp(HWindow, HELPFILENAME, HELP_HELPONHELP, 0L);
 }
 
 
-void TMainWindow::CMMnuHeAbot()
+void TMainWindow::CMMnuHeAbot(RTMessage)
 {
-
   // Display about box
   GetApplication()->ExecDialog(new TAbout(this, "AboutBox"));
-}
-
-
-
-DEFINE_RESPONSE_TABLE1( TMainWindow, TFrameWindow )
-    EV_WM_SIZE,
-    EV_WM_MOVE,
-    EV_WM_MENUSELECT,
-    EV_COMMAND( 110, CM_FileExit ),
-    EV_COMMAND( 100, CMMnuFilNew ),
-    EV_COMMAND( 101, CMMnuFiPaus ),
-    EV_COMMAND( 102, CMMnuFiStop ),
-    EV_COMMAND( 103, CMMnuFiSetD ),
-    EV_COMMAND( 200, CMOptOptimi ),
-    EV_COMMAND( 201, CMOptConfig ),
-    EV_COMMAND( 300, CMWinArriva ),
-    EV_COMMAND( 301, CMWinDepart ),
-    EV_COMMAND( 302, CMWinPlatfo ),
-    EV_COMMAND( 303, CMWinLocoya ),
-    EV_COMMAND( 900, CMMnuHeCtnt ),
-    EV_COMMAND( 901, CMMnuHeHelp ),
-    EV_COMMAND( 999, CMMnuHeAbot ),
-END_RESPONSE_TABLE;
-
-/****************************************************************************/
-/* Utility functions.                                                       */
-/****************************************************************************/
-int checkisspace(char c)
-{
-  return c == ' '  || c == '\t' ||
-         c == '\v' || c == '\f';  
-}
- 
-char* lTrim(char* p)
-{
-  while (p && checkisspace(*p)) ++p;
-  return p;
-}
- 
-char* rTrim(char* p)
-{
-  char * temp;
-  if (!p) return p;
-  temp = (char *)(p + strlen(p)-1);
-  while ((temp>=p) && checkisspace(*temp)) --temp;
-  *(temp+1) = '\0';
-  return p;
-}
- 
-char* Trim(char* p)
-{
-  return lTrim(rTrim(p));
 }
 
 

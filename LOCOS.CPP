@@ -15,10 +15,7 @@
 *
 */
 
-#include <windows.h>
-#include <stdlib.h>
-#include "locos.h"
-#include "general.h"
+#include "classdef.h"
 
 // The actual class code
 TLocos::TLocos(int GClass, int GNumber, int GType)

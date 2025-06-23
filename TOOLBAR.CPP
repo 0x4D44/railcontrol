@@ -93,7 +93,7 @@ void TToolbar::SetupWindow()
 }
 
 
-void TToolbar::Paint(TDC& dc, BOOL, TRect&)
+void TToolbar::Paint(TDC& dc, bool erase, TRect& rect)
 {
   // Update the screen display
   DrawScreen(dc);

@@ -33,10 +33,10 @@ public:
   virtual void GetWindowClass(WNDCLASS& WndClass);
   virtual LPSTR GetClassName();
   virtual void SetupWindow(void);
-  virtual BOOL CanClose();
+  virtual bool CanClose();
   void EvSize( UINT, TSize& );
   void EvMove( TPoint& );
-  virtual void Paint(TDC& dc, BOOL erase, TRect& rect);
+  virtual void Paint(TDC& dc, bool erase, TRect& rect);
   virtual void UpdateDisplay(HDC TheDC, BOOL Redraw);
   virtual void TimeTabInfo(HDC TheDC, int TabVal, int YPos);
   virtual void ConvertTime(int TimeVal, char *TimeStr);

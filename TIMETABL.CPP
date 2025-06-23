@@ -15,12 +15,7 @@
 *
 */
 
-#include <windows.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include "timetabl.h"
-#include "general.h"
+#include "classdef.h"
 
 
 

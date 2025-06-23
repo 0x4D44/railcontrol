@@ -69,7 +69,7 @@ void TPlatform::SetupWindow()
 }
 
 
-BOOL TPlatform::CanClose()
+bool TPlatform::CanClose()
 {
   HMENU  TheMenu;
 
@@ -120,7 +120,7 @@ void TPlatform::EvMove(TPoint& pnt)
 }
 
 
-void TPlatform::Paint(TDC& dc, BOOL, TRect&)
+void TPlatform::Paint(TDC& dc, bool erase, TRect& rect)
 {
   // Call main painting routine
   UpdateDisplay(dc, TRUE);

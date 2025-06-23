@@ -15,8 +15,7 @@
 *
 */
 
-#include <windows.h>
-#include "platdata.h"
+#include "classdef.h"
 
 // The actual class code
 
