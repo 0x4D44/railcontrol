@@ -45,7 +45,7 @@ void TPlatform::GetWindowClass(WNDCLASS& WndClass)
 }
 
 
-LPSTR TPlatform::GetClassName()
+LPCTSTR TPlatform::GetClassName()
 {
   return "Platform Window";
 }

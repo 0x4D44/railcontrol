@@ -52,7 +52,7 @@ void TLocoyard::GetWindowClass(WNDCLASS& WndClass)
 }
 
 
-LPSTR TLocoyard::GetClassName()
+LPCTSTR TLocoyard::GetClassName()
 {
   return "Locoyard Window";
 }

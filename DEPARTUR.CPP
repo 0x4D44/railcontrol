@@ -45,7 +45,7 @@ void TDepartur::GetWindowClass(WNDCLASS& WndClass)
 }
 
 
-LPSTR TDepartur::GetClassName()
+LPCTSTR TDepartur::GetClassName()
 {
   return "Departure Window";
 }

@@ -215,7 +215,7 @@ void TMainWindow::GetWindowClass(WNDCLASS& WndClass)
 }
 
 
-LPSTR TMainWindow::GetClassName()
+LPCTSTR TMainWindow::GetClassName()
 {
   return "Main_Window_Class";
 }

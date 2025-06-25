@@ -151,7 +151,7 @@ void TToolbutton::GetWindowClass(WNDCLASS &WndClass)
 }
 
 
-LPSTR TToolbutton::GetClassName()
+LPCTSTR TToolbutton::GetClassName()
 {
   // Return class name
   return "Toolbutton Class";
