@@ -10,6 +10,9 @@
 #define OWL5_COMPAT            // Enable OWL 5 compatibility mode as well
 #define BI_SUPPRESS_OLE        // Suppress OWL's OLE functionality to avoid conflicts
 
+// Disable auto-linking by making pragma comment ineffective
+#define pragma(x)
+
 // --- AGGRESSIVE OLE2 EXCLUSION ---
 #define _OLE2_H_               // Prevent ole2.h from being included
 #define _OBJBASE_H_            // Prevent objbase.h from being included  
