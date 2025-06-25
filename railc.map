@@ -1,0 +1,17 @@
+
+ Start         Length     Name                   Class
+ 0001:00000000 000069693H _TEXT                  CODE
+ 0002:00000000 0000157B4H _DATA                  DATA
+ 0002:000157B4 000000000H _TLSCBA                TLSCBA
+ 0002:000157B4 0000000D2H _INIT_                 INITDATA
+ 0002:00015886 000000000H _INITEND_              INITDATA
+ 0002:00015886 00000009CH _EXIT_                 EXITDATA
+ 0002:00015922 000000000H _EXITEND_              EXITDATA
+ 0002:00015924 000000000H CONST                  CONST
+ 0002:00015924 000003AD8H _BSS                   BSS
+ 0002:000193FC 000000000H _BSSEND                BSS
+ 0003:00000000 0000000B0H _TLS                   TLS
+ 0003:000000B0 000000000H _TLSEND                TLS
+Warning: .DEF file heap reserve size < 64K; 1MB default will be used
+Warning: .DEF file stack reserve size < 64K; 1MB default will be used
+Fatal: Unable to open file 'railc.exe'

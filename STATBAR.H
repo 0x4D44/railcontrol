@@ -42,7 +42,7 @@ class TStatbar : public TFrameWindow
 	 void Paint(TDC& dc, bool erase, TRect& rect);
 	 void DrawScreen(HDC TheDC, BOOL TextChanged);
 	 void GetWindowClass(WNDCLASS &WndClass);
-	 LPSTR GetClassName();
+	 virtual LPCTSTR GetClassName();
 	 void EvSize( UINT, TSize& );
 	 LRESULT SetText(WPARAM, LPARAM);
 // OWLCVT: Unrecognized DDVT value 1025 for 'SetText', generic signature used

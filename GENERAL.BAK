@@ -1,0 +1,167 @@
+/* GENERAL.H
+*  =========
+*
+*  PROGRAM DESCRIPTION
+*  ===================
+*  This header file is responsible for general (non-module specific) symbol
+*  definitions. It contains menu item definitions and general train associated
+*  definitions which are mainly used in TLayout (although not exclusively).
+*
+*  PROGRAM INFORMATION
+*  ===================
+*  Author   : M G Davidson
+*  Date     : 01/11/1994
+*  Version  : 2.0
+*  Language : C++ (BORLAND v3.1)
+*
+*/
+
+
+// Main menu definitions
+#define CM_MNUFILNEW 100
+#define CM_MNUFIPAUS 101
+#define CM_MNUFISTOP 102
+#define CM_MNUFISETD 103
+#define CM_MNUFIEXIT 110
+#define CM_OPTOPTIMI 200
+#define CM_OPTCONFIG 201
+#define CM_WINARRIVA 300
+#define CM_WINDEPART 301
+#define CM_WINPLATFO 302
+#define CM_WINLOCOYA 303
+#define CM_MNUHECTNT 900
+#define CM_MNUHEHELP 901
+#define CM_MNUHEABOT 999
+
+
+// Other definitions
+#define CM_SELECT    500
+#define ID_HELPBUTT  998
+#define ID_TIMER     2100
+
+// Resource definitions
+#define HR_DIGITAL   800
+
+// Configuration dialog box definitions
+#define ID_CONFSLOWS 3000
+#define ID_CONFNORMA 3001
+#define ID_CONFFASTS 3002
+#define ID_CONFDELAY 3003
+#define ID_CONFREFUE 3004
+#define ID_CONFSEXIT 3005
+#define ID_CONFAUOPT 3006
+#define ID_CONFSOUND 3007
+
+// Finish dialog box definitions
+#define ID_FINIACHIE 1200
+#define ID_FINIARRDE 1201
+#define ID_FINIDEPDE 1202
+#define ID_FINIRATIN 1203
+
+// Start dialog box definitions
+#define ID_STRTTEXT1 1300
+#define ID_STRTTEXT2 1301
+#define ID_STRTTEXT3 1302
+
+
+// Status defines used in tracking trains
+// The following codes are used:
+//
+//  1: Due
+//  2: Approaching
+//  3: Held 
+//  4: Held at Holby 
+//  5: Set to platform
+//  6: Stage A of approach
+//  7: Stage B of approach
+//  8: Stage C of approach
+//  9: Stage D of approach
+// 10: Stage E of approach
+// 11: Stage F of approach
+// 12: In platform
+// 13: Stock released and needing new loco
+// 14: Stock ready to depart
+// 15: Ready to depart (ie loco attached and 5min to DepTime)
+// 16: Starting to depart
+// 17: Stage A of departure
+// 18: Stage B of departure
+// 19: Stage C of departure
+// 20: Stage D of departure
+// 21: Stage E of departure
+// 22: Stage F of departure
+
+
+#define ST_NONE        0
+#define ST_DUE         1
+#define ST_APPROACH    2
+#define ST_HELD        3
+#define ST_HOLBY       4
+#define ST_SETPLAT     5
+#define ST_ARRA        6
+#define ST_ARRB        7
+#define ST_ARRC        8
+#define ST_ARRD        9
+#define ST_ARRE       10
+#define ST_ARRF       11
+#define ST_INPLAT     12
+#define ST_RELEASE    13
+#define ST_STOCKOK    14
+#define ST_READYDEP   15
+#define ST_STARTDEP   16
+#define ST_DEPA       17
+#define ST_DEPB       18
+#define ST_DEPC       19
+#define ST_DEPD       20
+#define ST_DEPE       21
+#define ST_DEPF       22
+
+
+// Define locomotive flags (used in <locoinfo> struct)
+#define LF_UNASSIGN 1                // Not assigned to anything
+#define LF_ASSIGNED 2                // Assigned to a train
+#define LF_INPLAT   3                // Unassigned in a platform
+#define LF_MAINTAIN 4                // Needs maintainance
+#define LF_NEEDFUEL 5                // Loco requires to be refuelled
+#define LF_REFUEL   6                // Loco is refuelling in locoyard
+#define LF_LOCOYARD 7                // In locoyard
+#define LF_LIGHT    8                // Light engine movement
+
+
+// Define locomotive stock codes
+// The following stock codes are defined:
+//
+// 1:  ECS stock             - Class 31
+// 2:  HST set               - no associated engine
+// 3:  EMU set               - no associated locomotive
+// 4:  Deltic express        - Class 55
+// 5:  Standard passenger    - Class 40/45/46/47
+// 6:  Relief passenger      - Class 40/45/46/47
+// 7:  Light engine for ECS  - Class 31
+// 8:  Light normal engine   - Class 40/45/46/47
+// 9:  Light Deltic engine   - Class 55
+// 10: Push/pull train       - Class 47/7 - locked to set
+// 11: DMU set               - no associated engine (old 101/107 types)
+// 12: Class 37 loco         - Class 37/4
+// 13: Light relief loco     - Class 40/45/46/47
+// 14: Light class 37 loco   - Class 37/4
+
+
+#define SC_ECS       1
+#define SC_HST       2
+#define SC_EMU       3
+#define SC_DELTIC    4
+#define SC_NORMAL    5
+#define SC_RELIEF    6
+#define SC_LIGHTECS  7
+#define SC_LIGHTNORM 8
+#define SC_LIGHTDELT 9
+#define SC_PUSHPULL  10
+#define SC_DMU1      11
+#define SC_CLASS37   12
+#define SC_LIGHTRLF  13
+#define SC_LIGHT37   14
+
+
+
+
+

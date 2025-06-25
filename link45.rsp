@@ -1,0 +1,6 @@
+C:\Apps\BC45\LIB\c0w32.obj railc.obj departur.obj locoyard.obj arrivals.obj finish.obj about.obj startup.obj start.obj configur.obj layout.obj selector.obj platform.obj toolbar.obj toolbutt.obj statbar.obj section.obj platdata.obj ovlpdata.obj routes.obj locos.obj timetabl.obj
+railc45.exe
+
+C:\Apps\BC45\lib\ctl3d32.lib C:\Apps\BC45\lib\owlwf.lib C:\Apps\BC45\lib\bidsf.lib C:\Apps\BC45\lib\import32.lib C:\Apps\BC45\lib\cw32.lib C:\Apps\BC45\lib\cw32i.lib
+railc.def
+resource\railc.res
