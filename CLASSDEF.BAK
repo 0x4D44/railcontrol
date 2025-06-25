@@ -1,0 +1,52 @@
+/* CLASSDEF.H
+*  Targeting Borland C++ 5.02 - Minimal for Debugging
+*/
+#ifndef _CLASSDEF_H_
+#define _CLASSDEF_H_
+
+// --- VERY EARLY DEFINES ---
+// These MUST come before any #include <windows.h> or OWL headers
+// that might include <windows.h>.
+// For Windows 95 / NT 4.0 compatibility with BC5.02:
+#define INC_OLE2
+#define WINVER 0x0400
+#define _WIN32_WINDOWS 0x0400 // For Win95 API level features
+// #define _WIN32_WINNT 0x0400   // If targeting NT 4 features specifically
+                               // Usually one or the other is sufficient with WINVER
+
+#pragma message("CLASSDEF.H: WINVER and _WIN32_WINDOWS defined.")
+
+#define STRICT
+#pragma message("CLASSDEF.H: STRICT defined.")
+
+#define NOTOOLBUTTONS  1
+#define NOSELECTORS    17
+#define INIFILENAME    "RAILC.INI"
+#define HELPFILENAME   "RAILC.HLP"
+#define APPNAME        "Rail Control"
+
+// --- PRIMARY OWL INCLUDE ---
+#pragma message("CLASSDEF.H: Including <owl\\applicat.h>...")
+#include <owl\applicat.h>
+#pragma message("CLASSDEF.H: Finished <owl\\applicat.h>.")
+
+// --- OTHER SYSTEM HEADERS (ONLY IF *PROVEN* NECESSARY LATER) ---
+#include <ctl3d.h>
+// #include <commdlg.h> // Likely covered by OWL's windows.h include
+// #include <mmsystem.h>  // Likely covered
+
+// --- STANDARD C/C++ LIBRARY HEADERS ---
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+#include <strstrea.h> // For istrstream
+
+// --- PROJECT-SPECIFIC HEADERS ---
+#include "general.h" // Keep this early among your project headers
+#include "section.h"
+// ... (rest of your project headers) ...
+#include "about.h"
+
+#endif // _CLASSDEF_H_

@@ -1,8 +1,12 @@
 /* CLASSDEF.H
-*  Updated for Borland C++ 5.02 - Aggressive OLE2 exclusion
+*  Updated for OWLNext 6.30 - OWL5_COMPAT mode for smooth migration
 */
 #ifndef _CLASSDEF_H_
 #define _CLASSDEF_H_
+
+// --- OWLNEXT 6.30 CONFIGURATION ---
+#define OWL2_COMPAT            // Enable OWL 2.x compatibility mode in OWLNext
+#define OWL5_COMPAT            // Enable OWL 5 compatibility mode as well
 
 // --- AGGRESSIVE OLE2 EXCLUSION ---
 #define _OLE2_H_               // Prevent ole2.h from being included

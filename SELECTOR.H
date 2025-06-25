@@ -48,7 +48,7 @@ public:
         int GSelectNum, int GType, int PlatRef, int WPR, int LPR, BOOL En);
   ~TSelector();
   virtual void GetWindowClass(WNDCLASS& WndClass);
-  virtual LPSTR GetClassName();
+  virtual LPCTSTR GetClassName();
   virtual void SetupWindow();
   void Paint(TDC& dc, bool erase, TRect& rect);
   void PaintButton(HDC TheDC);

@@ -1,0 +1,74 @@
+/* CLASSDEF.H
+*  Targeting Borland C++ 5.02 - Ultra Minimal + Early Defines
+*/
+#ifndef _CLASSDEF_H_
+#define _CLASSDEF_H_
+
+// --- VERY, VERY EARLY DEFINES ---
+// These MUST come before ANY Borland/OWL/System header.
+#pragma message("CLASSDEF.H: Defining INC_OLE2, WINVER, _WIN32_WINDOWS, STRICT very early...")
+#define INC_OLE2          // For full C++ OLE2 interfaces
+#define WINVER 0x0400
+#define _WIN32_WINDOWS 0x0400
+#define STRICT
+#pragma message("CLASSDEF.H: Early defines processed.")
+
+// --- Other Global Project Defines ---
+#define NOTOOLBUTTONS  1
+#define NOSELECTORS    17
+#define INIFILENAME    "RAILC.INI"
+#define HELPFILENAME   "RAILC.HLP"
+#define APPNAME        "Rail Control"
+
+// --- PRIMARY OWL INCLUDE ---
+// This will pull in services/defs.h, services/wsysinc.h (which includes windows.h), etc.
+#pragma message("CLASSDEF.H: Including <owl\\applicat.h>...")
+#include <owl\applicat.h>
+#pragma message("CLASSDEF.H: Finished <owl\\applicat.h>.")
+
+// --- OTHER SYSTEM HEADERS (ONLY IF ERRORS INDICATE THEY ARE MISSING) ---
+// It's highly likely owl\applicat.h (via its chain) has included everything common.
+#pragma message("CLASSDEF.H: Including other specific system headers (IF STILL NEEDED)...")
+#include <ctl3d.h>      // ctl3d.dll is a separate MS library.
+// #include <commdlg.h>    // Probably already included.
+// #include <mmsystem.h>  // Probably already included.
+#pragma message("CLASSDEF.H: Finished other system headers.")
+
+// --- STANDARD C/C++ LIBRARY HEADERS ---
+#pragma message("CLASSDEF.H: Including standard C/C++ library headers...")
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+#include <strstrea.h>
+#pragma message("CLASSDEF.H: Finished standard C/C++ library headers.")
+
+// --- PROJECT-SPECIFIC HEADERS ---
+#pragma message("CLASSDEF.H: Including project-specific headers...")
+#include "general.h"    // Keep this early among your project headers
+// ... (rest of your project headers from section.h to about.h) ...
+#include "section.h"
+#include "platdata.h"
+#include "ovlpdata.h"
+#include "routes.h"
+#include "locos.h"
+#include "timetabl.h"
+#include "toolbutt.h"
+#include "toolbar.h"
+#include "statbar.h"
+#include "selector.h"
+#include "arrivals.h"
+#include "departur.h"
+#include "platform.h"
+#include "locoyard.h"
+#include "configur.h"
+#include "layout.h"
+#include "railc.h"
+#include "finish.h"
+#include "start.h"
+#include "startup.h"
+#include "about.h"
+#pragma message("CLASSDEF.H: Finished project-specific headers.")
+
+#endif // _CLASSDEF_H_
