@@ -1,4 +1,4 @@
--LC:\Apps\BC5\LIB -Tpe -aa -c +
+-LC:\Apps\owlnx630\lib -LC:\Apps\BC5\LIB -Tpe -aa -c +
 c0w32.obj+
 railc.obj+
 departur.obj+
@@ -20,10 +20,14 @@ platdata.obj+
 ovlpdata.obj+
 routes.obj+
 locos.obj+
-timetabl.obj
+timetabl.obj+
+applicat.obj+
+dialog.obj+
+framewin.obj+
+module.obj+
+window.obj
 railc.exe,railc.map
 C:\Apps\BC5\lib\ctl3d32.lib+
-owlwt.lib+
 bidst.lib+
 import32.lib+
 cw32mt.lib
