@@ -410,6 +410,16 @@ BOOL TLayout::StartNew()
   TSelector::Reset();
   ClearData();
   IniVariables();
+  
+  // DIAGNOSTIC: Log startup
+  FILE* logFile = fopen("c:\\language\\railcontrol\\ptrack_debug.log", "a");
+  if (logFile != NULL)
+  {
+    fprintf(logFile, "=== RAILCONTROL STARTUP ===\n");
+    fprintf(logFile, "Initializing PTrackLoco array with 10 elements...\n");
+    fclose(logFile);
+  }
+  
   for (i=0; i<8; i++)  TempArray[i] = 0;
   for (i=0; i<10; i++)
   {
@@ -437,6 +447,45 @@ void TLayout::HandleTimeChange()
   HGLOBAL    ResGlobal;
   void far*  ResPoint;
   char       TextString[100];
+
+  // DIAGNOSTIC: Track PTrackLoco array usage every 10 time units
+  if (WorkTime % 10 == 0)
+  {
+    int UsedCount = 0;
+    FILE* logFile = fopen("c:\\language\\railcontrol\\ptrack_debug.log", "a");
+    if (logFile != NULL)
+    {
+      fprintf(logFile, "=== TIME %d: PTrackLoco Array State ===\n", WorkTime);
+      
+      for (int i = 0; i < 10; i++)
+      {
+        if (PTrackLoco[i]->GetInitialLocoPlat() != 0)
+        {
+          UsedCount++;
+          fprintf(logFile, "[%d] USED: Loco=%d, Status=%d\n", 
+                  i, PTrackLoco[i]->GetLoco(), PTrackLoco[i]->GetStatus());
+        }
+        else
+        {
+          fprintf(logFile, "[%d] FREE\n", i);
+        }
+      }
+      
+      fprintf(logFile, "Total Usage: %d/10 slots\n", UsedCount);
+      
+      if (UsedCount >= 8)  // Warning when approaching limit
+      {
+        fprintf(logFile, "WARNING: Array nearly full!\n");
+      }
+      else if (UsedCount >= 5)  // Info when light loco slots are full
+      {
+        fprintf(logFile, "INFO: Light loco slots (0-4) may be full\n");
+      }
+      
+      fprintf(logFile, "======================================\n\n");
+      fclose(logFile);
+    }
+  }
 
   // This routine is called every time the time changes and is responsible
   // for ensuring that everything that should be done is done.
@@ -3866,6 +3915,15 @@ void TLayout::HandleTracking()
             }
           }
 
+          // DIAGNOSTIC: Log when releasing PTrackLoco entry
+          FILE* logFile = fopen("c:\\language\\railcontrol\\ptrack_debug.log", "a");
+          if (logFile != NULL)
+          {
+            fprintf(logFile, "Releasing PTrackLoco[%d]: Loco=%d, Status=%d\n", 
+                    i, PTrackLoco[i]->GetLoco(), PTrackLoco[i]->GetStatus());
+            fclose(logFile);
+          }
+
           // Release the loco
           PTrackLoco[i]->SetInitialLocoPlat(0);
         }
@@ -4128,6 +4186,22 @@ void TLayout::LightLoco(int LocoNum, int ArrPnt, int Route, int Status)
 {
   int   i;
   BOOL  NotFound;
+  int   UsedCount = 0;
+  
+  // DIAGNOSTIC: Count current usage of PTrackLoco array
+  for (int j = 0; j < 10; j++)
+  {
+    if (PTrackLoco[j]->GetInitialLocoPlat() != 0) UsedCount++;
+  }
+  
+  // DIAGNOSTIC: Log current array state to file
+  FILE* logFile = fopen("c:\\language\\railcontrol\\ptrack_debug.log", "a");
+  if (logFile != NULL)
+  {
+    fprintf(logFile, "LightLoco called: Loco=%d, ArrPnt=%d, Route=%d, Status=%d, Usage=%d/10 slots\n", 
+            LocoNum, ArrPnt, Route, Status, UsedCount);
+    fclose(logFile);
+  }
 
   i = 0;
   NotFound = TRUE;
@@ -4143,6 +4217,13 @@ void TLayout::LightLoco(int LocoNum, int ArrPnt, int Route, int Status)
   // Error message
   if (NotFound)
   {
+    // DIAGNOSTIC: Log error to file
+    FILE* logFile = fopen("c:\\language\\railcontrol\\ptrack_debug.log", "a");
+    if (logFile != NULL)
+    {
+      fprintf(logFile, "ERROR: PTrackLoco overflow! All 5 light loco slots (0-4) occupied. Total usage: %d/10\n", UsedCount);
+      fclose(logFile);
+    }
     ::MessageBox(HWindow,
          "Internal error number ERR005 detected. Please note carefully\n how this error arose and report it to MDSoft.",
          APPNAME,
