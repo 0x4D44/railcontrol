@@ -1,8 +1,68 @@
+# Build artifacts and object files
+*.obj
+*.exe
+*.map
+*.lib
+*.dll
+*.csm
+*.pch
+
+# Borland C++ specific files
+*.dsw
+*.dsk
+*.ide
+*.prj
+*.obr
+*.tr2
+td32.tr2
+tdconfig.td2
+*.mbt
+*.mrt
+*.~de
+*.gid
+
+# Temporary and backup files
+*.bak
+*.backup
+*.tmp
+*.#??
+*~
+
+# Debug and profiling files
+*.log
+ptrack_debug.log
+
+# Build and test scripts (keep essential ones)
+build_owl*.bat
+test_*.bat
+
+# Documentation files created during development
+*_COMPLETED.md
+*_RESOLVED.md
+*_SUCCESS.md
+CLAUDE.md
+
+# Web downloads and research files
+*.mht
+
+# IDE and environment
 target/
 bin/
 obj/
 venv/
 .venv/
 env/
-*.tmp
-*.log
+
+# Backup directories
+backup/
+owlback/
+OWLBACK/
+
+# Original/backup source files
+*_original.*
+railc_debug.*
+railc_diag.*
+railc_test.*
+
+# Concatenated research files
+*.txt
