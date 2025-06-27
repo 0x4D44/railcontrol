@@ -38,7 +38,7 @@ public:
   TLocoyard(TWindow * AParent, int XPos, int YPos);
   ~TLocoyard();
   void GetWindowClass(WNDCLASS& WndClass);
-  LPSTR GetClassName();
+  virtual LPCTSTR GetClassName();
   void SetupWindow(void);
   virtual bool CanClose();
   void EvSize( UINT, TSize& );

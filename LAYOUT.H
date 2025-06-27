@@ -77,7 +77,7 @@ public:
   ~TLayout();
   void ClearData();
   void GetWindowClass(WNDCLASS& WndClass);
-  LPSTR GetClassName();
+  virtual LPCTSTR GetClassName();
   void SetupWindow(void);
   virtual bool CanClose();
   void QuitProgram();

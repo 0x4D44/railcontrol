@@ -117,7 +117,7 @@ void TSelector::GetWindowClass(WNDCLASS& WndClass)
 }
 
 
-LPSTR TSelector::GetClassName()
+LPCTSTR TSelector::GetClassName()
 {
   return "Selector button";
 }

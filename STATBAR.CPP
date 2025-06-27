@@ -136,7 +136,7 @@ void TStatbar::GetWindowClass(WNDCLASS &WndClass)
 }
 
 
-LPSTR TStatbar::GetClassName()
+LPCTSTR TStatbar::GetClassName()
 {
   // Return the class name
   return "Statbar Class";

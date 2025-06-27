@@ -133,7 +133,7 @@ void TLayout::GetWindowClass(WNDCLASS& WndClass)
 }
 
 
-LPSTR TLayout::GetClassName()
+LPCTSTR TLayout::GetClassName()
 {
   return "Layout Class";
 }

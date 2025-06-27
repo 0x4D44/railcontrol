@@ -31,7 +31,7 @@ public:
   TDepartur(TWindow * AParent, int XPos, int YPos);
   ~TDepartur();
   virtual void GetWindowClass(WNDCLASS& WndClass);
-  virtual LPSTR GetClassName();
+  virtual LPCTSTR GetClassName();
   virtual void SetupWindow(void);
   virtual bool CanClose();
   void EvSize( UINT, TSize& );

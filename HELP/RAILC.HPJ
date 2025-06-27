@@ -1,0 +1,19 @@
+; This help project requires hc 3.1
+[OPTIONS]
+errorlog = railc.err
+title = Rail Control Help
+contents = main_contents
+copyright = Copyright MDSoft 1994
+compress = 0
+oldkeyphrase = false
+warning = 3
+
+[FILES]
+railc.rtf
+
+[WINDOWS]
+main = "Rail Control Help",,,, (192,192,192 )
+
+[CONFIG]
+BrowseButtons()
+

@@ -42,7 +42,7 @@ class TToolbar : public TFrameWindow
 	 virtual void Paint(TDC& dc, bool erase, TRect& rect);
 	 void DrawScreen(HDC TheDC);
 	 void GetWindowClass(WNDCLASS &WndClass);
-	 LPSTR GetClassName();
+	 virtual LPCTSTR GetClassName();
 	 void EvSize( UINT, TSize& );
 
 	 DECLARE_RESPONSE_TABLE( TToolbar );
