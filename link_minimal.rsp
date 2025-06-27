@@ -1,6 +1,0 @@
-C:\Apps\BC5\LIB\c0w32.obj railc.obj departur.obj locoyard.obj arrivals.obj finish.obj about.obj startup.obj start.obj configur.obj layout.obj selector.obj platform.obj toolbar.obj toolbutt.obj statbar.obj section.obj platdata.obj ovlpdata.obj routes.obj locos.obj timetabl.obj
-railc.exe
-
-C:\Apps\BC5\lib\ctl3d32.lib C:\Apps\BC5\lib\owlwf.lib C:\Apps\BC5\lib\bidsf.lib C:\Apps\BC5\lib\import32.lib C:\Apps\BC5\lib\cw32.lib
-railc.def
-resource\railc_minimal.res
