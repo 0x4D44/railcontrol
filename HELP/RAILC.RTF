@@ -1,0 +1,1124 @@
+{\rtf1\ansi \deff0
+  {\fonttbl
+    {\f0\fmodern Courier;}
+    {\f1\froman Symbol;}
+    {\f2\fswiss Helv;}
+    {\f3\froman Times New Roman;}
+    {\f4\fswiss Arial;}
+    {\f5\froman CG Times (WN);}
+    {\f6\fswiss Univers (WN);}
+    {\f7\froman Roman;}
+    {\f8\fmodern Modern;}
+    {\f9\fscript Script;} 
+  } 
+
+  {
+   \colortbl; \red0\green0\blue0; \red0\green0\blue255; \red0\green255\blue255;       
+   \red0\green255\blue0; \red255\green0\blue255; \red255\green0\blue0; 
+   \red255\green255\blue0; \red255\green255\blue255;
+  }
+
+  {\stylesheet{\s244 \f5\fs16\up6 \sbasedon0\snext0 footnote reference;}
+  {\s245 \f5\fs20 \sbasedon0\snext245 footnote text;}
+  {\f5\fs20 \snext0 Normal;}
+}
+
+{\info
+  {\title RAILCONTROLHELP}
+  {\author Martin Davidson}
+  {\operator Martin Davidson}
+  {\creatim\yr1994\mo11\dy01\hr09\min00}
+  {\revtim\yr1994\mo11\dy01\hr09\min00}
+  {\version2.0}
+  {\edmins1}
+  {\nofpages0}
+  {\nofwords65536}
+  {\nofchars65536}
+  {\vern8368}
+}\widowctrl\ftnbj \sectd \linex0\endnhere \pard\plain \f5\fs20 
+{\plain \f5\up6 
+}
+#{\footnote main_contents}${\footnote Contents}K{\footnote Contents}}
+\pard\keepn
+\f4\fs8\par
+\f4\fs36\b{\{bml dispicon.bmp\}} Contents\par
+\f4\fs8\par
+\par\pard\plain \f4\fs20
+\par
+{\{bml loco.bmp\}}
+Rail Control is a simulation program which can be used to simulate the 
+traffic flow in a wide variety of stations. Prototype and timetable information is 
+held in a special {\b\i rail control data file (*.{\fs18 RCD})} which is read in 
+when the simulation initialises. In this way many different scenarios 
+can be simulated.\par
+To learn how to use help press {\fs18 F1} or choose How to use Help from the Help menu. For more information on Rail Control choose one of the following topics.\par
+\par
+\par
+\f4\fs24\b
+Overviews\plain\f4\fs20\par
+\par\uldb
+What is Rail Control?\plain \v\f4 whatis\plain\par \f4\fs20\uldb 
+Installing Rail Control\plain \v\f4 install\plain\par \f4\fs20\uldb 
+RCD file format\plain \v\f4 fileformat\plain\par \f4\fs20\uldb
+Version information\plain \v\f4 versioninfo\plain \par \f4\fs20\uldb
+\par
+\par
+\f4\fs24\b
+Commands\plain\f4\fs20\par
+\par\uldb
+Main window display\plain \v\f4 mainwin\plain\par \f4\fs20\uldb
+The tool bar\plain \v\f4 toolbars\plain\par \f4\fs20\uldb
+\par
+\par
+\f4\fs24\b
+RCD data file sections\plain\f4\fs20\parf
+\par\uldb
+RCD [SELECTOR]\plain\v\f4 selectors\plain\par \f4\fs20\uldb
+RCD [SECTIONS]\plain\v\f4 sections\plain\par \f4\fs20\uldb
+RCD [OVERLAPPING]\plain\v\f4 overlapping\plain\par \f4\fs20\uldb
+RCD [PLATFORMS]\plain\v\f4 platforms\plain\par \f4\fs20\uldb
+RCD [ROUTES]\plain\v\f4 routes\plain\par \f4\fs20\uldb
+RCD [LOCOS]\plain\v\f4 locos\plain\par \f4\fs20\uldb
+RCD [LOCOYARD]\plain\v\f4 locoyard\plain\par \f4\fs20\uldb
+RCD [TIMETABLE]\plain\v\f4 timetable\plain\par \f4\fs20\uldb
+RCD [GENERAL]\plain\v\f4 general\plain\par \f4\fs20\uldb
+\par\pard\plain
+\page 
+
+
+#{\footnote versioninfo}${\footnote Version information}K{\footnote Overviews;Version information}+{\footnote Overviews:40}
+\pard\keepn\f4\fs30\b Version information\par
+\pard\plain \f4\fs20
+\par
+\par
+This help file relates to version 2.3 of the Rail Control program {\fs18 (RAILC.EXE)}. This 
+version was released on 31/01/2008.\par
+\par
+\par
+{\b\f4\fs24 Changes in version 2.3:}\par
+\par
+\tx360\li360\fi-360
+{\f1\'B7}
+\tab {\b RCD configuration file.} New overlapping entry in RCD datafile.\par
+{\f1\'B7}
+\tab {\b RCD configuration file.} Comments allowed on timetable entries, and special {\i Becomes} processing.\par
+{\f1\'B7}
+\tab {\b RCD configuration file.} Maximum number of timetable entries increased from 199 to 499.\par
+{\f1\'B7}
+\tab {\b RCD configuration file.} Through trains supported.\par
+{\f1\'B7}
+\tab {\b RCD configuration file.} Locoyard is now optional.\par
+{\f1\'B7}
+\tab {\b RCD configuration file.} Additional locomotive types supported: {\fs18 [HEAVYFREIGHT], [SC_DMU156], [SC_DMU158], [SC_DMU170], [SC_TWIN156], [SC_TWIN158], [SC_TWIN170], [SC_DMU150]}.\par
+{\f1\'B7}
+\tab {\b RCD configuration file.} Debugging support added to enable selector and section numbers to be drawn.  These options are controlled via the {\fs18 [TIMETABLE]} section.\par
+{\f1\'B7}
+\tab {\b GUI.} Revised window sizes, automatic positioning and colours.\par
+{\f1\'B7}
+\tab {\b GUI.} Arrival and departure windows both now display details for next 8 trains (rather than 4).\par
+{\f1\'B7}
+\tab {\b GUI.} Arrival and departure delays now have 0.1 minute granularity.\par
+{\f1\'B7}
+\tab {\b Simulation.} Arriving train state machine revised to fix bugs.\par
+\par
+\par
+{\b\f4\fs24 Changes in version 2.0:}\par
+\par
+\tx360\li360\fi-360
+{\f1\'B7}
+\tab {\b RCD configuration file.} The station and timetable information is no longer hard 
+coded into the program. Instead this information is stored in a special configuration file: 
+the {\i\b\fs18 RCD} file. To reflect this change the program is no longer called King's Cross 
+Control: it is now called Rail Control.\par
+{\f1\'B7}
+\tab {\b Finish dialog.} When the specified simulation period is complete a status dialog 
+is displayed. The number of arriving and departing trains and the associated delays along 
+with a performance rating is displayed.\par
+\par\pard\f4\fs20
+\par
+Future improvements planned include: fully customizable sub-windows, enhanced 
+display options, improved graphical display and an improved {\fs18 RCD} file 
+format.\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+\par
+\page
+
+#{\footnote whatis}${\footnote What is Rail Control?}K{\footnote Overviews;What is Rail Control?}+{\footnote Overviews:05}
+\pard\keepn\f4\fs30\b What is Rail Control?\par
+\pard\plain \f4\fs20
+\par
+{\f2\cf2 \{bml splashwn.bmp\}}\par
+Rail Control is an advanced railway simulation program which allows you 
+to simulate stations of various types and sizes (e.g. terminal and 
+through stations).\par
+\par
+It uses a special configuration file known as an {\b\fs18 RCD} file to 
+store the necessary information. This file is read in at the start of 
+every simulation run and used to determine the layout of the track 
+sections, the available routes, the locomotives available and the 
+timetable used.\par
+\par
+For more information on the format of the {\fs18 RCD} data file refer 
+to the following topics.\par
+\par 
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+RCD file format\plain \v\f4 fileformat\plain\par \f4\fs20\uldb
+\par
+\page
+
+#{\footnote install}${\footnote Installing Rail Control}K{\footnote Overviews;Installing Rail Control}+{\footnote Overviews:10}
+\pard\keepn\f4\fs30\b Installing Rail Control\par
+\pard\plain \f4\fs20
+\par
+\par
+{\fs24\b Requirements}\par
+\par
+To run Rail Control you will require at least a 386sx16 computer with 4MB of memory capable of 
+running Windows in enhanced mode. While Rail Control may run on lower specification hardware 
+its performance will be very slow. The program itself requires around 1MB of disk space 
+depending upon how many {\fs18 RCD} files you have.\par
+\par
+{\fs24\b Installation of the program}\par
+\par
+To install Rail Control create a suitable directory on the target computer such as C:\\RAILC and 
+copy the files {\fs18 RAILC.EXE} and {\fs18 RAILC.HLP} from the distribution disk to this directory. Also copy the 
+file {\fs18 CTL3D.DLL} to this directory. You will also require an {\fs18 RCD} 
+data file so copy all files with the {\fs18 RCD} extension to this 
+directory as well.
+\par
+To install the Rail Control icon into Program Manager follow these simple steps:\par
+\par
+\tx360\li360\fi-360
+{\f1\'B7}
+\tab Select Program Manager using the mouse and then select the group that you wish to add the 
+Rail Control icon to by clicking on it. \par
+{\f1\'B7}
+\tab Select {\fs18 FILE|NEW...} from the main menu and then ensure that the {\b\fs18 ITEM} radio button 
+is selected and then press OK.\par
+{\f1\'B7}
+\tab Fill in the {\b Program Item Properties} dialog box using the one shown below as a guide.\par
+\par
+{\{bml progprop.bmp\}}\par
+\par
+{\f1\'B7}
+\tab Press {\fs18 OK} to add the item to the group.\par
+\par\pard\f4\fs20
+\par
+The program icon should now be installed in Program Manager.\par
+\par
+{\fs24\b Completing the installation}\par
+\par
+Before you can use Rail Control properly you must specify a {\fs18 RCD} data file to use. 
+To do this follow these instructions:\par
+\par
+\tx360\li360\fi-360
+{\f1\'B7}
+\tab Start Rail Control by double clicking the icon in Program Manager.\par
+{\f1\'B7}
+\tab Select {\fs18 GAME|SET DATA FILE...} from the main menu and select the name of a 
+{\fs18 RCD} data file. For example choose {\fs18 KINGSX.RCD}.\par
+{\fs24\b  
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+\par
+\page
+
+#{\footnote fileformat}${\footnote RCD file format}K{\footnote Overviews;RCD file format}+{\footnote Overviews:15}
+\pard\keepn\f4\fs30\b RCD file format\par
+\pard\plain \f4\fs20
+\par
+\par
+{\fs24\b Overview}\par
+\par
+The {\fs18 RCD} file is used to store all the necessary information 
+required to completely specify a simulation. No information is hard 
+coded into the program. More specifically the following items are stored 
+in the {\fs18 RCD} file.\par
+\par
+\tx360\li360\fi-360
+{\f1\'B7}
+\tab {\b Selector information:} Selectors are used to select start and end points on routes.\par
+{\f1\'B7}
+\tab {\b Section information:} The track in the station area is divided into sections 
+each of which has its position specified in a device independant coordinate frame.\par
+{\f1\'B7}
+\tab {\b Platform information:} Each platform indicator needs information specified about its 
+position. These are the indicators which change colour to indicate the status of a train when it 
+is in a platform.\par
+{\f1\'B7}
+\tab {\b Route information:} Information about all the possible routes from one selector to 
+another selector.\par
+{\f1\'B7}
+\tab {\b Loco information:} This details all the various locos available during the 
+simulation and their type classification. \par
+{\f1\'B7}
+\tab {\b Locoyard information:} The loco types available in the locoyard at the start of 
+a simulation.\par
+{\f1\'B7}
+\tab {\b Timetable information:} This is the general arrival/departure timetable used 
+in the simulation.\par
+{\f1\'B7}
+\tab {\b General information:} Information about the simulation start 
+and stop time.\par
+\par\pard\f4\fs20
+{\fs24\b RCD file format}\par
+\par
+The {\fs18 RCD} file is a plain ASCII text file which is arranged into 
+sections as described by the headings above. Thus there are sections 
+named {\fs18 [SELECTORS]} and {\fs18 [ROUTES]} for example. The data 
+follows the section heading and is arranged in rows with each line 
+having the same format.\par
+\par
+Each line is identified by a {\i line number} which is the first item in 
+the line. In a section each line must have a unique line number which is 
+within the limits specified. If it is outside the allowable limits Rail 
+Control will refuse to read the file: if Rail Control detects any errors 
+in the {\fs18 RCD} file then it will display a warning message and stop 
+reading the file.\par
+\par
+The following topics detail the format of each of the data sections in 
+the {\fs18 RCD} file.\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+RCD [SELECTOR]\plain\v\f4 selectors\plain\par \f4\fs20\uldb
+RCD [SECTIONS]\plain\v\f4 sections\plain\par \f4\fs20\uldb
+RCD [OVERLAPPING]\plain\v\f4 overlapping\plain\par \f4\fs20\uldb
+RCD [PLATFORMS]\plain\v\f4 platforms\plain\par \f4\fs20\uldb
+RCD [ROUTES]\plain\v\f4 routes\plain\par \f4\fs20\uldb
+RCD [LOCOS]\plain\v\f4 locos\plain\par \f4\fs20\uldb
+RCD [LOCOYARD]\plain\v\f4 locoyard\plain\par \f4\fs20\uldb
+RCD [TIMETABLE]\plain\v\f4 timetable\plain\par \f4\fs20\uldb
+RCD [GENERAL]\plain\v\f4 general\plain\par \f4\fs20\uldb
+\par
+\page
+
+
+#{\footnote selectors}${\footnote RCD [SELECTOR]}K{\footnote RCD data file;RCD [SELECTOR]}+{\footnote RCD:05}
+\pard\keepn\f4\fs30\b RCD [SELECTOR]\par
+\pard\plain \f4\fs20
+\par
+\par
+Each entry in the {\fs18 [SELECTOR]} section has the following form:\par
+\par
+\f0\fs20
+<Number>, <X>, <Y>, <W>, <H>, <Type>, <Platform ref>, <Name>\par
+\f4\fs20\par
+where:\par
+\par
+\tx1800\li1800\fi-1800
+{\f0\fs20 <Number>}\tab is the selector reference number. The allowable range is 
+1 to 49.\par
+{\f0\fs20 <X>}\tab is the X position in device independant coordinates. The 
+size of the screen is 850x550 (WxH).\par
+{\f0\fs20 <Y>}\tab is the Y position in device independant coordinates. The 
+size of the screen is 850x550 (WxH).\par
+{\f0\fs20 <W>}\tab is the width of the selector in device independant 
+coordinates. The recommended size is 30 units.\par
+{\f0\fs20 <H>}\tab is the height of the selector in device independant 
+coordinates. The recommended size is 30 units.\par
+{\f0\fs20 <Type>}\tab is the type of the selector. See below for defined 
+types.\par
+{\f0\fs20 <Platform ref>}\tab is the reference number of the associated 
+platform indicator. This value should only be non-zero when the <Type> 
+field indicates that this selector controls a platform or that this is the 
+hold point (see below for more information). Otherwise this value should be zero.\par
+{\f0\fs20 <Name>}\tab is the name which is displayed on the selector. 
+This field is treated as a string. It is recommended that it should not 
+be any longer than 2 characters. The maximum length allowable is 5 
+characters.\par
+\pard\plain\f4\fs20
+\par
+{\fs24\b Defined selector types}\par
+\par
+The following selector types are defined:\par
+\par
+\tx720\li720\fi-360
+{\b 1}\tab Input line.\par
+{\b 2}\tab Output line.\par
+{\b 3}\tab Non-electrified platform (suitable for diesel trains only).\par
+{\b 4}\tab Electrified platform (suitable for all trains).\par
+{\b 5}\tab Hold point which is suitable only for light loco movements (only one allowed).\par
+{\b 6}\tab Locoyard (only one allowed).\par
+\par\pard\plain\f4\fs20
+Values other than those defined above are reserved for future use and 
+should not be used. Do not attempt to have more than one type 5 
+(locoyard) or type 6 (hold point) section.\par
+\par
+The value of the {\f0\fs20 <Platform ref>} field has a special use when 
+the {\f0\fs20 <Type>} field is set to 6 (hold-point). In this case it 
+contains the reference number of the section to be used as the hold-point section. It is recommended 
+that this section be adjacent to the hold-point selector.\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+RCD [SECTIONS]\plain\v\f4 sections\plain\par \f4\fs20\uldb
+RCD [OVERLAPPING]\plain\v\f4 overlapping\plain\par \f4\fs20\uldb
+RCD [PLATFORMS]\plain\v\f4 platforms\plain\par \f4\fs20\uldb
+RCD [ROUTES]\plain\v\f4 routes\plain\par \f4\fs20\uldb
+RCD [LOCOS]\plain\v\f4 locos\plain\par \f4\fs20\uldb
+RCD [LOCOYARD]\plain\v\f4 locoyard\plain\par \f4\fs20\uldb
+RCD [TIMETABLE]\plain\v\f4 timetable\plain\par \f4\fs20\uldb
+RCD [GENERAL]\plain\v\f4 general\plain\par \f4\fs20\uldb
+\par
+\page
+
+
+#{\footnote sections}${\footnote RCD [SECTIONS]}K{\footnote RCD data file;RCD [SECTIONS]}+{\footnote RCD:10}
+\pard\keepn\f4\fs30\b RCD [SECTIONS]\par
+\pard\plain \f4\fs20
+\par
+\par
+Each entry in the {\fs18 [SECTIONS]} section has the following form:\par
+\par
+\f0\fs20
+<Number>, <X1>, <Y1>, <X2>, <Y2>, <X3>, <Y3>, <X4>, <Y4>\par
+\f4\fs20\par
+where:\par
+\par
+\tx1800\li1800\fi-1800
+{\f0\fs20 <Number>}\tab is the section reference number. The allowable range is 
+1 to 999.\par
+{\f0\fs20 <X1>}\tab is the X position in device independant coordinates of the top left 
+corner.\par 
+{\f0\fs20 <Y1>}\tab is the Y position in device independant coordinates of the top left 
+corner.\par 
+{\f0\fs20 <X2>}\tab is the X position in device independant coordinates of the top right 
+corner.\par 
+{\f0\fs20 <Y2>}\tab is the Y position in device independant coordinates of the top right 
+corner.\par 
+{\f0\fs20 <X3>}\tab is the X position in device independant coordinates of the bottom right 
+corner.\par 
+{\f0\fs20 <Y3>}\tab is the Y position in device independant coordinates of the bottom right 
+corner.\par 
+{\f0\fs20 <X4>}\tab is the X position in device independant coordinates of the bottom left 
+corner.\par 
+{\f0\fs20 <Y4>}\tab is the Y position in device independant coordinates of the bottom left 
+corner.\par 
+\pard\plain\f4\fs20
+\par
+The size of the screen in device independant coordinates is 850x550 
+units (width by height). It is recommended that all the section 
+information is kept within a sub-rectangle of 700x400 units centered on 
+the screen.\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+RCD [SELECTOR]\plain\v\f4 selectors\plain\par \f4\fs20\uldb
+RCD [PLATFORMS]\plain\v\f4 platforms\plain\par \f4\fs20\uldb
+RCD [ROUTES]\plain\v\f4 routes\plain\par \f4\fs20\uldb
+RCD [LOCOS]\plain\v\f4 locos\plain\par \f4\fs20\uldb
+RCD [LOCOYARD]\plain\v\f4 locoyard\plain\par \f4\fs20\uldb
+RCD [TIMETABLE]\plain\v\f4 timetable\plain\par \f4\fs20\uldb
+RCD [GENERAL]\plain\v\f4 general\plain\par \f4\fs20\uldb
+\par
+\page
+
+
+#{\footnote overlapping}${\footnote RCD [OVERLAPPING]}K{\footnote RCD data file;RCD [OVERLAPPING]}+{\footnote RCD:11}
+\pard\keepn\f4\fs30\b RCD [OVERLAPPING]\par
+\pard\plain \f4\fs20
+\par
+\par
+Each entry in the {\fs18 [OVERLAPPING]} section has the following form:\par
+\par
+\f0\fs20
+<Number>, <Section1>, <Section2>\par
+\f4\fs20\par
+where:\par
+\par
+\tx1800\li1800\fi-1800
+{\f0\fs20 <Number>}\tab is the overlapping reference number. The allowable range is 
+1 to 49.\par
+{\f0\fs20 <Section1>}\tab is the reference number of the first section.\par
+{\f0\fs20 <Section2>}\tab is the reference number of the second section.\par
+\pard\plain\f4\fs20
+\par
+The {\fs18 [OVERLAPPING]} section of the data file allows sections which phyiscally overlap to be identified.  
+Rail Control will then treat these two sections as being the same logical section; thus if {\f0\fs20 <Section1>}
+is occupied, no routes can be set up that use {\f0\fs20 <Section2>} and vice versa.\par
+\par
+This datafile item is new for v2.3.\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+RCD [SELECTOR]\plain\v\f4 selectors\plain\par \f4\fs20\uldb
+RCD [SECTIONS]\plain\v\f4 sections\plain\par \f4\fs20\uldb
+RCD [PLATFORMS]\plain\v\f4 platforms\plain\par \f4\fs20\uldb
+RCD [ROUTES]\plain\v\f4 routes\plain\par \f4\fs20\uldb
+RCD [LOCOS]\plain\v\f4 locos\plain\par \f4\fs20\uldb
+RCD [LOCOYARD]\plain\v\f4 locoyard\plain\par \f4\fs20\uldb
+RCD [TIMETABLE]\plain\v\f4 timetable\plain\par \f4\fs20\uldb
+RCD [GENERAL]\plain\v\f4 general\plain\par \f4\fs20\uldb
+\par
+\page
+
+
+#{\footnote platforms}${\footnote RCD [PLATFORMS]}K{\footnote RCD data file;RCD [PLATFORMS]}+{\footnote RCD:15}
+\pard\keepn\f4\fs30\b RCD [PLATFORMS]\par
+\pard\plain \f4\fs20
+\par
+\par
+Each entry in the {\fs18 [PLATFORMS]} section has the following form:\par
+\par
+\f0\fs20
+<Number>, <X1>, <Y1>, <X2>, <Y2>, <X3>, <Y3>, <X4>, <Y4>\par
+\f4\fs20\par
+where:\par
+\par
+\tx1800\li1800\fi-1800
+{\f0\fs20 <Number>}\tab is the platform reference number. The allowable range is 
+1 to 49.\par
+{\f0\fs20 <X1>}\tab is the X position in device independant coordinates of the top left 
+corner.\par 
+{\f0\fs20 <Y1>}\tab is the Y position in device independant coordinates of the top left 
+corner.\par 
+{\f0\fs20 <X2>}\tab is the X position in device independant coordinates of the top right 
+corner.\par 
+{\f0\fs20 <Y2>}\tab is the Y position in device independant coordinates of the top right 
+corner.\par 
+{\f0\fs20 <X3>}\tab is the X position in device independant coordinates of the bottom right 
+corner.\par 
+{\f0\fs20 <Y3>}\tab is the Y position in device independant coordinates of the bottom right 
+corner.\par 
+{\f0\fs20 <X4>}\tab is the X position in device independant coordinates of the bottom left 
+corner.\par 
+{\f0\fs20 <Y4>}\tab is the Y position in device independant coordinates of the bottom left 
+corner.\par 
+\pard\plain\f4\fs20
+\par
+The size of the screen in device independant coordinates is 850x550 
+units (width by height).\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+RCD [SELECTOR]\plain\v\f4 selectors\plain\par \f4\fs20\uldb
+RCD [SECTIONS]\plain\v\f4 sections\plain\par \f4\fs20\uldb
+RCD [OVERLAPPING]\plain\v\f4 overlapping\plain\par \f4\fs20\uldb
+RCD [ROUTES]\plain\v\f4 routes\plain\par \f4\fs20\uldb
+RCD [LOCOS]\plain\v\f4 locos\plain\par \f4\fs20\uldb
+RCD [LOCOYARD]\plain\v\f4 locoyard\plain\par \f4\fs20\uldb
+RCD [TIMETABLE]\plain\v\f4 timetable\plain\par \f4\fs20\uldb
+RCD [GENERAL]\plain\v\f4 general\plain\par \f4\fs20\uldb
+\par
+\page
+
+
+#{\footnote routes}${\footnote RCD [ROUTES]}K{\footnote RCD data file;RCD [ROUTES]}+{\footnote RCD:20}
+\pard\keepn\f4\fs30\b RCD [ROUTES]\par
+\pard\plain \f4\fs20
+\par
+\par
+Each entry in the {\fs18 [ROUTES]} section has the following form:\par
+\par
+\f0\fs20
+<Number>, <From>, <To>, <Clear1>, <Clear2>, <Clear3>, <Clear4>, <Clear5>, <Clear6>\par
+\f4\fs20\par
+where:\par
+\par
+\tx1800\li1800\fi-1800
+{\f0\fs20 <Number>}\tab is the routes reference number. The allowable range is 
+1 to 999.\par
+{\f0\fs20 <From>}\tab is the reference number of the selector at which 
+the route starts.\par
+{\f0\fs20 <To>}\tab is the reference number of the selector at which the 
+route ends.\par
+{\f0\fs20 <Clear1>}\tab is a specially formatted number which contains 
+the reference numbers of either one or two sections which are cleared as 
+the first part of the route. For more detailed information see below.\par
+{\f0\fs20 <Clear2>}\tab is a specially formatted number which contains 
+the reference numbers of either one or two sections which are cleared as 
+the second part of the route. For more detailed information see below.\par
+{\f0\fs20 <Clear3>}\tab is a specially formatted number which contains 
+the reference numbers of either one or two sections which are cleared as 
+the third part of the route. For more detailed information see below.\par
+{\f0\fs20 <Clear4>}\tab is a specially formatted number which contains 
+the reference numbers of either one or two sections which are cleared as 
+the fourth part of the route. For more detailed information see below.\par
+{\f0\fs20 <Clear5>}\tab is a specially formatted number which contains 
+the reference numbers of either one or two sections which are cleared as 
+the fifth part of the route. For more detailed information see below.\par
+{\f0\fs20 <Clear6>}\tab is a specially formatted number which contains 
+the reference numbers of either one or two sections which are cleared as 
+the sixth part of the route. For more detailed information see below.\par
+\pard\plain\f4\fs20
+\par
+{\fs24\b More information}\par
+\par
+Each route is divided into six parts with one part being cleared for 
+every clock tick. Since a clock tick occurs every 30 {\i simulated} 
+seconds it will take 3 {\i simulated} minutes to clear a complete 
+route.\par
+\par
+At every tick either one or two sections may be cleared. This is 
+determined by the value in the {\f0\fs20 <ClearX>} items. The number 
+is formed by concatenating the values of the reference values of the 
+sections to be cleared at the given part of the route.\par
+\par
+Thus to clear sections 12 and 5 on the first clock tick enter 12005 
+for {\f0\fs20 <Clear1>}. Note that the second value is padded with a zero 
+so that each section occupies three digits. Rail Control automatically 
+checks to ensure that the sections specified actually exist.\par
+\par
+A special condition exists for routes which start from the hold point. 
+The value of the {\f0\fs20 <Clear1>} field should be set to zero (0) as 
+the first section to be cleared is the hold section (specified in the 
+{\fs18 [SELECTOR]} section). This section is cleared automatically by Rail 
+Control.\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+RCD [SELECTOR]\plain\v\f4 selectors\plain\par \f4\fs20\uldb
+RCD [SECTIONS]\plain\v\f4 sections\plain\par \f4\fs20\uldb
+RCD [OVERLAPPING]\plain\v\f4 overlapping\plain\par \f4\fs20\uldb
+RCD [PLATFORMS]\plain\v\f4 platforms\plain\par \f4\fs20\uldb
+RCD [LOCOS]\plain\v\f4 locos\plain\par \f4\fs20\uldb
+RCD [LOCOYARD]\plain\v\f4 locoyard\plain\par \f4\fs20\uldb
+RCD [TIMETABLE]\plain\v\f4 timetable\plain\par \f4\fs20\uldb
+RCD [GENERAL]\plain\v\f4 general\plain\par \f4\fs20\uldb
+\par
+\page
+
+
+#{\footnote locos}${\footnote RCD [LOCOS]}K{\footnote RCD data file;RCD [LOCOS]}+{\footnote RCD:25}
+\pard\keepn\f4\fs30\b RCD [LOCOS]\par
+\pard\plain \f4\fs20
+\par
+\par
+Each entry in the {\fs18 [LOCOS]} section has the following form:\par
+\par
+\f0\fs20
+<Number>, <Class>, <Loco number>, <Type>\par
+\f4\fs20\par
+where:\par
+\par
+\tx1800\li1800\fi-1800
+{\f0\fs20 <Number>}\tab is the locos reference number. The allowable range is 
+1 to 499.\par
+{\f0\fs20 <Class>}\tab is the loco class number. Typical classes are 31, 47, 55 etc.\par 
+{\f0\fs20 <Loco number>}\tab is the actual loco number. Typical numbers 
+are 100, 517 etc. This value is concatenated with the {\f0\fs20 <Class>} value to form 
+the combined loco number. This field is treated as a string so be sure to 
+specify leading zeros if they are required.\par
+{\f0\fs20 <Type>}\tab is the flag which determines the loco type. For more 
+detailed information see below.\par
+\pard\plain\f4\fs20
+\par
+{\fs24\b Defined loco types}\par
+\par
+The following loco types are defined:\par
+\par
+\tx720\li720\fi-360
+{\b 1}\tab ECS (empty coaching stock) low power loco {\fs18 (SC_ECS)}.\par
+{\b 2}\tab HST (High speed train/Intercity 125) type loco {\fs18 (SC_HST)}.\par
+{\b 3}\tab EMU (Electric multiple unit) for suburban duties {\fs18 (SC_EMU)}.\par
+{\b 4}\tab Deltic high power mainline locomotive {\fs18 (SC_DELTIC)}.\par
+{\b 5}\tab Normal medium power mainline locomotive {\fs18 (SC_NORMAL)}.\par
+{\b 6}\tab Relief medium power mainline locomotive {\fs18 (SC_RELIEF)}.\par
+{\b 7}\tab Light (unattached) ECS low power locomotive {\fs18 (SC_LIGHTECS)}.\par
+{\b 8}\tab Light (unattached) normal medium power mainline locomotive {\fs18 (SC_LIGHTNORM)}.\par
+{\b 9}\tab Light (unattached) Deltic high power mainline locomotive {\fs18 (SC_LIGHTDELT)}.\par
+{\b 10}\tab Push/pull train typically using a class 47/7 locomotive {\fs18 (SC_PUSHPULL)}.\par
+{\b 11}\tab DMU (Diesel mutliple unit) for suburban duties {\fs18 (SC_DMU1)}.\par
+{\b 12}\tab Class 37/4 medium power mainline locomotive {\fs18 (SC_CLASS37)}.\par
+{\b 13}\tab Light (unattached) relief medium power locomotive {\fs18 (SC_LIGHTRLF)}.\par
+{\b 14}\tab Light (unattached) class 37/4 locomotive {\fs18 (SC_LIGHT37)}.\par
+{\b 15}\tab Heavy freight locomotive - typically Class 56, 58, 60 or 66 {\fs18 (SC_HEAVYFREIGHT)}.\par
+{\b 16}\tab Single class 156 DMU {\fs18 (SC_DMU156)}.\par
+{\b 17}\tab Single class 158 DMU {\fs18 (SC_DMU158)}.\par
+{\b 18}\tab Single class 170 DMU {\fs18 (SC_DMU170)}.\par
+{\b 19}\tab Twin class 156 DMU {\fs18 (SC_TWIN156)}.\par
+{\b 20}\tab Twin class 158 DMU {\fs18 (SC_TWIN158)}.\par
+{\b 21}\tab Twin class 170 DMU {\fs18 (SC_TWIN170)}.\par
+{\b 22}\tab Single class 150 DMU {\fs18 (SC_DMU150)}.\par
+\par\pard\plain\f4\fs20
+Only values 1 to 6, 10 to 12 and 15 to 22 inclusive should be used for the {\f0\fs20 <Type>} field. 
+Values 7, 8, 9, 13 and 14 are used in the {\fs18 [TIMETABLE]} section. Values other 
+than those defined above are reserved for future use and should not be used.\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+RCD [SELECTOR]\plain\v\f4 selectors\plain\par \f4\fs20\uldb
+RCD [SECTIONS]\plain\v\f4 sections\plain\par \f4\fs20\uldb
+RCD [OVERLAPPING]\plain\v\f4 overlapping\plain\par \f4\fs20\uldb
+RCD [PLATFORMS]\plain\v\f4 platforms\plain\par \f4\fs20\uldb
+RCD [ROUTES]\plain\v\f4 routes\plain\par \f4\fs20\uldb
+RCD [LOCOYARD]\plain\v\f4 locoyard\plain\par \f4\fs20\uldb
+RCD [TIMETABLE]\plain\v\f4 timetable\plain\par \f4\fs20\uldb
+RCD [GENERAL]\plain\v\f4 general\plain\par \f4\fs20\uldb
+\par
+\page
+
+
+#{\footnote locoyard}${\footnote RCD [LOCOYARD]}K{\footnote RCD data file;RCD [LOCOYARD]}+{\footnote RCD:30}
+\pard\keepn\f4\fs30\b RCD [LOCOYARD]\par
+\pard\plain \f4\fs20
+\par
+\par
+Each entry in the {\fs18 [LOCOYARD]} section has the following form:\par
+\par
+\f0\fs20
+<Loco type>, <Refuel delay>\par
+\f4\fs20\par
+where:\par
+\par
+\tx1800\li1800\fi-1800
+{\f0\fs20 <Loco type>}\tab is the flag which determines the loco type. For more 
+detailed information see below.\par
+{\f0\fs20 <Refuel delay>}\tab is the time in minutes that the loco will be refuelling for from 
+the start of the simulation. This value can be set between 0 and 60 minutes.\par 
+\par
+\pard\plain\f4\fs20
+Alternatively, if the locoyard is not required for the simulation, it can be disabled by entering the word {\i Disabled} on the 
+line immediately following the {\fs18 [LOCOYARD]} heading.  If the locoyard is disabled, then locomotives will not need to be 
+refuelled and can be reused on other trains immediately.\par
+\par
+\par
+{\fs24\b Defined loco types}\par
+\par
+The following loco types are defined:\par
+\par
+\tx720\li720\fi-360
+{\b 1}\tab ECS (empty coaching stock) low power loco {\fs18 (SC_ECS)}.\par
+{\b 2}\tab HST (High speed train/Intercity 125) type loco {\fs18 (SC_HST)}.\par
+{\b 3}\tab EMU (Electric multiple unit) for suburban duties {\fs18 (SC_EMU)}.\par
+{\b 4}\tab Deltic high power mainline locomotive {\fs18 (SC_DELTIC)}.\par
+{\b 5}\tab Normal medium power mainline locomotive {\fs18 (SC_NORMAL)}.\par
+{\b 6}\tab Relief medium power mainline locomotive {\fs18 (SC_RELIEF)}.\par
+{\b 7}\tab Light (unattached) ECS low power locomotive {\fs18 (SC_LIGHTECS)}.\par
+{\b 8}\tab Light (unattached) normal medium power mainline locomotive {\fs18 (SC_LIGHTNORM)}.\par
+{\b 9}\tab Light (unattached) Deltic high power mainline locomotive {\fs18 (SC_LIGHTDELT)}.\par
+{\b 10}\tab Push/pull train typically using a class 47/7 locomotive {\fs18 (SC_PUSHPULL)}.\par
+{\b 11}\tab DMU (Diesel mutliple unit) for suburban duties {\fs18 (SC_DMU1)}.\par
+{\b 12}\tab Class 37/4 medium power mainline locomotive {\fs18 (SC_CLASS37)}.\par
+{\b 13}\tab Light (unattached) relief medium power locomotive {\fs18 (SC_LIGHTRLF)}.\par
+{\b 14}\tab Light (unattached) class 37/4 locomotive {\fs18 (SC_LIGHT37)}.\par
+{\b 15}\tab Heavy freight locomotive - typically Class 56, 58, 60 or 66 {\fs18 (SC_HEAVYFREIGHT)}.\par
+{\b 16}\tab Single class 156 DMU {\fs18 (SC_DMU156)}.\par
+{\b 17}\tab Single class 158 DMU {\fs18 (SC_DMU158)}.\par
+{\b 18}\tab Single class 170 DMU {\fs18 (SC_DMU170)}.\par
+{\b 19}\tab Twin class 156 DMU {\fs18 (SC_TWIN156)}.\par
+{\b 20}\tab Twin class 158 DMU {\fs18 (SC_TWIN158)}.\par
+{\b 21}\tab Twin class 170 DMU {\fs18 (SC_TWIN170)}.\par
+{\b 22}\tab Single class 150 DMU {\fs18 (SC_DMU150)}.\par
+\par\pard\plain\f4\fs20
+Only values 1 to 6, 10 to 12 and 15 to 22 inclusive should be used for the {\f0\fs20 <Type>} field. 
+Values 7, 8, 9, 13 and 14 are used in the {\fs18 [TIMETABLE]} section. Values other 
+than those defined above are reserved for future use and should not be used.\par
+\par
+Up to 15 locomotives can be defined to be in the locoyard at the start 
+of the simulation. Attempts to set more than this will generate an 
+error.\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+RCD [SELECTOR]\plain\v\f4 selectors\plain\par \f4\fs20\uldb
+RCD [SECTIONS]\plain\v\f4 sections\plain\par \f4\fs20\uldb
+RCD [OVERLAPPING]\plain\v\f4 overlapping\plain\par \f4\fs20\uldb
+RCD [PLATFORMS]\plain\v\f4 platforms\plain\par \f4\fs20\uldb
+RCD [ROUTES]\plain\v\f4 routes\plain\par \f4\fs20\uldb
+RCD [LOCOS]\plain\v\f4 locos\plain\par \f4\fs20\uldb
+RCD [TIMETABLE]\plain\v\f4 timetable\plain\par \f4\fs20\uldb
+RCD [GENERAL]\plain\v\f4 general\plain\par \f4\fs20\uldb
+\par
+\page
+
+
+#{\footnote timetable}${\footnote RCD [TIMETABLE]}K{\footnote RCD data file;RCD [TIMETABLE]}+{\footnote RCD:35}
+\pard\keepn\f4\fs30\b RCD [TIMETABLE]\par
+\pard\plain \f4\fs20
+\par
+\par
+Each entry in the {\fs18 [TIMETABLE]} section has the following form:\par
+\par
+\f0\fs20
+<Number>, <Arr desc>, <Dep desc>, <Arr point>, <Arr time>, <Release time>, <Dep time>, <Arr code>, <Dep code>, <Status>, <Extra1>, <Reuse>  # <Comment>\par
+\f4\fs20\par
+where:\par
+\par
+\tx1800\li1800\fi-1800
+{\f0\fs20 <Number>}\tab is the timetable reference number. The allowable range is 
+1 to 499.\par
+{\f0\fs20 <Arr desc>}\tab is a text string of up to 16 characters in length. 
+This is the arrival description which describes the train in the 
+arrivals window and in the platform window until the stock is 
+released.\par
+{\f0\fs20 <Dep desc>}\tab is a text string of up to 16 characters in length. 
+This is the departure description which describes the train in the 
+departures window and in the platform window once the stock has been  
+released.\par
+{\f0\fs20 <Arr point>}\tab is the reference number of the selector at which the train 
+appears. The name of this selector is used in the arrivals window to 
+indicate which line the train will appear on. The selector number should 
+refer to a selector of type {\i Input}.\par
+{\f0\fs20 <Arr time>}\tab is the offical arrival time of the train. 
+Depending on the options set the train may be subject to a random delay 
+which will be added to or subtracted from this time. The format of this field is 
+{\fs18 HHMM} where {\fs18 HH} signifies the arrival hour and {\fs18 MM} the arrival 
+minute. Thus for train arriving at 12:23pm the value of this field should be 1223.\par
+{\f0\fs20 <Release time>}\tab is the time it takes the stock to be 
+released. This corresponds to the time it takes for passengers to 
+disembark, for the stock to be cleaned and for the loco to be uncoupled 
+from the stock. This time value is specified in minutes. Thus for a 
+release time of 3 hours the value of this field is 180.\par 
+{\f0\fs20 <Dep time>}\tab is the offical departure time of the train. 
+This is specified in the same {\fs18 HHMM} format used for {\f0\fs20 Arr 
+time} field. For a train which departs as ECS (empty coaching stock) 
+the value of this field should be zero (0).\par
+{\f0\fs20 <Arr code>}\tab is the {\i stock code} of the arriving 
+train. See below for more information.\par
+{\f0\fs20 <Dep code>}\tab is the {\i stock code} of the departing 
+train. See below for more information.\par
+{\f0\fs20 <Status>}\tab is the arriving train status. The value of this 
+field should only be non-zero if it is desired that the train should be 
+in a platform at the start of the simulation. See below for more 
+information.\par
+{\f0\fs20 <Extra1>}\tab is an extra piece of data whose interpretation 
+is dependant on whether the train is in the station at the start of the 
+simulation. See below for more information.\par
+{\f0\fs20 <Reuse>}\tab determines whether the locomotive from this train is 
+reused on another train. The default value of zero means that this loco is 
+not to be reused. To reuse a locomotive set the value of this field to the 
+{\f0\fs20 <Number>} of the timetable item which is to reuse this loco. When the first train 
+departs Rail Control will check to see if this later timetable item has a loco 
+assigned to it. If it has not then the loco will be reassigned.\par
+{\f0\fs20 <Comment>}\tab is an optional field containing a comment.  Normally any 
+characters following the # character are ignored.  However if the comment begins with 
+the word {\i Becomes}, then this field is used for locomotive reuse validation.  In this case 
+the text following the word {\i Becomes} should be the arrival description of the timetable 
+entry identified by the {\f0\fs20 <Reuse>} field.  This adds a secondary cross-check that 
+helps ensure that the {\f0\fs20 <Reuse>} field is set correctly.\par
+\pard\plain\f4\fs20
+\par
+{\fs24\b Defined stock codes}\par
+\par
+The fields {\f0\fs20 <Arr code>} and {\f0\fs20 <Dep code>} should be 
+filled with a {\i stock code}. The following codes are defined:\par
+\par
+\tx720\li720\fi-360
+{\b 1}\tab ECS (empty coaching stock) low power loco {\fs18 (SC_ECS)}.\par
+{\b 2}\tab HST (High speed train/Intercity 125) type loco {\fs18 (SC_HST)}.\par
+{\b 3}\tab EMU (Electric multiple unit) for suburban duties {\fs18 (SC_EMU)}.\par
+{\b 4}\tab Deltic high power mainline locomotive {\fs18 (SC_DELTIC)}.\par
+{\b 5}\tab Normal medium power mainline locomotive {\fs18 (SC_NORMAL)}.\par
+{\b 6}\tab Relief medium power mainline locomotive {\fs18 (SC_RELIEF)}.\par
+{\b 7}\tab Light (unattached) ECS low power locomotive {\fs18 (SC_LIGHTECS)}.\par
+{\b 8}\tab Light (unattached) normal medium power mainline locomotive {\fs18 (SC_LIGHTNORM)}.\par
+{\b 9}\tab Light (unattached) Deltic high power mainline locomotive {\fs18 (SC_LIGHTDELT)}.\par
+{\b 10}\tab Push/pull train typically using a class 47/7 locomotive {\fs18 (SC_PUSHPULL)}.\par
+{\b 11}\tab DMU (Diesel multiple unit) for suburban duties {\fs18 (SC_DMU1)}.\par
+{\b 12}\tab Class 37/4 medium power mainline locomotive {\fs18 (SC_CLASS37)}.\par
+{\b 13}\tab Light (unattached) relief medium power locomotive {\fs18 (SC_LIGHTRLF)}.\par
+{\b 14}\tab Light (unattached) class 37/4 locomotive {\fs18 (SC_LIGHT37)}.\par
+{\b 15}\tab Heavy freight locomotive - typically Class 56, 58, 60 or 66 {\fs18 (SC_HEAVYFREIGHT)}.\par
+{\b 16}\tab Single class 156 DMU {\fs18 (SC_DMU156)}.\par
+{\b 17}\tab Single class 158 DMU {\fs18 (SC_DMU158)}.\par
+{\b 18}\tab Single class 170 DMU {\fs18 (SC_DMU170)}.\par
+{\b 19}\tab Twin class 156 DMU {\fs18 (SC_TWIN156)}.\par
+{\b 20}\tab Twin class 158 DMU {\fs18 (SC_TWIN158)}.\par
+{\b 21}\tab Twin class 170 DMU {\fs18 (SC_TWIN170)}.\par
+{\b 22}\tab Single class 150 DMU {\fs18 (SC_DMU150)}.\par
+\par\pard\plain\f4\fs20
+Values 1-6 and 10-12 inclusive are used for normal trains and a locomotive is automatically 
+selected from the {\fs18 [LOCOS]} array by Rail Control. Values 7-9 and 13-14 are 
+provided to allow light (unconnected) locomotives to be brought into the 
+station from an external locoyard. These locos are fully fuelled and can 
+be attached to any train in the station or sent to the locoyard.\par
+\par
+Values other than those defined above are reserved for future use and should not be used.\par
+\par
+{\fs24\b <Status> field}\par
+\par
+These two fields are interpreted differently by Rail Control based on 
+whether the train is in the station at the start of the simulation 
+period. This is determined by comparing the {\f0\fs20 <Arr time>} field with the 
+{\f0\fs20 <Start time>} specified in the {\fs18 [GENERAL]} section. If 
+the latter is greater than the former then the train is considered to be 
+in the station at the simulation start. Note that delays cannot be 
+applied to trains which are in the station at the start.\par
+\par
+If the train is in the station at the start of the simulation the 
+{\f0\fs20 <Status>} field is used to indicate the initial status of the 
+train. See the list below for more information.\par
+\par
+\tx720\li720\fi-360
+{\b 0}\tab None - default status {\fs18 (ST_NONE)}.\par
+{\b 1}\tab Train is due and is in the list of arrivals {\fs18 (ST_DUE)}.\par
+{\b 2}\tab Train is approaching the station {\fs18 (ST_APPROACH)}.\par
+{\b 3}\tab Train is held outside the station {\fs18 (ST_HELD)}.\par
+{\b 4}\tab Train is first train held outside the station {\fs18 (ST_FIRSTHELD)}.\par
+{\b 5}\tab Train is set to a platform {\fs18 (ST_SETPLAT)}.\par
+{\b 6}\tab Train is on stage A of approach {\fs18 (ST_ARRA)}.\par
+{\b 7}\tab Train is on stage B of approach {\fs18 (ST_ARRB)}.\par
+{\b 8}\tab Train is on stage C of approach {\fs18 (ST_ARRC)}.\par
+{\b 9}\tab Train is on stage D of approach {\fs18 (ST_ARRD)}.\par
+{\b 10}\tab Train is on stage E of approach {\fs18 (ST_ARRE)}.\par
+{\b 11}\tab Train is on stage F of approach {\fs18 (ST_ARRF)}.\par
+{\b 12}\tab Train is in a platform {\fs18 (ST_INPLAT)}.\par
+{\b 13}\tab Stock has been released {\fs18 (ST_RELEASE)}.\par
+{\b 14}\tab A fresh loco has been attached to the stock {\fs18 (ST_STOCKOK)}.\par
+{\b 15}\tab Train is ready to depart {\fs18 (ST_READYDEP)}.\par
+{\b 16}\tab Train is starting its departure {\fs18 (ST_STARTDEP)}.\par
+{\b 17}\tab Train is on stage A of departure {\fs18 (ST_DEPA)}.\par
+{\b 18}\tab Train is on stage B of departure {\fs18 (ST_DEPB)}.\par
+{\b 19}\tab Train is on stage C of departure {\fs18 (ST_DEPC)}.\par
+{\b 20}\tab Train is on stage D of departure {\fs18 (ST_DEPD)}.\par
+{\b 21}\tab Train is on stage E of departure {\fs18 (ST_DEPE)}.\par
+{\b 22}\tab Train is on stage F of departure {\fs18 (ST_DEPF)}.\par
+\par\pard\plain\f4\fs20
+At present only states 12 and 14 are supported for the {\f0\fs20 <Status>} 
+field. Using other states may cause abnormal behaviour. Values other 
+than those specified above are reserved for future use.\par
+\par
+If the train is not in the station at start up then the value of this 
+field should be zero (0).\par
+\par
+{\fs24\b <Extra1> field}\par
+\par
+The value in this field is dependant upon whether the train is in the 
+station at startup (see above for a description of how this is 
+determined). If the train is in the station at startup then this field 
+determines which platform the train is in. The field should be set to 
+the reference number of the appropriate {\fs18 [PLATFORMS]} section.\par
+\par
+If the train is not in the station at startup then this field can be 
+used to control the on-time arrival nature of the train:\par
+\par
+\tx720\li720\fi-360
+{\b 0}\tab Train will always arrive on-time.\par
+{\b 1}\tab Train can be up to 12 minutes early or late.\par
+{\b 2}\tab Train can be up to 12 minutes early or late and requires mechanical maintenance.\par
+{\b 3}\tab Train can be up to 12 minutes early or late and is a through train.\par
+{\b 4}\tab Train can be up to 12 minutes late.\par
+{\b 5}\tab Train can be up to 12 minutes late and is a through train.\par
+\par\pard\plain\f4\fs20
+If the train requires mechanical maintenance then it will appear in 
+yellow in the platforms window and should be sent to the external depot 
+via any {\i Output} selector. Values other 
+than those specified above are reserved for future use.\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+RCD [SELECTOR]\plain\v\f4 selectors\plain\par \f4\fs20\uldb
+RCD [SECTIONS]\plain\v\f4 sections\plain\par \f4\fs20\uldb
+RCD [OVERLAPPING]\plain\v\f4 overlapping\plain\par \f4\fs20\uldb
+RCD [PLATFORMS]\plain\v\f4 platforms\plain\par \f4\fs20\uldb
+RCD [ROUTES]\plain\v\f4 routes\plain\par \f4\fs20\uldb
+RCD [LOCOS]\plain\v\f4 locos\plain\par \f4\fs20\uldb
+RCD [LOCOYARD]\plain\v\f4 locoyard\plain\par \f4\fs20\uldb
+RCD [GENERAL]\plain\v\f4 general\plain\par \f4\fs20\uldb
+\par
+\page
+
+
+#{\footnote general}${\footnote RCD [GENERAL]}K{\footnote RCD data file;RCD [GENERAL]}+{\footnote RCD:40}
+\pard\keepn\f4\fs30\b RCD [GENERAL]\par
+\pard\plain \f4\fs20
+\par
+\par
+The {\fs18 [GENERAL]} section contains items of information that are 
+required for a simulation but which do not fit into any of the other 
+categories. At present only five items are defined in this section and 
+all must be present for the RCD data file to considered as valid by 
+Rail Control. These are:\par
+\par
+{\b StartTime:} This is the simulation starting time in {\fs18 HHMM} 
+format. Thus for a start time of 6:45am this field should be set as 
+follows:\par
+\par
+{\f0\fs20\tab StartTime= 0645}\par
+\par
+{\b StopTime:} This is the simulation end time in {\fs18 HHMM} format. 
+Thus for a stop time of 1:45pm this field should be set as follows:\par
+\par
+{\f0\fs20\tab StopTime= 1345}\par
+\par
+{\b StartText1:} At the start of a simulation Rail Control displays a dialog 
+box which is intended to summarize the simulation about to start. This is the 
+first line of text that appears in this box. This should be a heading of some 
+sort. It has a maximum length of 80 characters.\par
+\par
+{\f0\fs20\tab StartText1= Summer Saturday in 1988 - 06:45hrs}\par
+\par
+{\b StartText2:} At the start of a simulation Rail Control displays a dialog 
+box which is intended to summarize the simulation about to start. This is the 
+first line of text that appears in this box. This should be the first line of a 
+description. It has a maximum length of 80 characters.\par
+\par
+{\f0\fs20\tab StartText2= Prepare to start your 7 hour shift as}\par
+\par
+{\b StartText3:} At the start of a simulation Rail Control displays a dialog 
+box which is intended to summarize the simulation about to start. This is the 
+first line of text that appears in this box. This should be the first line of a 
+description. It has a maximum length of 80 characters.\par
+\par
+{\f0\fs20\tab StartText3= duty controller at Glasgow Queen Street Station}\par
+\par
+{\b DrawSelectorNumber:} This is a debugging option.  If enabled, Rail Control will 
+display selector reference numbers rather than selector names.  This option is enabled if 
+the value is equal to "T".  If it is missing or the value is set to a value other 
+"T" then it is disabled.\par
+\par
+{\f0\fs20\tab DrawSelectorNumber=T}\par
+\par
+{\b DrawSectionNumber:} This is a debugging option.  If enabled, Rail Control will 
+overlay the section numbers on top of the sections in the main display.  This option is enabled if 
+the value is equal to "T".  If it is missing or the value is set to a value other 
+"T" then it is disabled.\par
+\par
+{\f0\fs20\tab DrawSectionNumber=T}\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+RCD [SELECTOR]\plain\v\f4 selectors\plain\par \f4\fs20\uldb
+RCD [SECTIONS]\plain\v\f4 sections\plain\par \f4\fs20\uldb
+RCD [OVERLAPPING]\plain\v\f4 overlapping\plain\par \f4\fs20\uldb
+RCD [PLATFORMS]\plain\v\f4 platforms\plain\par \f4\fs20\uldb
+RCD [ROUTES]\plain\v\f4 routes\plain\par \f4\fs20\uldb
+RCD [LOCOS]\plain\v\f4 locos\plain\par \f4\fs20\uldb
+RCD [LOCOYARD]\plain\v\f4 locoyard\plain\par \f4\fs20\uldb
+RCD [TIMETABLE]\plain\v\f4 timetable\plain\par \f4\fs20\uldb
+\par
+\page
+
+
+
+
+
+#{\footnote mainwin}${\footnote Main window display}K{\footnote Main window display;Commands}+{\footnote Commands:05}
+\pard\keepn\f4\fs30\b Main window display\par
+\pard\plain \f4\fs20
+\par
+\par
+{\f2\cf2 \{bml mainwin.bmp\}}\par
+\par
+The main window display displays various information: click on any part of the window 
+above for more information.\par 
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+\page
+
+#{\footnote mw_toolbar1}
+{\f4\fs24\b Main window tool bar}
+\f4\fs20\par
+\par
+The buttons located here affect the whole program. They include buttons 
+to control a simulation, to configure general program options and to export 
+and copy data. See the \uldb toolbars\v toolbars\plain\f4\fs20  topic for 
+more information.\par
+\pard
+\page
+
+#{\footnote mw_area1}
+{\f4\fs24\b Main window}
+\f4\fs20\par
+\par
+\pard
+\page
+
+#{\footnote mw_statbar}
+{\f4\fs24\b Status bar}
+\f4\fs20\par
+\par
+The status bar displays extra information when a simulation is in progress. 
+Information about the function of each tool button is also displayed here when the button 
+is depressed.\par
+\pard
+\page
+
+#{\footnote mw_title}
+{\f4\fs24\b Main window title}\f4\fs20\par
+\par
+The name of the application, Rail Control, is shown here. \par
+\pard
+\page
+
+#{\footnote mw_menu}
+{\f4\fs24\b Main window menu}\f4\fs20\par
+\par
+This is Rail Control's main menu. Click on a menu item to activate it.\par
+\pard
+\page
+
+
+
+
+#{\footnote toolbars}${\footnote Tool bars}K{\footnote Tool bars;Commands}+{\footnote Commands:15}
+\pard\keepn\f4\fs30\b Tool bars\par
+\pard\plain \f4\fs20
+\par
+\par
+Various options can be selected using the tool bar which gives quick and
+ easy access to the most commonly used functions. Shown below are all the
+ tool bar icons and their functions.\par
+\par
+\par
+{\fs24\b Main window tool bar}\par
+\par
+\tx600\li600\fi-200
+{\{bml helpicon.bmp\}}Display the help file contents.\par
+\par
+{\{bml about.bmp\}}Display the {\i About} information dialog.\par
+\pard
+\par
+\par
+The buttons that are enabled depend on the state of the active window.
+ Not all buttons are available at all times.\par
+\par
+\par
+\f4\fs24\b
+Also see
+\par\plain\f4\fs20\uldb
+Contents\plain \v\f4 main_contents\plain\par \f4\fs20\uldb
+Main window display\plain \v\f4 mainwin\plain\par \f4\fs20\uldb
+\page
+
+
+}

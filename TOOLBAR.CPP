@@ -129,7 +129,7 @@ void TToolbar::GetWindowClass(WNDCLASS &WndClass)
 }
 
 
-LPSTR TToolbar::GetClassName()
+LPCTSTR TToolbar::GetClassName()
 {
   return "Toolbar Class";
 }

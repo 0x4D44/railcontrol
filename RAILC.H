@@ -103,7 +103,7 @@ public:
   TMainWindow(TWindow* AParent, LPSTR ATitle);
   ~TMainWindow();
   void GetWindowClass(WNDCLASS& WndClass);
-  LPSTR GetClassName();
+  virtual LPCTSTR GetClassName();
   void SetupWindow(void);
   virtual bool CanClose();
   void QuitProgram();

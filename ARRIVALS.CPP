@@ -45,7 +45,7 @@ void TArrivals::GetWindowClass(WNDCLASS& WndClass)
 }
 
 
-LPSTR TArrivals::GetClassName()
+LPCTSTR TArrivals::GetClassName()
 {
   return "Arrival Window";
 }

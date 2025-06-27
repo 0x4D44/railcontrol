@@ -62,7 +62,7 @@ class TToolbutton : public TFrameWindow
 	 virtual void Paint(TDC& dc, bool erase, TRect& rect);
 	 void DrawScreen(HDC TheDC);
 	 void GetWindowClass(WNDCLASS &WndClass);
-	 LPSTR GetClassName();
+	 virtual LPCTSTR GetClassName();
 	 void Enable(BOOL GivEnabled);
 	 void EvLButtonDown(UINT, TPoint&);
 	 void EvLButtonUp(UINT, TPoint&);
