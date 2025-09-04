@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(build_final.bat)",
+      "Bash(cmd /c:*)",
+      "Bash(where:*)",
+      "Bash(call build_final.bat)",
+      "Bash(set path=c:\\apps\\bc5\\bin)",
+      "Bash(%path%)",
+      "Bash(bcc32:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(C:\\Apps\\BC5\\BIN\\bcc32.exe +BccW32_simple.cfg -c railc.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +BccW32_simple.cfg -c railc.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +BccW32_simple.cfg -c about.cpp layout.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +BccW32_simple.cfg -c departur.cpp locoyard.cpp arrivals.cpp finish.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +BccW32_simple.cfg -c startup.cpp start.cpp configur.cpp selector.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +BccW32_simple.cfg -c platform.cpp toolbar.cpp toolbutt.cpp statbar.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +BccW32_simple.cfg -c section.cpp platdata.cpp ovlpdata.cpp routes.cpp locos.cpp timetabl.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/brc32.exe\" -IC:\\Apps\\BC5\\INCLUDE -w32 -R -FO resource\\railc.res resource\\railc.rc)",
+      "Bash(\"/c/Apps/BC5/BIN/brc32.exe\" -IC:\\Apps\\BC5\\INCLUDE -w32 -R -FO resource/railc.res resource/railc.rc)",
+      "Bash(\"/c/Apps/BC5/BIN/tlink32.exe\" @link_clean.rsp)",
+      "Bash(\"/c/Apps/BC5/BIN/tlink32.exe\" @link_fixed.rsp)",
+      "Bash(\"/c/Apps/BC5/BIN/tlink32.exe\" @link_working.rsp)",
+      "Bash(\"./build.bat\" nopause)",
+      "Bash(./railc.exe)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +bccw32.cfg -c railc.cpp about.cpp startup.cpp start.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +bccw32.cfg -c toolbar.cpp toolbutt.cpp statbar.cpp platform.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +bccw32.cfg -c layout.cpp arrivals.cpp departur.cpp locoyard.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +bccw32.cfg -c section.cpp platdata.cpp ovlpdata.cpp routes.cpp locos.cpp timetabl.cpp configur.cpp selector.cpp finish.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/tlink32.exe\" @link.rsp)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +bccw32.cfg -c /c/Apps/owlnx630/source/owlcore/applicat.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/tlink32.exe\" @link_corrected.rsp)",
+      "Bash(timeout:*)",
+      "Bash(echo \"Exit code: $?\")",
+      "WebSearch",
+      "WebFetch(domain:sourceforge.net)",
+      "Bash(\"/c/Apps/BC5/BIN/bcc32.exe\" +bccw32.cfg -c toolbar.cpp toolbutt.cpp statbar.cpp platform.cpp layout.cpp arrivals.cpp departur.cpp locoyard.cpp)",
+      "Bash(\"/c/Apps/BC5/BIN/tlink32.exe\" @link_owlnext.rsp)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
