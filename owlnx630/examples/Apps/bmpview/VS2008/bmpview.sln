@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bmpview", "bmpview.vcproj", "{326C3BE9-2E93-4240-8510-143A77E6EAED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Dynamic Debug|Win32 = Dynamic Debug|Win32
+		Dynamic Release|Win32 = Dynamic Release|Win32
+		Release|Win32 = Release|Win32
+		Static Debug|Win32 = Static Debug|Win32
+		Static Release|Win32 = Static Release|Win32
+		Unicode Dynamic Debug|Win32 = Unicode Dynamic Debug|Win32
+		Unicode Dynamic Release|Win32 = Unicode Dynamic Release|Win32
+		Unicode Static Debug|Win32 = Unicode Static Debug|Win32
+		Unicode Static Release|Win32 = Unicode Static Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Debug|Win32.ActiveCfg = Unicode Static Debug|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Debug|Win32.Build.0 = Unicode Static Debug|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Dynamic Debug|Win32.ActiveCfg = Dynamic Debug|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Dynamic Debug|Win32.Build.0 = Dynamic Debug|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Dynamic Release|Win32.ActiveCfg = Dynamic Release|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Dynamic Release|Win32.Build.0 = Dynamic Release|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Release|Win32.ActiveCfg = Unicode Static Release|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Release|Win32.Build.0 = Unicode Static Release|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Static Debug|Win32.ActiveCfg = Static Debug|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Static Debug|Win32.Build.0 = Static Debug|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Static Release|Win32.ActiveCfg = Static Release|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Static Release|Win32.Build.0 = Static Release|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Unicode Dynamic Debug|Win32.ActiveCfg = Unicode Dynamic Debug|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Unicode Dynamic Debug|Win32.Build.0 = Unicode Dynamic Debug|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Unicode Dynamic Release|Win32.ActiveCfg = Unicode Dynamic Release|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Unicode Dynamic Release|Win32.Build.0 = Unicode Dynamic Release|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Unicode Static Debug|Win32.ActiveCfg = Unicode Static Debug|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Unicode Static Debug|Win32.Build.0 = Unicode Static Debug|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Unicode Static Release|Win32.ActiveCfg = Unicode Static Release|Win32
+		{326C3BE9-2E93-4240-8510-143A77E6EAED}.Unicode Static Release|Win32.Build.0 = Unicode Static Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

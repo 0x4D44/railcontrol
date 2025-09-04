@@ -1,0 +1,140 @@
+//----------------------------------------------------------------------------
+// ObjectWindows
+// Copyright (c) 1992, 1996 by Borland International, All Rights Reserved
+//
+//$Revision: 1.26 $
+//$Author: jogybl $
+//$Date: 2007-05-11 15:29:12 $
+//
+// Definition of Choose Font Common Dialog class
+//----------------------------------------------------------------------------
+
+#if !defined(OWL_CHOOSEFO_H)
+#define OWL_CHOOSEFO_H
+
+#if !defined(OWL_COMMDIAL_H)
+# include <owl/commdial.h>
+#endif
+#if defined(BI_HAS_PRAGMA_ONCE)
+# pragma once
+#endif
+#if defined(BI_COMP_WATCOM)
+# pragma read_only_file
+#endif
+
+__OWL_BEGIN_NAMESPACE
+
+// Generic definitions/compiler options (eg. alignment) preceeding the
+// definition of classes
+#include <owl/preclass.h>
+
+
+class _OWLCLASS TColor;
+
+//
+// class TChooseFontDialog
+// ~~~~~ ~~~~~~~~~~~~~~~~~
+// Encapsulates the Choose-Font common dialog.
+//
+class _OWLCLASS TChooseFontDialog : public TCommonDialog {
+  public:
+    class _OWLCLASS TData {
+      public:
+        uint32  Flags;
+        uint32  Error;
+        HDC     DC;
+        LOGFONT LogFont;
+        int     PointSize;
+        TColor  Color;
+        LPTSTR   Style;
+        uint16  FontType;
+        int     SizeMin;
+        int     SizeMax;
+    };
+
+    TChooseFontDialog(TWindow*  parent,
+                      TData&    data,
+                      TResId    templateId = 0,
+                      LPCTSTR     title = 0,
+                      TModule*  module = 0);
+   ~TChooseFontDialog();
+
+  protected:
+    TData&  GetData();
+    void    SetData(TData& data);
+
+    CHOOSEFONT&   GetCF();
+    void    SetCF(const CHOOSEFONT& cf);
+
+    int     DoExecute();
+    bool    DialogFunction(uint message, TParam1, TParam2);
+
+    // Default behavior inline for message response functions
+    //
+    void    CmFontApply();   // EV_COMMAND(psh3...
+
+  protected_data:
+    union {
+      CHOOSEFONT Cf;  // New name
+      CHOOSEFONT cf;  // old name
+    };
+    TData&       Data;
+
+  private:
+    TChooseFontDialog(const TChooseFontDialog&);
+    TChooseFontDialog& operator=(const TChooseFontDialog&);
+
+  DECLARE_RESPONSE_TABLE(TChooseFontDialog);
+  DECLARE_CASTABLE;
+};
+
+// Generic definitions/compiler options (eg. alignment) following the 
+// definition of classes
+#include <owl/posclass.h>
+
+//----------------------------------------------------------------------------
+// Inline implementations
+//
+
+//
+// Return the data associated with this dialog.
+//
+inline TChooseFontDialog::TData& TChooseFontDialog::GetData() {
+  return Data;
+}
+
+//
+// Set the data associated with this dialog.
+// Use this function with caution!
+//
+inline void TChooseFontDialog::SetData(TData& data) {
+  Data = data;
+}
+
+//
+// Return the CHOOSEFONT data structure for this dialog.
+//
+inline CHOOSEFONT& TChooseFontDialog::GetCF() {
+  return Cf;
+}
+
+//
+// Set the CHOOSEFONT data structure for this dialog.
+//
+inline void TChooseFontDialog::SetCF(const CHOOSEFONT& cf) {
+  Cf = cf;
+}
+
+//
+// User clicked on Apply for the font.
+//
+inline void TChooseFontDialog::CmFontApply() {
+  DefaultProcessing();
+}
+
+
+
+__OWL_END_NAMESPACE
+
+
+#endif  // OWL_CHOOSEFO_H

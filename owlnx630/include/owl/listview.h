@@ -1,0 +1,196 @@
+//----------------------------------------------------------------------------
+// ObjectWindows
+// Copyright (c) 1993, 1996 by Borland International, All Rights Reserved
+//
+//$Revision: 1.27 $
+//$Author: jogybl $
+//$Date: 2007-07-20 10:47:33 $
+//
+// Definition of class TListView
+//----------------------------------------------------------------------------
+
+#if !defined(OWL_LISTVIEW_H)
+#define OWL_LISTVIEW_H
+
+#if !defined(OWL_DOCMANAG_H)
+# include <owl/docmanag.h>
+#endif
+#if !defined(OWL_LISTBOX_H)
+# include <owl/listbox.h>
+#endif
+#include <owl/listview.rh>
+#if defined(BI_HAS_PRAGMA_ONCE)
+# pragma once
+#endif
+#if defined(BI_COMP_WATCOM)
+# pragma read_only_file
+#endif
+
+
+__OWL_BEGIN_NAMESPACE
+
+// Generic definitions/compiler options (eg. alignment) preceeding the 
+// definition of classes
+#include <owl/preclass.h>
+
+//
+// class TListView
+// ~~~~~ ~~~~~~~~~
+class _OWLCLASS TListView : public TListBox, public TView {
+  public:
+    TListView(TDocument& doc, TWindow* parent = 0);
+
+    // Overridden virtuals from TView
+    //
+    LPCTSTR GetViewName();
+    TWindow* GetWindow();
+    bool     SetDocTitle(LPCTSTR docname, int index);
+
+    // Overridden virtuals from TListBox
+    //
+    int  AddString(LPCTSTR str);
+
+    // Overridden virtuals from TWindow
+    //
+    bool CanClose();
+    bool Create();
+
+    static LPCTSTR StaticName();  // put in resource
+
+  protected:
+    long GetOrigin() const;
+    void SetOrigin(long origin);
+
+    int  GetMaxWidth() const;
+    void SetMaxWidth(int maxwidth);
+
+    void SetExtent(LPCTSTR str);
+    bool LoadData(int top, int sel);
+
+    // Message response functions
+    //
+    void CmEditUndo();
+    void CmEditCut();
+    void CmEditCopy();
+    void CmEditPaste();
+    void CmEditDelete();
+    void CmEditClear();
+    void CmEditAdd();
+    void CmEditItem();
+    void CmSelChange();
+
+    uint EvGetDlgCode(MSG *);
+
+    bool VnDocClosed(int omode);
+    bool VnCommit(bool force);
+    bool VnRevert(bool clear);
+    bool VnIsWindow(HWND hWnd);
+    bool VnIsDirty();
+
+  public_data:
+    int  DirtyFlag;   // flag to indicate if the view is dirty
+
+  protected_data:
+    long Origin;      // object's beginning position on the stream
+    int  MaxWidth;    // maximum horizontal extent
+
+  DECLARE_RESPONSE_TABLE(TListView);
+  //DECLARE_STREAMABLE(_OWLCLASS, NS_OWL::TListView,1);
+  DECLARE_STREAMABLE_OWL(NS_OWL::TListView,1);
+};
+// define streameable inlines (VC)
+DECLARE_STREAMABLE_INLINES( NS_OWL::TListView );
+
+// Generic definitions/compiler options (eg. alignment) following the
+// definition of classes
+#include <owl/posclass.h>
+
+//----------------------------------------------------------------------------
+// Inline implementations
+//
+
+//
+// Return the name of the view window.
+//
+inline LPCTSTR TListView::StaticName() {
+  return _T("List View");
+}
+
+//
+// Return the name of the view window.
+//
+inline LPCTSTR TListView::GetViewName() {
+  return StaticName();
+}
+
+//
+// Return the window object.
+//
+inline TWindow* TListView::GetWindow() {
+  return (TWindow*)this;
+}
+
+//
+// Set the title for the document.
+//
+inline bool TListView::SetDocTitle(LPCTSTR docname, int index) {
+  return TListBox::SetDocTitle(docname, index);
+}
+
+//
+// Return true if both the listbox and the document can close.
+//
+inline bool TListView::CanClose() {
+  return TListBox::CanClose() &&
+         (Doc->NextView(this) ||
+          Doc->NextView(0) != this ||
+          Doc->CanClose());
+}
+
+//
+// Return the origin position on the persistent stream.
+//
+inline long TListView::GetOrigin() const {
+  return Origin;
+}
+
+//
+// Set the position of the object.
+//
+inline void TListView::SetOrigin(long origin) {
+  Origin = origin;
+}
+
+//
+// Return the maximum width of the strings.
+//
+inline int TListView::GetMaxWidth() const {
+  return MaxWidth;
+}
+
+//
+// Set the maximum width of the strings.
+//
+inline void TListView::SetMaxWidth(int maxwidth) {
+  MaxWidth = maxwidth;
+}
+
+//
+// Return true if the view's window and the parameter is the same.
+//
+inline bool TListView::VnIsWindow(HWND hWnd) {
+  return GetHandle() == hWnd;
+}
+
+//
+// Return true if the view is dirty (modified) since the last save.
+//
+inline bool TListView::VnIsDirty() {
+  return DirtyFlag != 0;
+}
+
+
+__OWL_END_NAMESPACE
+
+
+#endif  // OWL_LISTVIEW_H
