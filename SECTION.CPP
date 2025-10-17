@@ -16,6 +16,7 @@
 */
 
 #include "classdef.h"
+#include <cmath>
 
 // The actual class code
 
@@ -73,8 +74,8 @@ void TSection::GetSection(POINT ThePoints[4])
   // Scale points
   for (i=0; i<4; i++)
   {
-    ThePoints[i].x = SetPoint[i].x * XScaleFactor;
-    ThePoints[i].y = SetPoint[i].y * YScaleFactor;
+    ThePoints[i].x = static_cast<int>(std::lround(SetPoint[i].x * XScaleFactor));
+    ThePoints[i].y = static_cast<int>(std::lround(SetPoint[i].y * YScaleFactor));
   }
 }
 

@@ -1,4 +1,4 @@
-﻿// OWLCVT 05/11/95 22:40:47
+// OWLCVT 05/11/95 22:40:47
 /* TIMETABL.CPP
 *  ============
 *
@@ -177,21 +177,21 @@ TTimetable::~TTimetable()
 void TTimetable::GetArrDesc(char* Text)
 {
   // Copy arrival description to <Text>
-  strcpy(Text, mArrDesc);
+  CopyString(Text, mArrDesc);
 }
 
 
 void TTimetable::GetDepDesc(char* Text)
 {
   // Copy departure description to <Text>
-  strcpy(Text, mDepDesc);
+  CopyString(Text, mDepDesc);
 }
 
 
 void TTimetable::GetComment(char* Text)
 {
   // Copy comment description to <Text>
-  strcpy(Text, mComment);
+  CopyString(Text, mComment);
 }
 
 
@@ -395,6 +395,7 @@ int  TTimetable::AddMinLate(int NewMinLate)
   mMinLate += NewMinLate;
   return Temp;
 }
+
 
 
 

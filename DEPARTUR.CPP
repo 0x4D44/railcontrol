@@ -191,13 +191,13 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
   // Now draw timetable header information
   if (Redraw)
   {
-    strcpy(TextString, "Dep:");
+    CopyString(TextString, "Dep:");
     TextOut(TheDC, 10, 5, TextString, strlen(TextString));
-    strcpy(TextString, "Type:");
+    CopyString(TextString, "Type:");
     TextOut(TheDC, 50, 5, TextString, strlen(TextString));
-    strcpy(TextString, "Plat:");
+    CopyString(TextString, "Plat:");
     TextOut(TheDC, 90, 5, TextString, strlen(TextString));
-    strcpy(TextString, "Description:");
+    CopyString(TextString, "Description:");
     TextOut(TheDC, 130, 5, TextString, strlen(TextString));
   }
 
@@ -360,14 +360,14 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
       }
       else
       {
-        if (lStatus == ST_STOCKOK)
-        {
-          // Train is ready to depart
-          ::SetTextColor(TheDC, RGB(255, 255, 255));
-          strcpy(TextString, PlatName);
-        }
-        else
-        {
+      if (lStatus == ST_STOCKOK)
+      {
+        // Train is ready to depart
+        ::SetTextColor(TheDC, RGB(255, 255, 255));
+        CopyString(TextString, PlatName);
+      }
+      else
+      {
           /******************************************************************/
           /* Figure the colour to use to display the train.                 */
           /******************************************************************/
@@ -388,9 +388,9 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
           }
 
           // Train is not ready to depart
-          strcpy(TextString, "(");
-          strcat(TextString, PlatName);
-          strcat(TextString, ")");
+          CopyString(TextString, "(");
+          AppendString(TextString, PlatName);
+          AppendString(TextString, ")");
         }
 
         TextOut(TheDC, 100, YPos, TextString, strlen(TextString));
@@ -458,7 +458,7 @@ void TDepartur::ConvertTime(int TimeVal, char *TimeStr)
   if ((TimeVal < 0) | (TimeVal > 2359))
   {
     // Invalid time specified
-    strcpy(TextString, "XX:XX");
+    CopyString(TextString, "XX:XX");
   }
   else
   { 
@@ -467,24 +467,24 @@ void TDepartur::ConvertTime(int TimeVal, char *TimeStr)
     _itoa_s(Hr, TextStrtwo, sizeof(TextStrtwo), 10);
     if (Hr < 10)
     {
-      strcpy(TextString, "0");
-      strcat(TextString, TextStrtwo);
+      CopyString(TextString, "0");
+      AppendString(TextString, TextStrtwo);
     }
     else
     {
-      strcpy(TextString, TextStrtwo);
+      CopyString(TextString, TextStrtwo);
     }
-    strcat(TextString, ":");
+    AppendString(TextString, ":");
 
     Mn = TimeVal - 100*Hr;
 
-    if (Mn < 10) strcat(TextString, "0");
+    if (Mn < 10) AppendString(TextString, "0");
     _itoa_s(Mn, TextStrtwo, sizeof(TextStrtwo), 10);
-    strcat(TextString, TextStrtwo); 
+    AppendString(TextString, TextStrtwo); 
   }
 
   // Copy time field back to main field
-  strcpy(TimeStr, TextString);
+  CopyString(TimeStr, 7, TextString);
 }
 
 

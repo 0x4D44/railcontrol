@@ -1,4 +1,4 @@
-﻿// OWLCVT 05/11/95 22:38:21
+// OWLCVT 05/11/95 22:38:21
 /* LAYOUT.CPP
 *  ==========
 *
@@ -58,7 +58,7 @@ TLayout::TLayout(owl::TWindow * AParent, int XPos, int YPos, int Width, int Heig
   for (i=0; i<10; i++)    PTrackLoco[i] = 0;
 
   // Clear text
-  for (i=0; i<3; i++)  strcpy(StartText[i], "");
+  for (i=0; i<3; i++)  CopyString(StartText[i], "");
 }
 
 
@@ -411,7 +411,7 @@ void TLayout::IniVariables()
   }
 
   // Clear text
-  for (i=0; i<3; i++)  strcpy(StartText[i], "");
+  for (i=0; i<3; i++)  CopyString(StartText[i], "");
 
   // Debug controls
   mDrawSelectorNumber = FALSE;
@@ -460,9 +460,6 @@ BOOL TLayout::StartNew()
 
 void TLayout::HandleTimeChange()
 {
-  HRSRC      TheBeep;    // Handle to resource BEEP.WAV
-  HGLOBAL    ResGlobal;
-  void far*  ResPoint;
   char       TextString[100];
 
   // DIAGNOSTIC: Track PTrackLoco array usage every 10 time units
@@ -554,25 +551,19 @@ void TLayout::HandleTimeChange()
   TRC_NRM((TB, "ATP Sound"));
 
   // Load the resource and then play the sound if sound is enabled
-  if ((frame->SoundEnable) && (frame->GameInProgress))
+  if (frame->SoundEnable && frame->GameInProgress)
   {
-    TheBeep = FindResource(*GetApplication(), "BEEP", RT_RCDATA);
-    if (TheBeep != NULL)
+    const HINSTANCE module = GetModule()->GetHandle();
+    if (!::PlaySound(TEXT("BEEP"), module, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT))
     {
-     ResGlobal = LoadResource(*GetApplication(), TheBeep);
-
-     ResPoint = LockResource(ResGlobal);
-     if (ResPoint != NULL)
-     {
-       ::PlaySound(reinterpret_cast<LPCTSTR>(ResPoint), GetModule()->GetHandle(), SND_ASYNC | SND_MEMORY);
-     }
-     FreeResource(ResGlobal);
+      TRC_ALT((TB, "PlaySound failed for resource 'BEEP' (err:%lu)", ::GetLastError()));
+      MessageBeep(MB_ICONEXCLAMATION);
     }
   }
 
   TRC_NRM((TB, "Cycle complete"));
 
-  strcpy(TextString, "Ready");
+  CopyString(TextString, "Ready");
   ::SendMessage(frame->StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) TextString));
 }
 
@@ -1002,7 +993,7 @@ void TLayout::DrawSection(HDC xiDC, int xiSectNum)
     /************************************************************************/
     /* Format the section number.                                           */
     /************************************************************************/
-    sprintf(lSectionText, "%d", xiSectNum);
+    FormatBuffer(lSectionText, "%d", xiSectNum);
     GetTextExtentPoint(xiDC, 
                        lSectionText, 
                        strlen(lSectionText), 
@@ -1240,7 +1231,7 @@ void TLayout::HandleSelectors()
     if (!IsRouteValid(Selector1, Selector2))
     {
       // Update the status bar
-      strcpy(TextString, "Invalid route");
+      CopyString(TextString, "Invalid route");
       ::SendMessage(frame->StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) TextString));
     }
     PSelectorInfo[Selector1]->Release();
@@ -1844,7 +1835,7 @@ BOOL TLayout::IsRouteValid(int Start, int End)
         if (NotFound)
         {
           // Update the status bar
-          strcpy(TextString, "No locos are currently available");
+          CopyString(TextString, "No locos are currently available");
           ::SendMessage(frame->StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) TextString));
 
           // Prevent route being drawn
@@ -1855,7 +1846,7 @@ BOOL TLayout::IsRouteValid(int Start, int End)
           // Update the main window status bar
           if (frame->StatbarHan != NULL)
           {
-            strcpy(TextString, "Select a locomotive from the loco-yard");
+            CopyString(TextString, "Select a locomotive from the loco-yard");
             ::SendMessage(frame->StatbarHan->HWindow,
                           SB_SETTEXT,
                           0,
@@ -1893,7 +1884,7 @@ BOOL TLayout::IsRouteValid(int Start, int End)
             MB_OK);
 
         char  RDump[100];
-        wsprintf(RDump, "Route dump - 0:%d 1:%d 2:%d 3:%d", RoutesSet[0], RoutesSet[1],
+        FormatBuffer(RDump, "Route dump - 0:%d 1:%d 2:%d 3:%d", RoutesSet[0], RoutesSet[1],
           RoutesSet[2], RoutesSet[3]);
         ::MessageBox(HWindow, RDump, APPNAME, MB_OK);
       }
@@ -1965,7 +1956,7 @@ BOOL TLayout::ReadDataFile()
   {
     // We have opened the file. The first thing that we look for is section
     // information ie [SECTIONS].
-    strcpy(szInput, "");
+    CopyString(szInput, sizeof(szInput), "");
     while ((_stricmp(szInput, "[SECTIONS]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -1976,7 +1967,7 @@ BOOL TLayout::ReadDataFile()
       // No information in the datafile of the [SECTIONS] type
       ClearData();
       ::LoadString(GetModule()->GetHandle(), 10001, szText2, 400);
-      wsprintf(szText1, szText2, "[SECTIONS]");
+      FormatBuffer(szText1, szText2, "[SECTIONS]");
       MessageBeep(MB_ICONEXCLAMATION);
       ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
       return FALSE;
@@ -1984,7 +1975,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the section information in from the datafile
-      strcpy(szInput, "");
+      CopyString(szInput, sizeof(szInput), "");
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2015,7 +2006,7 @@ BOOL TLayout::ReadDataFile()
             // Duplicate reference number
             ClearData();
             ::LoadString(GetModule()->GetHandle(), 10003, szText2, 400);
-            wsprintf(szText1, szText2, "[SECTIONS]", IndexRef);
+            FormatBuffer(szText1, szText2, "[SECTIONS]", IndexRef);
             MessageBeep(MB_ICONEXCLAMATION);
             ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
             return FALSE;
@@ -2026,7 +2017,7 @@ BOOL TLayout::ReadDataFile()
           // Out of range
           ClearData();
           ::LoadString(GetModule()->GetHandle(), 10002, szText2, 400);
-          wsprintf(szText1, szText2, "[SECTIONS]", "1", "999");
+          FormatBuffer(szText1, szText2, "[SECTIONS]", "1", "999");
           MessageBeep(MB_ICONEXCLAMATION);
           ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
           return FALSE;
@@ -2044,7 +2035,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [GENERAL] information
-    strcpy(szInput, "");
+    CopyString(szInput, sizeof(szInput), "");
     while ((_stricmp(szInput, "[GENERAL]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2055,7 +2046,7 @@ BOOL TLayout::ReadDataFile()
       // No information in the datafile of the [GENERAL] type
       ClearData();
       ::LoadString(GetModule()->GetHandle(), 10001, szText2, 400);
-      wsprintf(szText1, szText2, "[GENERAL]");
+      FormatBuffer(szText1, szText2, "[GENERAL]");
       MessageBeep(MB_ICONEXCLAMATION);
       ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
       return FALSE;
@@ -2063,7 +2054,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the general information in from the datafile
-      strcpy(szInput, "");
+      CopyString(szInput, sizeof(szInput), "");
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2088,19 +2079,19 @@ BOOL TLayout::ReadDataFile()
         {
           // Found <StartText[0]>
           ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-          strcpy(StartText[0], szInput);
+          CopyString(StartText[0], szInput);
         }
         else if (strcmp(szInput, "StartText2") == 0)
         {
           // Found <StartText[1]>
           ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-          strcpy(StartText[1], szInput);
+          CopyString(StartText[1], szInput);
         }
         else if (strcmp(szInput, "StartText3") == 0)
         {
           // Found <StartText[2]>
           ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-          strcpy(StartText[2], szInput);
+          CopyString(StartText[2], szInput);
         }
         else if (strcmp(szInput, "DrawSectionNumber") == 0)
         {
@@ -2137,7 +2128,7 @@ BOOL TLayout::ReadDataFile()
         // Generate an error - data is invalid as some is missing
         ClearData();
         ::LoadString(GetModule()->GetHandle(), 10000, szText2, 400);
-        wsprintf(szText1, szText2, "[GENERAL]");
+        FormatBuffer(szText1, szText2, "[GENERAL]");
         MessageBeep(MB_ICONEXCLAMATION);
         ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
         return FALSE;
@@ -2155,7 +2146,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [OVERLAPPING] information
-    strcpy(szInput, "");
+    CopyString(szInput, sizeof(szInput), "");
     while ((_stricmp(szInput, "[OVERLAPPING]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2166,7 +2157,7 @@ BOOL TLayout::ReadDataFile()
       // No information in the datafile of the [OVERLAPPING] type
       ClearData();
       ::LoadString(GetModule()->GetHandle(), 10001, szText2, 400);
-      wsprintf(szText1, szText2, "[OVERLAPPING]");
+      FormatBuffer(szText1, szText2, "[OVERLAPPING]");
       MessageBeep(MB_ICONEXCLAMATION);
       ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
       return FALSE;
@@ -2174,7 +2165,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the overlapping information in from the datafile
-      strcpy(szInput, "");
+      CopyString(szInput, sizeof(szInput), "");
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2203,7 +2194,7 @@ BOOL TLayout::ReadDataFile()
             // Duplicate reference number
             ClearData();
             ::LoadString(GetModule()->GetHandle(), 10003, szText2, 400);
-            wsprintf(szText1, szText2, "[OVERLAPPING]", IndexRef);
+            FormatBuffer(szText1, szText2, "[OVERLAPPING]", IndexRef);
             MessageBeep(MB_ICONEXCLAMATION);
             ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
             return FALSE;
@@ -2214,7 +2205,7 @@ BOOL TLayout::ReadDataFile()
           // Out of range
           ClearData();
           ::LoadString(GetModule()->GetHandle(), 10002, szText2, 400);
-          wsprintf(szText1, szText2, "[OVERLAPPING]", "1", "49");
+          FormatBuffer(szText1, szText2, "[OVERLAPPING]", "1", "49");
           MessageBeep(MB_ICONEXCLAMATION);
           ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
           return FALSE;
@@ -2231,7 +2222,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [PLATFORMS] information
-    strcpy(szInput, "");
+    CopyString(szInput, sizeof(szInput), "");
     while ((_stricmp(szInput, "[PLATFORMS]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2242,7 +2233,7 @@ BOOL TLayout::ReadDataFile()
       // No information in the datafile of the [PLATFORMS] type
       ClearData();
       ::LoadString(GetModule()->GetHandle(), 10001, szText2, 400);
-      wsprintf(szText1, szText2, "[PLATFORMS]");
+      FormatBuffer(szText1, szText2, "[PLATFORMS]");
       MessageBeep(MB_ICONEXCLAMATION);
       ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
       return FALSE;
@@ -2250,7 +2241,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the selector information in from the datafile
-      strcpy(szInput, "");
+      CopyString(szInput, sizeof(szInput), "");
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2281,7 +2272,7 @@ BOOL TLayout::ReadDataFile()
             // Duplicate reference number
             ClearData();
             ::LoadString(GetModule()->GetHandle(), 10003, szText2, 400);
-            wsprintf(szText1, szText2, "[PLATFORM]", IndexRef);
+            FormatBuffer(szText1, szText2, "[PLATFORM]", IndexRef);
             MessageBeep(MB_ICONEXCLAMATION);
             ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
             return FALSE;
@@ -2292,7 +2283,7 @@ BOOL TLayout::ReadDataFile()
           // Out of range
           ClearData();
           ::LoadString(GetModule()->GetHandle(), 10002, szText2, 400);
-          wsprintf(szText1, szText2, "[PLATFORM]", "1", "49");
+          FormatBuffer(szText1, szText2, "[PLATFORM]", "1", "49");
           MessageBeep(MB_ICONEXCLAMATION);
           ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
           return FALSE;
@@ -2310,7 +2301,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [SELECTOR] information
-    strcpy(szInput, "");
+    CopyString(szInput, sizeof(szInput), "");
     while ((_stricmp(szInput, "[SELECTOR]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2321,7 +2312,7 @@ BOOL TLayout::ReadDataFile()
       // No information in the datafile of the [SELECTOR] type
       ClearData();
       ::LoadString(GetModule()->GetHandle(), 10001, szText2, 400);
-      wsprintf(szText1, szText2, "[SELECTOR]");
+      FormatBuffer(szText1, szText2, "[SELECTOR]");
       MessageBeep(MB_ICONEXCLAMATION);
       ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
       return FALSE;
@@ -2329,7 +2320,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the selector information in from the datafile
-      strcpy(szInput, "");
+      CopyString(szInput, sizeof(szInput), "");
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2396,7 +2387,7 @@ BOOL TLayout::ReadDataFile()
            /******************************************************************/
            if (mDrawSelectorNumber)
            {
-             sprintf(szInput, "%d", IndexRef);
+             FormatBuffer(szInput, "%d", IndexRef);
            }
 
            /******************************************************************/
@@ -2409,7 +2400,7 @@ BOOL TLayout::ReadDataFile()
            // Duplicate reference number
            ClearData();
            ::LoadString(GetModule()->GetHandle(), 10003, szText2, 400);
-           wsprintf(szText1, szText2, "[SELECTOR]", IndexRef);
+           FormatBuffer(szText1, szText2, "[SELECTOR]", IndexRef);
            MessageBeep(MB_ICONEXCLAMATION);
            ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
            return FALSE;
@@ -2420,7 +2411,7 @@ BOOL TLayout::ReadDataFile()
           // Out of range
           ClearData();
           ::LoadString(GetModule()->GetHandle(), 10002, szText2, 400);
-          wsprintf(szText1, szText2, "[SELECTOR]", "1", "49");
+          FormatBuffer(szText1, szText2, "[SELECTOR]", "1", "49");
           MessageBeep(MB_ICONEXCLAMATION);
           ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
           return FALSE;
@@ -2443,7 +2434,7 @@ BOOL TLayout::ReadDataFile()
           // Platform <i> is not associated with a selector
           ClearData();
           ::LoadString(GetModule()->GetHandle(), 10012, szText2, 400);
-          wsprintf(szText1, szText2, i);
+          FormatBuffer(szText1, szText2, i);
           MessageBeep(MB_ICONEXCLAMATION);
           ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
           return FALSE;
@@ -2457,7 +2448,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [ROUTES] information
-    strcpy(szInput, "");
+    CopyString(szInput, sizeof(szInput), "");
     while ((_stricmp(szInput, "[ROUTES]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2468,7 +2459,7 @@ BOOL TLayout::ReadDataFile()
       // No information in the datafile of the [ROUTES] type
       ClearData();
       ::LoadString(GetModule()->GetHandle(), 10001, szText2, 400);
-      wsprintf(szText1, szText2, "[ROUTES]");
+      FormatBuffer(szText1, szText2, "[ROUTES]");
       MessageBeep(MB_ICONEXCLAMATION);
       ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
       return FALSE;
@@ -2476,7 +2467,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the selector information in from the datafile
-      strcpy(szInput, "");
+      CopyString(szInput, sizeof(szInput), "");
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
            (szInput[0] != 0) && (!infile.eof()))
@@ -2512,7 +2503,7 @@ BOOL TLayout::ReadDataFile()
               // OK, there is a problem so stop
               ClearData();
               ::LoadString(GetModule()->GetHandle(), 10005, szText2, 400);
-              wsprintf(szText1, szText2, IndexRef);
+              FormatBuffer(szText1, szText2, IndexRef);
               MessageBeep(MB_ICONEXCLAMATION);
               ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
               return FALSE;
@@ -2529,7 +2520,7 @@ BOOL TLayout::ReadDataFile()
                 // OK there is a problem so stop
                 ClearData();
                 ::LoadString(GetModule()->GetHandle(), 10004, szText2, 400);
-                wsprintf(szText1, szText2, IndexRef, i+1);
+                FormatBuffer(szText1, szText2, IndexRef, i+1);
                        MessageBeep(MB_ICONEXCLAMATION);
                 ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
                 return FALSE;
@@ -2541,7 +2532,7 @@ BOOL TLayout::ReadDataFile()
             // Duplicate reference number
             ClearData();
             ::LoadString(GetModule()->GetHandle(), 10003, szText2, 400);
-            wsprintf(szText1, szText2, "[ROUTES]", IndexRef);
+            FormatBuffer(szText1, szText2, "[ROUTES]", IndexRef);
             MessageBeep(MB_ICONEXCLAMATION);
             ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
             return FALSE;
@@ -2552,7 +2543,7 @@ BOOL TLayout::ReadDataFile()
           // Out of range
           ClearData();
           ::LoadString(GetModule()->GetHandle(), 10002, szText2, 400);
-          wsprintf(szText1, szText2, "[ROUTES]", "1", "999");
+          FormatBuffer(szText1, szText2, "[ROUTES]", "1", "999");
           MessageBeep(MB_ICONEXCLAMATION);
           ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
           return FALSE;
@@ -2569,7 +2560,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [LOCOS] information
-    strcpy(szInput, "");
+    CopyString(szInput, sizeof(szInput), "");
     while ((_stricmp(szInput, "[LOCOS]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2580,7 +2571,7 @@ BOOL TLayout::ReadDataFile()
       // No information in the datafile of the [LOCOS] type
       ClearData();
       ::LoadString(GetModule()->GetHandle(), 10001, szText2, 400);
-      wsprintf(szText1, szText2, "[LOCOS]");
+      FormatBuffer(szText1, szText2, "[LOCOS]");
       MessageBeep(MB_ICONEXCLAMATION);
       ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
       return FALSE;
@@ -2588,7 +2579,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the selector information in from the datafile
-      strcpy(szInput, "");
+      CopyString(szInput, sizeof(szInput), "");
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2617,7 +2608,7 @@ BOOL TLayout::ReadDataFile()
            // Duplicate reference number
            ClearData();
            ::LoadString(GetModule()->GetHandle(), 10003, szText2, 400);
-           wsprintf(szText1, szText2, "[LOCOS]", IndexRef);
+           FormatBuffer(szText1, szText2, "[LOCOS]", IndexRef);
            MessageBeep(MB_ICONEXCLAMATION);
            ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
            return FALSE;
@@ -2628,7 +2619,7 @@ BOOL TLayout::ReadDataFile()
           // Out of range
           ClearData();
           ::LoadString(GetModule()->GetHandle(), 10002, szText2, 400);
-          wsprintf(szText1, szText2, "[LOCOS]", "1", "499");
+          FormatBuffer(szText1, szText2, "[LOCOS]", "1", "499");
           MessageBeep(MB_ICONEXCLAMATION);
           ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
           return FALSE;
@@ -2645,7 +2636,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [LOCOYARD] information
-    strcpy(szInput, "");
+    CopyString(szInput, sizeof(szInput), "");
     while ((_stricmp(szInput, "[LOCOYARD]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2656,7 +2647,7 @@ BOOL TLayout::ReadDataFile()
       // No information in the datafile of the [LOCOYARD] type
       ClearData();
       ::LoadString(GetModule()->GetHandle(), 10001, szText2, 400);
-      wsprintf(szText1, szText2, "[LOCOYARD]");
+      FormatBuffer(szText1, szText2, "[LOCOYARD]");
       MessageBeep(MB_ICONEXCLAMATION);
       ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
       return FALSE;
@@ -2664,7 +2655,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the selector information in from the datafile
-      strcpy(szInput, "");
+      CopyString(szInput, sizeof(szInput), "");
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
 
       /**********************************************************************/
@@ -2714,7 +2705,7 @@ BOOL TLayout::ReadDataFile()
             // Out of range
             ClearData();
             ::LoadString(GetModule()->GetHandle(), 10002, szText2, 400);
-            wsprintf(szText1, szText2, "[LOCOYARD]", "1", "20");
+            FormatBuffer(szText1, szText2, "[LOCOYARD]", "1", "20");
             MessageBeep(MB_ICONEXCLAMATION);
             ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
             return FALSE;
@@ -2731,7 +2722,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [TIMETABLE] information
-    strcpy(szInput, "");
+    CopyString(szInput, sizeof(szInput), "");
     while ((_stricmp(szInput, "[TIMETABLE]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2742,7 +2733,7 @@ BOOL TLayout::ReadDataFile()
       // No information in the datafile of the [TIMETABLE] type
       ClearData();
       ::LoadString(GetModule()->GetHandle(), 10001, szText2, 400);
-      wsprintf(szText1, szText2, "[TIMETABLE]");
+      FormatBuffer(szText1, szText2, "[TIMETABLE]");
       MessageBeep(MB_ICONEXCLAMATION);
       ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
       return FALSE;
@@ -2750,7 +2741,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the timetable information in from the datafile
-      strcpy(szInput, "");
+      CopyString(szInput, sizeof(szInput), "");
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2782,7 +2773,7 @@ BOOL TLayout::ReadDataFile()
                 if (lpstr != NULL)
                 {
                   lpstr++;
-                  strcpy(szComment, lpstr);
+                  CopyString(szComment, sizeof(szComment), lpstr);
                   *lpstr = 0;
                 }
               }
@@ -2807,7 +2798,7 @@ BOOL TLayout::ReadDataFile()
               // A selector is not of the required input type
               ClearData();
               ::LoadString(GetModule()->GetHandle(), 10006, szText2, 400);
-              wsprintf(szText1, szText2, IndexRef);
+              FormatBuffer(szText1, szText2, IndexRef);
               MessageBeep(MB_ICONEXCLAMATION);
               ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
               return FALSE;
@@ -2818,7 +2809,7 @@ BOOL TLayout::ReadDataFile()
             {
               ClearData();
               ::LoadString(GetModule()->GetHandle(), 10007, szText2, 400);
-              wsprintf(szText1, szText2, 1, (MAX_TIMETABLE - 1), IndexRef);
+              FormatBuffer(szText1, szText2, 1, (MAX_TIMETABLE - 1), IndexRef);
               MessageBeep(MB_ICONEXCLAMATION);
               ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
               return FALSE;
@@ -2912,7 +2903,7 @@ BOOL TLayout::ReadDataFile()
             // Duplicate reference number
             ClearData();
             ::LoadString(GetModule()->GetHandle(), 10003, szText2, 400);
-            wsprintf(szText1, szText2, "[TIMETABLE]", IndexRef);
+            FormatBuffer(szText1, szText2, "[TIMETABLE]", IndexRef);
             MessageBeep(MB_ICONEXCLAMATION);
             ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
             return FALSE;
@@ -2923,7 +2914,7 @@ BOOL TLayout::ReadDataFile()
           // Out of range
           ClearData();
           ::LoadString(GetModule()->GetHandle(), 10002, szText2, 400);
-          wsprintf(szText1, szText2, "[TIMETABLE]", "1", "499");
+          FormatBuffer(szText1, szText2, "[TIMETABLE]", "1", "499");
           MessageBeep(MB_ICONEXCLAMATION);
           ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
           return FALSE;
@@ -2950,7 +2941,7 @@ BOOL TLayout::ReadDataFile()
           {
             ClearData();
             ::LoadString(GetModule()->GetHandle(), 10008, szText2, 400);
-            wsprintf(szText1, szText2, i, lNextPos);
+            FormatBuffer(szText1, szText2, i, lNextPos);
             MessageBeep(MB_ICONEXCLAMATION);
             ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
             return FALSE;
@@ -2964,7 +2955,7 @@ BOOL TLayout::ReadDataFile()
           if (PTimetableInfo[i]->GetDepCode() != PTimetableInfo[lNextPos]->GetArrCode())
           {
             ::LoadString(GetModule()->GetHandle(), 10009, szText2, 400);
-            wsprintf(szText1, 
+            FormatBuffer(szText1, 
                      szText2, 
                      PTimetableInfo[i]->GetDepCode(), 
                      i, 
@@ -3017,7 +3008,7 @@ BOOL TLayout::ReadDataFile()
           {
             ClearData();
             ::LoadString(GetModule()->GetHandle(), 10013, szText2, 400);
-            wsprintf(szText1, 
+            FormatBuffer(szText1, 
                      szText2, 
                      i,
                      lNextPos,
@@ -3214,10 +3205,10 @@ BOOL TLayout::AssignLoco(int TimetabPos)
       ::SendMessage(frame->HWindow, WM_COMMAND, CM_MNUFISTOP, 0);
 
       // ...display error box...
-      strcpy(Str1, "An error has occurred: Rail Control was unable to\nassign a loco to a train. The loco type required is: ");
-      std::snprintf(Str2, sizeof(Str2), "%d", GivenType);
-      strcat(Str1, Str2);
-      strcat(Str1, ".");
+      CopyString(Str1, "An error has occurred: Rail Control was unable to\nassign a loco to a train. The loco type required is: ");
+      FormatBuffer(Str2, "%d", GivenType);
+      AppendString(Str1, Str2);
+      AppendString(Str1, ".");
       ::MessageBox(HWindow, Str1, APPNAME, MB_ICONHAND | MB_OK);
 
       return FALSE;
@@ -4392,8 +4383,8 @@ int TLayout::CodeCalculate(char* TextString)
   if (_stricmp(InternText, "ST_INPLAT") == 0)  return ST_INPLAT;
   if (_stricmp(InternText, "ST_STOCKOK") == 0)  return ST_STOCKOK;
 
-  strcpy(ErrorText, "Incorrect timetable code error\n\n");
-  strcat(ErrorText, "Arrival description: \n");
+  CopyString(ErrorText, "Incorrect timetable code error\n\n");
+  AppendString(ErrorText, "Arrival description: \n");
  
   ::MessageBox(HWindow, ErrorText, APPNAME, MB_OK);
   return 1;
@@ -4410,7 +4401,7 @@ void TLayout::DebugTrainInfo(char* xiStr, int xiIndex, int xiExpect)
 
   if (lloco == 0)
   {
-    strcpy(llocostr, "XXXXX");
+    CopyString(llocostr, "XXXXX");
   }
   else
   {
@@ -4438,3 +4429,5 @@ DEFINE_RESPONSE_TABLE1( TLayout, TFrameWindow )
     EV_WM_TIMER,
     EV_COMMAND( 500, HandleSelectors ),
 END_RESPONSE_TABLE;
+
+

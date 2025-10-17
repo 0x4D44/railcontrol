@@ -16,6 +16,12 @@
 *
 */
 
+#ifndef GENERAL_H_INCLUDED
+#define GENERAL_H_INCLUDED
+
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
 
 // Main menu definitions
 #define CM_MNUFILNEW       100
@@ -202,7 +208,7 @@
 /****************************************************************************/
 //#define MDDEBUG
 #ifdef MDDEBUG
-#define TB mdDebugStringBuffer
+#define TB mdDebugStringBuffer, sizeof(mdDebugStringBuffer)
 #define TRC_ERR(X)  TRC_INT(X)
 #define TRC_ALT(X)  TRC_INT(X)
 #define TRC_NRM(X)  TRC_INT(X)
@@ -210,7 +216,12 @@
 #define TRC_INT(X)                                                           \
         {                                                                    \
            char mdDebugStringBuffer[256];                                    \
-           sprintf X;                                                        \
+           const int trcWritten = std::snprintf X;                           \
+           if (trcWritten < 0 ||                                             \
+               trcWritten >= static_cast<int>(sizeof(mdDebugStringBuffer)))  \
+           {                                                                 \
+             mdDebugStringBuffer[sizeof(mdDebugStringBuffer) - 1] = '\0';    \
+           }                                                                 \
            OutputDebugString(mdDebugStringBuffer);                           \
         }                                                                    
 #else
@@ -220,6 +231,92 @@
 #define TRC_DBG(X)
 #endif
 
+template <std::size_t BufferSize, typename... Args>
+inline void FormatBuffer(char (&buffer)[BufferSize], const char* format, Args... args)
+{
+  static_assert(BufferSize > 0, "FormatBuffer requires a non-empty buffer");
+  const int written = std::snprintf(buffer, BufferSize, format, args...);
+  if (written < 0 || static_cast<std::size_t>(written) >= BufferSize)
+  {
+    buffer[BufferSize - 1] = '\0';
+  }
+}
+
+template <std::size_t BufferSize>
+inline void CopyString(char (&buffer)[BufferSize], const char* value)
+{
+  FormatBuffer(buffer, "%s", value ? value : "");
+}
+
+inline void CopyString(char* buffer, std::size_t bufferSize, const char* value)
+{
+  if (!buffer || bufferSize == 0)
+  {
+    return;
+  }
+
+  const char* source = value ? value : "";
+  const int written = std::snprintf(buffer, bufferSize, "%s", source);
+  if (written < 0 || static_cast<std::size_t>(written) >= bufferSize)
+  {
+    buffer[bufferSize - 1] = '\0';
+  }
+}
+
+inline void CopyString(char* buffer, const char* value)
+{
+  if (!buffer)
+  {
+    return;
+  }
+
+  const char* source = value ? value : "";
+  std::strcpy(buffer, source);
+}
+
+template <std::size_t BufferSize>
+inline void AppendString(char (&buffer)[BufferSize], const char* value)
+{
+  if (!value)
+  {
+    return;
+  }
+
+  const std::size_t currentLength = std::strlen(buffer);
+  if (currentLength >= BufferSize - 1)
+  {
+    return;
+  }
+
+  const int written = std::snprintf(buffer + currentLength,
+                                    BufferSize - currentLength,
+                                    "%s",
+                                    value);
+  if (written < 0)
+  {
+    buffer[BufferSize - 1] = '\0';
+  }
+}
+
+template <std::size_t BufferSize, typename... Args>
+inline void AppendFormat(char (&buffer)[BufferSize], const char* format, Args... args)
+{
+  const std::size_t currentLength = std::strlen(buffer);
+  if (currentLength >= BufferSize - 1)
+  {
+    return;
+  }
+
+  const int written = std::snprintf(buffer + currentLength,
+                                    BufferSize - currentLength,
+                                    format,
+                                    args...);
+  if (written < 0)
+  {
+    buffer[BufferSize - 1] = '\0';
+  }
+}
+
 /****************************************************************************/
 /* Utility functions.                                                       */
 /****************************************************************************/
@@ -228,6 +325,7 @@ char* lTrim(char* p);
 char* rTrim(char* p);
 char* Trim(char* p);
 
+#endif // GENERAL_H_INCLUDED
 
 
 

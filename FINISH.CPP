@@ -16,6 +16,7 @@
 */
 
 #include "classdef.h"
+#include <cstdio>
 
 /*************************************************************************/
 /* Methods of TFinish follow...*/
@@ -45,18 +46,31 @@ void TFinish::SetupWindow()
   /**************************************************************************/
   /* Calculate average delays.                                              */
   /**************************************************************************/
-  lArrDelay = layout->ArrDelay;
-  lArrDelay /= (float) (2 * layout->ArrNum);
-  lDepDelay = layout->DepDelay;
-  lDepDelay /= (float) (2 * layout->DepNum);
+  if (layout->ArrNum > 0)
+  {
+    lArrDelay = static_cast<float>(layout->ArrDelay) / static_cast<float>(2 * layout->ArrNum);
+  }
+  else
+  {
+    lArrDelay = 0.0f;
+  }
+
+  if (layout->DepNum > 0)
+  {
+    lDepDelay = static_cast<float>(layout->DepDelay) / static_cast<float>(2 * layout->DepNum);
+  }
+  else
+  {
+    lDepDelay = 0.0f;
+  }
   lAvDelay = (lArrDelay + lDepDelay) / 2;
 
   // Set up static controls
-  sprintf(szText1, "During your %d hour shift you achieved:", layout->ShiftLength);
+  FormatBuffer(szText1, "During your %d hour shift you achieved:", layout->ShiftLength);
   Stat1->SetText(szText1);
-  sprintf(szText1, "Average arrival delay: %.2f mins (%d trains)", lArrDelay, layout->ArrNum);
+    FormatBuffer(szText1, "Average arrival delay: %.2f mins (%d trains)", lArrDelay, layout->ArrNum);
   Stat2->SetText(szText1);
-  sprintf(szText1, "Average departure delay: %.2f mins (%d trains)", lDepDelay, layout->DepNum);
+    FormatBuffer(szText1, "Average departure delay: %.2f mins (%d trains)", lDepDelay, layout->DepNum);
   Stat3->SetText(szText1);
 
   if ((layout->ArrNum > 0) || (layout->DepNum > 0))

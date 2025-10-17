@@ -1,4 +1,4 @@
-﻿// OWLCVT 05/11/95 22:39:08
+// OWLCVT 05/11/95 22:39:08
 /* PLATFORM.CPP
 *  ============
 *
@@ -16,6 +16,7 @@
 */
 
 #include "classdef.h"
+#include <cstdio>
 
 /*************************************************************************/
 /* Methods of TPlatform follow...*/
@@ -204,9 +205,9 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
   // Now draw platform header information
   if (Redraw)
   {
-    strcpy(TextString, "#:");
+    CopyString(TextString, "#:");
     TextOut(TheDC, 22, 5, TextString, strlen(TextString));
-    strcpy(TextString, "Description:");
+    CopyString(TextString, "Description:");
     TextOut(TheDC, 43, 5, TextString, strlen(TextString));
   }
 
@@ -229,8 +230,8 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
         if (Redraw || (frame->DisplayHan->PPlatDataInfo[i]->GetRedraw()))
         {
           frame->DisplayHan->PPlatDataInfo[i]->SetRedraw(FALSE);
-          strcpy(LocoName, "");
-          strcpy(TrainName, "");
+          CopyString(LocoName, "");
+          CopyString(TrainName, "");
 
           // Draw main platform name text
           a = frame->DisplayHan->PPlatDataInfo[i]->GetSelectorRef();
@@ -258,7 +259,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
             if (a > 0)
             {
               frame->DisplayHan->PLocosInfo[a]->LocoNumStr(LocoName);
-              strcpy(TrainName, "");
+              CopyString(TrainName, "");
 
               /**************************************************************/
               /* Store the loco state so we can determine the colour to use */
@@ -281,7 +282,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
               // Train has just arrived and loco is still connected
               frame->DisplayHan->PTimetableInfo[a]->GetArrDesc(TrainName);
-              strcat(TrainName, " + ");
+              AppendString(TrainName, " + ");
 
               for (lii = 0; lii < 2; lii++)
               {
@@ -294,7 +295,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
                   if (lii == 0)
                   {
-                    sprintf(LocoName, "%s", lTempStr);
+                    FormatBuffer(LocoName, "%s", lTempStr);
 
                     /********************************************************/
                     /* Store the loco state so we can determine the colour  */
@@ -304,8 +305,8 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
                   }
                   else
                   {
-                    strcat(LocoName, "_");
-                    strcat(LocoName, lTempStr);
+                    AppendString(LocoName, "_");
+                    AppendString(LocoName, lTempStr);
                   }
                 }
               }
@@ -321,16 +322,16 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
               if (c > 0)
               {
                 frame->DisplayHan->PLocosInfo[c]->LocoNumStr(LocoName);
-                strcpy(TrainName, LocoName);
-                strcat(TrainName, " + ");
+                CopyString(TrainName, LocoName);
+                AppendString(TrainName, " + ");
               }
               else
               {
-                strcpy(TrainName, "");
+                CopyString(TrainName, "");
               }
 
               frame->DisplayHan->PTimetableInfo[a]->GetDepDesc(LocoName);
-              strcat(TrainName, LocoName);
+              AppendString(TrainName, LocoName);
 
               TRC_NRM((TB, "PLT CHOICE"));
 
@@ -338,7 +339,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
               if (c > 0)
               {
                 frame->DisplayHan->PLocosInfo[c]->LocoNumStr(LocoName);
-                strcat(TrainName, " . ");
+                AppendString(TrainName, " . ");
 
                 /************************************************************/
                 /* Store the loco state so we can determine the colour to   */
@@ -348,7 +349,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
               }
               else
               {
-                strcpy(LocoName, "");
+                CopyString(LocoName, "");
               }
 
               /**************************************************************/
@@ -430,7 +431,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
         ::SetTextColor(TheDC, RGB(255, 255, 255));
 
         frame->DisplayHan->HoldLocoChng = FALSE;
-        strcpy(TextString, "Hold");
+        CopyString(TextString, "Hold");
         TextOut(TheDC, 33, 25+17*MaxVal, TextString, strlen(TextString));
         if (frame->DisplayHan->HoldLoco > 0)
         {
@@ -449,12 +450,12 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
           }
           else
           {
-            strcpy(TextString, "");
+            CopyString(TextString, "");
           }
         }
         else
         {
-          strcpy(TextString, "");
+          CopyString(TextString, "");
         }
 
         lRect.left   = 35;
@@ -463,7 +464,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
         lRect.bottom = 41+17*MaxVal;
         ExtTextOut(TheDC, lRect.left, lRect.top, ETO_OPAQUE, &lRect, "", 0, NULL);
         TextOut(TheDC, 240, 25+17*MaxVal, TextString, strlen(TextString));
-        strcpy(Currently[MaxVal+1], TextString);
+        CopyString(Currently[MaxVal+1], TextString);
       }
     }
   }
@@ -477,3 +478,4 @@ DEFINE_RESPONSE_TABLE1(TPlatform, TFrameWindow)
     EV_WM_SIZE,
     EV_WM_MOVE,
 END_RESPONSE_TABLE;
+

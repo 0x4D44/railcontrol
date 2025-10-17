@@ -16,6 +16,7 @@
 */
 
 #include "classdef.h"
+#include <cstdio>
 
 /*************************************************************************/
 /* Methods of TArrivals follow...*/
@@ -186,21 +187,21 @@ void TArrivals::UpdateDisplay(HDC TheDC, BOOL Redraw)
   // Now draw timetable header information
   if (Redraw)
   {
-    strcpy(TextString, "Due:");
+    CopyString(TextString, "Due:");
     TextOut(TheDC, ARR_OFFSET_DUE, 5, TextString, strlen(TextString));
-    strcpy(TextString, "On:");
+    CopyString(TextString, "On:");
     TextOut(TheDC, ARR_OFFSET_ON, 5, TextString, strlen(TextString));
-    strcpy(TextString, "+:");
+    CopyString(TextString, "+:");
     TextOut(TheDC, ARR_OFFSET_LATE, 5, TextString, strlen(TextString));
-    strcpy(TextString, "Loco / MU:");
+    CopyString(TextString, "Loco / MU:");
     TextOut(TheDC, ARR_OFFSET_LOCO, 5, TextString, strlen(TextString));
-    strcpy(TextString, "Description:");
+    CopyString(TextString, "Description:");
     TextOut(TheDC, ARR_OFFSET_ARRDESC, 5, TextString, strlen(TextString));
-    strcpy(TextString, "Status:");
+    CopyString(TextString, "Status:");
     TextOut(TheDC, ARR_OFFSET_STATUS, 5, TextString, strlen(TextString));
-    strcpy(TextString, "Dep:");
+    CopyString(TextString, "Dep:");
     TextOut(TheDC, ARR_OFFSET_DEPTIME, 5, TextString, strlen(TextString));
-    strcpy(TextString, "Description:");
+    CopyString(TextString, "Description:");
     TextOut(TheDC, ARR_OFFSET_DEPDESC, 5, TextString, strlen(TextString));
   }
 
@@ -276,12 +277,12 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
    }
    else
    {
-     strcpy(TextString, "");
+     CopyString(TextString, "");
    }
    TextOut(TheDC, ARR_OFFSET_LATE, YPos, TextString, strlen(TextString));
 
    // Loco attached
-   strcpy(TextString, "XXXXX");
+   CopyString(TextString, "XXXXX");
    for (lii = 0; lii < 2; lii++)
    {
      llocoid = frame->DisplayHan->PTimetableInfo[TabVal]->GetLoco(lii);
@@ -293,17 +294,17 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
 
        if (lii == 0)
        {
-         sprintf(TextString, "%s", lTempStr);
-       }
-       else
-       {
-         strcat(TextString, "+");
-         strcat(TextString, lTempStr);
-       }
+       FormatBuffer(TextString, "%s", lTempStr);
+      }
+      else
+      {
+        AppendString(TextString, "+");
+        AppendString(TextString, lTempStr);
+      }
 
-       if (frame->DisplayHan->PTimetableInfo[TabVal]->GetDelayFlag() == DLF_DELAYS_MAINT)
-       {
-         ::SetTextColor(TheDC, RGB(255, 128, 0));
+      if (frame->DisplayHan->PTimetableInfo[TabVal]->GetDelayFlag() == DLF_DELAYS_MAINT)
+      {
+        ::SetTextColor(TheDC, RGB(255, 128, 0));
        }
      }
    }
@@ -318,25 +319,25 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
    if (frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus() == ST_DUE)
    {
      ::SetTextColor(TheDC, RGB(255, 255, 255));
-     sprintf(TextString, "Expected on %s", ArrPntName);
+    FormatBuffer(TextString, "Expected on %s", ArrPntName);
      TextOut(TheDC, ARR_OFFSET_STATUS, YPos, TextString, strlen(TextString));
    }
    if (frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus() == ST_APPROACH)
    {
      ::SetTextColor(TheDC, RGB(192, 192, 0));
-     sprintf(TextString, "Approaching on %s", ArrPntName);
+    FormatBuffer(TextString, "Approaching on %s", ArrPntName);
      TextOut(TheDC, ARR_OFFSET_STATUS, YPos, TextString, strlen(TextString));
    }
    if (frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus() == ST_HELD)
    {
      ::SetTextColor(TheDC, RGB(255, 0, 0));
-     sprintf(TextString, "Held on %s", ArrPntName);
+    FormatBuffer(TextString, "Held on %s", ArrPntName);
      TextOut(TheDC, ARR_OFFSET_STATUS, YPos, TextString, strlen(TextString));
    }
    if (frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus() == ST_FIRSTHELD)
    {
      ::SetTextColor(TheDC, RGB(255, 0, 0));
-     sprintf(TextString, "First held on %s", ArrPntName);
+    FormatBuffer(TextString, "First held on %s", ArrPntName);
      TextOut(TheDC, ARR_OFFSET_STATUS, YPos, TextString, strlen(TextString));
    }
    if ((frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus() >= ST_SETPLAT) &&
@@ -345,8 +346,8 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
      ::SetTextColor(TheDC, RGB(0, 127, 0));
      a = frame->DisplayHan->PTimetableInfo[TabVal]->GetRoute();
      frame->DisplayHan->PSelectorInfo[frame->DisplayHan->PRoutesInfo[a]->GetTo()]->GetText(Str2, 20);
-     strcpy(TextString, "Set to platform ");
-     strcat(TextString, Str2);
+     CopyString(TextString, "Set to platform ");
+     AppendString(TextString, Str2);
      TextOut(TheDC, ARR_OFFSET_STATUS, YPos, TextString, strlen(TextString));
     }
 
@@ -356,7 +357,7 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
     if (frame->DisplayHan->PTimetableInfo[TabVal]->GetDelayFlag() == DLF_DELAYS_THRU)
     {
       // Through train, so display as such.
-      strcpy(TextString, "THRU");
+      CopyString(TextString, "THRU");
     }
     else
     {
@@ -384,7 +385,7 @@ void TArrivals::ConvertTime(int TimeVal, char *TimeStr)
   if ((TimeVal <= 0) | (TimeVal > 2400))
   {
     // Invalid time specified
-    strcpy(TextString, "XX:XX");
+    CopyString(TextString, "XX:XX");
   }
   else
   { 
@@ -393,24 +394,24 @@ void TArrivals::ConvertTime(int TimeVal, char *TimeStr)
     _itoa_s(Hr, TextStrtwo, sizeof(TextStrtwo), 10);
     if (Hr < 10)
     {
-      strcpy(TextString, "0");
-      strcat(TextString, TextStrtwo);
+      CopyString(TextString, "0");
+      AppendString(TextString, TextStrtwo);
     }
     else
     {
-      strcpy(TextString, TextStrtwo);
+      CopyString(TextString, TextStrtwo);
     }
-    strcat(TextString, ":");
+    AppendString(TextString, ":");
 
     Mn = TimeVal - 100*Hr;
 
-    if (Mn < 10) strcat(TextString, "0");
+    if (Mn < 10) AppendString(TextString, "0");
     _itoa_s(Mn, TextStrtwo, sizeof(TextStrtwo), 10);
-    strcat(TextString, TextStrtwo); 
+    AppendString(TextString, TextStrtwo); 
   }
 
   // Copy time field back to main field
-  strcpy(TimeStr, TextString);
+  CopyString(TimeStr, 7, TextString);
 }
 
 
