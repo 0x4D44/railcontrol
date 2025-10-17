@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:35:59
+﻿// OWLCVT 05/11/95 22:35:59
 /* LOCOYARD.CPP
 *  ============
 *
@@ -48,13 +48,13 @@ void TLocoyard::GetWindowClass(WNDCLASS& WndClass)
 {
   TFrameWindow::GetWindowClass(WndClass);
   WndClass.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
-  WndClass.hIcon = LoadIcon(*GetApplication(), "LOCOYARD");
+  WndClass.hIcon = ::LoadIcon(GetModule()->GetHandle(), TEXT("LOCOYARD"));
 }
 
 
-LPCTSTR TLocoyard::GetClassName()
+auto TLocoyard::GetWindowClassName() -> owl::TWindowClassName
 {
-  return "Locoyard Window";
+  return owl::TWindowClassName(_T("Locoyard Window"));
 }
 
 
@@ -90,7 +90,7 @@ bool TLocoyard::CanClose()
 }
 
 
-void TLocoyard::EvSize(UINT sizeType, TSize& size)
+void TLocoyard::EvSize(owl::uint sizeType, const TSize& size)
 {
   // Call ancestor method
   TFrameWindow::EvSize(sizeType, size);
@@ -108,7 +108,7 @@ void TLocoyard::EvSize(UINT sizeType, TSize& size)
 }
 
 
-void TLocoyard::EvMove(TPoint& pnt)
+void TLocoyard::EvMove(const TPoint& pnt)
 {
   // Call ancestor method
   TFrameWindow::EvMove(pnt);
@@ -120,14 +120,14 @@ void TLocoyard::EvMove(TPoint& pnt)
 }
 
 
-void TLocoyard::EvLButtonDown(UINT modKeys, TPoint& point)
+void TLocoyard::EvLButtonDown(owl::uint modKeys, const TPoint& point)
 {
   // Call ancestor method
   TFrameWindow::EvLButtonDown(modKeys, point);
 }
 
 
-void TLocoyard::EvLButtonUp(UINT, TPoint&)
+void TLocoyard::EvLButtonUp(owl::uint, const TPoint&)
 {
 
   HDC     TheDC;
@@ -145,7 +145,7 @@ void TLocoyard::EvLButtonUp(UINT, TPoint&)
       // Deselect the locomotive
       TheDC = GetDC(HWindow);
       SelectObject(TheDC, frame->mTextFont);
-      SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
+      ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
       SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
 
       // Get loco number as a character array
@@ -174,7 +174,7 @@ void TLocoyard::EvLButtonUp(UINT, TPoint&)
 }
 
 
-void TLocoyard::EvMouseMove(UINT, TPoint& pnt)
+void TLocoyard::EvMouseMove(owl::uint, const TPoint& pnt)
 {
   HDC     TheDC;
   int     LookXPos, LookYPos;
@@ -213,7 +213,7 @@ void TLocoyard::EvMouseMove(UINT, TPoint& pnt)
       // Get a DC and set it up
       TheDC = GetDC(HWindow);
       SelectObject(TheDC, frame->mTextFont);
-      SetTextColor(TheDC, RGB(255, 255, 255));
+      ::SetTextColor(TheDC, RGB(255, 255, 255));
       SetBkColor(TheDC, RGB(0, 0, 0));
 
       if (OldSelect < 16)
@@ -234,7 +234,7 @@ void TLocoyard::EvMouseMove(UINT, TPoint& pnt)
        if (frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[a]]->GetFlag() != LF_REFUEL)
        {
         // Get new loco number and output it
-        SetTextColor(TheDC, RGB(255, 255, 0));
+        ::SetTextColor(TheDC, RGB(255, 255, 0));
         frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[a]]->LocoNumStr(TextString);
         TextOut(TheDC, LookXPos, LookYPos, TextString, strlen(TextString));
        }
@@ -259,7 +259,7 @@ void TLocoyard::EvMouseMove(UINT, TPoint& pnt)
        // Get old loco number and reset it
        TheDC = GetDC(HWindow);
        SelectObject(TheDC, frame->mTextFont);
-       SetTextColor(TheDC, RGB(255, 255, 255));
+       ::SetTextColor(TheDC, RGB(255, 255, 255));
        SetBkColor(TheDC, RGB(0, 0, 0));
 
        // Get loco number as a character array
@@ -345,7 +345,7 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
   // Set up text attributes
   SelectObject(TheDC, frame->mHeaderFont);
-  SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
+  ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
   SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
 
   // Now draw timetable header information
@@ -355,7 +355,7 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
     TextOut(TheDC, 10, 5, TextString, strlen(TextString));
   }
 
-  SetTextColor(TheDC, RGB(255, 255, 255));
+  ::SetTextColor(TheDC, RGB(255, 255, 255));
   SetBkColor(TheDC, RGB(0, 0, 0));
 
   if (frame->GameInProgress)
@@ -383,11 +383,11 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
           if (frame->DisplayHan->PLocosInfo[a]->GetFlag() == LF_REFUEL)
           {
-            SetTextColor(TheDC, RGB(128, 128, 128));
+            ::SetTextColor(TheDC, RGB(128, 128, 128));
           }
           else
           {
-            SetTextColor(TheDC, RGB(255, 255, 255));
+            ::SetTextColor(TheDC, RGB(255, 255, 255));
           }
 
           SelectObject(TheDC, frame->mTextFont);

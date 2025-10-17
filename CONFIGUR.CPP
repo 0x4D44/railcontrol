@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:38:01
+﻿// OWLCVT 05/11/95 22:38:01
 /* CONFIGUR.CPP
 *  ============
 *
@@ -21,7 +21,7 @@
 /* Methods of TConfigur follow...  */
 
 
-TConfigur::TConfigur(TWindow* parent, LPSTR name)
+TConfigur::TConfigur(TWindow* parent, LPCTSTR name)
  : TDialog(parent, name)
 {
   TRC_NRM((TB, "Constructing new configuration window"));

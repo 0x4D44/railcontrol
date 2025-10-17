@@ -46,7 +46,7 @@ private:
 
 
 public:
-  TTimetable(char* xiArrDesc, char* xiDepDesc, int xiValue[9], char* xiComment);
+  TTimetable(const char* xiArrDesc, const char* xiDepDesc, int xiValue[9], const char* xiComment);
   ~TTimetable();
   void  GetArrDesc(char* Text);
   void  GetDepDesc(char* Text);

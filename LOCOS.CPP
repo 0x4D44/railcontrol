@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:40:38
+﻿// OWLCVT 05/11/95 22:40:38
 /* LOCOS.CPP
 *  =========
 *
@@ -16,6 +16,8 @@
 */
 
 #include "classdef.h"
+#include <algorithm>
+#include <string>
 
 // The actual class code
 TLocos::TLocos(int GClass, int GNumber, int GType)
@@ -82,7 +84,9 @@ void TLocos::LocoNumStr(char* Text)
 
   // Calculate loco number, convert it to a string and return it in <Text>
   Temp = 1000*long(Class) + Number;
-  ltoa(Temp, Text, 10);
+  const auto locoText = std::to_string(Temp);
+  std::copy(locoText.begin(), locoText.end(), Text);
+  Text[locoText.size()] = '\0';
 }
 
 

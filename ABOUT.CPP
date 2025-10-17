@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:37:01
+﻿// OWLCVT 05/11/95 22:37:01
 /* ABOUT.CPP
 *  =========
 *
@@ -21,14 +21,13 @@
 /* Methods of TAbout follow...  */
 
 
-TAbout::TAbout(TWindow * parent, LPSTR name)
+TAbout::TAbout(TWindow * parent, LPCTSTR name)
  : TDialog(parent, name)
 {
-  // Load screen bitmap
-  HLoco1 = 0;
-  HLoco1 = LoadBitmap(*GetApplication(), "LOCO");
-  HLoco2 = 0;
-  HLoco2 = LoadBitmap(*GetApplication(), "DMU");
+  // Load screen bitmaps
+  HINSTANCE hInst = GetModule()->GetHandle();
+  HLoco1 = ::LoadBitmap(hInst, TEXT("LOCO"));
+  HLoco2 = ::LoadBitmap(hInst, TEXT("DMU"));
 }
 
 
@@ -58,7 +57,8 @@ void TAbout::EvPaint()
   HDC         MemDC;
 
   // Begin paint
-  BeginPaint(HWindow, &PS);
+  HWND hwnd = GetHandle();
+  BeginPaint(hwnd, &PS);
   MemDC = CreateCompatibleDC(PS.hdc);
   HOldBitmap = (HBITMAP) SelectObject(MemDC, HLoco1);
 
@@ -74,7 +74,7 @@ void TAbout::EvPaint()
   DeleteDC(MemDC);
 
   // End paint
-  EndPaint(HWindow, &PS);
+  EndPaint(hwnd, &PS);
 }
 
 

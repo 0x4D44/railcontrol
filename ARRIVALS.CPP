@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:36:23
+﻿// OWLCVT 05/11/95 22:36:23
 /* ARRIVALS.CPP
 *  ============
 *
@@ -41,13 +41,13 @@ void TArrivals::GetWindowClass(WNDCLASS& WndClass)
 {
   TFrameWindow::GetWindowClass(WndClass);
   WndClass.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
-  WndClass.hIcon = LoadIcon(*GetApplication(), "ARRIVAL");
+  WndClass.hIcon = ::LoadIcon(GetModule()->GetHandle(), TEXT("ARRIVAL"));
 }
 
 
-LPCTSTR TArrivals::GetClassName()
+auto TArrivals::GetWindowClassName() -> owl::TWindowClassName
 {
-  return "Arrival Window";
+  return owl::TWindowClassName(_T("Arrival Window"));
 }
 
 
@@ -59,7 +59,7 @@ void TArrivals::SetupWindow()
   TFrameWindow::SetupWindow();
 
   // Get rid of unnecessary system menu commands
-  hSysMenu = ::GetSystemMenu(HWindow, FALSE);
+  hSysMenu = ::GetSystemMenu(GetHandle(), FALSE);
   RemoveMenu(hSysMenu, SC_SIZE, MF_BYCOMMAND);
   RemoveMenu(hSysMenu, SC_MAXIMIZE, MF_BYCOMMAND);
   RemoveMenu(hSysMenu, SC_MINIMIZE, MF_BYCOMMAND);
@@ -71,7 +71,7 @@ bool TArrivals::CanClose()
   HMENU  TheMenu;
 
   // Check main menu appropriately
-  TheMenu = ::GetMenu(Parent->HWindow);
+  TheMenu = ::GetMenu(Parent->GetHandle());
   CheckMenuItem(TheMenu, CM_WINARRIVA, MF_BYCOMMAND | MF_UNCHECKED);
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
   frame->ArrivalHan = NULL;
@@ -81,7 +81,7 @@ bool TArrivals::CanClose()
 }
 
 
-void TArrivals::EvSize(UINT sizeType, TSize& size)
+void TArrivals::EvSize(owl::uint sizeType, const TSize& size)
 {
   // Call ancestor method
   TFrameWindow::EvSize(sizeType, size);
@@ -99,7 +99,7 @@ void TArrivals::EvSize(UINT sizeType, TSize& size)
 }
 
 
-void TArrivals::EvMove(TPoint& point)
+void TArrivals::EvMove(const TPoint& point)
 {
   // Call ancestor method
   TFrameWindow::EvMove(point);
@@ -180,7 +180,7 @@ void TArrivals::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
   // Set up text attributes
   SelectObject(TheDC, frame->mHeaderFont);
-  SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
+  ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
   SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
 
   // Now draw timetable header information
@@ -254,7 +254,7 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
 
   if (TabVal > 0)
   {
-   SetTextColor(TheDC, RGB(255, 255, 255));
+   ::SetTextColor(TheDC, RGB(255, 255, 255));
 
    // Arrival time
    ConvertTime(frame->DisplayHan->PTimetableInfo[TabVal]->GetArrTime(),
@@ -269,9 +269,10 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
    // Minutes late
    if (frame->DelayEnable)
    {
-     itoa(frame->DisplayHan->PTimetableInfo[TabVal]->GetMinLate(), 
-          TextString, 
-          10);
+     _itoa_s(frame->DisplayHan->PTimetableInfo[TabVal]->GetMinLate(), 
+         TextString, 
+         sizeof(TextString), 
+         10);
    }
    else
    {
@@ -302,46 +303,46 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
 
        if (frame->DisplayHan->PTimetableInfo[TabVal]->GetDelayFlag() == DLF_DELAYS_MAINT)
        {
-         SetTextColor(TheDC, RGB(255, 128, 0));
+         ::SetTextColor(TheDC, RGB(255, 128, 0));
        }
      }
    }
    TextOut(TheDC, ARR_OFFSET_LOCO, YPos, TextString, strlen(TextString));
 
    // Arrival description
-   SetTextColor(TheDC, RGB(255, 255, 255));
+   ::SetTextColor(TheDC, RGB(255, 255, 255));
    frame->DisplayHan->PTimetableInfo[TabVal]->GetArrDesc(TextString);
    TextOut(TheDC, ARR_OFFSET_ARRDESC, YPos, TextString, strlen(TextString));
 
    // Arrival status
    if (frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus() == ST_DUE)
    {
-     SetTextColor(TheDC, RGB(255, 255, 255));
+     ::SetTextColor(TheDC, RGB(255, 255, 255));
      sprintf(TextString, "Expected on %s", ArrPntName);
      TextOut(TheDC, ARR_OFFSET_STATUS, YPos, TextString, strlen(TextString));
    }
    if (frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus() == ST_APPROACH)
    {
-     SetTextColor(TheDC, RGB(192, 192, 0));
+     ::SetTextColor(TheDC, RGB(192, 192, 0));
      sprintf(TextString, "Approaching on %s", ArrPntName);
      TextOut(TheDC, ARR_OFFSET_STATUS, YPos, TextString, strlen(TextString));
    }
    if (frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus() == ST_HELD)
    {
-     SetTextColor(TheDC, RGB(255, 0, 0));
+     ::SetTextColor(TheDC, RGB(255, 0, 0));
      sprintf(TextString, "Held on %s", ArrPntName);
      TextOut(TheDC, ARR_OFFSET_STATUS, YPos, TextString, strlen(TextString));
    }
    if (frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus() == ST_FIRSTHELD)
    {
-     SetTextColor(TheDC, RGB(255, 0, 0));
+     ::SetTextColor(TheDC, RGB(255, 0, 0));
      sprintf(TextString, "First held on %s", ArrPntName);
      TextOut(TheDC, ARR_OFFSET_STATUS, YPos, TextString, strlen(TextString));
    }
    if ((frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus() >= ST_SETPLAT) &&
        (frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus() <= ST_ARRC))
    {
-     SetTextColor(TheDC, RGB(0, 127, 0));
+     ::SetTextColor(TheDC, RGB(0, 127, 0));
      a = frame->DisplayHan->PTimetableInfo[TabVal]->GetRoute();
      frame->DisplayHan->PSelectorInfo[frame->DisplayHan->PRoutesInfo[a]->GetTo()]->GetText(Str2, 20);
      strcpy(TextString, "Set to platform ");
@@ -350,7 +351,7 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
     }
 
     // Departure time
-    SetTextColor(TheDC, RGB(255, 255, 255));
+    ::SetTextColor(TheDC, RGB(255, 255, 255));
 
     if (frame->DisplayHan->PTimetableInfo[TabVal]->GetDelayFlag() == DLF_DELAYS_THRU)
     {
@@ -389,7 +390,7 @@ void TArrivals::ConvertTime(int TimeVal, char *TimeStr)
   { 
     Hr = TimeVal /100;
   
-    itoa(Hr, TextStrtwo, 10);
+    _itoa_s(Hr, TextStrtwo, sizeof(TextStrtwo), 10);
     if (Hr < 10)
     {
       strcpy(TextString, "0");
@@ -404,7 +405,7 @@ void TArrivals::ConvertTime(int TimeVal, char *TimeStr)
     Mn = TimeVal - 100*Hr;
 
     if (Mn < 10) strcat(TextString, "0");
-    itoa(Mn, TextStrtwo, 10);
+    _itoa_s(Mn, TextStrtwo, sizeof(TextStrtwo), 10);
     strcat(TextString, TextStrtwo); 
   }
 

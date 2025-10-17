@@ -24,10 +24,7 @@
 class TManager : public TApplication
 {
 public:
-  TManager(LPSTR AName, HINSTANCE hInstance, HINSTANCE hPrevInstance,
-       LPSTR lpCmdLine, int nCmdShow)
-    : TApplication(AName, hInstance, hPrevInstance, lpCmdLine,
-    nCmdShow) {};
+  TManager();
   virtual void InitMainWindow();
 };
 
@@ -100,22 +97,19 @@ public:
 #endif
 
 
-  TMainWindow(TWindow* AParent, LPSTR ATitle);
+  TMainWindow(TWindow* AParent, LPCTSTR ATitle);
   ~TMainWindow();
   void GetWindowClass(WNDCLASS& WndClass);
-  virtual LPCTSTR GetClassName();
+  auto GetWindowClassName() -> owl::TWindowClassName override;
   void SetupWindow(void);
   virtual bool CanClose();
   void QuitProgram();
-  void EvSize(UINT, TSize&);
-  void EvMove(TPoint &clientOrigin);
-  void EvMenuSelect( UINT, UINT, HMENU );
+  void EvSize(owl::uint sizeType, const TSize& size);
+  void EvMove(const TPoint &clientOrigin);
+  void EvMenuSelect(owl::uint menuId, owl::uint flags, HMENU);
   virtual void Paint(TDC& dc, bool erase, TRect& rect);
   void RedoChildren();
-  inline void TMainWindow::CM_FileExit()
-  {
-    SendMessage(WM_CLOSE, 0, 0);
-  }
+  void CM_FileExit();
   void CMMnuFilNew();
   void CMMnuFiPaus();
   void CMMnuFiStop();

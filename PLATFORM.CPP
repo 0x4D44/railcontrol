@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:39:08
+﻿// OWLCVT 05/11/95 22:39:08
 /* PLATFORM.CPP
 *  ============
 *
@@ -41,13 +41,13 @@ void TPlatform::GetWindowClass(WNDCLASS& WndClass)
 {
   TFrameWindow::GetWindowClass(WndClass);
   WndClass.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
-  WndClass.hIcon = LoadIcon(*GetApplication(), "PLATFORM");
+  WndClass.hIcon = ::LoadIcon(GetModule()->GetHandle(), TEXT("PLATFORM"));
 }
 
 
-LPCTSTR TPlatform::GetClassName()
+auto TPlatform::GetWindowClassName() -> owl::TWindowClassName
 {
-  return "Platform Window";
+  return owl::TWindowClassName(_T("Platform Window"));
 }
 
 
@@ -86,7 +86,7 @@ bool TPlatform::CanClose()
 }
 
 
-void TPlatform::EvSize(UINT sizeType, TSize& size)
+void TPlatform::EvSize(owl::uint sizeType, const TSize& size)
 {
   // Call ancestor method
   TFrameWindow::EvSize(sizeType, size);
@@ -106,7 +106,7 @@ void TPlatform::EvSize(UINT sizeType, TSize& size)
 }
 
 
-void TPlatform::EvMove(TPoint& pnt)
+void TPlatform::EvMove(const TPoint& pnt)
 {
   // Call ancestor method
   TFrameWindow::EvMove(pnt);
@@ -198,7 +198,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
   // Set up text attributes
   SelectObject(TheDC, frame->mHeaderFont);
-  SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
+  ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
   SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
 
   // Now draw platform header information
@@ -237,7 +237,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
           if (a != 0)
           {
             SetBkColor(TheDC, RGB(0, 0, 0));
-            SetTextColor(TheDC, RGB(255, 255, 255));
+            ::SetTextColor(TheDC, RGB(255, 255, 255));
 
             frame->DisplayHan->PSelectorInfo[a]->GetText(TextString, 20);
             TextOut(TheDC, 33, 8+17*i, TextString, strlen(TextString));
@@ -407,14 +407,14 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
           /* Draw loco text at the rightmost of the screen (note that right */
           /* text alignment has already been setup).                        */
           /******************************************************************/
-          SetTextColor(TheDC, lLocoColour);
+          ::SetTextColor(TheDC, lLocoColour);
           ExtTextOut(TheDC, lRect.left, lRect.top, ETO_OPAQUE, &lRect, "", 0, NULL);
           TextOut(TheDC, 240, 8+17*i, LocoName, strlen(LocoName));
 
           /******************************************************************/
           /* Draw the train text to the immediate left of the loco text.    */
           /******************************************************************/
-          SetTextColor(TheDC, lTrainColour);
+          ::SetTextColor(TheDC, lTrainColour);
           GetTextExtentPoint32(TheDC, LocoName, strlen(LocoName), &wTxtWid);
           TextOut(TheDC, (240-wTxtWid.cx), 8+17*i, TrainName, strlen(TrainName));
         }
@@ -427,7 +427,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
       if (Redraw || frame->DisplayHan->HoldLocoChng)
       {
         SetBkColor(TheDC, RGB(0, 0, 0));
-        SetTextColor(TheDC, RGB(255, 255, 255));
+        ::SetTextColor(TheDC, RGB(255, 255, 255));
 
         frame->DisplayHan->HoldLocoChng = FALSE;
         strcpy(TextString, "Hold");
@@ -442,9 +442,9 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
             // Select <LocoName> text colour
             switch (frame->DisplayHan->PLocosInfo[c]->GetFlag())
             {
-              case LF_NEEDFUEL: SetTextColor(TheDC, RGB(128, 128, 128)); break;
-              case LF_MAINTAIN: SetTextColor(TheDC, RGB(225, 225, 0)); break;
-              default:          SetTextColor(TheDC, RGB(255, 255, 255)); break;
+              case LF_NEEDFUEL: ::SetTextColor(TheDC, RGB(128, 128, 128)); break;
+              case LF_MAINTAIN: ::SetTextColor(TheDC, RGB(225, 225, 0)); break;
+              default:          ::SetTextColor(TheDC, RGB(255, 255, 255)); break;
             }
           }
           else

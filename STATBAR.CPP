@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:40:08
+﻿// OWLCVT 05/11/95 22:40:08
 /* STATBAR.CPP
 *  ===========
 *
@@ -136,14 +136,13 @@ void TStatbar::GetWindowClass(WNDCLASS &WndClass)
 }
 
 
-LPCTSTR TStatbar::GetClassName()
+auto TStatbar::GetWindowClassName() -> owl::TWindowClassName
 {
-  // Return the class name
-  return "Statbar Class";
+  return owl::TWindowClassName(_T("Statbar Class"));
 }
 
 
-void TStatbar::EvSize(UINT sizeType, TSize& size)
+void TStatbar::EvSize(owl::uint sizeType, const TSize& size)
 {
   // Call ancestor method
   TFrameWindow::EvSize(sizeType, size);

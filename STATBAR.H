@@ -31,7 +31,7 @@ typedef TStatbar* PStatbar;
 class TStatbar : public TFrameWindow
 {
   private:
-	 char      DisplayedText[100];    // Text to display in the status bar
+     char      DisplayedText[100];    // Text to display in the status bar
 	 LOGFONT   TheFontLog;            // Logical font structure used
 	 HFONT     TheFont;               // Handle to the font
 
@@ -39,11 +39,11 @@ class TStatbar : public TFrameWindow
 	 TStatbar(TWindow* AParent);
 	 ~TStatbar();
 	 void SetupWindow();
-	 void Paint(TDC& dc, bool erase, TRect& rect);
-	 void DrawScreen(HDC TheDC, BOOL TextChanged);
-	 void GetWindowClass(WNDCLASS &WndClass);
-	 virtual LPCTSTR GetClassName();
-	 void EvSize( UINT, TSize& );
+   void Paint(TDC& dc, bool erase, TRect& rect);
+   void DrawScreen(HDC TheDC, BOOL TextChanged);
+   void GetWindowClass(WNDCLASS &WndClass);
+   auto GetWindowClassName() -> owl::TWindowClassName override;
+    void EvSize(owl::uint sizeType, const TSize& size);
 	 LRESULT SetText(WPARAM, LPARAM);
 // OWLCVT: Unrecognized DDVT value 1025 for 'SetText', generic signature used
 	 virtual char* GetText();

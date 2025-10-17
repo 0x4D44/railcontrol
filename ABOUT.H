@@ -30,7 +30,7 @@ private:
   HBITMAP  HLoco1, HLoco2;
 
 public:
-  TAbout(TWindow* parent, LPSTR name);
+  TAbout(TWindow* parent, LPCTSTR name);
   void SetupWindow();
   void CmOk();
   void EvPaint();

@@ -35,7 +35,7 @@ public:
 					 *Stat3,
 					 *Stat4;     // Handles to four static text controls 
 
-  TFinish(TWindow* parent, LPSTR AName);
+  TFinish(TWindow* parent, LPCTSTR AName);
   virtual void SetupWindow();
 };
 

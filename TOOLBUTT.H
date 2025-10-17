@@ -55,20 +55,20 @@ class TToolbutton : public TFrameWindow
 
   public:
     TToolbutton(TWindow * AParent, int XPos, int YPos, int ButtNum, WORD WPAR,
-		long LPAR, HWND SentWin, HWND StatWin, char* UpTxt,
-		char* DownTxt);
+        long LPAR, HWND SentWin, HWND StatWin, char* UpTxt,
+        char* DownTxt);
     ~TToolbutton();
-	 void SetupWindow();
-	 virtual void Paint(TDC& dc, bool erase, TRect& rect);
-	 void DrawScreen(HDC TheDC);
-	 void GetWindowClass(WNDCLASS &WndClass);
-	 virtual LPCTSTR GetClassName();
-	 void Enable(BOOL GivEnabled);
-	 void EvLButtonDown(UINT, TPoint&);
-	 void EvLButtonUp(UINT, TPoint&);
-	 void EvMouseMove(UINT, TPoint&);
-	 void SetDownText(char* TextString);
-	 void SetUpText(char* TextString);
+   void SetupWindow();
+   virtual void Paint(TDC& dc, bool erase, TRect& rect);
+   void DrawScreen(HDC TheDC);
+   void GetWindowClass(WNDCLASS &WndClass);
+   auto GetWindowClassName() -> owl::TWindowClassName override;
+   void Enable(BOOL GivEnabled);
+   void EvLButtonDown(owl::uint modKeys, const TPoint& point);
+   void EvLButtonUp(owl::uint modKeys, const TPoint& point);
+   void EvMouseMove(owl::uint modKeys, const TPoint& point);
+   void SetDownText(char* TextString);
+   void SetUpText(char* TextString);
 
     DECLARE_RESPONSE_TABLE(TToolbutton);
 };

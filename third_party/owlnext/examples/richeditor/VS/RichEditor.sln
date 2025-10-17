@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RichEditor", "RichEditor.vcxproj", "{1117FCF0-33E1-4B2B-921F-304AA87B4C83}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Dynamic Debug|Win32 = Dynamic Debug|Win32
+		Dynamic Debug|x64 = Dynamic Debug|x64
+		Dynamic Release|Win32 = Dynamic Release|Win32
+		Dynamic Release|x64 = Dynamic Release|x64
+		Static Debug|Win32 = Static Debug|Win32
+		Static Debug|x64 = Static Debug|x64
+		Static Release|Win32 = Static Release|Win32
+		Static Release|x64 = Static Release|x64
+		Unicode Dynamic Debug|Win32 = Unicode Dynamic Debug|Win32
+		Unicode Dynamic Debug|x64 = Unicode Dynamic Debug|x64
+		Unicode Dynamic Release|Win32 = Unicode Dynamic Release|Win32
+		Unicode Dynamic Release|x64 = Unicode Dynamic Release|x64
+		Unicode Static Debug|Win32 = Unicode Static Debug|Win32
+		Unicode Static Debug|x64 = Unicode Static Debug|x64
+		Unicode Static Release|Win32 = Unicode Static Release|Win32
+		Unicode Static Release|x64 = Unicode Static Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Dynamic Debug|Win32.ActiveCfg = Dynamic Debug|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Dynamic Debug|Win32.Build.0 = Dynamic Debug|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Dynamic Debug|x64.ActiveCfg = Dynamic Debug|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Dynamic Debug|x64.Build.0 = Dynamic Debug|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Dynamic Release|Win32.ActiveCfg = Dynamic Release|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Dynamic Release|Win32.Build.0 = Dynamic Release|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Dynamic Release|x64.ActiveCfg = Dynamic Release|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Dynamic Release|x64.Build.0 = Dynamic Release|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Static Debug|Win32.ActiveCfg = Static Debug|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Static Debug|Win32.Build.0 = Static Debug|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Static Debug|x64.ActiveCfg = Static Debug|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Static Debug|x64.Build.0 = Static Debug|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Static Release|Win32.ActiveCfg = Static Release|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Static Release|Win32.Build.0 = Static Release|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Static Release|x64.ActiveCfg = Static Release|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Static Release|x64.Build.0 = Static Release|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Dynamic Debug|Win32.ActiveCfg = Unicode Dynamic Debug|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Dynamic Debug|Win32.Build.0 = Unicode Dynamic Debug|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Dynamic Debug|x64.ActiveCfg = Unicode Dynamic Debug|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Dynamic Debug|x64.Build.0 = Unicode Dynamic Debug|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Dynamic Release|Win32.ActiveCfg = Unicode Dynamic Release|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Dynamic Release|Win32.Build.0 = Unicode Dynamic Release|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Dynamic Release|x64.ActiveCfg = Unicode Dynamic Release|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Dynamic Release|x64.Build.0 = Unicode Dynamic Release|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Static Debug|Win32.ActiveCfg = Unicode Static Debug|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Static Debug|Win32.Build.0 = Unicode Static Debug|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Static Debug|x64.ActiveCfg = Unicode Static Debug|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Static Debug|x64.Build.0 = Unicode Static Debug|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Static Release|Win32.ActiveCfg = Unicode Static Release|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Static Release|Win32.Build.0 = Unicode Static Release|Win32
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Static Release|x64.ActiveCfg = Unicode Static Release|x64
+		{1117FCF0-33E1-4B2B-921F-304AA87B4C83}.Unicode Static Release|x64.Build.0 = Unicode Static Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DD4EF5B6-30AF-4187-AD9F-BBC8AB201A56}
+	EndGlobalSection
+EndGlobal

@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:38:49
+﻿// OWLCVT 05/11/95 22:38:49
 /* SELECTOR.CPP
 *  ============
 *
@@ -112,14 +112,14 @@ void TSelector::GetWindowClass(WNDCLASS& WndClass)
   // Call ancestor method
   TFrameWindow::GetWindowClass(WndClass);
   WndClass.style = CS_HREDRAW | CS_VREDRAW;
-  WndClass.hIcon = LoadIcon(*GetApplication(), IDI_APPLICATION);
+  WndClass.hIcon = ::LoadIcon(nullptr, IDI_APPLICATION);
   WndClass.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
 }
 
 
-LPCTSTR TSelector::GetClassName()
+auto TSelector::GetWindowClassName() -> owl::TWindowClassName
 {
-  return "Selector button";
+  return owl::TWindowClassName(_T("Selector button"));
 }
 
 
@@ -191,11 +191,11 @@ void TSelector::PaintButton(HDC TheDC)
     // Choose the text colour
     if (::IsWindowEnabled(HWindow))
     {
-      SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
+      ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
     }
     else
     {
-      SetTextColor(TheDC, RGB(128, 128, 128));
+      ::SetTextColor(TheDC, RGB(128, 128, 128));
     }
 
     // Draw the text
@@ -227,11 +227,11 @@ void TSelector::PaintButton(HDC TheDC)
 	 // Choose the text colour
 	 if (::IsWindowEnabled(HWindow))
 	 {
-       SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
+       ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
     }
     else
     {
-      SetTextColor(TheDC, RGB(128, 128, 128));
+      ::SetTextColor(TheDC, RGB(128, 128, 128));
     }
 
     // Draw the text
@@ -245,7 +245,7 @@ void TSelector::PaintButton(HDC TheDC)
 }
 
 
-void TSelector::EvLButtonDown(UINT modKeys, TPoint& point)
+void TSelector::EvLButtonDown(owl::uint modKeys, const TPoint& point)
 {
   // Call ancestor method
   TFrameWindow::EvLButtonDown(modKeys, point);
@@ -262,7 +262,7 @@ void TSelector::EvLButtonDown(UINT modKeys, TPoint& point)
 }
 
 
-void TSelector::EvLButtonUp(UINT, TPoint&)
+void TSelector::EvLButtonUp(owl::uint, const TPoint&)
 {
   // Get handle to parent window
   TLayout* layout = TYPESAFE_DOWNCAST(Parent, TLayout);
@@ -287,7 +287,7 @@ void TSelector::EvLButtonUp(UINT, TPoint&)
 }
 
 
-void TSelector::EvMouseMove(UINT, TPoint& pnt)
+void TSelector::EvMouseMove(owl::uint, const TPoint& pnt)
 {
   // Only bother if the left mouse button is down
   if (LMseButton)
@@ -334,7 +334,7 @@ void TSelector::Reset()
 }
 
 
-void TSelector::SetText(char *TextString)
+void TSelector::SetText(const char *TextString)
 {
   // Sets the window text to that specified in TextString
   // Ensure the string is always NUL terminated

@@ -39,11 +39,11 @@ class TToolbar : public TFrameWindow
     TToolbar(TWindow * AParent, int NumButtons, Toolbuttondata ButtonData, HBITMAP ButtonBitmap);
     ~TToolbar();
 	 void SetupWindow();
-	 virtual void Paint(TDC& dc, bool erase, TRect& rect);
-	 void DrawScreen(HDC TheDC);
-	 void GetWindowClass(WNDCLASS &WndClass);
-	 virtual LPCTSTR GetClassName();
-	 void EvSize( UINT, TSize& );
+   virtual void Paint(TDC& dc, bool erase, TRect& rect);
+   void DrawScreen(HDC TheDC);
+   void GetWindowClass(WNDCLASS &WndClass);
+   auto GetWindowClassName() -> owl::TWindowClassName override;
+   void EvSize(owl::uint sizeType, const TSize& size);
 
 	 DECLARE_RESPONSE_TABLE( TToolbar );
 };

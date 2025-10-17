@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:34:01
+﻿// OWLCVT 05/11/95 22:34:01
 /* RAILC.CPP
 *  =========
 *
@@ -17,31 +17,36 @@
 
 //#include "owl\compat.h"
 #include "classdef.h"
+#include <cstdio>
+
+namespace {
+void WriteProfileInt(const char* section, const char* key, int value, char* buffer, size_t bufferSize)
+{
+  std::snprintf(buffer, bufferSize, "%d", value);
+  WritePrivateProfileString(section, key, buffer, INIFILENAME);
+}
+}
 
 /*************************************************************************/
 /* Methods of TManager follow...*/
 
 
-void TManager::InitMainWindow()
+TManager::TManager()
+  : TApplication(APPNAME)
 {
-  MainWindow = new TMainWindow(NULL, Name);
 }
 
 
-int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-LPSTR lpCmdLine, int nCmdShow)
+void TManager::InitMainWindow()
 {
-  // Load the 3D custom controls
-  Ctl3dRegister(hInstance);
-  Ctl3dAutoSubclass(hInstance);
+  MainWindow = new TMainWindow(nullptr, APPNAME);
+}
 
-  TManager Manager(APPNAME, hInstance, hPrevInstance,
-                 lpCmdLine, nCmdShow);
-  Manager.Run();
 
-  // Unload the 3D custom controls
-  Ctl3dUnregister(hInstance);
-  return 0;  // Standard success return for WinMain
+int OwlMain(int /*argc*/, tchar* /*argv*/[])
+{
+  TManager app;
+  return app.Run();
 }
 
 
@@ -49,7 +54,7 @@ LPSTR lpCmdLine, int nCmdShow)
 /* Methods of TMainWindow follow...*/
 
 
-TMainWindow::TMainWindow(TWindow * AParent, LPSTR ATitle)
+TMainWindow::TMainWindow(TWindow * AParent, LPCTSTR ATitle)
   : TFrameWindow(AParent, ATitle)
 {
   LOGFONT    lFont = {0}; 
@@ -83,8 +88,9 @@ TMainWindow::TMainWindow(TWindow * AParent, LPSTR ATitle)
 #endif
 
   // Display startup title window
-  TitleWin = GetApplication()->MakeWindow(new TStartup(this));
-  ::ShowWindow(TitleWin->HWindow, SW_SHOW);
+  TitleWin = new TStartup(this);
+  TitleWin->Create();
+  ::ShowWindow(TitleWin->GetHandle(), SW_SHOW);
 
   TRC_NRM((TB, "RAIL CONTROL STARTING"));
   TRC_NRM((TB, "====================="));
@@ -210,14 +216,14 @@ TMainWindow::~TMainWindow()
 void TMainWindow::GetWindowClass(WNDCLASS& WndClass)
 {
   TFrameWindow::GetWindowClass(WndClass);
-  WndClass.hIcon = LoadIcon(*GetApplication(), "AMAIN");
+  WndClass.hIcon = ::LoadIcon(GetModule()->GetHandle(), TEXT("AMAIN"));
   WndClass.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
 }
 
 
-LPCTSTR TMainWindow::GetClassName()
+auto TMainWindow::GetWindowClassName() -> owl::TWindowClassName
 {
-  return "Main_Window_Class";
+  return owl::TWindowClassName(_T("Main_Window_Class"));
 }
 
 
@@ -235,7 +241,7 @@ void TMainWindow::SetupWindow()
 
   // Create status bar
   StatbarHan = new TStatbar(this);
-  GetApplication()->MakeWindow(StatbarHan);
+  StatbarHan->Create();
   StatbarExist = TRUE;
 
   /**************************************************************************/
@@ -341,11 +347,11 @@ void TMainWindow::SetupWindow()
   strcpy(ToolButtData.DownText[12], "Display information about Rail Control");
 
   // Load toolbar button bitmaps
-  ToolbarBitmaps = LoadBitmap(*GetApplication(), "TB_MAINWIN");
+  ToolbarBitmaps = ::LoadBitmap(GetModule()->GetHandle(), TEXT("TB_MAINWIN"));
 
   // Then create the toolbar
   ToolbarHan = new TToolbar(this, 12, ToolButtData, ToolbarBitmaps);
-  GetApplication()->MakeWindow(ToolbarHan);
+  ToolbarHan->Create();
   ToolbarExist = TRUE;
 
   // Modify the buttons - hide button 2
@@ -371,7 +377,7 @@ void TMainWindow::SetupWindow()
   Width = (WinRect.right-WinRect.left);
 
   DisplayHan = new TLayout(this, 0, YPos, Width, Height);
-  GetApplication()->MakeWindow(DisplayHan);
+  DisplayHan->Create();
   DisplayExist = TRUE;
 
   // Read initialisation file
@@ -451,6 +457,10 @@ bool TMainWindow::CanClose()
 }
 
 
+void TMainWindow::CM_FileExit()
+{
+  ::SendMessage(GetHandle(), WM_CLOSE, 0, 0);
+}
 void TMainWindow::QuitProgram()
 {
   char  TextString[50];
@@ -459,14 +469,10 @@ void TMainWindow::QuitProgram()
   if (SaveOnExit)
   {
     // Main window size/position
-    itoa(Attr.X, TextString, 10);
-    WritePrivateProfileString("Main Window", "X position", TextString, INIFILENAME);
-    itoa(Attr.Y, TextString, 10);
-    WritePrivateProfileString("Main Window", "Y position", TextString, INIFILENAME);
-    itoa(Attr.W, TextString, 10);
-    WritePrivateProfileString("Main Window", "Width", TextString, INIFILENAME);
-    itoa(Attr.H, TextString, 10);
-    WritePrivateProfileString("Main Window","Height", TextString, INIFILENAME);
+    WriteProfileInt("Main Window", "X position", Attr.X, TextString, sizeof(TextString));
+    WriteProfileInt("Main Window", "Y position", Attr.Y, TextString, sizeof(TextString));
+    WriteProfileInt("Main Window", "Width", Attr.W, TextString, sizeof(TextString));
+    WriteProfileInt("Main Window", "Height", Attr.H, TextString, sizeof(TextString));
 
     // Arrival window details
     if (ArrivalHan != NULL)
@@ -478,10 +484,8 @@ void TMainWindow::QuitProgram()
       WritePrivateProfileString("Arrival Window", "Exists", "0", INIFILENAME);
     }
 
-    itoa(ArrivalX, TextString, 10);
-    WritePrivateProfileString("Arrival Window","X position", TextString, INIFILENAME);
-    itoa(ArrivalY, TextString, 10);
-    WritePrivateProfileString("Arrival Window","Y position", TextString, INIFILENAME);
+    WriteProfileInt("Arrival Window", "X position", ArrivalX, TextString, sizeof(TextString));
+    WriteProfileInt("Arrival Window", "Y position", ArrivalY, TextString, sizeof(TextString));
 
     // Departure window details
     if (DeparturHan != NULL)
@@ -493,10 +497,8 @@ void TMainWindow::QuitProgram()
       WritePrivateProfileString("Departure Window", "Exists", "0", INIFILENAME);
     }
 
-    itoa(DeparturX, TextString, 10);
-    WritePrivateProfileString("Departure Window","X position", TextString, INIFILENAME);
-    itoa(DeparturY, TextString, 10);
-    WritePrivateProfileString("Departure Window","Y position", TextString, INIFILENAME);
+    WriteProfileInt("Departure Window", "X position", DeparturX, TextString, sizeof(TextString));
+    WriteProfileInt("Departure Window", "Y position", DeparturY, TextString, sizeof(TextString));
 
     // Platform window details
     if (PlatformHan != NULL)
@@ -508,10 +510,8 @@ void TMainWindow::QuitProgram()
       WritePrivateProfileString("Platform Window", "Exists", "0", INIFILENAME);
     }
 
-    itoa(PlatformX, TextString, 10);
-    WritePrivateProfileString("Platform Window","X position", TextString, INIFILENAME);
-    itoa(PlatformY, TextString, 10);
-    WritePrivateProfileString("Platform Window","Y position", TextString, INIFILENAME);
+    WriteProfileInt("Platform Window", "X position", PlatformX, TextString, sizeof(TextString));
+    WriteProfileInt("Platform Window", "Y position", PlatformY, TextString, sizeof(TextString));
 
     // Locoyard window details
     if (LocoyardHan != NULL)
@@ -523,22 +523,15 @@ void TMainWindow::QuitProgram()
       WritePrivateProfileString("Locoyard Window", "Exists", "0", INIFILENAME);
     }
 
-    itoa(LocoyardX, TextString, 10);
-    WritePrivateProfileString("Locoyard Window","X position", TextString, INIFILENAME);
-    itoa(LocoyardY, TextString, 10);
-    WritePrivateProfileString("Locoyard Window","Y position", TextString, INIFILENAME);
+    WriteProfileInt("Locoyard Window", "X position", LocoyardX, TextString, sizeof(TextString));
+    WriteProfileInt("Locoyard Window", "Y position", LocoyardY, TextString, sizeof(TextString));
 
     // Other information
-    itoa(int(StartOptim), TextString, 10);
-    WritePrivateProfileString("Main Window", "Optimize on start", TextString, INIFILENAME);
-    itoa(int(DelayEnable), TextString, 10);
-    WritePrivateProfileString("Main Window", "Enable delay", TextString, INIFILENAME);
-    itoa(int(SoundEnable), TextString, 10);
-    WritePrivateProfileString("Main Window", "Enable sound", TextString, INIFILENAME);
-    itoa(int(LocoRefuel), TextString, 10);
-    WritePrivateProfileString("Main Window", "Loco refuel", TextString, INIFILENAME);
-    itoa(TimerSpeed, TextString, 10);
-    WritePrivateProfileString("Main Window", "Timer speed", TextString, INIFILENAME);
+    WriteProfileInt("Main Window", "Optimize on start", int(StartOptim), TextString, sizeof(TextString));
+    WriteProfileInt("Main Window", "Enable delay", int(DelayEnable), TextString, sizeof(TextString));
+    WriteProfileInt("Main Window", "Enable sound", int(SoundEnable), TextString, sizeof(TextString));
+    WriteProfileInt("Main Window", "Loco refuel", int(LocoRefuel), TextString, sizeof(TextString));
+    WriteProfileInt("Main Window", "Timer speed", TimerSpeed, TextString, sizeof(TextString));
     WritePrivateProfileString("Main Window", "Data file name", DataFileName, INIFILENAME);
 
     // Yes, we did save the options on exit
@@ -551,7 +544,7 @@ void TMainWindow::QuitProgram()
 }
 
 
-void TMainWindow::EvSize(UINT sizeType, TSize& size)
+void TMainWindow::EvSize(owl::uint sizeType, const TSize& size)
 {
   // Call ancestor method - update window
   TFrameWindow::EvSize(sizeType, size);
@@ -569,11 +562,11 @@ void TMainWindow::EvSize(UINT sizeType, TSize& size)
     {
       if (ArrivalIcon)
       {
-        ArrivalHan->Show(SW_SHOWMINIMIZED);
+        ArrivalHan->ShowWindow(SW_SHOWMINIMIZED);
       }
       else
       {
-        ArrivalHan->Show(SW_SHOWNORMAL);
+        ArrivalHan->ShowWindow(SW_SHOWNORMAL);
       }
    }
 
@@ -582,11 +575,11 @@ void TMainWindow::EvSize(UINT sizeType, TSize& size)
    {
      if (DeparturIcon)
      {
-       PDepartur(DeparturHan)->Show(SW_SHOWMINIMIZED);
+       PDepartur(DeparturHan)->ShowWindow(SW_SHOWMINIMIZED);
      }
      else
      {
-       PDepartur(DeparturHan)->Show(SW_SHOWNORMAL);
+       PDepartur(DeparturHan)->ShowWindow(SW_SHOWNORMAL);
      }
    }
 
@@ -595,11 +588,11 @@ void TMainWindow::EvSize(UINT sizeType, TSize& size)
    {
     if (PlatformIcon)
     {
-      PPlatform(PlatformHan)->Show(SW_SHOWMINIMIZED);
+      PPlatform(PlatformHan)->ShowWindow(SW_SHOWMINIMIZED);
     }
     else
     {
-      PPlatform(PlatformHan)->Show(SW_SHOWNORMAL);
+      PPlatform(PlatformHan)->ShowWindow(SW_SHOWNORMAL);
     }
    }
 
@@ -608,11 +601,11 @@ void TMainWindow::EvSize(UINT sizeType, TSize& size)
    {
     if (LocoyardIcon)
     {
-      PLocoyard(LocoyardHan)->Show(SW_SHOWMINIMIZED);
+      PLocoyard(LocoyardHan)->ShowWindow(SW_SHOWMINIMIZED);
     }
     else
     {
-      PLocoyard(LocoyardHan)->Show(SW_SHOWNORMAL);
+      PLocoyard(LocoyardHan)->ShowWindow(SW_SHOWNORMAL);
     }
    }
   }
@@ -621,7 +614,7 @@ void TMainWindow::EvSize(UINT sizeType, TSize& size)
   MainWinIcon = ::IsIconic(HWindow);
 }
 
-void TMainWindow::EvMove(TPoint &clientOrigin)
+void TMainWindow::EvMove(const TPoint &clientOrigin)
 {
   int   OffsetX, OffsetY;
   RECT  lWinRect;
@@ -674,7 +667,7 @@ void TMainWindow::EvMove(TPoint &clientOrigin)
 }
 
 
-void TMainWindow::EvMenuSelect( UINT, UINT, HMENU )
+void TMainWindow::EvMenuSelect(owl::uint, owl::uint, HMENU)
 {
 /*
   HMENU  hMenu1, hMenu2, hMenu3, hMenu4;
@@ -858,7 +851,10 @@ void TMainWindow::CMMnuFilNew()
     ::InvalidateRect(LocoyardHan->HWindow, 0, TRUE);
 
   // Display startup info
-  GetApplication()->ExecDialog(new TStart(this, "START"));
+  {
+    TStart dlg(this, TEXT("START"));
+    dlg.Execute();
+  }
 
 
   // Create a new timer
@@ -1199,7 +1195,10 @@ void TMainWindow::CMOptConfig()
   }
 
   // Execute the Configuration dialog box
-  GetApplication()->ExecDialog(new TConfigur(this, "CONFIG"));
+  {
+    TConfigur dlg(this, TEXT("CONFIG"));
+    dlg.Execute();
+  }
 
   // Un-pause the game
   if (GameInProgress && !CurrentlyPaused)
@@ -1231,8 +1230,8 @@ void TMainWindow::CMWinArriva()
     if (ArrivalHan == NULL)
     {
       ArrivalHan = new TArrivals(this, ArrivalX, ArrivalY);
-      GetApplication()->MakeWindow(ArrivalHan);
-      ArrivalHan->Show(SW_SHOWNORMAL);
+      ArrivalHan->Create();
+      ArrivalHan->ShowWindow(SW_SHOWNORMAL);
       SetFocus();
     }
     CheckMenuItem(TheMenu, CM_WINARRIVA, MF_BYCOMMAND | MF_CHECKED);
@@ -1262,8 +1261,8 @@ void TMainWindow::CMWinDepart()
     if (DeparturHan == NULL)
     {
       DeparturHan = new TDepartur(this, DeparturX, DeparturY);
-      GetApplication()->MakeWindow(DeparturHan);
-      DeparturHan->Show(SW_SHOWNORMAL);
+      DeparturHan->Create();
+      DeparturHan->ShowWindow(SW_SHOWNORMAL);
       SetFocus();
     }
     CheckMenuItem(TheMenu, CM_WINDEPART, MF_BYCOMMAND | MF_CHECKED);
@@ -1293,8 +1292,8 @@ void TMainWindow::CMWinPlatfo()
     if (PlatformHan == NULL)
     {
       PlatformHan = new TPlatform(this, PlatformX, PlatformY);
-      GetApplication()->MakeWindow(PlatformHan);
-      PlatformHan->Show(SW_SHOWNORMAL);
+      PlatformHan->Create();
+      PlatformHan->ShowWindow(SW_SHOWNORMAL);
       SetFocus();
     }
     CheckMenuItem(TheMenu, CM_WINPLATFO, MF_BYCOMMAND | MF_CHECKED);
@@ -1324,8 +1323,8 @@ void TMainWindow::CMWinLocoya()
     if (LocoyardHan == NULL)
     {
       LocoyardHan = new TLocoyard(this, LocoyardX, LocoyardY);
-      GetApplication()->MakeWindow(LocoyardHan);
-      LocoyardHan->Show(SW_SHOWNORMAL);
+      LocoyardHan->Create();
+      LocoyardHan->ShowWindow(SW_SHOWNORMAL);
       SetFocus();
     }
     CheckMenuItem(TheMenu, CM_WINLOCOYA, MF_BYCOMMAND | MF_CHECKED);
@@ -1365,7 +1364,10 @@ void TMainWindow::CMMnuHeAbot()
 {
 
   // Display about box
-  GetApplication()->ExecDialog(new TAbout(this, "AboutBox"));
+  {
+    TAbout dlg(this, TEXT("AboutBox"));
+    dlg.Execute();
+  }
 }
 
 

@@ -73,16 +73,16 @@ public:
 
 
 
-  TLayout::TLayout(TWindow * AParent, int XPos, int YPos, int Width, int Height);
+  TLayout(owl::TWindow * AParent, int XPos, int YPos, int Width, int Height);
   ~TLayout();
   void ClearData();
   void GetWindowClass(WNDCLASS& WndClass);
-  virtual LPCTSTR GetClassName();
+  auto GetWindowClassName() -> owl::TWindowClassName override;
   void SetupWindow(void);
   virtual bool CanClose();
   void QuitProgram();
-  void EvSize( UINT, TSize& );
-  void EvTimer( UINT );
+  void EvSize(owl::uint sizeType, const TSize& size);
+  void EvTimer(owl::uint timerId);
   virtual void Paint(TDC& dc, bool erase, TRect& rect);
   void UpdateDisplay(HDC TheDC);
   void IniVariables();

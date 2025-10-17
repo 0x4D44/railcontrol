@@ -31,11 +31,11 @@ public:
   TDepartur(TWindow * AParent, int XPos, int YPos);
   ~TDepartur();
   virtual void GetWindowClass(WNDCLASS& WndClass);
-  virtual LPCTSTR GetClassName();
+  auto GetWindowClassName() -> owl::TWindowClassName override;
   virtual void SetupWindow(void);
   virtual bool CanClose();
-  void EvSize( UINT, TSize& );
-  void EvMove( TPoint& );
+  void EvSize(owl::uint sizeType, const TSize& size);
+  void EvMove(const TPoint&);
   virtual void Paint(TDC& dc, bool erase, TRect& rect);
   virtual void UpdateDisplay(HDC TheDC, BOOL Redraw);
   virtual void TimeTabInfo(HDC TheDC, int TabVal, int YPos);

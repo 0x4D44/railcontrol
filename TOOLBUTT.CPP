@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:39:46
+﻿// OWLCVT 05/11/95 22:39:46
 /* TOOLBUTT.CPP
 *  ============
 *
@@ -151,10 +151,9 @@ void TToolbutton::GetWindowClass(WNDCLASS &WndClass)
 }
 
 
-LPCTSTR TToolbutton::GetClassName()
+auto TToolbutton::GetWindowClassName() -> owl::TWindowClassName
 {
-  // Return class name
-  return "Toolbutton Class";
+  return owl::TWindowClassName(_T("Toolbutton Class"));
 }
 
 
@@ -166,7 +165,7 @@ void TToolbutton::Enable(BOOL GivEnabled)
 }
 
 
-void TToolbutton::EvLButtonDown(UINT modKeys, TPoint& pnt)
+void TToolbutton::EvLButtonDown(owl::uint modKeys, const TPoint& pnt)
 {
   // Call ancestor method
   TFrameWindow::EvLButtonDown(modKeys, pnt);
@@ -191,7 +190,7 @@ void TToolbutton::EvLButtonDown(UINT modKeys, TPoint& pnt)
 }
 
 
-void TToolbutton::EvLButtonUp(UINT, TPoint&)
+void TToolbutton::EvLButtonUp(owl::uint, const TPoint&)
 {
 
   BOOL   OldUpPosition;    // Store the old up position
@@ -224,7 +223,7 @@ void TToolbutton::EvLButtonUp(UINT, TPoint&)
 }
 
 
-void TToolbutton::EvMouseMove(UINT, TPoint& pnt)
+void TToolbutton::EvMouseMove(owl::uint, const TPoint& pnt)
 {
   // Reset button
   if (((pnt.x < 0) || (pnt.x > Attr.W)) || ((pnt.y < 0) || (pnt.y > Attr.H)))
