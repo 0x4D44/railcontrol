@@ -1,4 +1,4 @@
-﻿// OWLCVT 05/11/95 22:34:01
+// OWLCVT 05/11/95 22:34:01
 /* RAILC.CPP
 *  =========
 *
@@ -18,14 +18,11 @@
 //#include "owl\compat.h"
 #include "classdef.h"
 #include <cstdio>
+#include <stdlib.h>
 
-namespace {
-void WriteProfileInt(const char* section, const char* key, int value, char* buffer, size_t bufferSize)
-{
-  std::snprintf(buffer, bufferSize, "%d", value);
-  WritePrivateProfileString(section, key, buffer, INIFILENAME);
-}
-}
+#if defined(_MSC_VER)
+#pragma optimize("", off)
+#endif
 
 /*************************************************************************/
 /* Methods of TManager follow...*/
@@ -143,7 +140,7 @@ TMainWindow::TMainWindow(TWindow * AParent, LPCTSTR ATitle)
   lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
   lFont.lfQuality = PROOF_QUALITY;
   lFont.lfPitchAndFamily = FF_DONTCARE;
-  strcpy(lFont.lfFaceName, "Arial");
+  CopyString(lFont.lfFaceName, "Arial");
   mTextFont = CreateFontIndirect(&lFont);
 
    // Header font record
@@ -160,7 +157,7 @@ TMainWindow::TMainWindow(TWindow * AParent, LPCTSTR ATitle)
   lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
   lFont.lfQuality = PROOF_QUALITY;
   lFont.lfPitchAndFamily = FF_DONTCARE;
-  strcpy(lFont.lfFaceName, "Arial");
+  CopyString(lFont.lfFaceName, "Arial");
   mHeaderFont = CreateFontIndirect(&lFont);
 
    // Small font record
@@ -177,7 +174,7 @@ TMainWindow::TMainWindow(TWindow * AParent, LPCTSTR ATitle)
   lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
   lFont.lfQuality = PROOF_QUALITY;
   lFont.lfPitchAndFamily = FF_DONTCARE;
-  strcpy(lFont.lfFaceName, "Arial");
+  CopyString(lFont.lfFaceName, "Arial");
   mSmallFont = CreateFontIndirect(&lFont);
 
   // Initialize variables
@@ -255,96 +252,96 @@ void TMainWindow::SetupWindow()
   ToolButtData.LParam[1] = 0;
   ToolButtData.SentWindow[1] = HWindow;
   ToolButtData.StatWindow[1] = StatbarHan->HWindow;
-  strcpy(ToolButtData.UpText[1], "");
-  strcpy(ToolButtData.DownText[1], "Start a new session");
+  CopyString(ToolButtData.UpText[1], "");
+  CopyString(ToolButtData.DownText[1], "Start a new session");
 
   ToolButtData.XPos[2] = 34;
   ToolButtData.WParam[2] = CM_MNUFIPAUS;
   ToolButtData.LParam[2] = 0;
   ToolButtData.SentWindow[2] = HWindow;
   ToolButtData.StatWindow[2] = PStatbar(StatbarHan)->HWindow;
-  strcpy(ToolButtData.UpText[2], "");
-  strcpy(ToolButtData.DownText[2], "Restart the current session");
+  CopyString(ToolButtData.UpText[2], "");
+  CopyString(ToolButtData.DownText[2], "Restart the current session");
 
   ToolButtData.XPos[3] = 34;
   ToolButtData.WParam[3] = CM_MNUFIPAUS;
   ToolButtData.LParam[3] = 0;
   ToolButtData.SentWindow[3] = HWindow;
   ToolButtData.StatWindow[3] = PStatbar(StatbarHan)->HWindow;
-  strcpy(ToolButtData.UpText[3], "");
-  strcpy(ToolButtData.DownText[3], "Pause the current session");
+  CopyString(ToolButtData.UpText[3], "");
+  CopyString(ToolButtData.DownText[3], "Pause the current session");
 
   ToolButtData.XPos[4] = 58;
   ToolButtData.WParam[4] = CM_MNUFISTOP;
   ToolButtData.LParam[4] = 0;
   ToolButtData.SentWindow[4] = HWindow;
   ToolButtData.StatWindow[4] = PStatbar(StatbarHan)->HWindow;
-  strcpy(ToolButtData.UpText[4], "");
-  strcpy(ToolButtData.DownText[4], "Stop the current session");
+  CopyString(ToolButtData.UpText[4], "");
+  CopyString(ToolButtData.DownText[4], "Stop the current session");
 
   ToolButtData.XPos[5] = 90;
   ToolButtData.WParam[5] = CM_OPTOPTIMI;
   ToolButtData.LParam[5] = 0;
   ToolButtData.SentWindow[5] = HWindow;
   ToolButtData.StatWindow[5] = PStatbar(StatbarHan)->HWindow;
-  strcpy(ToolButtData.UpText[5], "");
-  strcpy(ToolButtData.DownText[5], "Optimize display of windows");
+  CopyString(ToolButtData.UpText[5], "");
+  CopyString(ToolButtData.DownText[5], "Optimize display of windows");
 
   ToolButtData.XPos[6] = 114;
   ToolButtData.WParam[6] = CM_OPTCONFIG;
   ToolButtData.LParam[6] = 0;
   ToolButtData.SentWindow[6] = HWindow;
   ToolButtData.StatWindow[6] = PStatbar(StatbarHan)->HWindow;
-  strcpy(ToolButtData.UpText[6], "");
-  strcpy(ToolButtData.DownText[6], "Set program configuration");
+  CopyString(ToolButtData.UpText[6], "");
+  CopyString(ToolButtData.DownText[6], "Set program configuration");
 
   ToolButtData.XPos[7] = 146;
   ToolButtData.WParam[7] = CM_WINARRIVA;
   ToolButtData.LParam[7] = 0;
   ToolButtData.SentWindow[7] = HWindow;
   ToolButtData.StatWindow[7] = PStatbar(StatbarHan)->HWindow;
-  strcpy(ToolButtData.UpText[7], "");
-  strcpy(ToolButtData.DownText[7], "Display/hide the Arrivals window");
+  CopyString(ToolButtData.UpText[7], "");
+  CopyString(ToolButtData.DownText[7], "Display/hide the Arrivals window");
 
   ToolButtData.XPos[8] = 170;
   ToolButtData.WParam[8] = CM_WINDEPART;
   ToolButtData.LParam[8] = 0;
   ToolButtData.SentWindow[8] = HWindow;
   ToolButtData.StatWindow[8] = PStatbar(StatbarHan)->HWindow;
-  strcpy(ToolButtData.UpText[8], "");
-  strcpy(ToolButtData.DownText[8], "Display/hide the Departures window");
+  CopyString(ToolButtData.UpText[8], "");
+  CopyString(ToolButtData.DownText[8], "Display/hide the Departures window");
 
   ToolButtData.XPos[9] = 194;
   ToolButtData.WParam[9] = CM_WINPLATFO;
   ToolButtData.LParam[9] = 0;
   ToolButtData.SentWindow[9] = HWindow;
   ToolButtData.StatWindow[9] = PStatbar(StatbarHan)->HWindow;
-  strcpy(ToolButtData.UpText[9], "");
-  strcpy(ToolButtData.DownText[9], "Display/hide the Platforms window");
+  CopyString(ToolButtData.UpText[9], "");
+  CopyString(ToolButtData.DownText[9], "Display/hide the Platforms window");
 
   ToolButtData.XPos[10] = 218;
   ToolButtData.WParam[10] = CM_WINLOCOYA;
   ToolButtData.LParam[10] = 0;
   ToolButtData.SentWindow[10] = HWindow;
   ToolButtData.StatWindow[10] = PStatbar(StatbarHan)->HWindow;
-  strcpy(ToolButtData.UpText[10], "");
-  strcpy(ToolButtData.DownText[10], "Display/hide the Locoyard window");
+  CopyString(ToolButtData.UpText[10], "");
+  CopyString(ToolButtData.DownText[10], "Display/hide the Locoyard window");
 
   ToolButtData.XPos[11] = 250;
   ToolButtData.WParam[11] = CM_MNUHECTNT;
   ToolButtData.LParam[11] = 0;
   ToolButtData.SentWindow[11] = HWindow;
   ToolButtData.StatWindow[11] = PStatbar(StatbarHan)->HWindow;
-  strcpy(ToolButtData.UpText[11], "");
-  strcpy(ToolButtData.DownText[11], "Display the help file contents page");
+  CopyString(ToolButtData.UpText[11], "");
+  CopyString(ToolButtData.DownText[11], "Display the help file contents page");
 
   ToolButtData.XPos[12] = 274;
   ToolButtData.WParam[12] = CM_MNUHEABOT;
   ToolButtData.LParam[12] = 0;
   ToolButtData.SentWindow[12] = HWindow;
   ToolButtData.StatWindow[12] = PStatbar(StatbarHan)->HWindow;
-  strcpy(ToolButtData.UpText[12], "");
-  strcpy(ToolButtData.DownText[12], "Display information about Rail Control");
+  CopyString(ToolButtData.UpText[12], "");
+  CopyString(ToolButtData.DownText[12], "Display information about Rail Control");
 
   // Load toolbar button bitmaps
   ToolbarBitmaps = ::LoadBitmap(GetModule()->GetHandle(), TEXT("TB_MAINWIN"));
@@ -469,10 +466,14 @@ void TMainWindow::QuitProgram()
   if (SaveOnExit)
   {
     // Main window size/position
-    WriteProfileInt("Main Window", "X position", Attr.X, TextString, sizeof(TextString));
-    WriteProfileInt("Main Window", "Y position", Attr.Y, TextString, sizeof(TextString));
-    WriteProfileInt("Main Window", "Width", Attr.W, TextString, sizeof(TextString));
-    WriteProfileInt("Main Window", "Height", Attr.H, TextString, sizeof(TextString));
+    _itoa_s(Attr.X, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Main Window", "X position", TextString, INIFILENAME);
+    _itoa_s(Attr.Y, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Main Window", "Y position", TextString, INIFILENAME);
+    _itoa_s(Attr.W, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Main Window", "Width", TextString, INIFILENAME);
+    _itoa_s(Attr.H, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Main Window", "Height", TextString, INIFILENAME);
 
     // Arrival window details
     if (ArrivalHan != NULL)
@@ -484,8 +485,10 @@ void TMainWindow::QuitProgram()
       WritePrivateProfileString("Arrival Window", "Exists", "0", INIFILENAME);
     }
 
-    WriteProfileInt("Arrival Window", "X position", ArrivalX, TextString, sizeof(TextString));
-    WriteProfileInt("Arrival Window", "Y position", ArrivalY, TextString, sizeof(TextString));
+    _itoa_s(ArrivalX, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Arrival Window", "X position", TextString, INIFILENAME);
+    _itoa_s(ArrivalY, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Arrival Window", "Y position", TextString, INIFILENAME);
 
     // Departure window details
     if (DeparturHan != NULL)
@@ -497,8 +500,10 @@ void TMainWindow::QuitProgram()
       WritePrivateProfileString("Departure Window", "Exists", "0", INIFILENAME);
     }
 
-    WriteProfileInt("Departure Window", "X position", DeparturX, TextString, sizeof(TextString));
-    WriteProfileInt("Departure Window", "Y position", DeparturY, TextString, sizeof(TextString));
+    _itoa_s(DeparturX, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Departure Window", "X position", TextString, INIFILENAME);
+    _itoa_s(DeparturY, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Departure Window", "Y position", TextString, INIFILENAME);
 
     // Platform window details
     if (PlatformHan != NULL)
@@ -510,8 +515,10 @@ void TMainWindow::QuitProgram()
       WritePrivateProfileString("Platform Window", "Exists", "0", INIFILENAME);
     }
 
-    WriteProfileInt("Platform Window", "X position", PlatformX, TextString, sizeof(TextString));
-    WriteProfileInt("Platform Window", "Y position", PlatformY, TextString, sizeof(TextString));
+    _itoa_s(PlatformX, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Platform Window", "X position", TextString, INIFILENAME);
+    _itoa_s(PlatformY, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Platform Window", "Y position", TextString, INIFILENAME);
 
     // Locoyard window details
     if (LocoyardHan != NULL)
@@ -523,15 +530,22 @@ void TMainWindow::QuitProgram()
       WritePrivateProfileString("Locoyard Window", "Exists", "0", INIFILENAME);
     }
 
-    WriteProfileInt("Locoyard Window", "X position", LocoyardX, TextString, sizeof(TextString));
-    WriteProfileInt("Locoyard Window", "Y position", LocoyardY, TextString, sizeof(TextString));
+    _itoa_s(LocoyardX, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Locoyard Window", "X position", TextString, INIFILENAME);
+    _itoa_s(LocoyardY, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Locoyard Window", "Y position", TextString, INIFILENAME);
 
     // Other information
-    WriteProfileInt("Main Window", "Optimize on start", int(StartOptim), TextString, sizeof(TextString));
-    WriteProfileInt("Main Window", "Enable delay", int(DelayEnable), TextString, sizeof(TextString));
-    WriteProfileInt("Main Window", "Enable sound", int(SoundEnable), TextString, sizeof(TextString));
-    WriteProfileInt("Main Window", "Loco refuel", int(LocoRefuel), TextString, sizeof(TextString));
-    WriteProfileInt("Main Window", "Timer speed", TimerSpeed, TextString, sizeof(TextString));
+    _itoa_s(int(StartOptim), TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Main Window", "Optimize on start", TextString, INIFILENAME);
+    _itoa_s(int(DelayEnable), TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Main Window", "Enable delay", TextString, INIFILENAME);
+    _itoa_s(int(SoundEnable), TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Main Window", "Enable sound", TextString, INIFILENAME);
+    _itoa_s(int(LocoRefuel), TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Main Window", "Loco refuel", TextString, INIFILENAME);
+    _itoa_s(TimerSpeed, TextString, sizeof(TextString), 10);
+    WritePrivateProfileString("Main Window", "Timer speed", TextString, INIFILENAME);
     WritePrivateProfileString("Main Window", "Data file name", DataFileName, INIFILENAME);
 
     // Yes, we did save the options on exit
@@ -681,51 +695,51 @@ void TMainWindow::EvMenuSelect(owl::uint, owl::uint, HMENU)
   hMenu4 = GetSubMenu(::GetMenu(HWindow), 3);
 
   // Get the current status bar text
-  strcpy(OldText, StatbarHan->GetText());
+  CopyString(OldText, StatbarHan->GetText());
 
   switch (Msg.WParam)
   {
-   case CM_MNUFILNEW       : strcpy(TextString, "Start a new session"); break;
+   case CM_MNUFILNEW       : CopyString(TextString, "Start a new session"); break;
    case CM_MNUFIPAUS       : {
         if (GamePaused)
                       {
-          strcpy(TextString, "Continue the current session");
+          CopyString(TextString, "Continue the current session");
         }
         else
         {
-          strcpy(TextString, "Pause the current session");
+          CopyString(TextString, "Pause the current session");
         }
                       break;
                     }
-   case CM_MNUFISTOP       : strcpy(TextString, "Stop the current session"); break;
-   case CM_MNUFISETD       : strcpy(TextString, "Set the RCD data file name"); break;
-   case CM_MNUFIEXIT       : strcpy(TextString, "Exit from Rail Control"); break;
-   case CM_OPTOPTIMI       : strcpy(TextString, "Optimize the display of all windows"); break;
-   case CM_OPTCONFIG       : strcpy(TextString, "Configure game and program options"); break;
-   case CM_WINARRIVA       : strcpy(TextString, "Display or hide the Arrivals window"); break;
-   case CM_WINDEPART       : strcpy(TextString, "Display or hide the Departures window"); break;
-   case CM_WINPLATFO       : strcpy(TextString, "Display or hide the Platform window"); break;
-   case CM_WINLOCOYA       : strcpy(TextString, "Display or hide the Locoyard window"); break;
-   case CM_MNUHECTNT       : strcpy(TextString, "Display the help contents page"); break;
-   case CM_MNUHEHELP       : strcpy(TextString, "Help on using Windows help"); break;
-   case CM_MNUHEABOT       : strcpy(TextString, "Display information about Rail Control"); break;
+   case CM_MNUFISTOP       : CopyString(TextString, "Stop the current session"); break;
+   case CM_MNUFISETD       : CopyString(TextString, "Set the RCD data file name"); break;
+   case CM_MNUFIEXIT       : CopyString(TextString, "Exit from Rail Control"); break;
+   case CM_OPTOPTIMI       : CopyString(TextString, "Optimize the display of all windows"); break;
+   case CM_OPTCONFIG       : CopyString(TextString, "Configure game and program options"); break;
+   case CM_WINARRIVA       : CopyString(TextString, "Display or hide the Arrivals window"); break;
+   case CM_WINDEPART       : CopyString(TextString, "Display or hide the Departures window"); break;
+   case CM_WINPLATFO       : CopyString(TextString, "Display or hide the Platform window"); break;
+   case CM_WINLOCOYA       : CopyString(TextString, "Display or hide the Locoyard window"); break;
+   case CM_MNUHECTNT       : CopyString(TextString, "Display the help contents page"); break;
+   case CM_MNUHEHELP       : CopyString(TextString, "Help on using Windows help"); break;
+   case CM_MNUHEABOT       : CopyString(TextString, "Display information about Rail Control"); break;
 
    default:
     if (::IsIconic(HWindow))
     {
-  strcpy(TextString, OldText);
+  CopyString(TextString, OldText);
     }
     else
     {
-      strcpy(TextString, "");
+      CopyString(TextString, "");
     }
   }
 
   // Check for main menu selections
-  if ((HMENU(Msg.WParam) == hMenu1) && (hMenu1 != 0))  strcpy(TextString, "Game menu");
-  if ((HMENU(Msg.WParam) == hMenu2) && (hMenu2 != 0))  strcpy(TextString, "Options menu");
-  if ((HMENU(Msg.WParam) == hMenu3) && (hMenu3 != 0))  strcpy(TextString, "Window menu");
-  if ((HMENU(Msg.WParam) == hMenu4) && (hMenu4 != 0))  strcpy(TextString, "Help menu");
+  if ((HMENU(Msg.WParam) == hMenu1) && (hMenu1 != 0))  CopyString(TextString, "Game menu");
+  if ((HMENU(Msg.WParam) == hMenu2) && (hMenu2 != 0))  CopyString(TextString, "Options menu");
+  if ((HMENU(Msg.WParam) == hMenu3) && (hMenu3 != 0))  CopyString(TextString, "Window menu");
+  if ((HMENU(Msg.WParam) == hMenu4) && (hMenu4 != 0))  CopyString(TextString, "Help menu");
 
   // Update the status bar
   ::SendMessage(StatbarHan->HWindow,
@@ -969,7 +983,7 @@ void TMainWindow::CMMnuFiSetD()
 
   // Set all structure members to zero
   memset(&ofn, 0, sizeof(OPENFILENAME));
-  strcpy(szName, DataFileName);
+  CopyString(szName, DataFileName);
 
   ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.hwndOwner = HWindow;
@@ -1000,8 +1014,8 @@ void TMainWindow::CMMnuFiSetD()
     Errval=CommDlgExtendedError();
     if (Errval != 0)   // 0 value means user selected Cancel
     {
-      wsprintf(buf, "%ld", Errval);
-      strcat(Errstr, buf);
+      FormatBuffer(buf, "%ld", Errval);
+      AppendString(Errstr, buf);
       ::MessageBox(HWindow, Errstr, APPNAME, MB_OK|MB_ICONSTOP);
     }
 
@@ -1011,7 +1025,7 @@ void TMainWindow::CMMnuFiSetD()
   else
   {
     // Everything is OK
-    strcpy(DataFileName, szName);
+    CopyString(DataFileName, szName);
 
     // Update the status bar
     ::SendMessage(StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) ""));
@@ -1422,4 +1436,10 @@ char* Trim(char* p)
   return lTrim(rTrim(p));
 }
 
+
+
+
+#if defined(_MSC_VER)
+#pragma optimize("", on)
+#endif
 

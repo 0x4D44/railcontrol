@@ -41,8 +41,8 @@ TToolbutton::TToolbutton(TWindow* parent, int XPos, int YPos, int ButtNum, WORD 
 
   // The button is initially in the up position and the left mouse
   // button is not selected.
-  strcpy(UpText, UpTxt);
-  strcpy(DownText, DownTxt);
+  CopyString(UpText, UpTxt ? UpTxt : "");
+  CopyString(DownText, DownTxt ? DownTxt : "");
   WParam = WPAR;
   LParam = LPAR;
   SentWindow = SentWin;
@@ -248,14 +248,14 @@ void TToolbutton::EvMouseMove(owl::uint, const TPoint& pnt)
 void TToolbutton::SetDownText(char* TextString)
 {
   // Set the down button text string
-  strcpy(DownText, TextString);
+  CopyString(DownText, TextString ? TextString : "");
 }
 
 
 void TToolbutton::SetUpText(char* TextString)
 {
   // Set the down button text string
-  strcpy(UpText, TextString);
+  CopyString(UpText, TextString ? TextString : "");
 }
 
 

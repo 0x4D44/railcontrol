@@ -45,12 +45,12 @@ TStatbar::TStatbar(TWindow * parent)
   TheFontLog.lfClipPrecision = CLIP_DEFAULT_PRECIS;
   TheFontLog.lfQuality = PROOF_QUALITY;
   TheFontLog.lfPitchAndFamily = VARIABLE_PITCH | FF_ROMAN;
-  strcpy(TheFontLog.lfFaceName,"Arial");
+  CopyString(TheFontLog.lfFaceName, "Arial");
 
   // Create the font
   TheFont = CreateFontIndirect(&TheFontLog);
 
-  strcpy(DisplayedText, "");
+  CopyString(DisplayedText, "");
 }
 
 
@@ -156,7 +156,7 @@ LRESULT TStatbar::SetText(WPARAM, LPARAM lp)
   TextString = (char*) lp;
 
   // Set the status bar text as specified by <TextString>
-  strcpy(DisplayedText, TextString);
+  CopyString(DisplayedText, TextString);
   DrawScreen(0, TRUE);
   return 0;
 }

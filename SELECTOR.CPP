@@ -1,4 +1,4 @@
-﻿// OWLCVT 05/11/95 22:38:49
+// OWLCVT 05/11/95 22:38:49
 /* SELECTOR.CPP
 *  ============
 *
@@ -96,7 +96,7 @@ TSelector::TSelector(TWindow * AParent, int XPos, int YPos, int Width, int Heigh
   Font.lfClipPrecision = CLIP_DEFAULT_PRECIS;
   Font.lfQuality = PROOF_QUALITY;
   Font.lfPitchAndFamily = FF_DONTCARE;
-  strcpy(Font.lfFaceName, "Arial");
+  CopyString(Font.lfFaceName, "Arial");
 }
 
 
@@ -427,3 +427,4 @@ DEFINE_RESPONSE_TABLE1(TSelector, TFrameWindow)
     EV_WM_LBUTTONUP,
     EV_WM_MOUSEMOVE,
 END_RESPONSE_TABLE;
+

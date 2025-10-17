@@ -1,4 +1,4 @@
-﻿// OWLCVT 05/11/95 22:35:59
+// OWLCVT 05/11/95 22:35:59
 /* LOCOYARD.CPP
 *  ============
 *
@@ -351,7 +351,7 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
   // Now draw timetable header information
   if (Redraw)
   {
-    strcpy(TextString, "Available locos:");
+    CopyString(TextString, "Available locos:");
     TextOut(TheDC, 10, 5, TextString, strlen(TextString));
   }
 
@@ -454,3 +454,4 @@ DEFINE_RESPONSE_TABLE1(TLocoyard, TFrameWindow)
     EV_WM_LBUTTONUP,
     EV_WM_MOUSEMOVE,
 END_RESPONSE_TABLE;
+
