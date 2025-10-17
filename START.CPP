@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:37:40
+﻿// OWLCVT 05/11/95 22:37:40
 /* START.CPP
 *  =========
 *
@@ -21,7 +21,7 @@
 /* Methods of TStart follow...*/
 
 
-TStart::TStart(TFrameWindow* parent, LPSTR name)
+TStart::TStart(TFrameWindow* parent, LPCTSTR name)
  : TDialog(parent, name)
 {
   Stat1 = new TStatic(this, ID_STRTTEXT1, 0);

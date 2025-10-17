@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:40:47
+﻿// OWLCVT 05/11/95 22:40:47
 /* TIMETABL.CPP
 *  ============
 *
@@ -20,28 +20,33 @@
 
 
 // The actual class code
-TTimetable::TTimetable(char* xiArrDesc, char* xiDepDesc, int xiValue[9], char* xiComment)
+TTimetable::TTimetable(const char* xiArrDesc, const char* xiDepDesc, int xiValue[9], const char* xiComment)
 {
   int   laa;               // Used to calculate arrival delay
-  char* lTrimArr;
-  char* lTrimDep;
-  char* lTrimCmt;
 
-  // Initialize the class
-  lTrimArr = Trim(xiArrDesc);
-  lTrimDep = Trim(xiDepDesc);
-  strncpy(mArrDesc, lTrimArr, 20);
-  strncpy(mDepDesc, lTrimDep, 20);
-  mArrDesc[20] = 0;
-  mDepDesc[20] = 0;
+  char arrBuffer[sizeof(mArrDesc)];
+  char depBuffer[sizeof(mDepDesc)];
 
-  /**************************************************************************/
-  /* Tidy up the comment.                                                   */
-  /**************************************************************************/
+  strncpy(arrBuffer, xiArrDesc ? xiArrDesc : "", sizeof(arrBuffer));
+  arrBuffer[sizeof(arrBuffer)-1] = 0;
+  char* lTrimArr = Trim(arrBuffer);
+
+  strncpy(depBuffer, xiDepDesc ? xiDepDesc : "", sizeof(depBuffer));
+  depBuffer[sizeof(depBuffer)-1] = 0;
+  char* lTrimDep = Trim(depBuffer);
+
+  strncpy(mArrDesc, lTrimArr, sizeof(mArrDesc)-1);
+  strncpy(mDepDesc, lTrimDep, sizeof(mDepDesc)-1);
+  mArrDesc[sizeof(mArrDesc)-1] = 0;
+  mDepDesc[sizeof(mDepDesc)-1] = 0;
+
   if (xiComment != NULL)
   {
-    lTrimCmt = Trim(xiComment);
-    strncpy(mComment, lTrimCmt, TT_CMT_LEN);
+    char cmtBuffer[TT_CMT_LEN];
+    strncpy(cmtBuffer, xiComment, sizeof(cmtBuffer));
+    cmtBuffer[sizeof(cmtBuffer)-1] = 0;
+    char* lTrimCmt = Trim(cmtBuffer);
+    strncpy(mComment, lTrimCmt, TT_CMT_LEN-1);
     mComment[TT_CMT_LEN - 1] = 0;
   }
   else
@@ -96,7 +101,7 @@ TTimetable::TTimetable(char* xiArrDesc, char* xiDepDesc, int xiValue[9], char* x
     else
     {
       // Calculate +/- arrival time (minutes late/early)
-      laa = random(100);
+      laa = rand() % 100;
       mMinLate = 0;
       if (laa == 0)                    mMinLate = -12;
       if (laa == 1)                    mMinLate = -11;

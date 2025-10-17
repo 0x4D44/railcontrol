@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:36:42
+﻿// OWLCVT 05/11/95 22:36:42
 /* FINISH.CPP
 *  ==========
 *
@@ -21,7 +21,7 @@
 /* Methods of TFinish follow...*/
 
 
-TFinish::TFinish(TWindow* parent, LPSTR name)
+TFinish::TFinish(TWindow* parent, LPCTSTR name)
  : TDialog(parent, name)
 {
   Stat1 = new TStatic(this, ID_FINIACHIE, 0);

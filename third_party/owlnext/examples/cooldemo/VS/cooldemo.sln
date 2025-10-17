@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cooldemo", "cooldemo.vcxproj", "{261259F2-3104-4089-8524-0C75C423DA39}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Static Debug|x64 = Static Debug|x64
+		Static Debug|x86 = Static Debug|x86
+		Static Release|x64 = Static Release|x64
+		Static Release|x86 = Static Release|x86
+		Unicode Static Debug|x64 = Unicode Static Debug|x64
+		Unicode Static Debug|x86 = Unicode Static Debug|x86
+		Unicode Static Release|x64 = Unicode Static Release|x64
+		Unicode Static Release|x86 = Unicode Static Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{261259F2-3104-4089-8524-0C75C423DA39}.Static Debug|x64.ActiveCfg = Static Debug|x64
+		{261259F2-3104-4089-8524-0C75C423DA39}.Static Debug|x64.Build.0 = Static Debug|x64
+		{261259F2-3104-4089-8524-0C75C423DA39}.Static Debug|x86.ActiveCfg = Static Debug|Win32
+		{261259F2-3104-4089-8524-0C75C423DA39}.Static Debug|x86.Build.0 = Static Debug|Win32
+		{261259F2-3104-4089-8524-0C75C423DA39}.Static Release|x64.ActiveCfg = Static Release|x64
+		{261259F2-3104-4089-8524-0C75C423DA39}.Static Release|x64.Build.0 = Static Release|x64
+		{261259F2-3104-4089-8524-0C75C423DA39}.Static Release|x86.ActiveCfg = Static Release|Win32
+		{261259F2-3104-4089-8524-0C75C423DA39}.Static Release|x86.Build.0 = Static Release|Win32
+		{261259F2-3104-4089-8524-0C75C423DA39}.Unicode Static Debug|x64.ActiveCfg = Unicode Static Debug|x64
+		{261259F2-3104-4089-8524-0C75C423DA39}.Unicode Static Debug|x64.Build.0 = Unicode Static Debug|x64
+		{261259F2-3104-4089-8524-0C75C423DA39}.Unicode Static Debug|x86.ActiveCfg = Unicode Static Debug|Win32
+		{261259F2-3104-4089-8524-0C75C423DA39}.Unicode Static Debug|x86.Build.0 = Unicode Static Debug|Win32
+		{261259F2-3104-4089-8524-0C75C423DA39}.Unicode Static Release|x64.ActiveCfg = Unicode Static Release|x64
+		{261259F2-3104-4089-8524-0C75C423DA39}.Unicode Static Release|x64.Build.0 = Unicode Static Release|x64
+		{261259F2-3104-4089-8524-0C75C423DA39}.Unicode Static Release|x86.ActiveCfg = Unicode Static Release|Win32
+		{261259F2-3104-4089-8524-0C75C423DA39}.Unicode Static Release|x86.Build.0 = Unicode Static Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DA4E31D8-BE2B-42A8-94AB-94B6629775E4}
+	EndGlobalSection
+EndGlobal

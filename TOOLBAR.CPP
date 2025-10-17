@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:39:27
+﻿// OWLCVT 05/11/95 22:39:27
 /* TOOLBAR.CPP
 *  ===========
 *
@@ -38,8 +38,9 @@ TToolbar::TToolbar(TWindow * AParent, int NumButtons, Toolbuttondata ButtonData,
   Attr.Style = WS_BORDER | WS_CHILD | WS_VISIBLE;
 
   // Load the up and down button bitmaps
-  HUpButt = LoadBitmap(*GetApplication(), "UPBUTTON");
-  HDownButt = LoadBitmap(*GetApplication(), "DOWNBUTTON");
+  HINSTANCE hInst = GetModule()->GetHandle();
+  HUpButt = ::LoadBitmap(hInst, TEXT("UPBUTTON"));
+  HDownButt = ::LoadBitmap(hInst, TEXT("DOWNBUTTON"));
 }
 
 
@@ -88,7 +89,7 @@ void TToolbar::SetupWindow()
 				   ButtData.UpText[i],        // Up text
 				   ButtData.DownText[i]);     // Down text
 
-    GetApplication()->MakeWindow(PToolbutt[i]);
+    PToolbutt[i]->Create();
   }
 }
 
@@ -129,13 +130,13 @@ void TToolbar::GetWindowClass(WNDCLASS &WndClass)
 }
 
 
-LPCTSTR TToolbar::GetClassName()
+auto TToolbar::GetWindowClassName() -> owl::TWindowClassName
 {
-  return "Toolbar Class";
+  return owl::TWindowClassName(_T("Toolbar Class"));
 }
 
 
-void TToolbar::EvSize(UINT sizeType, TSize& size)
+void TToolbar::EvSize(owl::uint sizeType, const TSize& size)
 {
   // Call ancestor method
   TFrameWindow::EvSize(sizeType, size);

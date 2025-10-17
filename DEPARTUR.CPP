@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:34:34
+﻿// OWLCVT 05/11/95 22:34:34
 /* DEPARTUR.CPP
 *  ============
 *
@@ -41,13 +41,13 @@ void TDepartur::GetWindowClass(WNDCLASS& WndClass)
 {
   TFrameWindow::GetWindowClass(WndClass);
   WndClass.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
-  WndClass.hIcon = LoadIcon(*GetApplication(), "DEPART");
+  WndClass.hIcon = ::LoadIcon(GetModule()->GetHandle(), TEXT("DEPART"));
 }
 
 
-LPCTSTR TDepartur::GetClassName()
+auto TDepartur::GetWindowClassName() -> owl::TWindowClassName
 {
-  return "Departure Window";
+  return owl::TWindowClassName(_T("Departure Window"));
 }
 
 
@@ -59,7 +59,7 @@ void TDepartur::SetupWindow()
   TFrameWindow::SetupWindow();
 
   // Get rid of unnecessary system menu commands
-  hSysMenu = ::GetSystemMenu(HWindow, FALSE);
+  hSysMenu = ::GetSystemMenu(GetHandle(), FALSE);
   RemoveMenu(hSysMenu, SC_SIZE, MF_BYCOMMAND);
   RemoveMenu(hSysMenu, SC_MAXIMIZE, MF_BYCOMMAND);
 }
@@ -70,7 +70,7 @@ bool TDepartur::CanClose()
   HMENU  TheMenu;
 
   // Check main menu appropriately
-  TheMenu = ::GetMenu(Parent->HWindow);
+  TheMenu = ::GetMenu(Parent->GetHandle());
   CheckMenuItem(TheMenu, CM_WINDEPART, MF_BYCOMMAND | MF_UNCHECKED);
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
   if (frame)  frame->DeparturHan = NULL;
@@ -80,14 +80,14 @@ bool TDepartur::CanClose()
 }
 
 
-void TDepartur::EvSize(UINT sizeType, TSize& size)
+void TDepartur::EvSize(owl::uint sizeType, const TSize& size)
 {
   // Call ancestor method
   TFrameWindow::EvSize(sizeType, size);
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
 
   // Check the iconized status of the window
-  if (::IsIconic(HWindow))
+  if (::IsIconic(GetHandle()))
   {
    if (frame)  frame->DeparturIcon = TRUE;
   }
@@ -98,7 +98,7 @@ void TDepartur::EvSize(UINT sizeType, TSize& size)
 }
 
 
-void TDepartur::EvMove(TPoint& pnt)
+void TDepartur::EvMove(const TPoint& pnt)
 {
   // Call ancestor method
   TFrameWindow::EvMove(pnt);
@@ -185,7 +185,7 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
   // Set up text attributes
   SelectObject(TheDC, frame->mHeaderFont);
-  SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
+  ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
   SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
 
   // Now draw timetable header information
@@ -272,7 +272,7 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
   lRect.right  = 246;
   lRect.bottom = YPos + 17;
   ExtTextOut(TheDC, 9, YPos, ETO_OPAQUE, &lRect, "", 0, NULL);
-  SetTextColor(TheDC, RGB(255, 255, 255));
+  ::SetTextColor(TheDC, RGB(255, 255, 255));
 
   if (TabVal > 0)
   {
@@ -353,7 +353,7 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
         DeleteObject(hPen);
 
         SetBkColor(TheDC, lColour);
-        SetTextColor(TheDC, RGB(0, 0, 0));
+        ::SetTextColor(TheDC, RGB(0, 0, 0));
         SelectObject(TheDC, frame->mSmallFont);
 
         TextOut(TheDC, 100, (YPos + 2), PlatName, strlen(PlatName));
@@ -363,7 +363,7 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
         if (lStatus == ST_STOCKOK)
         {
           // Train is ready to depart
-          SetTextColor(TheDC, RGB(255, 255, 255));
+          ::SetTextColor(TheDC, RGB(255, 255, 255));
           strcpy(TextString, PlatName);
         }
         else
@@ -373,17 +373,17 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
           /******************************************************************/
           if (lDelayed)
           {
-            SetTextColor(TheDC, RGB(255, 0, 0));
+            ::SetTextColor(TheDC, RGB(255, 0, 0));
           }
           else
           {
             if (lStatus == ST_RELEASE)
             {
-              SetTextColor(TheDC, RGB(225, 225, 0));
+              ::SetTextColor(TheDC, RGB(225, 225, 0));
             }
             else
             {
-              SetTextColor(TheDC, RGB(255, 255, 255));
+              ::SetTextColor(TheDC, RGB(255, 255, 255));
             }
           }
 
@@ -404,11 +404,11 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
 
     if (NotFound)
     {
-      SetTextColor(TheDC, RGB(128, 128, 128));
+      ::SetTextColor(TheDC, RGB(128, 128, 128));
     }
     else
     {
-      SetTextColor(TheDC, RGB(255, 255, 255));
+      ::SetTextColor(TheDC, RGB(255, 255, 255));
     }
 
     /************************************************************************/
@@ -464,7 +464,7 @@ void TDepartur::ConvertTime(int TimeVal, char *TimeStr)
   { 
     Hr = TimeVal / 100;
   
-    itoa(Hr, TextStrtwo, 10);
+    _itoa_s(Hr, TextStrtwo, sizeof(TextStrtwo), 10);
     if (Hr < 10)
     {
       strcpy(TextString, "0");
@@ -479,7 +479,7 @@ void TDepartur::ConvertTime(int TimeVal, char *TimeStr)
     Mn = TimeVal - 100*Hr;
 
     if (Mn < 10) strcat(TextString, "0");
-    itoa(Mn, TextStrtwo, 10);
+    _itoa_s(Mn, TextStrtwo, sizeof(TextStrtwo), 10);
     strcat(TextString, TextStrtwo); 
   }
 

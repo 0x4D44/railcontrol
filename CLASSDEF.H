@@ -1,30 +1,30 @@
-/* CLASSDEF.H
-*  Updated for OWLNext 6.30 - OWL5_COMPAT mode for smooth migration
-*/
+﻿/* CLASSDEF.H
+ *  Updated for OWLNext 7.x / MSVC toolchain
+ */
 #ifndef _CLASSDEF_H_
 #define _CLASSDEF_H_
 
-// --- OWLNEXT 6.30 CONFIGURATION ---
-#define OWL1_COMPAT            // Enable OWL 1.x compatibility mode (for MakeWindow/ExecDialog)
-#define OWL2_COMPAT            // Enable OWL 2.x compatibility mode in OWLNext
-#define OWL5_COMPAT            // Enable OWL 5 compatibility mode as well
-#define BI_SUPPRESS_OLE        // Suppress OWL's OLE functionality to avoid conflicts
+// --- OWLNEXT CONFIGURATION ---
+#ifndef OWL5_COMPAT
+# define OWL5_COMPAT            // Enable OWL 5 compatibility mode for legacy APIs
+#endif
+#define BI_SUPPRESS_OLE         // Suppress OWL's OLE functionality to avoid conflicts
 
-// Disable auto-linking by making pragma comment ineffective
-#define pragma(x)
-
-// --- AGGRESSIVE OLE2 EXCLUSION ---
-#define _OLE2_H_               // Prevent ole2.h from being included
-#define _OBJBASE_H_            // Prevent objbase.h from being included  
-#define _UNKNWN_H_             // Prevent unknwn.h from being included
-#define _OBJIDL_H_             // Prevent objidl.h from being included
-
-// --- WIN32 DEFINES (Conservative for BCC 5.02) ---
+// --- WIN32 DEFINES ---
 #define NOOLE                   // Disable OLE APIs
-#define NOMINMAX                // Disable min/max macros
+#ifndef NOMINMAX
+# define NOMINMAX               // Disable min/max macros
+#endif
+#ifndef STRICT
+# define STRICT
+#endif
+#ifndef WINVER
+# define WINVER 0x0600
+#endif
+#ifndef _WIN32_WINNT
+# define _WIN32_WINNT 0x0600
+#endif
 #define _WINNETWK_             // Exclude problematic network headers
-#define STRICT
-#define WINVER 0x0400
 
 // --- Other Global Project Defines ---
 #define NOTOOLBUTTONS  1
@@ -33,17 +33,29 @@
 #define HELPFILENAME   "RAILC.HLP"
 #define APPNAME        "Rail Control"
 
+#include <owl/defs.h>
+
 // --- OWL INCLUDES ---
-#include <owl/compat.h>
 #include <owl/applicat.h>
 #include <owl/framewin.h>
 #include <owl/dialog.h>
 #include <owl/window.h>
 #include <owl/dc.h>
 
+using namespace owl;
+
+#ifdef GetClassName
+# undef GetClassName
+#endif
+#ifndef HWindow
+# define HWindow GetHandle()
+#endif
+
 // --- ADDITIONAL SYSTEM HEADERS ---
 // Skip shellapi.h for now to avoid OLE2 conflicts
 #include <ctl3d.h>             // ctl3d.dll library
+#include <commdlg.h>
+#include <mmsystem.h>
 
 // --- STANDARD C/C++ LIBRARY HEADERS ---
 #include <stdlib.h>
@@ -51,7 +63,12 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include <strstrea.h>
+#include <sstream>
+#include <fstream>
+
+#ifndef _CLASSDEF
+# define _CLASSDEF(type) class type;
+#endif
 
 // --- PROJECT-SPECIFIC HEADERS ---
 #include "general.h"    

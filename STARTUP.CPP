@@ -1,4 +1,4 @@
-// OWLCVT 05/11/95 22:37:20
+﻿// OWLCVT 05/11/95 22:37:20
 /* STARTUP.CPP
 *  ===========
 *
@@ -35,8 +35,7 @@ TStartup::TStartup(TFrameWindow* parent)
   Attr.Style = WS_POPUP;
 
   // Load screen bitmap
-  HLoader = 0;
-  HLoader = LoadBitmap(*GetApplication(), "SPLASHWN");
+  HLoader = ::LoadBitmap(GetModule()->GetHandle(), TEXT("SPLASHWN"));
 }
 
 

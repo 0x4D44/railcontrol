@@ -41,7 +41,7 @@ public:
 					 *Check4,
 					 *Check5;    // Handles to five check boxes
 
-  TConfigur(TWindow * parent, LPSTR name);
+  TConfigur(TWindow * parent, LPCTSTR name);
   void SetupWindow();
   void CmOk();
   void OnHandleHelp();
