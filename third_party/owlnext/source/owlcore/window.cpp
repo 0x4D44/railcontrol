@@ -2528,6 +2528,7 @@ void
 TWindow::PerformSetupAndTransfer()
 {
   SetupWindow();
+
   SetFlag(wfFullyCreated);
 
   // Note that transfer has already happened in SetupWindow if the library is

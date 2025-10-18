@@ -270,6 +270,12 @@ inline void CopyString(char* buffer, const char* value)
     return;
   }
 
+#if defined(_DEBUG)
+  if (::IsBadWritePtr(buffer, 1))
+  {
+    ::DebugBreak();
+  }
+#endif
   const char* source = value ? value : "";
   std::strcpy(buffer, source);
 }

@@ -1956,7 +1956,7 @@ BOOL TLayout::ReadDataFile()
   {
     // We have opened the file. The first thing that we look for is section
     // information ie [SECTIONS].
-    CopyString(szInput, sizeof(szInput), "");
+    szInput[0] = 0;
     while ((_stricmp(szInput, "[SECTIONS]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -1975,7 +1975,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the section information in from the datafile
-      CopyString(szInput, sizeof(szInput), "");
+      szInput[0] = 0;
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2035,7 +2035,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [GENERAL] information
-    CopyString(szInput, sizeof(szInput), "");
+    szInput[0] = 0;
     while ((_stricmp(szInput, "[GENERAL]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2054,7 +2054,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the general information in from the datafile
-      CopyString(szInput, sizeof(szInput), "");
+      szInput[0] = 0;
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2146,7 +2146,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [OVERLAPPING] information
-    CopyString(szInput, sizeof(szInput), "");
+    szInput[0] = 0;
     while ((_stricmp(szInput, "[OVERLAPPING]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2165,7 +2165,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the overlapping information in from the datafile
-      CopyString(szInput, sizeof(szInput), "");
+      szInput[0] = 0;
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2222,7 +2222,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [PLATFORMS] information
-    CopyString(szInput, sizeof(szInput), "");
+    szInput[0] = 0;
     while ((_stricmp(szInput, "[PLATFORMS]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2241,7 +2241,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the selector information in from the datafile
-      CopyString(szInput, sizeof(szInput), "");
+      szInput[0] = 0;
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2301,7 +2301,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [SELECTOR] information
-    CopyString(szInput, sizeof(szInput), "");
+    szInput[0] = 0;
     while ((_stricmp(szInput, "[SELECTOR]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2320,7 +2320,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the selector information in from the datafile
-      CopyString(szInput, sizeof(szInput), "");
+      szInput[0] = 0;
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2448,7 +2448,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [ROUTES] information
-    CopyString(szInput, sizeof(szInput), "");
+    szInput[0] = 0;
     while ((_stricmp(szInput, "[ROUTES]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2467,7 +2467,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the selector information in from the datafile
-      CopyString(szInput, sizeof(szInput), "");
+      szInput[0] = 0;
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
            (szInput[0] != 0) && (!infile.eof()))
@@ -2560,7 +2560,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [LOCOS] information
-    CopyString(szInput, sizeof(szInput), "");
+    szInput[0] = 0;
     while ((_stricmp(szInput, "[LOCOS]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2579,7 +2579,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the selector information in from the datafile
-      CopyString(szInput, sizeof(szInput), "");
+      szInput[0] = 0;
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -2636,7 +2636,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [LOCOYARD] information
-    CopyString(szInput, sizeof(szInput), "");
+    szInput[0] = 0;
     while ((_stricmp(szInput, "[LOCOYARD]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2655,7 +2655,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the selector information in from the datafile
-      CopyString(szInput, sizeof(szInput), "");
+      szInput[0] = 0;
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
 
       /**********************************************************************/
@@ -2722,7 +2722,7 @@ BOOL TLayout::ReadDataFile()
     infile.open(frame->DataFileName, std::ios::in);
 
     // Now we look for [TIMETABLE] information
-    CopyString(szInput, sizeof(szInput), "");
+    szInput[0] = 0;
     while ((_stricmp(szInput, "[TIMETABLE]") != 0) && (!infile.eof()))
     {
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
@@ -2741,7 +2741,7 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the timetable information in from the datafile
-      CopyString(szInput, sizeof(szInput), "");
+      szInput[0] = 0;
       infile.getline(szInput, FILE_INPUT_BUFSIZE);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
@@ -4429,5 +4429,6 @@ DEFINE_RESPONSE_TABLE1( TLayout, TFrameWindow )
     EV_WM_TIMER,
     EV_COMMAND( 500, HandleSelectors ),
 END_RESPONSE_TABLE;
+
 
 
