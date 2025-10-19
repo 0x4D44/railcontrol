@@ -19,9 +19,8 @@
 #include "classdef.h"
 #include <cstdio>
 #include <stdlib.h>
-
 #if defined(_MSC_VER)
-#pragma optimize("", off)
+#include <intrin.h>
 #endif
 
 /*************************************************************************/

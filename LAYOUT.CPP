@@ -421,7 +421,7 @@ void TLayout::IniVariables()
 
 BOOL TLayout::StartNew()
 {
-  int  i, TempArray[8];
+  int  i, TempArray[9];
 
   // Start a new game thing
   TSelector::Reset();
@@ -437,7 +437,7 @@ BOOL TLayout::StartNew()
     fclose(logFile);
   }
   
-  for (i=0; i<8; i++)  TempArray[i] = 0;
+  for (i=0; i<9; i++)  TempArray[i] = 0;
   for (i=0; i<10; i++)
   {
     PTrackLoco[i] = new TTimetable("", "", TempArray, "");
@@ -1933,7 +1933,7 @@ BOOL TLayout::ReadDataFile()
   int       lNextPos;                    // Next timetable position
   int       TempX[4], TempY[4];          // Temporary array
   long      TempClear[6];                // Another temporary array
-  int       TempTime[10];                // Yet another temporary array
+  int       TempTime[9];                 // Yet another temporary array
   int       TempSections[2];             // Section array used by [OVERLAPPING] info 
   BOOL      Error;                       // Has an error occured?
   char     *lpstr;                       // String pointer

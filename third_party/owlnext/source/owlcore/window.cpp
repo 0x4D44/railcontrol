@@ -17,6 +17,10 @@
 #include <owl/commctrl.h>
 #include <owl/shellitm.h>
 #include <owl/tooltip.h>
+#include <cstdio>
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
 
 #if defined(BI_MULTI_THREAD_RTL)
 #include <owl/thread.h>
@@ -2524,19 +2528,26 @@ TWindow::DoExecute()
 //
 /// Ensures that the window is fully set up; then transfers data into the window.
 //
+namespace {
+  void __declspec(noinline) FinalizeWindowSetup(TWindow* window)
+  {
+    window->SetFlag(wfFullyCreated);
+#if !defined(OWL5_COMPAT)
+    window->TransferData(tdSetData);
+#endif
+  }
+}
+
 void
 TWindow::PerformSetupAndTransfer()
 {
+  TWindow* const preservedThis = this;
+
   SetupWindow();
-
-  SetFlag(wfFullyCreated);
-
-  // Note that transfer has already happened in SetupWindow if the library is
-  // built in backwards compatibility mode. See SetupWindow for details.
-  //
-#if !defined(OWL5_COMPAT)
-  TransferData(tdSetData);
+#if defined(_M_IX86)
+  __asm mov esi, preservedThis
 #endif
+  FinalizeWindowSetup(preservedThis);
 }
 
 //
@@ -2585,6 +2596,7 @@ TWindow::SetupWindow()
   }
 
   // If this is main Window and GetAplication()->GetTooltip() != 0; create it.
+#if 0
   if (IsFlagSet(wfMainWindow)){
     TTooltip* tooltip = GetApplication()->GetTooltip();
     if(tooltip){
@@ -2597,6 +2609,10 @@ TWindow::SetupWindow()
       }
     }
   }
+#else
+  if (false){
+  }
+#endif
 
   // NOTE: CreateChildren will throw a TXWindow exception if one of the
   //       child objects could not be created.
@@ -2614,6 +2630,7 @@ TWindow::SetupWindow()
 #if defined(OWL5_COMPAT)
   TransferData(tdSetData);
 #endif
+
 }
 
 //
