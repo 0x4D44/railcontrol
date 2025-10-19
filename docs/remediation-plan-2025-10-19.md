@@ -1,0 +1,73 @@
+# Rail Control Remediation Plan — 19 Oct 2025
+
+## Stage 0 – Preparation (1–2 days)
+- Confirm current toolchain (Borland C++ 5.02 + OWLNext 6.30) and establish a reproducible build on a Windows 11 test VM.
+- Set up source control branching for remediation (`remediation/2025-10-19`), ensuring Codex and Claude reports are tracked.
+- Capture baseline behaviour: launch app, run sample layouts, note help-menu failure, confirm logs/INI side-effects.
+
+## Stage 1 – Critical Runtime Defects (3–5 days)
+1. **AssignLoco Hardening**
+   - Add bounds checks for `FreeLoco` population and swap to `std::vector<int>` (LAYOUT.CPP:3114-3210).
+   - Correct loco flag updates (`SetFlag` on `GetLoco(lii)`), ensure twin assignments mark both locos.
+   - Make failure path unconditional: return `FALSE`, surface message, stop simulation gracefully.
+   - Add regression harness (manual script) that loads timetable with =101 eligible locos and twin consists.
+2. **Toolbar Style Bug**
+   - Replace `CS_HREDRAW || CS_VREDRAW` with bitwise `|` (TOOLBUTT.CPP:145-151), verify repaint on window resize.
+3. **Section Overlay Safety**
+   - In `DrawSection`, fall back to current section when `PSectionInfo[1]` is null; add assertion/logging.
+4. **Hard-coded Log Path**
+   - Redirect diagnostics to `%LOCALAPPDATA%\RailControl\Logs` (create on demand), make logging optional via INI.
+5. **INI Persistence**
+   - Resolve `INIFILENAME` at runtime to `%LOCALAPPDATA%\RailControl\railc.ini`; migrate existing settings if present in `%WINDIR%`.
+6. **WinHelp Replacement**
+   - Disable `WinHelp` calls and stub Help menu while interim solution is prepared (avoid crash).
+- Testing: manual runs across `FAST.RCD`, `KINGSX.RCD`, `QUEENST.RCD`, `WAVERLY.RCD` verifying no regressions.
+
+## Stage 2 – Safety & Usability (1–2 weeks)
+1. **CopyString Overflow Mitigation**
+   - Audit all `CopyString` calls; where input derives from files/user input, enforce buffer-aware overloads or switch to `std::string` temporarily wrapped with `FormatBuffer`.
+   - Add validation/sanitization in `ReadDataFile` for StartText/comment lengths.
+2. **Help System Modernization**
+   - Produce CHM or HTML documentation; integrate via `HtmlHelp()` or embedded browser control.
+   - Update installer/docs to ship new help assets.
+3. **Configuration/Error Reporting**
+   - Add structured logging (e.g., `log/railcontrol.log`) with severity tags.
+   - Surface INI/log path errors via message box and status bar.
+4. **Automated Regression Scripts**
+   - Create batch or PowerShell scripts to run the app, load each sample RCD, and dump key metrics (use WinAppDriver or UI automation if feasible).
+
+## Stage 3 – Modernization & Debt Reduction (1–2 months)
+1. **Resource RAII**
+   - Introduce RAII wrappers for GDI objects and DC handles; refactor `TMainWindow`, `TToolbutton`, and related classes.
+2. **Random Number Generation**
+   - Replace `rand()` seeding with `<random>` engine seeded by `std::random_device`; ensure reproducibility via config option.
+3. **Debug Helpers**
+   - Remove `IsBadWritePtr`; adopt Address Sanitizer builds or guard macros with assertions.
+4. **Smart Pointers & Containers**
+   - Gradually replace raw pointer arrays (`PSectionInfo`, `PPlatDataInfo`, etc.) with `std::vector<std::unique_ptr<...>>`.
+5. **String Modernization**
+   - Transition from `char` buffers to `std::string`/`std::wstring`, updating UI calls with helper conversions.
+6. **Testing Infrastructure**
+   - Introduce unit tests for timetable parsing, loco assignment, and route validation using a modern Windows-capable test framework (Catch2 or doctest).
+
+## Stage 4 – Strategic Improvements (Ongoing)
+- Evaluate migration from OWLNext to a supported UI framework (Qt/wxWidgets) or maintain with OWLNext 7.x.
+- Build CI pipeline that compiles with MSVC 2022 toolset using compatibility libraries.
+- Plan for 64-bit support and Unicode adoption once core refactors are stable.
+- Document all new behaviours in updated developer and user guides.
+
+## Deliverables & Tracking
+- Stage completion notes logged in `docs/remediation-progress.md`.
+- Issues tracked via project board with status (Todo/In Progress/Done).
+- Post-remediation validation checklist maintained in `docs/testing/regression-suite.md`.
+
+## Ownership
+- Stage 1: Core gameplay & UI engineer (Codex lead).
+- Stage 2: Shared between UX/documentation and core engineer.
+- Stage 3+: Larger refactor team with dedicated QA support.
+
+## Risk & Mitigation
+- **Legacy build tools**: maintain VM snapshot before major changes.
+- **Regression risk**: after each stage run manual smoke tests; prioritize automation in Stage 2.
+- **Schedule creep**: review progress weekly, reprioritize Stage 3/4 items if Stage 1–2 slip.
+
