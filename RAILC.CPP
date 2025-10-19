@@ -23,8 +23,251 @@
 #include <intrin.h>
 #endif
 
+
 /*************************************************************************/
 /* Methods of TManager follow...*/
+
+namespace
+{
+  void AppendPathLeaf(char* xoPath, size_t xiSize, const char* xiLeaf)
+  {
+    if ((xoPath == 0) || (xiLeaf == 0) || (xiSize == 0))  return;
+
+    size_t lLength = lstrlenA(xoPath);
+    if (lLength >= xiSize)  return;
+
+    if ((lLength > 0) && (xoPath[lLength - 1] != '\\'))
+    {
+      if (lLength >= (xiSize - 1))  return;
+      xoPath[lLength] = '\\';
+      xoPath[lLength + 1] = '\0';
+      lLength++;
+    }
+
+    lstrcpynA(xoPath + lLength, xiLeaf, int(xiSize - lLength));
+  }
+
+  bool EnsureDirectoryExists(const char* xiPath, DWORD* xoError)
+  {
+    if (xoError)  *xoError = ERROR_SUCCESS;
+    if (xiPath == 0)  return false;
+
+    DWORD lAttrs = ::GetFileAttributesA(xiPath);
+    if (lAttrs == INVALID_FILE_ATTRIBUTES)
+    {
+      if (::CreateDirectoryA(xiPath, 0) == 0)
+      {
+        if (xoError)  *xoError = ::GetLastError();
+        return false;
+      }
+      return true;
+    }
+
+    if ((lAttrs & FILE_ATTRIBUTE_DIRECTORY) == 0)
+    {
+      if (xoError)  *xoError = ERROR_ALREADY_EXISTS;
+      return false;
+    }
+
+    return true;
+  }
+
+  bool ResolveBaseAppDataPath(char* xoPath, size_t xiSize)
+  {
+    if ((xoPath == 0) || (xiSize == 0))  return false;
+
+    xoPath[0] = '\0';
+    DWORD lLen = ::GetEnvironmentVariableA("LOCALAPPDATA", xoPath, DWORD(xiSize));
+    if ((lLen == 0) || (lLen >= xiSize))
+    {
+      lLen = ::GetEnvironmentVariableA("APPDATA", xoPath, DWORD(xiSize));
+    }
+    if ((lLen == 0) || (lLen >= xiSize))
+    {
+      if (::GetWindowsDirectoryA(xoPath, UINT(xiSize)) == 0)
+      {
+        lstrcpynA(xoPath, ".", int(xiSize));
+      }
+    }
+
+    return true;
+  }
+
+  void ShowHelpPlaceholder(HWND xiWindow, UINT xiCommand)
+  {
+    TRC_ALT((TB, "WinHelp command %u requested but WinHelp is unavailable on modern Windows", xiCommand));
+    ::MessageBoxA(xiWindow,
+                  "Help is currently unavailable.\n\nThe legacy WinHelp system is unsupported on modern Windows versions. "
+                  "Please refer to the README for interim documentation.",
+                  APPNAME,
+                  MB_OK | MB_ICONINFORMATION);
+  }
+
+#if defined(DIAG_SETUP_TRACE)
+  void AppendSetupTrace(const char* xiMessage)
+  {
+    if (!xiMessage || xiMessage[0] == '\0')
+    {
+      return;
+    }
+
+    static bool sTraceDirectoryInitialised = false;
+    if (!sTraceDirectoryInitialised)
+    {
+      ::CreateDirectoryA("tmp", 0);
+      sTraceDirectoryInitialised = true;
+    }
+
+    OutputDebugStringA(xiMessage);
+    OutputDebugStringA("\n");
+
+    if (FILE* logFile = fopen("tmp\\perform_setup_trace.log", "a"))
+    {
+      fputs(xiMessage, logFile);
+      fputc('\n', logFile);
+      fclose(logFile);
+    }
+  }
+
+  void LogSetupEvent(const char* xiPhase, TWindow* xiWindow, const char* xiDetail = nullptr)
+  {
+    if (!xiPhase)
+    {
+      return;
+    }
+
+    char buffer[512];
+    HWND hwnd = xiWindow ? xiWindow->GetHandle() : HWND(0);
+    const char* detailPrefix = (xiDetail && xiDetail[0] != '\0') ? " note=" : "";
+    const char* detailText = xiDetail ? xiDetail : "";
+    FormatBuffer(buffer,
+                 "%s this=%p hwnd=%p%s%s",
+                 xiPhase,
+                 xiWindow,
+                 hwnd,
+                 detailPrefix,
+                 detailText);
+    AppendSetupTrace(buffer);
+  }
+
+  void LogSetupPointer(const char* xiPhase, TWindow* xiWindow, const void* xiTarget, const char* xiLabel)
+  {
+    if (!xiPhase)
+    {
+      return;
+    }
+
+    char buffer[512];
+    HWND hwnd = xiWindow ? xiWindow->GetHandle() : HWND(0);
+    const char* labelText = xiLabel ? xiLabel : "ptr";
+    FormatBuffer(buffer,
+                 "%s this=%p hwnd=%p %s=%p",
+                 xiPhase,
+                 xiWindow,
+                 hwnd,
+                 labelText,
+                 xiTarget);
+    AppendSetupTrace(buffer);
+  }
+#endif
+}
+
+const char* GetIniFilePath()
+{
+  static char gIniFilePath[MAX_PATH] = {0};
+  static bool gIniInitialised = false;
+
+  if (gIniInitialised && (gIniFilePath[0] != '\0'))
+  {
+    return gIniFilePath;
+  }
+
+  gIniInitialised = true;
+
+  char lBasePath[MAX_PATH] = {0};
+  ResolveBaseAppDataPath(lBasePath, MAX_PATH);
+
+  char lSettingsDir[MAX_PATH];
+  lstrcpynA(lSettingsDir, lBasePath, MAX_PATH);
+  AppendPathLeaf(lSettingsDir, MAX_PATH, "RailControl");
+
+  DWORD lMkdirError = ERROR_SUCCESS;
+  if (!EnsureDirectoryExists(lSettingsDir, &lMkdirError))
+  {
+    TRC_ALT((TB, "Settings directory %s unavailable (err:%lu); using %s", lSettingsDir, lMkdirError, lBasePath));
+    lstrcpynA(lSettingsDir, lBasePath, MAX_PATH);
+  }
+
+  lstrcpynA(gIniFilePath, lSettingsDir, MAX_PATH);
+  AppendPathLeaf(gIniFilePath, MAX_PATH, "railc.ini");
+
+  if (::GetFileAttributesA(gIniFilePath) == INVALID_FILE_ATTRIBUTES)
+  {
+    char lLegacyPath[MAX_PATH];
+    if (::GetWindowsDirectoryA(lLegacyPath, MAX_PATH) != 0)
+    {
+      AppendPathLeaf(lLegacyPath, MAX_PATH, "railc.ini");
+      if (::GetFileAttributesA(lLegacyPath) != INVALID_FILE_ATTRIBUTES)
+      {
+        if (!::CopyFileA(lLegacyPath, gIniFilePath, TRUE))
+        {
+          TRC_ALT((TB, "Failed to migrate legacy INI %s -> %s (err:%lu)", lLegacyPath, gIniFilePath, ::GetLastError()));
+        }
+        else
+        {
+          TRC_NRM((TB, "Migrated legacy INI to %s", gIniFilePath));
+        }
+      }
+    }
+  }
+
+  TRC_NRM((TB, "Using settings file %s", gIniFilePath));
+  return gIniFilePath;
+}
+
+const char* GetLogFilePath()
+{
+  static char gLogFilePath[MAX_PATH] = {0};
+  static bool gLogInitialised = false;
+
+  if (gLogInitialised && (gLogFilePath[0] != '\0'))
+  {
+    return gLogFilePath;
+  }
+
+  gLogInitialised = true;
+
+  char lBasePath[MAX_PATH] = {0};
+  ResolveBaseAppDataPath(lBasePath, MAX_PATH);
+
+  char lSettingsDir[MAX_PATH];
+  lstrcpynA(lSettingsDir, lBasePath, MAX_PATH);
+  AppendPathLeaf(lSettingsDir, MAX_PATH, "RailControl");
+
+  DWORD lSettingsError = ERROR_SUCCESS;
+  if (!EnsureDirectoryExists(lSettingsDir, &lSettingsError))
+  {
+    TRC_ALT((TB, "Settings directory %s unavailable for logs (err:%lu); using %s", lSettingsDir, lSettingsError, lBasePath));
+    lstrcpynA(lSettingsDir, lBasePath, MAX_PATH);
+  }
+
+  char lLogDir[MAX_PATH];
+  lstrcpynA(lLogDir, lSettingsDir, MAX_PATH);
+  AppendPathLeaf(lLogDir, MAX_PATH, "Logs");
+
+  DWORD lLogError = ERROR_SUCCESS;
+  if (!EnsureDirectoryExists(lLogDir, &lLogError))
+  {
+    TRC_ALT((TB, "Log directory %s unavailable (err:%lu); using %s", lLogDir, lLogError, lSettingsDir));
+    lstrcpynA(lLogDir, lSettingsDir, MAX_PATH);
+  }
+
+  lstrcpynA(gLogFilePath, lLogDir, MAX_PATH);
+  AppendPathLeaf(gLogFilePath, MAX_PATH, "ptrack_debug.log");
+
+  TRC_NRM((TB, "Using diagnostics log %s", gLogFilePath));
+  return gLogFilePath;
+}
 
 
 TManager::TManager()
@@ -229,21 +472,39 @@ void TMainWindow::SetupWindow()
   int   YPos, Height, Width;
   HMENU TheMenu;
 
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:Start", this);
+#endif
   // Call ancestor method
   TFrameWindow::SetupWindow();
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:AfterBase", this);
+#endif
 
-  // Get client window size
   ::GetClientRect(HWindow, &WinRect);
 
   // Create status bar
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:CreateStatbar:pre", this);
+#endif
   StatbarHan = new TStatbar(this);
   StatbarHan->Create();
   StatbarExist = TRUE;
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:CreateStatbar:post", StatbarHan);
+#endif
 
   /**************************************************************************/
   /* Get the menu handle.                                                   */
   /**************************************************************************/
+#if defined(DIAG_SKIP_MENU_COMMANDS)
+  TheMenu = NULL;
+#else
   TheMenu = ::GetMenu(HWindow);
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupPointer("SetupWindow:MenuHandle", this, TheMenu, "menu");
+#endif
+#endif
 
   // Set up the tool button X positions
   ToolButtData.XPos[1] = 10;
@@ -342,19 +603,37 @@ void TMainWindow::SetupWindow()
   CopyString(ToolButtData.UpText[12], "");
   CopyString(ToolButtData.DownText[12], "Display information about Rail Control");
 
+#if !defined(DIAG_SKIP_TOOLBAR)
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:Toolbar:loadbitmaps", this);
+#endif
   // Load toolbar button bitmaps
   ToolbarBitmaps = ::LoadBitmap(GetModule()->GetHandle(), TEXT("TB_MAINWIN"));
 
   // Then create the toolbar
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:Toolbar:create:pre", this);
+#endif
   ToolbarHan = new TToolbar(this, 12, ToolButtData, ToolbarBitmaps);
   ToolbarHan->Create();
   ToolbarExist = TRUE;
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:Toolbar:create:post", ToolbarHan);
+#endif
 
   // Modify the buttons - hide button 2
   ToolbarHan->PToolbutt[2]->Enable(FALSE);
   ToolbarHan->PToolbutt[3]->Enable(FALSE);
   ToolbarHan->PToolbutt[4]->Enable(FALSE);
   ::ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
+#else
+  ToolbarExist = FALSE;
+  ToolbarBitmaps = NULL;
+  ToolbarHan = NULL;
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:Toolbar:skipped", this, "DIAG_SKIP_TOOLBAR");
+#endif
+#endif
 
   // Create the main display window
   if (ToolbarExist)
@@ -372,10 +651,25 @@ void TMainWindow::SetupWindow()
 
   Width = (WinRect.right-WinRect.left);
 
+#if !defined(DIAG_SKIP_LAYOUT)
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:Layout:create:pre", this);
+#endif
   DisplayHan = new TLayout(this, 0, YPos, Width, Height);
   DisplayHan->Create();
   DisplayExist = TRUE;
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:Layout:create:post", DisplayHan);
+#endif
+#else
+  DisplayExist = FALSE;
+  DisplayHan = NULL;
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:Layout:skipped", this, "DIAG_SKIP_LAYOUT");
+#endif
+#endif
 
+#if !defined(DIAG_SKIP_MENU_COMMANDS)
   // Read initialisation file
   SaveOnExit = BOOL(GetPrivateProfileInt("Main Window", "Save on exit", 1, INIFILENAME));
   StartOptim = BOOL(GetPrivateProfileInt("Main Window", "Optimize on start", 1, INIFILENAME));
@@ -397,46 +691,125 @@ void TMainWindow::SetupWindow()
   if (BOOL(GetPrivateProfileInt("Arrival Window", "Exists", 1, INIFILENAME)))
   {
     // Create a new arrivals window
+#if defined(DIAG_SETUP_TRACE)
+    LogSetupEvent("SetupWindow:AutoChild:Arrival:pre", this);
+#endif
+#if !defined(DIAG_SKIP_MENU_COMMANDS)
     CheckMenuItem(TheMenu, CM_WINARRIVA, MF_BYCOMMAND | MF_UNCHECKED);
+#endif
     CMWinArriva();
+#if defined(DIAG_SETUP_TRACE)
+    LogSetupEvent("SetupWindow:AutoChild:Arrival:post", ArrivalHan);
+#endif
   }
 
   // Check to see if we need to create a departure window
   if (BOOL(GetPrivateProfileInt("Departure Window", "Exists", 1, INIFILENAME)))
   {
     // Create a new departure window
+#if defined(DIAG_SETUP_TRACE)
+    LogSetupEvent("SetupWindow:AutoChild:Departure:pre", this);
+#endif
+#if !defined(DIAG_SKIP_MENU_COMMANDS)
     CheckMenuItem(TheMenu, CM_WINDEPART, MF_BYCOMMAND | MF_UNCHECKED);
+#endif
     CMWinDepart();
+#if defined(DIAG_SETUP_TRACE)
+    LogSetupEvent("SetupWindow:AutoChild:Departure:post", DeparturHan);
+#endif
   }
 
   // Check to see if we need to create a platform window
   if (BOOL(GetPrivateProfileInt("Platform Window", "Exists", 1, INIFILENAME)))
   {
     // Create a new platform window
+#if defined(DIAG_SETUP_TRACE)
+    LogSetupEvent("SetupWindow:AutoChild:Platform:pre", this);
+#endif
+#if !defined(DIAG_SKIP_MENU_COMMANDS)
     CheckMenuItem(TheMenu, CM_WINPLATFO, MF_BYCOMMAND | MF_UNCHECKED);
+#endif
     CMWinPlatfo();
+#if defined(DIAG_SETUP_TRACE)
+    LogSetupEvent("SetupWindow:AutoChild:Platform:post", PlatformHan);
+#endif
   }
 
   // Check to see if we need to create a locoyard window
   if (BOOL(GetPrivateProfileInt("Locoyard Window", "Exists", 1, INIFILENAME)))
   {
     // Create a new locoyard window
+#if defined(DIAG_SETUP_TRACE)
+    LogSetupEvent("SetupWindow:AutoChild:Locoyard:pre", this);
+#endif
+#if !defined(DIAG_SKIP_MENU_COMMANDS)
     CheckMenuItem(TheMenu, CM_WINLOCOYA, MF_BYCOMMAND | MF_UNCHECKED);
+#endif
     CMWinLocoya();
+#if defined(DIAG_SETUP_TRACE)
+    LogSetupEvent("SetupWindow:AutoChild:Locoyard:post", LocoyardHan);
+#endif
   }
 
   // Check to see if we should optimize the display
   if (StartOptim)
   {
+#if defined(DIAG_SETUP_TRACE)
+    LogSetupEvent("SetupWindow:AutoCommand:CM_OPTOPTIMI", this);
+#endif
     ::SendMessage(HWindow, WM_COMMAND, CM_OPTOPTIMI, 0);
   }
 
   // Disable the menu items
+#if !defined(DIAG_SKIP_MENU_COMMANDS)
   EnableMenuItem(TheMenu, CM_MNUFIPAUS, MF_GRAYED);
   EnableMenuItem(TheMenu, CM_MNUFISTOP, MF_GRAYED);
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupPointer("SetupWindow:MenuDisabled", this, TheMenu, "menu");
+#endif
+#endif
+#else
+  TRC_ALT((TB, "SetupWindow DIAG_SKIP_MENU_COMMANDS active; skipping INI load and auto window creation"));
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:AutoChildren:skipped", this, "DIAG_SKIP_MENU_COMMANDS");
+#endif
+#endif
 
   // Close the title window
+#if !defined(DIAG_SKIP_CLOSE_TITLE)
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:TitleWin:close", this);
+  if (TitleWin != NULL)
+  {
+    LogSetupPointer("SetupWindow:TitleWin:pre-close", this, TitleWin->GetHandle(), "hwnd");
+  }
+#endif
   TitleWin->CloseWindow();
+#if defined(DIAG_SETUP_TRACE)
+  if (TitleWin != NULL)
+  {
+    LogSetupPointer("SetupWindow:TitleWin:closed", this, TitleWin->GetHandle(), "hwnd");
+  }
+#endif
+#else
+#if defined(DIAG_SKIP_MENU_COMMANDS)
+  TRC_ALT((TB, "SetupWindow DIAG_SKIP_MENU_COMMANDS active; skipping INI load and auto window creation"));
+#if defined(DIAG_SETUP_TRACE)
+  LogSetupEvent("SetupWindow:TitleWin:skipped", this, "DIAG_SKIP_CLOSE_TITLE");
+#endif
+#endif
+#endif
+
+#if defined(DEBUG_AUTOSTART_NEW_GAME)
+  {
+    static bool QueuedStart = false;
+    if (!QueuedStart)
+    {
+      QueuedStart = true;
+      ::PostMessage(HWindow, WM_COMMAND, CM_MNUFILNEW, 0);
+    }
+  }
+#endif
 }
 
 
@@ -1361,7 +1734,7 @@ void TMainWindow::CMMnuHeCtnt()
 {
 
   // Display help contents
-  ::WinHelp(HWindow, HELPFILENAME, HELP_CONTENTS, 0L);
+  ShowHelpPlaceholder(HWindow, HELP_CONTENTS);
 }
 
 
@@ -1369,7 +1742,7 @@ void TMainWindow::CMMnuHeHelp()
 {
 
   // Display help contents
-  ::WinHelp(HWindow, HELPFILENAME, HELP_HELPONHELP, 0L);
+  ShowHelpPlaceholder(HWindow, HELP_HELPONHELP);
 }
 
 

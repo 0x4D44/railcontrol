@@ -17,6 +17,8 @@
 #if !defined(_TIMETABL_H_)
 #define _TIMETABL_H_
 
+#include <cstddef>
+
 #define TT_CMT_LEN  200
 
 // TTimetable class
@@ -48,9 +50,9 @@ private:
 public:
   TTimetable(const char* xiArrDesc, const char* xiDepDesc, int xiValue[9], const char* xiComment);
   ~TTimetable();
-  void  GetArrDesc(char* Text);
-  void  GetDepDesc(char* Text);
-  void  GetComment(char* Text);
+  void  GetArrDesc(char* Text, std::size_t bufferSize);
+  void  GetDepDesc(char* Text, std::size_t bufferSize);
+  void  GetComment(char* Text, std::size_t bufferSize);
   int   GetArrPnt();
   int   GetArrTime();
   int   GetRelTime();

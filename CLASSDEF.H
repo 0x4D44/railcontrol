@@ -29,7 +29,9 @@
 // --- Other Global Project Defines ---
 #define NOTOOLBUTTONS  1
 #define NOSELECTORS    17
-#define INIFILENAME    "RAILC.INI"
+const char* GetIniFilePath();
+const char* GetLogFilePath();
+#define INIFILENAME    GetIniFilePath()
 #define HELPFILENAME   "RAILC.HLP"
 #define APPNAME        "Rail Control"
 

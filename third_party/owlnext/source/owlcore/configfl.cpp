@@ -16,6 +16,7 @@
 #include <owl/template.h>
 #include <owl/pointer.h>
 #include <owl/wsyscls.h>
+#include <strsafe.h>
 #include <owl/color.h>
 #include <owl/private/strmdefs.h>
 #include <algorithm>
@@ -263,7 +264,11 @@ bool TConfigFile::WriteInteger(LPCTSTR section, LPCTSTR entry, int value)
   #if defined UNICODE
   snwprintf(text, 20, _T("%d"), value);
   #else
-  snprintf(text, 20, "%d", value);
+  HRESULT hr = ::StringCchPrintfA(text, 20, "%d", value);
+  if (FAILED(hr))
+  {
+    text[19] = '\0';
+  }
   #endif
 #else
   _ltot (value, text, 10);
@@ -370,7 +375,11 @@ bool TConfigFile::WriteDouble(LPCTSTR section, LPCTSTR entry, double val)
   #if defined UNICODE
       snwprintf(text, 10, _T("%d"), DefaultPrecision);
   #else
-      snprintf(text, 10, "%d", DefaultPrecision);
+      HRESULT hr = ::StringCchPrintfA(text, 10, "%d", DefaultPrecision);
+      if (FAILED(hr))
+      {
+        text[9] = '\0';
+      }
   #endif
       format += text;
 #else

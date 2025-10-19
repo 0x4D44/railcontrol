@@ -174,24 +174,24 @@ TTimetable::~TTimetable()
 }
 
 
-void TTimetable::GetArrDesc(char* Text)
+void TTimetable::GetArrDesc(char* Text, std::size_t bufferSize)
 {
   // Copy arrival description to <Text>
-  CopyString(Text, mArrDesc);
+  CopyString(Text, bufferSize, mArrDesc);
 }
 
 
-void TTimetable::GetDepDesc(char* Text)
+void TTimetable::GetDepDesc(char* Text, std::size_t bufferSize)
 {
   // Copy departure description to <Text>
-  CopyString(Text, mDepDesc);
+  CopyString(Text, bufferSize, mDepDesc);
 }
 
 
-void TTimetable::GetComment(char* Text)
+void TTimetable::GetComment(char* Text, std::size_t bufferSize)
 {
   // Copy comment description to <Text>
-  CopyString(Text, mComment);
+  CopyString(Text, bufferSize, mComment);
 }
 
 
