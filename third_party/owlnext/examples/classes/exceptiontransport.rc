@@ -1,0 +1,136 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_EXCEPTIONAL_CLIENT DIALOGEX 0, 0, 212, 157
+STYLE DS_SHELLFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Exceptional dialog"
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+PUSHBUTTON      "Throw owl::TXBase exception", IDC_TXBASE, 29, 12, 151, 14
+PUSHBUTTON      "Throw std::runtime_error", IDC_STDRUNTIMEERROR, 29, 28, 151, 14
+PUSHBUTTON      "Throw 'int' exception", IDC_INTEXCEPTION, 29, 44, 151, 14
+PUSHBUTTON      "Violate assertion (owl::TDiagException)", IDC_DIAGEXCEPTION, 29, 60, 151, 14
+PUSHBUTTON      "Post WM_ENDSESSION", IDC_ENDSESSION, 29, 76, 152, 14
+PUSHBUTTON      "Open exceptional dialog...", IDC_DIALOG, 29, 103, 152, 14
+PUSHBUTTON      "Open exceptional property sheet...", IDC_PROPERTYSHEET, 29, 119, 152, 14
+CONTROL         "&Modal dialog and property sheet", IDC_MODAL, "Button", BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP, 47, 141, 119, 10
+END
+
+IDD_EXCEPTIONAL_DIALOG DIALOGEX 0, 0, 212, 109
+STYLE DS_SHELLFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Exceptional dialog"
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+PUSHBUTTON      "Throw owl::TXBase exception", IDC_TXBASE, 29, 12, 151, 14
+PUSHBUTTON      "Throw std::runtime_error", IDC_STDRUNTIMEERROR, 29, 28, 151, 14
+PUSHBUTTON      "Throw 'int' exception", IDC_INTEXCEPTION, 29, 44, 151, 14
+PUSHBUTTON      "Violate assertion (owl::TDiagException)", IDC_DIAGEXCEPTION, 29, 60, 151, 14
+PUSHBUTTON      "Post WM_ENDSESSION", IDC_ENDSESSION, 29, 76, 152, 14
+END
+
+IDD_EXCEPTIONAL_PAGE DIALOGEX 0, 0, 212, 93
+STYLE DS_SHELLFONT | WS_POPUP
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+PUSHBUTTON      "Throw owl::TXBase exception", IDC_TXBASE, 29, 12, 151, 14
+PUSHBUTTON      "Throw std::runtime_error", IDC_STDRUNTIMEERROR, 29, 28, 151, 14
+PUSHBUTTON      "Throw 'int' exception", IDC_INTEXCEPTION, 29, 44, 151, 14
+PUSHBUTTON      "Violate assertion (owl::TDiagException)", IDC_DIAGEXCEPTION, 29, 60, 151, 14
+PUSHBUTTON      "Post WM_ENDSESSION", IDC_ENDSESSION, 29, 76, 152, 14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+IDD_EXCEPTIONAL_CLIENT, DIALOG
+BEGIN
+BOTTOMMARGIN, 151
+END
+
+IDD_EXCEPTIONAL_PAGE, DIALOG
+BEGIN
+LEFTMARGIN, 7
+RIGHTMARGIN, 159
+TOPMARGIN, 7
+BOTTOMMARGIN, 70
+END
+END
+#endif
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE  
+BEGIN
+    "resource1.h\0"
+END
+
+2 TEXTINCLUDE  
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE  
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED

@@ -1,0 +1,34 @@
+//
+// OWLNext Persistent Streams Example - Resource Header File
+// Copyright (c) 1993 Borland International
+// Copyright (c) 2015 Vidar Hasfjord 
+//
+// For usage rights, see the OWLNext License (http://sourceforge.net/projects/owlnext).
+
+#define VERSION 2 // Set this to 1 or 2. Version 2 adds support for filled objects.
+
+#define CM_FILENEW 24331
+#define CM_FILEOPEN 24332
+#define CM_FILESAVE 24333
+#define CM_FILESAVEAS 24334
+#define CM_EXIT 24310
+
+#define CM_EDITLINE 201
+#define CM_EDITRECTANGLE 202
+#define CM_EDITELLIPSE 203
+
+#if VERSION >= 2
+
+#define CM_EDITFILLED 204
+
+#endif
+
+#define CM_HELPABOUT 24346
+
+#define IDM_MAIN 1
+
+#define ELLIPSE_CURSOR 2
+#define LINE_CURSOR 3
+#define RECT_CURSOR 4
+
+#define IDD_ABOUT 5

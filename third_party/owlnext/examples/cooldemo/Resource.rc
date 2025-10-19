@@ -1,0 +1,312 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include <owl/winres.rh>
+#include <owl/editfile.rh>
+#include <owl/mdi.rh>
+#include <owl/version.h>
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE
+BEGIN
+    "#include <owl/winres.rh>\r\n"
+    "#include <owl/editfile.rh>\r\n"
+    "#include <owl/mdi.rh>\r\n"
+    "#include <owl/version.h>\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE
+BEGIN
+    "#include <owl/all.rc>\r\n"
+    "#include <coolprj/cooledit.rc>\r\n"
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_MAINMENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New CoolEdit Window",        CM_FILE_NEWCOOLEDITWINDOW
+        MENUITEM "New Cool&Grid Window",        CM_FILE_NEWCOOLGRIDWINDOW
+        MENUITEM "&Open...\aCtrl+O",            CM_FILEOPEN
+        MENUITEM "&Save\aCtrl+S",               CM_FILESAVE
+        MENUITEM "Save &As...",                 CM_FILESAVEAS
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\aAlt+F4",               CM_EXIT
+    END
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "&Undo\aCtrl+Z",               CM_EDITUNDO
+        MENUITEM "&Redo\aCtrl+Y",               CM_EDITREDO
+        MENUITEM SEPARATOR
+        MENUITEM "&Cut\aCtrl+X",                CM_EDITCUT
+        MENUITEM "C&opy\aCtrl+C",               CM_EDITCOPY
+        MENUITEM "&Paste\aCtrl+V",              CM_EDITPASTE
+        MENUITEM SEPARATOR
+        MENUITEM "Clear &All\tCtrl+Shift+Del",  CM_EDITCLEAR, GRAYED
+        MENUITEM "&Delete\tDel",                CM_EDITDELETE, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "Select All&\aCtrl+A",         CM_SELECTALL
+        MENUITEM SEPARATOR
+        MENUITEM "Syntax &Highlighting...",     CM_SYNTAXHIGHLIGHTING
+        MENUITEM SEPARATOR
+        POPUP "Edit Options"
+        BEGIN
+            MENUITEM "&Read Only", CM_EDITREADONLY, GRAYED
+            MENUITEM "Smart Cursor", CM_EDITSMARTCURSOR
+            MENUITEM "View Whitespace", CM_EDITWHITESPACE
+            MENUITEM "View Caret", CM_EDITVIEWCARET
+            MENUITEM "View Inactive Selection", CM_EDITVIEWSELECTION
+            MENUITEM "View Line Number", CM_EDITVIEWLINENUM
+            MENUITEM SEPARATOR
+            MENUITEM "Backspace at Start of Line", CM_EDITDISABLEBSATSOL, GRAYED
+            MENUITEM "Drag-and-Drop Text Editing", CM_EDITDISABLEDRAGANDDROP, GRAYED
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Stream Selection\tF8",        CM_EDITSELSTREAM
+        MENUITEM "Line Selection\tCtrl+F8",     CM_EDITSELLINE
+        MENUITEM "Column Selection\tCtrl+Shift+F8", CM_EDITSELCOLUMN
+    END
+    POPUP "&Search"
+    BEGIN
+        MENUITEM "&Find...\aCtrl+F",            CM_EDITFIND
+        MENUITEM "&Replace...\aCtrl+H",         CM_EDITREPLACE
+        MENUITEM "&Next\aF3",                   CM_EDITFINDNEXT
+        MENUITEM SEPARATOR
+        POPUP "Bookmarks"
+        BEGIN
+          MENUITEM "Clear All Bookmarks", CM_EDITCLEAR_BOOKMARKS
+          MENUITEM SEPARATOR
+          MENUITEM "Bookmark 0", CM_EDITTOGGLE_BOOKMARK0
+          MENUITEM "Bookmark 1", CM_EDITTOGGLE_BOOKMARK1
+          MENUITEM "Bookmark 2", CM_EDITTOGGLE_BOOKMARK2
+          MENUITEM "Bookmark 3", CM_EDITTOGGLE_BOOKMARK3
+          MENUITEM "Bookmark 4", CM_EDITTOGGLE_BOOKMARK4
+          MENUITEM "Bookmark 5", CM_EDITTOGGLE_BOOKMARK5
+          MENUITEM "Bookmark 6", CM_EDITTOGGLE_BOOKMARK6
+          MENUITEM "Bookmark 7", CM_EDITTOGGLE_BOOKMARK7
+          MENUITEM "Bookmark 8", CM_EDITTOGGLE_BOOKMARK8
+          MENUITEM "Bookmark 9", CM_EDITTOGGLE_BOOKMARK9
+        END
+        POPUP "Goto Bookmark"
+        BEGIN
+          MENUITEM "Bookmark 0", CM_EDITGO_BOOKMARK0
+          MENUITEM "Bookmark 1", CM_EDITGO_BOOKMARK1
+          MENUITEM "Bookmark 2", CM_EDITGO_BOOKMARK2
+          MENUITEM "Bookmark 3", CM_EDITGO_BOOKMARK3
+          MENUITEM "Bookmark 4", CM_EDITGO_BOOKMARK4
+          MENUITEM "Bookmark 5", CM_EDITGO_BOOKMARK5
+          MENUITEM "Bookmark 6", CM_EDITGO_BOOKMARK6
+          MENUITEM "Bookmark 7", CM_EDITGO_BOOKMARK7
+          MENUITEM "Bookmark 8", CM_EDITGO_BOOKMARK8
+          MENUITEM "Bookmark 9", CM_EDITGO_BOOKMARK9
+        END
+        POPUP "More Bookmarks (VC++)"
+        BEGIN
+          MENUITEM "Toggle Bookmark\tCtrl-F2", CM_EDITTOGGLE_BOOKMARK
+          MENUITEM "Next Bookmark\tF2", CM_EDITGOTO_NEXT_BOOKMARK
+          MENUITEM "Previous Bookmark", CM_EDITGOTO_PREV_BOOKMARK
+          MENUITEM "Clear All Bookmarks", CM_EDITCLEAR_ALL_BOOKMARKS
+        END
+        MENUITEM "Set Breakpoint", CM_SEARCH_SETBREAKPOINT
+        MENUITEM "Set Invalid Breakpoint", CM_SEARCH_SETINVALIDBREAKPOINT
+        MENUITEM "Set Execution Point", CM_SEARCH_SETEXECUTIONPOINT
+        MENUITEM "Set Error Point", CM_SEARCH_SETERRORPOINT
+    END
+    POPUP "&Tools"
+    BEGIN
+        MENUITEM "&CoolEdit Benchmark...",      CM_TOOLS_COOLEDITBENCHMARK
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM  "&Cascade",                   CM_CASCADECHILDREN
+        MENUITEM  "&Tile",                      CM_TILECHILDREN
+        MENUITEM  "Arrange &Icons",             CM_ARRANGEICONS
+        MENUITEM  "C&lose All",                 CM_CLOSECHILDREN
+    END
+    POPUP "&Help"
+    BEGIN
+      MENUITEM "&About...", CM_HELPABOUT
+    END
+
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDM_MAINMENU ACCELERATORS
+BEGIN
+    "O", CM_FILEOPEN, VIRTKEY, CONTROL
+    "S", CM_FILESAVE, VIRTKEY, CONTROL
+    "X", CM_EDITCUT, VIRTKEY, CONTROL
+    "C", CM_EDITCOPY, VIRTKEY, CONTROL
+    "V", CM_EDITPASTE, VIRTKEY, CONTROL
+    "Z", CM_EDITUNDO, VIRTKEY, CONTROL
+    "Y", CM_EDITREDO, VIRTKEY, CONTROL
+    "A", CM_SELECTALL, VIRTKEY, CONTROL
+    "F", CM_EDITFIND, VIRTKEY, CONTROL
+    "H", CM_EDITREPLACE, VIRTKEY, CONTROL
+    VK_F3, CM_EDITFINDNEXT, VIRTKEY
+    "0", CM_EDITTOGGLE_BOOKMARK0, VIRTKEY, CONTROL, NOINVERT
+    "0", CM_EDITGO_BOOKMARK0, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "1", CM_EDITTOGGLE_BOOKMARK1, VIRTKEY, CONTROL, NOINVERT
+    "1", CM_EDITGO_BOOKMARK1, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "2", CM_EDITTOGGLE_BOOKMARK2, VIRTKEY, CONTROL, NOINVERT
+    "2", CM_EDITGO_BOOKMARK2, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "3", CM_EDITTOGGLE_BOOKMARK3, VIRTKEY, CONTROL, NOINVERT
+    "3", CM_EDITGO_BOOKMARK3, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "4", CM_EDITTOGGLE_BOOKMARK4, VIRTKEY, CONTROL, NOINVERT
+    "4", CM_EDITGO_BOOKMARK4, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "5", CM_EDITTOGGLE_BOOKMARK5, VIRTKEY, CONTROL, NOINVERT
+    "5", CM_EDITGO_BOOKMARK5, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "6", CM_EDITTOGGLE_BOOKMARK6, VIRTKEY, CONTROL, NOINVERT
+    "6", CM_EDITGO_BOOKMARK6, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "7", CM_EDITTOGGLE_BOOKMARK7, VIRTKEY, CONTROL, NOINVERT
+    "7", CM_EDITGO_BOOKMARK7, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "8", CM_EDITTOGGLE_BOOKMARK8, VIRTKEY, CONTROL, NOINVERT
+    "8", CM_EDITGO_BOOKMARK8, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "9", CM_EDITTOGGLE_BOOKMARK9, VIRTKEY, CONTROL, NOINVERT
+    "9", CM_EDITGO_BOOKMARK9, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    VK_F2, CM_EDITGOTO_NEXT_BOOKMARK, VIRTKEY, NOINVERT
+    VK_F2, CM_EDITTOGGLE_BOOKMARK, VIRTKEY, CONTROL, NOINVERT
+    VK_F2, CM_EDITGOTO_PREV_BOOKMARK, VIRTKEY, SHIFT, NOINVERT
+    VK_F8, CM_EDITSELLINE, VIRTKEY, CONTROL, NOINVERT
+    VK_F8, CM_EDITSELCOLUMN, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    VK_BACK, CM_EDITUNDO, VIRTKEY, ALT, NOINVERT
+    VK_DELETE, CM_EDITCUT, VIRTKEY, SHIFT, NOINVERT
+    VK_DELETE, CM_EDITCLEAR, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    VK_INSERT, CM_EDITCOPY, VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT, CM_EDITPASTE, VIRTKEY, SHIFT, NOINVERT
+END
+
+//
+// CoolEdit Benchmark dialog
+//
+IDD_COOLEDIT_BENCHMARK DIALOGEX 0, 0, 309, 62
+STYLE DS_SHELLFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "CoolEdit Benchmark"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Filename",IDC_STATIC,7,7,88,8
+    COMBOBOX        IDC_COOLEDIT_BENCHMARK_FILENAME,7,18,275,30,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "...",IDC_COOLEDIT_BENCHMARK_BROWSE,288,18,14,14
+    DEFPUSHBUTTON   "OK",IDOK,198,41,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,252,41,50,14
+END
+
+//
+// Version info
+//
+
+#if defined(_DEBUG)
+#define OUR_DEBUG VS_FF_DEBUG
+#else
+#define OUR_DEBUG 0
+#endif
+
+#if OWL_PRERELEASE
+#define OUR_PRERELEASE VS_FF_PRERELEASE
+#else
+#define OUR_PRERELEASE 0
+#endif
+
+1 VERSIONINFO
+FILEVERSION OWL_FILEVERSION
+PRODUCTVERSION OWL_PRODUCTVERSION
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEFLAGS OUR_DEBUG | OUR_PRERELEASE
+FILEOS VOS__WINDOWS32
+FILETYPE VFT_APP
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4" // Matches "VarFileInfo/Translation" hex value.
+    BEGIN
+      VALUE "FileDescription", "CoolDemo Executable\000"
+#if defined(__BORLANDC__)
+      VALUE "FileVersion", "7\000"
+#else
+      VALUE "FileVersion", OWL_FILEVERSION_STRING
+#endif
+      VALUE "InternalName", "CoolDemo\000"
+      VALUE "LegalCopyright", "Copyright (c) 1996-2024 OWLNext Contributors.\000"
+      VALUE "OriginalFilename", "cooldemo.exe\000"
+      VALUE "ProductName", "OWLNext\000"
+#if defined(__BORLANDC__)
+      VALUE "ProductVersion", "7\000"
+#else
+      VALUE "ProductVersion", OWL_PRODUCTVERSION_STRING
+#endif
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 0x04e4 // U.S. English(0x0409) & Windows Multilingual(0x04e4) 1252
+  END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAPLIST          BITMAP  DISCARDABLE     "bitmap2.bmp"
+
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include <owl/all.rc>
+#include <coolprj/cooledit.rc>
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

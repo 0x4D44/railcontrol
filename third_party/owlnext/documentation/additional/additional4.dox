@@ -1,0 +1,1095 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+///
+/// \page windowobjectsoverview Window Objects Overview
+/// Window objects are high-level interface objects with facilities to make dealing
+/// with windows and their children and controls easier. ObjectWindows provides
+/// several different types of window objects:
+/// - \ref layoutwindows "Layout windows"
+/// - \ref framewindows "Frame windows"
+/// - \ref decoratedframewindows "Decorated frame windows"
+/// - \ref mdiwindows "MDI windows"
+///
+/// You can create, display, and fill window objects. To do so, you'll need to
+/// perform the following tasks:
+/// - \subpage constructingwindowobjects "Constructing window objects"
+/// - \subpage settingcreationattributes "Setting creation attributes"
+/// - \subpage overridingdefaultattributes "Overriding Default Attributes "
+/// - \subpage creatingwindowinterfaceelements "Creating window interface elements"
+///
+///
+/// \section seealso See Also
+/// - \subpage layoutwindows "Layout windows"
+/// - \subpage framewindows "Frame windows"
+/// - \subpage decoratedframewindows "Decorated frame windows"
+/// - \subpage mdiwindows "MDI windows"
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview "
+///
+///
+///
+/// \page constructingwindowobjects Constructing Window Objects
+/// Window objects represent interface elements. The object is connected to the
+/// element through a handle stored in the object's HWindow data member. HWindow is
+/// inherited from TWindow. When you construct a window
+/// object, its interface element does not yet exist. You must create it in a
+/// separate step. TWindow also has a constructor you can use in a DLL to create a
+/// window object for an interface element that already exists.
+/// Several ObjectWindows classes use TWindow or
+/// TFrameWindow as a virtual base. These classes include
+/// TDialog, TMDIFrame, TTinyCaption, TMDIChild, TDecoratedFrame, TLayoutWindow,
+/// TClipboardViewer, and TFrameWindow. In C++, virtual base classes are
+/// constructed first, which means that the derived class's constructor cannot
+/// specify default arguments for the base class constructor. There are two ways to
+/// handle this problem:
+/// - Explicitly construct your immediate base class or classes and any virtual
+/// base classes when you construct your derived class.
+/// - Use the virtual base's default constructor. Both TWindow and
+/// TFrameWindow have default constructors. Each also has
+/// an Init function that lets you specify parameters for the base class. Call this
+/// Init function in the constructor of your derived class to set any parameters you
+/// need in the base class.
+///
+/// Here are some examples of how to construct a window object using these
+/// methods:
+/// \code
+/// class TMyWin : public TFrameWindow
+/// {
+///  public:
+///   // This constructor calls the base class constructors
+///   TMyWin(TWindow *parent, char *title)
+///    :
+/// TFrameWindow(parent, title),
+///    
+/// TWindow(parent, title) {}
+/// }
+///
+/// TMyWin *myWin = new TMyWin(GetMainWindow(), "Child window");
+///
+/// class TNewWin : virtual public TWindow
+/// {
+///  public:
+///   TNewWin(TWindow *parent, char *title);
+/// }
+///
+/// TNewWin::TNewWin(TWindow *parent, char *title)
+/// {
+///  // This constructor uses the default
+/// base class
+///  // constructors and calls Init.
+///  Init(parent, title, IDL_DEFAULT);
+/// };
+///
+/// TNewWin *newWin = new TMyWin(GetMainWindow(), "Child window");
+///
+/// \endcode
+///
+/// \section seealso See Also
+/// - \ref creatingwindowinterfaceelements "Creating Window Interface Elements "
+/// - \ref settingcreationattributes "Setting Creation Attributes "
+///
+///
+///
+/// \page settingcreationattributes Setting Creation Attributes
+/// A typical Windows application has many different types of windows: overlapped or
+/// pop-up, bordered, scrollable, and captioned, to name a few. The different types
+/// are selected with style attributes. Style attributes, as well as a window's
+/// title, are set during a window object's initialization and are used during the
+/// interface element's creation.
+///
+/// A window object's creation attributes, such as style and title, are stored in
+/// the object's Attr member, a TWindowAttr structure.
+///
+/// The following table shows TWindowAttr's members:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member</TD><TD class="owltableheader">Type</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Style</TD><TD class="owltable">uint32</TD><TD class="owltable">Style constant.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">ExStyle</TD><TD class="owltable">uint32</TD><TD class="owltable">Extended style constant.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">X</TD><TD class="owltable">int</TD><TD class="owltable">The horizontal screen coordinate of the window's upper left corner.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Y</TD><TD class="owltable">int</TD><TD class="owltable">The vertical screen coordinate of the window's upper left corner.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">W</TD><TD class="owltable">int</TD><TD class="owltable">The window's initial width in screen coordinates.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">H</TD><TD class="owltable">int</TD><TD class="owltable">The window's initial height in screen coordinates.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Menu</TD><TD class="owltable">TResId</TD><TD class="owltable">ID of the window's menu resource. Do not try to directly assign a
+/// menu identifier to Attr.Menu! Use the AssignMenu function instead.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Id</TD><TD class="owltable">int</TD><TD class="owltable">Child window ID for communicating between a control and its parent. Id
+/// should be unique for all child windows of the same parent. If the control is
+/// defined in a resource, its Id should be the same as the resource ID. A window
+/// should never have both Menu and Id set, since these members actually occupy the
+/// same in the window's HWND structure.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Param</TD><TD class="owltable">char far *</TD><TD class="owltable">Used by TMDIClient to hold information about the MDI frame and
+/// child windows.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">AccelTable</TD><TD class="owltable">TResId</TD><TD class="owltable">ID of the window's accelerator table resource.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref constructingwindowobjects "Constructing Window Objects "
+/// - \ref creatingwindowinterfaceelements "Creating Window Interface Elements "
+/// - \ref overridingdefaultattributes "Overriding Default Attributes "
+///
+///
+///
+/// \page overridingdefaultattributes Overriding Default Attributes
+/// The following table shows some default values you might want to override for
+/// Attr members:
+/// \note A value of 0 means to use the Windows default value.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Attr member</TD><TD class="owltableheader">Default value</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Style</TD><TD class="owltable">WS_CHILD | WS_VISIBLE</TD></TR>
+/// <TR class="owltable"><TD class="owltable">ExStyle</TD><TD class="owltable">0</TD></TR>
+/// <TR class="owltable"><TD class="owltable">X</TD><TD class="owltable">0</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Y</TD><TD class="owltable">0</TD></TR>
+/// <TR class="owltable"><TD class="owltable">W</TD><TD class="owltable">0</TD></TR>
+/// <TR class="owltable"><TD class="owltable">H</TD><TD class="owltable">0</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Menu</TD><TD class="owltable">0</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Id</TD><TD class="owltable">0</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Param</TD><TD class="owltable">0</TD></TR>
+/// <TR class="owltable"><TD class="owltable">AccelTable</TD><TD class="owltable">0</TD></TR>
+/// </TABLE>
+///
+/// You can override those defaults in a derived window class's constructor by
+/// changing the values in the Attr structure. For example:
+/// \code
+/// TTestWindow::TTestWindow(TWindow* parent, const char* title)
+///  : TFrameWindow(parent, title),
+/// TWindow(parent, title)
+/// {
+///  Attr.Style &= (WS_SYSMENU | WS_MAXIMIZEBOX);
+///  Attr.Style |= WS_MINIMIZEBOX;
+///  Attr.X = 100;
+///  Attr.Y = 100;
+///  Attr.W = 415;
+///  Attr.H = 355;
+/// }
+/// \endcode
+///
+/// \section attr Child-window Attributes
+/// You can set the attributes of a child window in the child window's constructor
+/// or in the code that creates the child window. When you change the attributes in
+/// the parent window object's constructor, you need to use a pointer to the child
+/// window object to get access to its Attr member.
+/// \code
+/// TTestWindow::TTestWindow(TWindow* parent, const char* title)
+///  : TWindow(parent, title)
+/// {
+///  TWindow *helpWindow = new TWindow(this, "Help System");
+///
+///  helpWindow->Attr.Style |= WS_POPUPWINDOW | WS_CAPTION;
+///  helpWindow->Attr.X = 100;
+///  helpWindow->Attr.Y = 100;
+///  helpWindow->Attr.W = 300;
+///  helpWindow->Attr.H = 300;
+///  helpWindow->SetCursor(0, IDC_HAND);
+/// }
+/// \endcode
+///
+///
+///
+/// \page creatingwindowinterfaceelements Creating Window Interface Elements
+/// After you have constructed a window object, you need to tell Windows to create
+/// the associated interface element. Do this by calling the object's
+/// TWindow::Create() member function, 
+/// \code
+/// window.Create();
+/// \endcode
+/// Create does the following things:
+/// - Creates the interface element
+/// - Sets HWindow to the handle of the interface element
+/// - Sets members of Attr to the actual state of the interface element (Style,
+/// ExStyle, X, Y, H, W)
+/// - Calls TWindow::SetupWindow()
+///
+/// An application's main window is automatically created by
+/// TApplication::InitInstance(). You do not
+/// need to call Create yourself to create the main window.
+/// C++ exceptions can be thrown while creating a window object's interface element.
+/// You should therefore enclose calls to Create within a try/catch block to handle
+/// any memory or resource problems your application might encounter. Create throws
+/// a TXWindow exception initialized with an
+/// IDS_WINDOWCREATEFAIL when the window cannot be created or an
+/// IDS_CLASSREGISTERFAIL when the window class cannot be registered. SetupWindow
+/// throws a TXWindow exception initialized with an IDS_CHILDCREATEFAIL when a child
+/// window in the window cannot be created. These exceptions are usually caused by
+/// insufficient memory or other resources.
+/// \section example Example
+/// Here is an example of using exceptions to catch an error while creating a window
+/// object:
+/// \code
+/// try
+/// {
+///  TWindow* window = new TMyWindow(this);
+///  window->Create();
+/// }
+///
+/// catch(TXOwl& exp)
+/// {
+///  MessageBox(exp.why.c_str(), "Window creation error");
+///  throw(exp);
+/// }
+/// \endcode
+///
+///
+/// \section seealso See Also
+/// - \ref constructingwindowobjects "Constructing Window Objects "
+/// - \ref objectwindowsexceptionhandling "ObjectWindows Exception Handling"
+/// - \ref overridingdefaultattributes "Overriding Default Attributes "
+/// - \ref settingcreationattributes "Setting Creation Attributes "
+///
+///
+///
+/// \page layoutwindows Layout Windows
+/// Layout windows are encapsulated in the class TLayoutWindow, which is derived from
+/// TWindow. Along with TFrameWindow, TLayoutWindow provides the basis for
+/// decorated frame windows and their ability to arrange decorations in the frame
+/// area.
+///
+/// Layout windows are so named because they can lay out child windows in the layout
+/// window's client area. The children's locations are determined relative to the
+/// layout window or another child window (known as a sibling). The location of a
+/// child window depends on that window's layout metrics, which consist of a number
+/// of rules that describe the window's X and Y coordinates, its height, and its
+/// width. These rules are usually based on a sibling window's coordinates and,
+/// ultimately, on the size and arrangement of the layout window.
+///
+/// Layout metrics for a child window are contained in a class called
+/// TLayoutMetrics. A layout metrics object consists of a
+/// number of \ref layoutconstraints "layout constraints." Each layout constraint
+/// describes a rule for finding a particular dimension, such as the X coordinate or
+/// the width of the window. It takes four layout constraints to fully describe a
+/// layout metrics object. Layout constraints are contained in a structure named
+/// TLayoutConstraint, but you usually use one of the
+/// TLayoutConstraint-derived classes, such as
+/// TEdgeConstraint, TEdgeOrWidthConstraint, or
+/// TEdgeOrHeightConstraint.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage layoutconstraints "Layout Constraints "
+/// - \subpage definingconstrainingrelationships "Defining Constraining Relationships "
+/// - \subpage definingconstraints "Defining Constraints "
+/// - \subpage usinglayoutwindows "Using Layout Windows "
+///
+///
+///
+/// \page layoutconstraints Layout Constraints
+/// Layout constraints specify a relationship between an edge or dimension of one
+/// window and an edge or dimension of a sibling window or the parent layout window.
+/// This relationship can be quite flexible. For example, you can set the width of a
+/// window to be a percentage of the width of the parent window, so that whenever
+/// the parent is resized, the child window is resized to take up the same relative
+/// window area. You can also set the left edge of a window to be the same as the
+/// right edge of another child, so that when the windows are moved around, they are
+/// tied together. You can even constrain a window to occupy an absolute size and
+/// position in the client area.
+///
+/// The three types of constraints most often used are
+/// TEdgeConstraint, TEdgeOrWidthConstraint, and
+/// TEdgeOrHeightConstraint. These structures constitute the full set of constraints
+/// used in the TLayoutMetrics. TEdgeOrWidthConstraint
+/// and TEdgeOrHeightConstraint are derived from TEdgeConstraint. From the outside,
+/// these three objects look almost the same. Discussions of TEdgeConstraint refer
+/// to all three objects-TEdgeConstraint, TEdgeOrWidthConstraint, and
+/// TEdgeOrHeightConstraint-unless the other two classes are explicitly excluded
+/// from a statement.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref definingconstrainingrelationships "Defining Constraining Relationships "
+/// - \ref definingconstraints "Defining Constraints "
+/// - \ref usinglayoutwindows "Using Layout Windows "
+///
+///
+///
+/// \page definingconstraints Defining Constraints
+/// The most basic way to define a constraining relationship (that is, set up a
+/// relationship between an edge or size of one window and an edge or size of
+/// another window) is to use the Set function. The Set function is defined in the
+/// TEdgeConstraint class and subsequently inherited
+/// by TEdgeOrWidthConstraint and TEdgeOrHeightConstraint.
+/// Here is the Set function declaration:
+/// \code
+/// void Set(TEdge edge, TRelationship rel, TWindow* otherWin, TEdge otherEdge, int value = 0);
+/// \endcode
+/// In this declaration,
+/// - edge specifies which part of the window you are constraining and uses the
+/// enum TEdge, which has five possible values:
+///  - lmLeft specifies the left edge of the window.
+///  - lmTop specifies the top edge of the window.
+///  - lmRight specifies the right edge of the window.
+///  - lmBottom specifies the bottom edge of the window.
+///  - lmCenter specifies the center of the window. The object that owns the
+/// constraint, such as TLayoutMetrics, determines
+/// whether the center of the window is the vertical center or the horizontal
+/// center.
+/// - You can also specify the window's width or height as a constraint, but only
+/// with TEdgeOrWidthConstraint and TEdgeOrHeightConstraint. Use the enum
+/// TWidthHeight, which has two possible values:
+///  - lmWidth specifies that the width of the window should be constrained.
+///  - lmHeight specifies that the height of the window should be constrained.
+///  - rel specifies the relationship between the two edges, as follows:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">rel</TD><TD class="owltableheader">Relationship</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmAsIs</TD><TD class="owltable">This dimension is constrained to its current value.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmPercentOf</TD><TD class="owltable">This dimension is constrained to a percentage of the constraining
+/// edge's size. This is usually used with a constraining width or height.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmAbove</TD><TD class="owltable">This dimension is constrained to a certain distance above its
+/// constraining edge.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmLeftOf</TD><TD class="owltable">This dimension is constrained to a certain distance to the left of its
+/// constraining edge.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmBelow</TD><TD class="owltable">This dimension is constrained to a certain distance below its
+/// constraining edge.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmRightOf</TD><TD class="owltable">This dimension is constrained to a certain distance to the right of
+/// its constraining edge.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmSameAs</TD><TD class="owltable">This dimension is constrained to the same value as its constraining
+/// edge.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmAbsolute</TD><TD class="owltable">This dimension is constrained to an absolute coordinate or size.</TD></TR>
+/// </TABLE>
+///  - otherWin specifies the window with which you are constraining your child
+/// window. You must use the value lmParent when specifying the parent window.
+/// Otherwise, pass a pointer to the TDialog or
+/// TWindow-derived object containing the other window.
+///  - otherEdge specifies the particular edge of otherWin with which you are
+/// constraining your child window. otherEdge can have any of the values allowed for
+/// edge.
+///  - value means different things, depending on the value of rel:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">rel</TD><TD class="owltableheader">Meaning of value</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmAsIs</TD><TD class="owltable">No meaning. Should be set to 0.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmPercentOf</TD><TD class="owltable">What percent of the constraining measure the constrained measure
+/// should be.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmAbove</TD><TD class="owltable">How many units above the constraining edge the constrained edge should
+/// be.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmLeftOf</TD><TD class="owltable">How many units to the left of the constraining edge the constrained
+/// edge should be.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmBelow</TD><TD class="owltable">How many units below the constraining edge the constrained edge should
+/// be.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmRightOf</TD><TD class="owltable">How many units to the left of the constraining edge the constrained
+/// edge should be.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmSameAs</TD><TD class="owltable">No meaning. Should be set to 0.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lmAbsolute</TD><TD class="owltable">The absolute measure for the constrained edge, as follows:
+///   - When edge is lmLeft, lmRight, or sometimes lmCenter, value is the X
+/// coordinate for the edge.
+///   - When edge is lmTop, lmBottom, or sometimes lmCenter, value is the Y
+/// coordinate for the edge.
+///   - When edge is lmWidth or lmHeight, edge represents the size of the
+/// constraint.
+///
+/// The owning object determines whether lmCenter represents an X or Y
+/// coordinate.</TD></TR>
+/// </TABLE>
+/// The meaning of value is also dependent on the value of Units, a
+/// TMeasurementUnits member of TLayoutConstraint.
+/// TMeasurementUnits is an enum that describes the type of unit represented by
+/// value. Units can be either lmPixels or lmLayoutUnits. lmPixels indicates that
+/// value is meant to represent an absolute number of physical pixels. lmLayoutUnits
+/// indicates that value is meant to represent a number of logical units. These
+/// layout units are based on the size of the current font of the layout window.
+/// TEdgeConstraint also contains a number of
+/// functions that you can use to set up predefined relationships. These correspond
+/// closely to the relationships you can specify in the Set function. In fact, these
+/// functions call Set to define the constraining relationship. You can use these
+/// functions to set up a majority of the constraint relationships you define.
+///
+/// The following four functions work in a similar way:
+/// \code
+/// void LeftOf (TWindow* sibling, int margin = 0);
+/// void RightOf (TWindow* sibling, int margin = 0);
+/// void Above (TWindow* sibling, int margin = 0);
+/// void Below (TWindow* sibling, int margin = 0);
+/// \endcode
+/// Each of these functions places the child window in a certain relationship with
+/// the constraining window sibling. The edges are predefined, with the constrained
+/// edge being the opposite of the function name and the constraining edge being the
+/// same as the function name.
+///
+/// For example, the LeftOf function places the child window to the left of sibling.
+/// This means the constrained edge of the child window is lmRight and the
+/// constraining edge of sibling is lmLeft.
+///
+/// You can set an edge of your child window to an absolute value with the Absolute
+/// function,
+/// \code
+/// void Absolute(TEdge edge, int value);
+/// \endcode
+/// edge indicates which edge you want to constrain, and value has the same value as
+/// when used in Set with the lmAbsolute relationship.
+///
+/// There are two other shortcut functions you can use,
+/// \code
+/// void SameAs(TWindow* otherWin, TEdge edge);
+/// void PercentOf(TWindow* otherWin, TEdge edge, int percent);
+/// \endcode
+/// These two use the same edge for the constrained window and the constraining
+/// window. For example, if you specify lmLeft for edge, the left edge of your child
+/// window is constrained to the left edge of otherWin.
+///
+///
+///
+/// \page definingconstrainingrelationships Defining Constraining Relationships
+/// A single layout constraint is not enough to lay out a window. For example,
+/// specifying that one window must be 10 pixels below another window does not tell
+/// you anything about the width or height of the window, the location of the left
+/// or right borders, or the location of the bottom border. It only tells you that
+/// one edge is located 10 pixels below another window.
+///
+/// A combination of layout constraints can fully define a window's location (though
+/// there are some exceptions). The class TLayoutMetrics uses four layout constraint
+/// structures--two TEdgeConstraint objects named X
+/// and Y, a TEdgeOrWidthConstraint named Width, and a TEdgeOrHeightConstraint named
+/// Height.
+///
+/// TLayoutMetrics is a fairly simple class. The constructor takes no parameters.
+/// The only thing it does is to set up each layout constraint member. For each
+/// layout constraint, the constructor
+/// - Zeroes out the value for the constraining window.
+/// - Sets the constraint's relationship to lmAsIs.
+/// - Sets units to lmLayoutUnits.
+/// - Sets the value to 0.
+///
+/// The only difference is with MyEdge, which indicates the edge of the window this
+/// constraint applies to. X is set to lmLeft, Y is set to lmTop, Width is set to
+/// lmWidth, and Height is set to lmHeight.
+///
+/// Once you have constructed a TLayoutMetrics object, you need to set the layout
+/// constraints for the window you want to lay out. You can use the functions
+/// described in \ref definingconstraints "Defining Constraints " for
+/// setting each layout constraint.
+///
+/// \section xy X, Y, Width, and Height Labels
+/// It is important to realize that the labels X, Y, Width, and Height are more
+/// labels of convenience than strict rules on how the constraints should be used. X
+/// can represent the X coordinate of the left edge, the right edge, or the center.
+/// You can combine this with the Width constraint-which can be lmCenter, lmRight,
+/// or lmWidth-to completely define the window's X-axis location and width. Using
+/// all the edge constraints is easy and is useful in situations where tiling is
+/// performed.
+///
+/// The simplest way is to assign an X coordinate to X and a width to width. But you
+/// could also set the edge for X to lmCenter and the edge for Width to lmRight. So
+/// Width does not really represent a width, but the X-coordinate of the window's
+/// right edge. If you know the X-coordinate of the right edge and the center, it's
+/// easy to calculate the X-coordinate of the left edge.
+///
+/// \section indeterminate Indeterminate Constraints
+/// You must be careful about how you specify your layout constraints. The
+/// constraints available in the TLayoutMetrics class give you the ability to fully
+/// describe a window. But they do not guarantee that the constraints you use fully
+/// describe a window. In cases where the constraints do not fully describe a
+/// window, the most likely result is an application crash.
+///
+/// \section example Example
+/// To better understand how constraints work together to describe a window, try
+/// building and running the example application LAYOUT in the directory
+/// EXAMPLES\\OWL\\CLASSES. This application has a number of child windows in a layout
+/// window. A dialog box you can access from the menu lets you change the
+/// constraints of each of the windows and then see the results as the windows are
+/// laid out. Be careful, though. If you specify a set of layout constraints that
+/// does not fully describe a window, the application will probably crash, or, if
+/// diagnostics are on, a check will occur.
+///
+///
+///
+/// \page usinglayoutwindows Using Layout Windows
+/// Once you've set up \ref layoutconstraints "layout constraints," you are ready to
+/// create a layout window in which you can lay out the children. Here's the
+/// constructor for TLayoutWindow:
+/// \code
+/// TLayoutWindow(TWindow* parent, const char far* title = 0, TModule* module = 0);
+/// \endcode
+/// In this constructor,
+/// - parent is the layout window's parent window.
+/// - title is the layout window's title. This parameter defaults to a null
+/// string.
+/// - module is passed to the TDialog base class constructor
+/// as the TModule parameter for that constructor. This
+/// parameter defaults to 0.
+///
+/// After the layout window is constructed and displayed, there are a number of
+/// functions you can call:
+/// - The Layout function returns void and takes no parameters. This function tells
+/// the layout window to look at all its child windows and lay them out again. You
+/// can call this function to force the window to recalculate the boundaries and
+/// locations of each child window. You usually want to call Layout after you have
+/// moved a child window, resized the layout window, or done anything else that
+/// could affect the constraints of the child windows.
+/// \note TLayoutWindow overrides the TWindow version of EvSize to call Layout
+/// automatically whenever a WM_SIZE event is caught. If you override this function
+/// yourself, you should be sure either to call the base class version of the
+/// function or call Layout in your derived version.
+///
+/// - SetChildLayoutMetrics returns void and takes a TWindow & and a
+/// - TLayoutMetrics & as parameters. Use this function
+/// to associate a set of constraints contained in a TLayoutMetrics object with a
+/// child window. Here is an example of creating a TLayoutMetrics object and
+/// associating it with a child window:
+/// \code
+/// TMyLayoutWindow::TMyLayoutWindow(TWindow* parent, char far* title)
+///  : TLayoutWindow(parent, title)
+/// {
+///  TWindow MyChildWindow(this);
+///
+///  TLayoutMetrics layoutMetrics;
+///
+///  layoutMetrics.X.Absolute(lmLeft, 10);
+///  layoutMetrics.Y.Absolute(lmTop, 10);
+///  layoutMetrics.Width.PercentOf(lmParent, lmWidth, 60);
+/// 
+/// layoutMetrics.Height.PercentOf(lmParent, lmHeight, 60);
+///
+///  SetChildLayoutMetrics(MyChildWindow, layoutMetrics);
+/// }
+/// \endcode
+/// \note The child window does not need any special functionality to be associated
+/// with a layout metrics object. The association is handled entirely by the layout
+/// window itself. The child window does not have to know anything about the
+/// relationship.
+///
+/// - GetChildLayoutMetrics returns a bool and takes a TWindow & and a
+/// TLayoutMetrics & as parameters. This function looks up the child window that
+/// is represented by the TWindow &. It then places the current layout metrics
+/// associated with that child window into the TLayoutMetrics object passed in. If
+/// GetChildLayoutMetrics does not find a child window that equals the window object
+/// passed in, it returns false.
+/// - RemoveChildLayoutMetrics returns a bool and takes a TWindow & for a
+/// parameter. This function looks up the child window that represented by the
+/// TWindow &. It then removes the child window and its associated layout
+/// metrics from the layout window's child list. If RemoveChildLayoutMetrics does
+/// not find a child window that equals the window object passed in, it returns
+/// false.
+///
+/// You must provide layout metrics for all child windows of a layout window. The
+/// layout window assumes that all its children have an associated layout metrics
+/// object. Removing a child window from a layout window or deleting the child
+/// window object automatically removes the associated layout metrics object.
+///
+///
+///
+/// \page framewindows Frame Windows
+/// Frame windows (objects of class TFrameWindow) are
+/// specialized windows that support a client window. Frame windows are the basis
+/// for MDI and SDI frame windows, MDI child windows, and, along with
+/// TLayoutWindow, decorated frame windows.
+///
+/// Frame windows have an important role in ObjectWindows development: They manage
+/// application-wide tasks like menus and tool bars. Client windows within the frame
+/// can be specialized to perform a single task. Changes you make to the frame
+/// window (for example, adding tool bars and status bars) do not affect the client
+/// windows.
+///
+/// To take advantage of Frame windows, you need to be able to
+/// - \subpage constructingframewindowobjects "Construct frame windows"
+/// - \subpage modifyingframewindows "Modify frame windows"
+///
+///
+///
+/// \page constructingframewindowobjects Constructing Frame Window Objects
+/// You can construct a frame window object using one of the two
+/// TFrameWindow constructors. These two constructors let
+/// you:
+/// - \subpage constructingnewframewindows "Construct new frame window objects" 
+/// along with new interface elements
+/// - \subpage constructingaframewindowalias "Construct a frame window alias" 
+/// to connect a new frame window object to an existing interface element.
+///
+///
+///
+/// \page constructingnewframewindows Constructing New Frame Windows
+/// The following TFrameWindow constructor is used to
+/// create an entirely new frame window object:
+/// \code
+/// TFrameWindow(TWindow *parent, 
+///   const char far *title = 0, 
+///   TWindow *clientWnd = 0, 
+///   bool shrinkToClient = false, 
+///   TModule *module = 0);
+/// \endcode
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Explanation</TD></TR>
+/// <TR class="owltable"><TD class="owltable">parent</TD><TD class="owltable">The window's parent window object. Use zero if the window you're creating
+/// is the main window (which does not have a parent window object). Otherwise, use
+/// a pointer to the parent window object. This is the only parameter that you must
+/// provide.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">title</TD><TD class="owltable">The window title, the string that appears in the caption bar of the
+/// window. If you do not specify anything, no title is displayed in the title
+/// bar.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">clientWnd</TD><TD class="owltable">Lets you specify a client window for the frame window by passing a
+/// pointer to the client window object.. If you do not specify anything, by default
+/// the constructor gets a zero, meaning that there is no client window.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">shrinkToClient</TD><TD class="owltable">Lets you specify whether the frame window should shrink to fit
+/// the client window. If you do not specify anything, by default the constructor
+/// gets false, meaning that it should not fit the frame to the client window.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">module</TD><TD class="owltable">Passed to the base class constructor as the
+/// TModule parameter for that constructor. This parameter
+/// defaults to 0.</TD></TR>
+/// </TABLE>
+///
+/// \section example Example
+/// Here are some examples of using this constructor:
+/// \code
+/// void TMyApplication::InitMainWindow()
+/// {
+///  // default is for no client window
+///  SetMainWindow(new TFrameWindow(0, "Main Window"));
+/// }
+///
+/// void TMyApplication::InitMainWindow()
+/// {
+///  // client window is TMyClientWindow
+///  SetMainWindow(new TFrameWindow(0, "Main window with client", new TMyClientWindow, true));
+/// }
+/// \endcode
+///
+///
+/// \section seealso See Also
+/// - \ref constructingaframewindowalias "Constructing a Frame Window Alias "
+/// - \ref constructingframewindowobjects "Constructing Frame Window Objects "
+/// - \ref modifyingframewindows "Modifying Frame Windows "
+///
+///
+///
+/// \page constructingaframewindowalias Constructing a Frame Window Alias
+/// This TFrameWindow constructor is used to connect an
+/// existing interface element to a new TFrameWindow
+/// object. This object is known as an alias for the existing window.
+/// \code
+/// TFrameWindow(HWND hWnd, TModule *module);
+/// \endcode
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Explanation</TD></TR>
+/// <TR class="owltable"><TD class="owltable">hWnd</TD><TD class="owltable">The window handle of the existing interface element. This is the window the
+/// TFrameWindow object controls.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">module</TD><TD class="owltable">Passed to the base class constructor as the
+/// TModule parameter for that constructor. This parameter
+/// defaults to 0.</TD></TR>
+/// </TABLE>
+/// This version of the constructor is useful for creating window objects for
+/// existing windows. You can then manipulate any window as if it were an
+/// ObjectWindows-created window. This is useful in situations such as DLLs, when a
+/// non-ObjectWindows application calling into the DLL passes in an HWND. You can
+/// then construct a TFrameWindow alias for the HWND and
+/// call TFrameWindow member functions as you normally
+/// would.
+/// \section example Example
+/// The following example shows how to construct a
+/// TFrameWindow for an existing interface element and use
+/// that window as the main window:
+/// \code
+/// void TMyApplication::AddWindow(HWND hWnd)
+/// {
+///  TFrameWindow* frame = new TFrameWindow(hWnd);
+///  TFrameWindow* tmp = SetMainWindow(frame);
+///  ShowWindow(GetMainWindow()->HWindow, SW_SHOW);
+///  tmp->ShutDownWindow();
+/// }
+/// \endcode
+/// When you use this constructor for TFrameWindow, it
+/// sets the flag wfAlias. You can tell whether a window element was constructed
+/// from its window object or whether it's actually an alias by calling the function
+/// TWindow::IsFlagSet() with the wfAlias flag. For example, suppose you
+/// do not know whether the function AddWindow in the last example has executed yet.
+/// If your main window is not an alias, AddWindow has not executed. If your main
+/// window is an alias, AddWindow has executed.
+/// \code
+/// void TMyApplication::CheckAddExecute()
+/// {
+/// 
+/// if(GetMainWindow()->IsFlagSet(wfAlias))
+///   // MainWindow is an alias; AddWindow has executed
+///  else
+///   // MainWindow is not an alias; AddWindow has not executed
+/// }
+/// \endcode
+///
+///
+/// \section seealso See Also
+/// - \ref constructingframewindowobjects "Constructing Frame Window Objects "
+/// - \ref constructingnewframewindows "Constructing New Frame Windows "
+/// - \ref modifyingframewindows "Modifying Frame Windows "
+///
+///
+///
+/// \page modifyingframewindows Modifying Frame Windows
+/// Many frame window attributes can be set after the object has been constructed.
+/// You can change and query object attributes.
+/// TFrameWindow provides an additional set of functions
+/// for modifying frame windows:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Function</TD><TD class="owltableheader">Explanation</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TFrameWindow::AssignMenu()</TD><TD class="owltable">Typically used to set up a
+/// window's menu before the interface element has been created, such as in the
+/// InitMainWindow() function or the window object's constructor or
+/// SetupWindow() function.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TFrameWindow::SetMenu()</TD><TD class="owltable">Sets the window's menu handle to the
+/// HMENU parameter passed in.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TFrameWindow::SetMenuDescr()</TD><TD class="owltable">Sets the window's menu
+/// description to the TMenuDescr parameter passed in.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TFrameWindow::GetMenuDescr()</TD><TD class="owltable">Returns the current menu
+/// description.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TFrameWindow::MergeMenu()</TD><TD class="owltable">Merges the current menu
+/// description with the TMenuDescr parameter passed in.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TFrameWindow::RestoreMenu()</TD><TD class="owltable">Restores the window's menu
+/// from Attr.Menu.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TFrameWindow::SetIcon()</TD><TD class="owltable">Sets the icon in the module passed
+/// as the first parameter to the icon passed as a resource in the second parameter.</TD></TR>
+/// </TABLE>
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingaframewindowalias "Constructing a Frame Window Alias "
+/// - \ref constructingframewindowobjects "Constructing Frame Window Objects "
+/// - \ref constructingnewframewindows "Constructing New Frame Windows "
+///
+///
+///
+/// \page decoratedframewindows Decorated Frame Windows
+/// Decorated frame windows are encapsulated in
+/// TDecoratedFrame, which is derived from
+/// TFrameWindow and TLayoutWindow. Decorated frame windows provide all the
+/// functionality of frame windows and layout windows, but in addition provide:
+/// - Support for adding controls (known as decorations) to the frame of the
+/// window
+/// - Automatic adjustment of the child windows to accommodate the placement of
+/// decorations
+///
+/// To take advantage of decorated frame windows, you need to know how to
+/// - \subpage constructingdecoratedframewindowobjects "Construct decorated frame window objects"
+/// - \subpage addingdecorationstodecoratedframewindows "Add decorations to decorated frame windows"
+///
+/// \section seealso See Also
+/// \subpage aboutthedockingclasses "About the Docking Classes"
+///
+/// 
+///
+/// \page constructingdecoratedframewindowobjects Constructing Decorated Frame Window Objects
+/// TDecoratedFrame has only one constructor,
+/// \code
+/// TDecoratedFrame(TWindow* parent,
+///   const char far* title,
+///   TWindow* clientWnd,
+///   bool trackMenuSelection = false,
+///   TModule* module = 0);
+/// \endcode
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Explanation</TD></TR>
+/// <TR class="owltable"><TD class="owltable">parent The window's parent window object. Use zero if the window you're creating
+/// is the main window (which does not have a parent window object). Otherwise use a
+/// pointer to the parent window object. This is the only parameter that you must
+/// provide.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">title</TD><TD class="owltable">The window title, which appears in the caption bar of the window. If you
+/// do not specify anything, no title is displayed in the title bar.
+/// clientWnd Lets you specify a pointer to a client window for the frame window. If
+/// you do not specify anything, by default the constructor gets a zero, meaning
+/// that there is no client window.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">trackMenuSelection</TD><TD class="owltable">Lets you specify whether menu commands should be tracked.
+/// When tracking is on, the window tries to pass a string to the window's status
+/// bar. The string passed has the same resource name as the currently selected menu
+/// choice. You should not turn on menu selection tracking unless you have a status
+/// bar in your window. If you do not specify anything, by default the constructor
+/// gets false, meaning that it should not track menu commands.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">module</TD><TD class="owltable">Passed to the base class constructor as the
+/// TModule parameter for that constructor. This parameter
+/// defaults to 0.</TD></TR>
+/// </TABLE>
+///
+///
+/// \page addingdecorationstodecoratedframewindows Adding Decorations To Decorated Frame Windows
+/// TDecoratedFrame provides the ability to add
+/// decorations by using the TDecoratedFrame::Insert() member
+/// function.
+///
+/// To use Insert, you must first construct a control to be inserted. Valid controls
+/// include control bars (TControlBar),
+/// status bars (TStatusBar), button
+/// gadgets (TButtonGadget), and any other control type
+/// based on TDialog.
+///
+/// After you have constructed the control, use Insert to insert the control into
+/// the decorated frame window. Insert takes two parameters, a reference to the
+/// control and a location specifier. TDecoratedFrame provides the enum
+/// TLocation, which lets you specify four possible values: Top, Bottom,
+/// Left, and Right.
+///
+/// \section example Example
+/// Suppose you want to construct a status bar to add to the bottom of your
+/// decorated frame window. The code would look something like this:
+/// \code
+/// TStatusBar* sb = new TStatusBar(0,
+/// TGadget::Recessed,
+///    TStatusBar::CapsLock |
+///    TStatusBar::NumLock |
+///    TStatusBar::Overtype);
+///
+/// TDecoratedFrame* frame = new
+/// TDecoratedFrame(0, "Decorated Frame", 0, true);
+///
+/// frame->Insert(*sb, TDecoratedFrame::Bottom);
+/// \endcode
+///
+/// \section seealso See Also
+/// - \ref constructingdecoratedframewindowobjects "Constructing Decorated Frame Window Objects"
+/// - \ref objectproperties "Object Properties "
+/// - \ref windowproperties "Window Properties "
+///
+///
+///
+/// \page aboutthedockingclasses About the Docking Classes
+/// \image html bm61.bmp
+///
+/// The docking classes provide a simple way to add docking windows, such as
+/// toolbars, to ObjectWindows applications. Docking toolbars (such as those in Word
+/// for Windows) can be arranged by the user to suit their needs.
+/// The THarbor class is the organizer for the whole docking system. THarbor
+/// is derived from TWindow in order to get mouse events, but it is never visible.
+/// Instead, it functions as an abstract interface, providing the following services
+/// to the application:
+/// - Construction and setup of slips, whenever needed
+/// - Insertion of dockables
+/// - Dockable dragging and dropping
+///
+/// The TDockable class is an abstract base class. Any window that wants to be
+/// dockable must be derived from it. A small number of pure virtuals must then be
+/// overridden to provide information about the dockable window to the window that
+/// it is docked in, and to the harbor. Two predefined classes are provided that
+/// inherit from TDockable: TDockableGadgetWindow and TDockableControlBar.
+/// The TDockingSlip is also an abstract base class. Two predefined classes are
+/// provided that inherit from TDockingSlip: TEdgeSlip and TFloatingSlip. TEdgeSlip
+/// is used for docking slips along the edge of the frame. TFloatingSlip is used for
+/// a floating frame; it is also dockable in order to act as a proxy for its held
+/// dockables, when dragging.
+///
+/// The docking areas are contained, as decorations, in a TDecoratedFrame, or
+/// derived window, as shown below.
+///
+/// \image html bm63.bmp
+///
+/// \section seealso See Also
+/// \subpage usingthedockingclasses "Using the Docking Classes"
+///
+///
+/// \page usingthedockingclasses Using the Docking Classes
+/// -# Create a decorated frame. This can be a TDecoratedFrame, a
+/// TMDIDecoratedFrame-or any frame derived from TDecoratedFrame.
+/// \code
+/// TDecoratedMDIFrame* frame = new TDecoratedMDIFrame(Name, IDM_MAIN, *MdiClient, true);
+/// \endcode
+/// -# Create a harbor, passing the decorated frame to it:
+/// \code
+/// Harbor = new THarbor(*frame);
+/// \endcode
+/// -# Create a dockable control bar:
+/// \code
+/// TDockableControlBar* cb = new TDockableControlBar(frame);
+/// \endcode
+/// -# Set the caption and insert objects into the control bar:
+/// \code
+/// cb->SetCaption("Toolbar with Combobox");
+/// TComboBox* cBox = new TComboBox(0, 500, 0, 0, 180, 150, CBS_DROPDOWNLIST, 20);
+/// cb->Insert(*new TControlGadget(*cBox));
+/// cb->Insert(*new TSeparatorGadget);
+/// cb->Insert(*new TButtonGadget(CM_FONTBOLD, CM_FONTBOLD)
+/// cb->Insert(*new TButtonGadget(CM_FONTITALIC, CM_FONTITALIC));
+/// \endcode
+/// -# Insert the control bar into the harbor, specifing the location for the
+/// toolbar:
+/// \code
+/// Harbor->Insert(*cb, alTop);
+/// \endcode
+///
+///
+///
+/// \page mdiwindows MDI Windows
+/// Multiple document interface (MDI) windows are part of the MDI interface for
+/// managing multiple windows or views associated with a single application. A
+/// document is usually a file-specific task, such as editing a text file or working
+/// on a spreadsheet file.
+///
+/// \section mdiapp MDI Applications
+/// Certain components are present in every MDI application. Most evident is the
+/// main window, called the MDI frame window. Within the frame window's client area
+/// is the MDI client window, which holds child windows called MDI child windows.
+/// When using the Doc/View classes, the application can put views into MDI
+/// windows.
+///
+/// \section mdimenu The MDI Window Menu
+/// An MDI application usually has a menu item labeled Window that controls the MDI
+/// child windows. The Window menu usually has items like Tile, Cascade, Arrange,
+/// and Close All. The name of each open MDI child window is automatically added to
+/// the end of this menu, and the currently selected window is checked.
+///
+/// \section mdichild MDI Child Windows
+/// MDI child windows have some characteristics of an overlapped window. An MDI
+/// child window can be maximized to the full size of its MDI client window or
+/// minimized to an icon that sits inside the client window. MDI child windows never
+/// appear outside their client or frame windows. Although MDI child windows cannot
+/// have menus attached to them, they can have a
+/// TMenuDescr that the frame window uses as a menu when that
+/// child is active. The caption of each MDI child window is often the name of the
+/// file associated with that window; this behavior is optional and under your
+/// control.
+///
+/// \section mdi MDI in ObjectWindows
+/// ObjectWindows defines classes for each type of MDI window:
+/// - TMDIFrame
+/// - TMDIClient
+/// - TMDIChild
+///
+/// In ObjectWindows, the MDI frame window owns the MDI client window, and the MDI
+/// client window owns each of the MDI child windows.
+///
+/// TMDIFrame's member functions manage the frame window and its menu. ObjectWindows
+/// first passes commands to the focus window and then to its parent, so the client
+/// window can process the frame window's menu commands. Because TMDIFrame does not
+/// have much specialized behavior, you rarely have to derive your own MDI frame
+/// window class; instead, just use an instance of TMDIFrame. Since TMDIChild is
+/// derived from TFrameWindow, it can be a frame window
+///
+/// with a client window. Therefore, you can create specialized windows that either
+/// serve as client windows in a TMDIChild or are TMDIChild windows themselves. The
+/// preferred style is to use specialized clients with the standard TMDIChild class.
+/// The choice is yours and depends on your particular application.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage addingbehaviortoanmdiclientwindow "Adding Behavior To an MDI Client Window "
+/// - \subpage buildinganmdiapplication "Building an MDI Application "
+/// - \subpage creatinganmdiframewindow "Creating an MDI Frame Window "
+/// - \subpage creatingmdichildwindows "Creating MDI Child Windows "
+///
+///
+///
+/// \page buildinganmdiapplication Building an MDI Application
+/// Follow these steps to building an MDI application in ObjectWindows:
+/// -# \ref creatinganmdiframewindow "Create an MDI frame window"
+/// -# \ref addingbehaviortoanmdiclientwindow "Add behavior to an MDI client window"
+/// -# \ref creatingmdichildwindows "Create MDI child windows"
+///
+/// ObjectWindows' TMDIFrame, TMDIClient, and TMDIChild
+/// classes handle the MDI-specific behavior for you so you can concentrate on the
+/// application-specific behavior you want.
+///
+///
+///
+/// \page creatinganmdiframewindow Creating an MDI Frame Window
+/// The MDI frame window is always an application's main window, so you construct it
+/// in the application object's InitMainWindow member function. MDI
+/// frame windows differ from other frame windows in the following ways:
+/// - Because an MDI frame is always a main window, it never has a parent.
+/// Therefore, TMDIFrame's constructor does not take a
+/// pointer to a parent window object as a parameter.
+/// - An MDI frame must have a menu, so TMDIFrame's constructor takes a menu
+/// resource identifier as a parameter. With non-MDI main frame windows, you would
+/// call AssignMenu() to set the window's menu. TMDIFrame's constructor
+/// makes the call for you. Part of what AssignMenu does is search the menu for the
+/// child-window menu by searching for certain menu command IDs. If it finds a
+/// Window menu, new child window titles are automatically added to the bottom of
+/// the menu.
+///
+/// \section example Example
+/// A typical InitMainWindow for an MDI application would look like this:
+/// \code
+/// void TMDIApp::InitMainWindow()
+/// {
+///  SetMainWindow(new TMDIFrame("MDI App", ID_MENU, *new TMyMDIClient));
+/// }
+/// \endcode
+/// The example creates an MDI frame window titled "MDI App" with a menu from the
+/// ID_MENU resource. The ID_MENU menu should have a child-window menu. The MDI
+/// client window is created from the TMyMDIClient class.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingbehaviortoanmdiclientwindow "Adding Behavior To an MDI Client Window "
+/// - \ref creatingmdichildwindows "Creating Child Windows "
+///
+///
+///
+/// \page addingbehaviortoanmdiclientwindow Adding Behavior To an MDI Client Window
+/// Because you usually use an instance of TMDIFrame as
+/// your MDI frame window, you need to add application-wide behavior to your MDI
+/// client window class. The frame window owns menus and tool bars but passes the
+/// commands they generate to the client window and to the application. A common
+/// message-response function would respond to the File|Open menu command to open
+/// another MDI child window.
+///
+/// \section manipulate Manipulating Child Windows
+/// TMDIClient has several member functions for manipulating MDI child windows.
+/// Commands from an MDI application's child-window menu control the child windows.
+/// TMDIClient automatically responds to those commands and performs the appropriate
+/// action:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Action</TD><TD class="owltableheader">Menu command ID</TD><TD class="owltableheader">TMDIClient member function</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Cascade</TD><TD class="owltable">CM_CASCADECHILDREN</TD><TD class="owltable">TMDIClient::CmCascadeChildren()</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Tile</TD><TD class="owltable">CM_TILECHILDREN</TD><TD class="owltable">TMDIClient::CmTileChildren()</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Tile Horizontally</TD><TD class="owltable">CM_TILECHILDRENHORIZ</TD><TD class="owltable">TMDIClient::CmTileChildrenHoriz()</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Arrange Icons</TD><TD class="owltable">CM_ARRANGEICONS</TD><TD class="owltable">TMDIClient::CmArrangeIcons()</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Close All</TD><TD class="owltable">CM_CLOSECHILDREN</TD><TD class="owltable">TMDIClient::CmCloseChildren()</TD></TR>
+/// </TABLE>
+/// \note The header file owl\\mdi.h includes owl\\mdi.rh for your applications.
+/// owl\\mdi.rh is a resource header file that defines the menu command IDs listed
+/// above. When you design your menus in your resource script, be sure to include
+/// owl\\mdi.rh to get those IDs.
+///
+/// MDI child windows should not respond to any child-window menu commands. The MDI
+/// client window takes care of them.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatinganmdiframewindow "Creating an MDI Frame Window "
+/// - \ref creatingmdichildwindows "Creating MDI Child Windows "
+///
+///
+///
+/// \page creatingmdichildwindows Creating MDI Child Windows
+/// There are two ways to create MDI child windows: automatically in
+/// TMDIClient::InitChild() or manually elsewhere.
+///
+/// \section auto Automatic Child Window Creation
+/// TMDIClient defines the
+/// TMDIClient::CmCreateChild() message response function to respond to the
+/// CM_CREATECHILD message. CmCreateChild is commonly used to respond to an MDI
+/// application's File|New menu command. CmCreateChild calls
+/// TMDIClient::CreateChild(), which calls
+/// TMDIClient::InitChild() to construct an MDI child window object, and
+/// finally calls the child object's Create member function to create the MDI child
+/// window interface element.
+///
+/// If your MDI application uses CM_CREATECHILD as the command ID to create new MDI
+/// child windows, then you should override InitChild in your MDI client window
+/// class to construct MDI child window objects whenever the user chooses that
+/// command, as follows:
+/// \code
+/// TMDIChild* TMyMDIClient::InitChild()
+/// {
+///  return new TMDIChild(*this, "MDI child window");
+/// }
+/// \endcode
+/// Since TMDIChild's constructor takes a reference to its parent window object and
+/// not a pointer, you need to dereference the this pointer.
+/// 
+/// \section manual Manual Child Window Creation
+/// You do not have to construct MDI child window objects in InitChild. If you
+/// construct them elsewhere, however, you must create the interface element
+/// yourself:
+/// \code
+/// void
+/// TMyMDIClient::CmFileOpen()
+/// {
+///  new TMDIChild(*this, "")->Create();
+/// }
+/// \endcode
+///
+///
+/// \section seealso See Also
+/// - \ref addingbehaviortoanmdiclientwindow "Adding Behavior To an MDI Client Window "
+/// - \ref creatinganmdiframewindow "Creating an MDI Frame Window "
+///
+///
+///

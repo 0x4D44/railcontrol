@@ -1,0 +1,189 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "tabbed.rh"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#if !defined(__BORLANDC__)  //C++ Builder resource compiler gives an error in prsht.h
+#include <commctrl.h>
+#endif
+#include <owl/winres.rh>
+#include <owl/editfile.rh>
+#include <owl/mdi.rh>
+#include <owl/tabbed.rh>
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_BGR)
+LANGUAGE 2, 1
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE  
+BEGIN
+    "tabbed.rh\0"
+END
+
+2 TEXTINCLUDE  
+BEGIN
+  "#include <commctrl.h>\r\n"
+  "#include <owl/winres.rh>\r\n"
+  "#include <owl/editfile.rh>\r\n"
+  "#include <owl/mdi.rh>\r\n"
+  "#include <owl/tabbed.rh>\r\n"
+  "\0"
+END
+
+3 TEXTINCLUDE  
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+IDM_MAIN MENU
+BEGIN
+  POPUP "&File"
+  BEGIN
+    MENUITEM "&Open TTabbedWindow...\aCtrl+O", CM_OPENWINDOW
+    MENUITEM "&Save TTabbedWindow...\aCtrl+S", CM_SAVEWINDOW
+    MENUITEM SEPARATOR
+    MENUITEM "E&xit\aAlt+F4", CM_EXIT
+  END
+  MENUITEM SEPARATOR
+  MENUITEM SEPARATOR
+  MENUITEM SEPARATOR
+  POPUP "&Page"
+  BEGIN
+    MENUITEM "&Add page...\aA", CM_ADDPAGE
+    MENUITEM "&Edit page...\aE", CM_EDITPAGE
+    MENUITEM "&Delete page...\aShift+D", CM_DELETEPAGE
+    MENUITEM "Delete sele&cted page\aD", CM_DELETESELECTEDPAGE
+    MENUITEM SEPARATOR
+    MENUITEM "&Select page...\aS", CM_SELECTPAGE
+    MENUITEM "Set first &visible tab...\aV", CM_SETFIRSTVISIBLETAB
+    MENUITEM "E&nsure tab is visible...\aN", CM_ENSURETABISVISIBLE
+  END
+  POPUP "P&arameter"
+  BEGIN
+    MENUITEM "Tab control height\a&1", CM_TABCONTROLHEIGHT
+    MENUITEM "Control margin, horizontal\a&2", CM_MARGINX
+    MENUITEM "Control margin, vertical\a&3", CM_MARGINY
+    MENUITEM "Label margin, horisontal\a&4", CM_LABELMARGINX
+    MENUITEM "Label margin, vertical\a&5", CM_LABELMARGINY
+    MENUITEM "Focus rectangle margin, horizontal\a&6", CM_FOCUSMARGINX
+    MENUITEM "Focus rectangle margin, vertical\a&7", CM_FOCUSMARGINY
+    MENUITEM "Tab spacing\a&8", CM_TABSPACING
+    MENUITEM "Tab tapering\a&9", CM_TABTAPERING
+    MENUITEM "Selected tab protrusion\a&0", CM_SELECTEDTABPROTRUSION
+    MENUITEM SEPARATOR
+    MENUITEM "&Increase parameter value\a+", CM_INCREASEPARAMETERVALUE
+    MENUITEM "&Decrease parameter value\a-", CM_DECREASEPARAMETERVALUE
+  END
+  POPUP "&Configuration"
+  BEGIN
+    MENUITEM SEPARATOR
+    MENUITEM "Set &tab font...\aT", CM_SETTABFONT
+    MENUITEM "Set selecte&d tab font...\aShift+T", CM_SETSELECTEDTABFONT
+    MENUITEM "Set tab ed&ge color...\aG", CM_SETTABEDGECOLOR
+    MENUITEM "Set tab &color...\aC", CM_SETTABCOLOR
+    MENUITEM "Set &selected tab color...\aShift+C", CM_SETSELECTEDTABCOLOR
+    MENUITEM "Set tab &background color...\aB", CM_SETTABBACKGROUNDCOLOR
+    MENUITEM SEPARATOR
+    MENUITEM "&Flat style\aF", CM_FLATSTYLE
+    MENUITEM "Flat &window face style\aW", CM_FLATWINDOWFACESTYLE
+    MENUITEM "3D st&yle\aY", CM_3DSTYLE
+    MENUITEM "T&hemed style\aH", CM_THEMEDSTYLE
+    MENUITEM SEPARATOR
+    MENUITEM "Align scroll buttons on the &left\aL", CM_SCROLLBUTTONSLEFT
+    MENUITEM "Align scroll buttons on the &right\aR", CM_SCROLLBUTTONSRIGHT
+  END
+  POPUP "&Test"
+  BEGIN
+    MENUITEM "&Run resizing sequence\aF4", CM_RESIZING
+  END
+END
+
+IDA_MAIN ACCELERATORS
+BEGIN
+  "O", CM_OPENWINDOW, VIRTKEY, CONTROL, NOINVERT
+  "S", CM_SAVEWINDOW, VIRTKEY, CONTROL, NOINVERT
+  "A", CM_ADDPAGE, VIRTKEY, NOINVERT
+  "E", CM_EDITPAGE, VIRTKEY, NOINVERT
+  "D", CM_DELETEPAGE, VIRTKEY, SHIFT, NOINVERT
+  "D", CM_DELETESELECTEDPAGE, VIRTKEY, NOINVERT
+  "S", CM_SELECTPAGE, VIRTKEY, NOINVERT
+  "V", CM_SETFIRSTVISIBLETAB, VIRTKEY, NOINVERT
+  "N", CM_ENSURETABISVISIBLE, VIRTKEY, NOINVERT
+  "T", CM_SETTABFONT, VIRTKEY, NOINVERT
+  "T", CM_SETSELECTEDTABFONT, VIRTKEY, SHIFT, NOINVERT
+  "G", CM_SETTABEDGECOLOR, VIRTKEY, NOINVERT
+  "C", CM_SETTABCOLOR, VIRTKEY, NOINVERT
+  "C", CM_SETSELECTEDTABCOLOR, VIRTKEY, SHIFT, NOINVERT
+  "B", CM_SETTABBACKGROUNDCOLOR, VIRTKEY, NOINVERT
+
+  "1", CM_TABCONTROLHEIGHT, VIRTKEY, NOINVERT
+  "2", CM_MARGINX, VIRTKEY, NOINVERT
+  "3", CM_MARGINY, VIRTKEY, NOINVERT
+  "4", CM_LABELMARGINX, VIRTKEY, NOINVERT
+  "5", CM_LABELMARGINY, VIRTKEY, NOINVERT
+  "6", CM_FOCUSMARGINX, VIRTKEY, NOINVERT
+  "7", CM_FOCUSMARGINY, VIRTKEY, NOINVERT
+  "8", CM_TABSPACING, VIRTKEY, NOINVERT
+  "9", CM_TABTAPERING, VIRTKEY, NOINVERT
+  "0", CM_SELECTEDTABPROTRUSION, VIRTKEY, NOINVERT
+  VK_ADD, CM_INCREASEPARAMETERVALUE, VIRTKEY, NOINVERT
+  VK_SUBTRACT, CM_DECREASEPARAMETERVALUE, VIRTKEY, NOINVERT
+  "Y", CM_3DSTYLE, VIRTKEY, NOINVERT
+  "F", CM_FLATSTYLE, VIRTKEY, NOINVERT
+  "W", CM_FLATWINDOWFACESTYLE, VIRTKEY, NOINVERT
+  "H", CM_THEMEDSTYLE, VIRTKEY, NOINVERT
+  "L", CM_SCROLLBUTTONSLEFT, VIRTKEY, NOINVERT
+  "R", CM_SCROLLBUTTONSRIGHT, VIRTKEY, NOINVERT
+  VK_F4, CM_RESIZING, VIRTKEY, NOINVERT
+END
+
+IDD_PAGE DIALOGEX 0, 0, 228, 60
+STYLE DS_SHELLFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION " page"
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+  LTEXT "Tab label:", IDC_STATIC, 8, 10, 45, 8
+  EDITTEXT IDC_LABEL, 69, 8, 67, 14, ES_AUTOHSCROLL | WS_GROUP
+  LTEXT "Image index:", IDC_STATIC, 8, 26, 43, 8
+  EDITTEXT IDC_IMAGEINDEX, 69, 24, 67, 14, ES_AUTOHSCROLL | WS_GROUP
+  CONTROL "", IDC_IMAGEINDEXSPIN, "msctls_updown32", UDS_SETBUDDYINT | UDS_AUTOBUDDY | UDS_ARROWKEYS, 140, 24, 10, 14
+  LTEXT "Image alignment:", IDC_STATIC, 8, 42, 56, 8
+  CONTROL "Left", IDC_IMAGELEFT, "Button", BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP, 72, 42, 29, 10
+  CONTROL "Right", IDC_IMAGERIGHT, "Button", BS_AUTORADIOBUTTON, 107, 42, 33, 10
+  DEFPUSHBUTTON "OK", IDOK, 169, 8, 50, 14, WS_GROUP
+  PUSHBUTTON "Cancel", IDCANCEL, 169, 24, 50, 14
+END
+
+IDB_IMAGES BITMAP "images/tabbed.bmp"
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED

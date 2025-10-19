@@ -1,0 +1,694 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+/// \page interfaceobjectsoverview Interface Objects Overview
+/// Instances of C++ classes representing windows, dialog boxes, and controls are
+/// called interface objects.
+/// Interface objects are actually inside application objects. An interface object
+/// is an ObjectWindows class that is created and stored on the application's heap
+/// or stack, depending on how the object is allocated. The interface element, on
+/// the other hand, is actually a part of Windows. It is the actual window that is
+/// displayed on the screen.
+///
+/// \section Why Interface Objects?
+/// One of the greatest difficulties of Windows programming is that controlling
+/// interface elements can be inconsistent and confusing. Sometimes you send a
+/// message to a window; other times you call a Windows API function. The
+/// conventions for similar types of operations often differ when those operations
+/// are performed with different kinds of elements.
+/// ObjectWindows alleviates much of this difficulty by providing objects that
+/// encapsulate the interface elements. This insulates you from having to deal
+/// directly with Windows and provides a more uniform interface for controlling
+/// interface elements.
+///
+/// \section What Do Interface Objects Do?
+/// An interface object provides member functions for creating, initializing,
+/// managing, and destroying its associated interface element. The member functions
+/// manage many of the details of Windows programming for you.
+/// Interface objects also encapsulate the data needed to communicate with the
+/// interface element, such as handles and pointers to child and parent windows.
+/// The relationship between an interface object and an interface element is similar
+/// to that between a file on disk and a C++ stream object. The stream object only
+/// represents an actual file on disk; you manipulate that file by manipulating the
+/// stream object. With ObjectWindows, interface objects represent the interface
+/// elements that Windows itself actually manages. You work with the object, and
+/// Windows takes care of maintaining the Windows element.
+///
+///
+///
+/// - \subpage thegenericinterfaceobject "The Generic Interface Object: TWindow "
+/// - \subpage creatinginterfaceobjects "Creating Interface Objects "
+/// - \subpage destroyinginterfaceobjects "Destroying Interface Objects "
+/// - \subpage parentandchildinterfaceelements "Parent and Child Interface Elements "
+/// - \subpage registeringwindowclasses "Registering Window Classes "
+///
+///
+///
+/// \page thegenericinterfaceobject The Generic Interface Object: TWindow
+/// ObjectWindows' interface objects are all derived from
+/// TWindow, which defines behavior common to all window, dialog
+/// box, and control objects. Classes like TFrameWindow,
+/// TDialog, and \ref extendeddiagnosticsmacrosexample "TControl" are
+/// derived from TWindow and refine TWindow's generic behavior as needed.
+/// As the common base class for all interface objects, TWindow provides uniform
+/// ways to
+/// - Maintain the relationship between interface objects and interface elements,
+/// including creating and destroying the objects and elements
+/// - Handle parent-child relationships between interface objects
+/// - Register new Windows window classes
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatinginterfaceobjects "Creating Interface Objects "
+/// - \ref destroyinginterfaceobjects "Destroying Interface Objects "
+/// - \ref interfaceobjectsoverview "Interface Objects Overview "
+/// - \ref parentandchildinterfaceelements "Parent and Child Interface Elements "
+/// - \ref registeringwindowclasses "Registering Window Classes "
+///
+///
+///
+/// \page creatinginterfaceobjects Creating Interface Objects
+/// Setting up an interface object with its associated interface element requires
+/// two steps:
+/// -# Calling one of the interface object constructors, which constructs the
+/// interface object and sets its attributes
+/// -# Creating the interface element by telling Windows to create the interface
+/// object with a new interface element, depending on the kind of element, as
+/// follows:
+/// - When creating most interface elements, you call the interface object's Create
+/// member function (for example, TWindow::Create()). Create
+/// also indirectly calls TWindow::SetupWindow(), which initializes the
+/// interface object by creating an interface element, such as a child window.
+/// - When creating a modal dialog box, you create the interface element by calling
+/// the interface object's Execute member function.
+///
+/// The association between the interface object and the interface element is
+/// maintained by the interface object's HWindow data member, a handle to a
+/// window.
+///
+/// In creating interface objects, the following topics will be helpful:
+/// - \subpage wheniswindowhandlevalid "When Is a Window Handle Valid? "
+/// - \subpage makinginterfaceelementsvisible "Making Interface Elements Visible "
+/// - \subpage objectproperties "Object Properties "
+/// - \subpage windowproperties "Window Properties "
+///
+///
+///
+/// \section seealso See Also
+/// - \ref destroyinginterfaceobjects "Destroying Interface Objects "
+/// - \ref interfaceobjectsoverview "Interface Objects Overview "
+/// - \ref parentandchildinterfaceelements "Parent and Child Interface Elements "
+/// - \ref registeringwindowclasses "Registering Window Classes "
+/// - \ref thegenericinterfaceobject "The Generic Interface Object: TWindow "
+///
+///
+///
+/// \page wheniswindowhandlevalid When Is a Window Handle Valid?
+/// Normally under Windows, a newly created interface element receives a WM_CREATE
+/// message from Windows, and responds to it by initializing itself. ObjectWindows
+/// interface objects intercept the WM_CREATE message and call SetupWindow instead.
+/// SetupWindow is where you want to perform your own initialization.
+///
+/// If part of the interface object's initialization requires the interface
+/// element's window handle, you must perform that initialization after you call the
+/// base class's SetupWindow (for example, TFrameWindow::SetupWindow())
+/// . Prior to the time you call the base class's SetupWindow, the window and its
+/// child windows have not been created, so HWindow is not valid and should not be
+/// used. You can easily test the validity of HWindow: if it has not been
+/// initialized, it is set to NULL. This example shows a typical call to
+/// SetupWindow:
+/// \code
+/// class TMyWindow : public TFrameWindow
+/// {
+///  public:
+///   TMyWindow(const char far* name) : TFrameWindow(name) {}
+///   void SetupWindow();
+/// };
+///
+/// void
+/// TMyWindow::SetupWindow()
+/// {
+///  TFrameWindow::SetupWindow();
+///
+///  .
+///  .
+///  .
+/// }
+/// \endcode
+///
+/// Although it might seem odd that you cannot perform all initialization in the
+/// interface object's constructor, there is a good reason: after an interface
+/// element is created, you cannot change many of its characteristics. Therefore, a
+/// two-stage initialization is required: before and after the interface element is
+/// created.
+///
+/// The interface object's constructor is the place for initialization before the
+/// element is created, and SetupWindow is the place for initialization after the
+/// element is created. You can think of SetupWindow as the second part of the
+/// constructor.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref makinginterfaceelementsvisible "Making Interface Elements Visible "
+/// - \ref objectproperties "Object Properties "
+/// - \ref windowproperties "Window Properties "
+///
+///
+///
+/// \page makinginterfaceelementsvisible Making Interface Elements Visible
+/// Creating an object and its corresponding element does not mean that you will see
+/// something on the screen. When Windows creates the interface element, Windows
+/// checks to see if the element's style includes WS_VISIBLE. If it does, Windows
+/// displays the interface element; if it does not, the element is created but is
+/// not displayed onscreen.
+///
+/// TWindow's constructor sets WS_VISIBLE, so most interface
+/// objects are visible by default. But if your object loads a resource, that
+/// resource's style depends on what is defined in its resource file. If WS_VISIBLE
+/// is turned on in the resource's style, WS_VISIBLE is turned on for the object. If
+/// WS_VISIBLE is not turned on in the resource's style, WS_VISIBLE is turned off in
+/// the object's style. You can set WS_VISIBLE and other window styles in the
+/// interface object's Attr.Style data member.
+/// For example, if you use TDialog to load a dialog resource
+/// that does not have WS_VISIBLE turned on, you must explicitly turn WS_VISIBLE on
+/// before attempting to display the dialog with Create.
+/// You can find out whether an interface object is visible by calling
+/// IsWindowVisible, which returns true if the object is visible.
+/// At any point after the interface element has been created, you can show or hide
+/// it by calling its Show member function with a value of true or false,
+/// respectively.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref objectproperties "Object Properties "
+/// - TWindow::Create()
+/// - TWindow::Show()
+/// - \ref wheniswindowhandlevalid "When Is a Window Handle Valid? "
+/// - \ref windowproperties "Window Properties "
+///
+///
+///
+/// \page objectproperties Object Properties
+/// In addition to the attributes of its interface element, the interface object
+/// possesses certain attributes as an ObjectWindows object. You can query and
+/// change these properties and characteristics using the following functions:
+/// - SetFlag sets the specified flag for the object
+/// - ClearFlag clears the specified flag for the object
+/// - IsFlagSet returns true if the specified flag is set or false if the specified
+/// flag is not set
+///
+/// You can use the following flags with these functions:
+/// - wfAlias indicates whether the object is an alias.
+/// - wfAutoCreate indicates whether automatic creation is enabled for this
+/// object.
+/// - wfFromResource indicates whether the interface element is loaded from a
+/// resource.
+/// - wfShrinkToClient indicates whether the frame window should shrink to fit the
+/// size of the client window.
+/// - wfMainWindow indicates whether the window is the main window.
+/// - wfPredefinedClass indicates whether the window is a predefined Windows
+/// class.
+/// - wfTransfer indicates whether the window can use the data transfer mechanism.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref makinginterfaceelementsvisible "Making Interface Elements Visible "
+/// - TWindow::ClearFlag()
+/// - TWindow::IsFlagSet()
+/// - TWindow::SetFlag()
+/// - TWindowFlag enum describes the wfxxxx constants
+/// - \ref wheniswindowhandlevalid "When Is a Window Handle Valid? "
+/// - \ref windowproperties "Window Properties "
+///
+///
+///
+/// \page windowproperties Window Properties
+/// TDialog also provides functions that let you change
+/// resources and properties of the interface element. Because TWindow provides
+/// generic functionality for a large variety of objects, it does not provide very
+/// specific functions for resource and property manipulation. High-level objects
+/// provide much more specific functionality. But that specific functionality builds
+/// on and is in addition to the functionality provided by TWindow:
+/// - SetCaption() sets the window caption to the string that
+/// you pass as a parameter.
+/// - GetWindowTextTitle() returns a string containing the
+/// current window caption.
+/// - SetCursor() sets the cursor of the instance, identified
+/// by the TModule parameter, to the cursor passed as a resource in the second
+/// parameter.
+/// - You can set the accelerator table for a window by assigning the resource ID
+/// (which can be a string or an integer) to Attr.AccelTable. For example, suppose
+/// you have an accelerator table resource called MY_ACCELS. You would assign the
+/// resource to Attr.AccelTable like this:
+/// \code
+/// TMyWnd::TMyWnd(const char* title)
+/// {
+///  Init(0, title);
+///  Attr.AccelTable = MY_ACCELS; // AccelTable can be assigned
+/// }
+/// \endcode
+///
+/// The TWindow::Init() function in this example is used to
+/// initialize a the base class of a derived window class.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref makinginterfaceelementsvisible "Making Interface Elements Visible "
+/// - \ref objectproperties "Object Properties "
+/// - \ref wheniswindowhandlevalid "When Is a Window Handle Valid? "
+///
+///
+/// \page destroyinginterfaceobjects Destroying Interface Objects
+/// Destroying interface objects is a two-step process:
+/// - \subpage destroyingtheinterfaceelement "Destroying the interface element"
+/// - \subpage destroyingtheinterfaceobject "Deleting the interface object"
+///
+/// You can destroy the interface element without deleting the interface object, if
+/// you need to create and display the interface element again.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatinginterfaceobjects "Creating Interface Objects "
+/// - \ref interfaceobjectsoverview "Interface Objects Overview "
+/// - \ref parentandchildinterfaceelements "Parent and Child Interface Elements "
+/// - \ref registeringwindowclasses "Registering Window Classes "
+/// - \ref thegenericinterfaceobject "The Generic Interface Object: TWindow "
+///
+///
+///
+/// \page destroyingtheinterfaceelement Destroying the Interface Element
+/// Destroying the interface element is the responsibility of the interface object's
+/// Destroy member function. Destroy destroys the interface elements by calling the
+/// DestroyWindow API function. When the interface element is destroyed, the
+/// interface object's HWindow data member is set to zero. Therefore, you can tell
+/// if an interface object is still associated with a valid interface element by
+/// checking its HWindow.
+/// When a user closes a window on the screen, the following things happen:
+/// - Windows notifies the window.
+/// - The window goes through the CanClose mechanism to verify that the window
+/// should be closed.
+/// - If CanClose approves the closing of the window, the interface element is
+/// destroyed and the interface object is deleted.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref destroyingtheinterfaceobject "Deleting the Interface Object "
+/// - \ref destroyingtheinterfaceelement "Destroying the Interface Element "
+/// - TWindow::CanClose()
+/// - TWindow::Destroy()
+///
+///
+/// \page destroyingtheinterfaceobject Deleting the Interface Object
+/// If you destroy an interface element yourself so that you can redisplay the
+/// interface object later, you must make sure that you delete the interface object
+/// when you're done with it. Because an interface object is nothing more than a
+/// regular C++ object, you can delete it using the delete statement if you have
+/// dynamically allocated the object with new.
+/// The following code illustrates how to destroy the interface element and the
+/// interface object:
+/// \code
+/// TWindow *window = new TWindow(0, "My Window");
+///
+/// // ...
+///
+/// window->Destroy();
+/// delete window;
+/// \endcode
+///
+///
+/// \section seealso See Also
+/// - \ref destroyingtheinterfaceobject "Deleting the Interface Object "
+/// - \ref destroyingtheinterfaceelement "Destroying the Interface Element "
+///
+///
+///
+/// \page parentandchildinterfaceelements Parent and Child Interface Elements
+/// In a Windows application, interface elements work together through parent-child
+/// links. A parent window controls its child windows, and Windows keeps track of
+/// the links. ObjectWindows maintains a parallel set of links between corresponding
+/// interface objects.
+///
+/// A child window is an interface element that is managed by another interface
+/// element. For example, list boxes are managed by the window or dialog box in
+/// which they appear. They are displayed only when their parent windows are
+/// displayed. In turn, dialog boxes are child windows managed by the windows that
+/// create them.
+///
+/// When you move or close the parent window, the child windows automatically close
+/// or move with it. The ultimate parent of all child windows in an application is
+/// the main window. (There are a couple of exceptions: you can have windows and
+/// dialog boxes without parents and all main windows are children of the Windows
+/// desktop.)
+///
+/// Review the following topics to understand more about parent and child interface
+/// elements:
+/// - \subpage childwindowlists "Child-window Lists "
+/// - \subpage constructingchildwindows "Constructing Child Windows "
+/// - \subpage creatingchildinterfaceelements "Creating Child Interface Elements "
+/// - \subpage destroyingwindows "Destroying Windows "
+/// - \subpage automaticcreation "Automatic Creation "
+/// - \subpage manipulatingchildwindows "Manipulating Child Windows "
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatinginterfaceobjects "Creating Interface Objects "
+/// - \ref destroyinginterfaceobjects "Destroying Interface Objects "
+/// - \ref interfaceobjectsoverview "Interface Objects Overview "
+/// - \ref parentandchildinterfaceelements "Parent and Child Interface Elements "
+/// - \ref registeringwindowclasses "Registering Window Classes "
+/// - \ref thegenericinterfaceobject "The Generic Interface Object: TWindow "
+///
+///
+/// \page childwindowlists Child-window Lists
+/// When you construct a child-window object, you specify its parent as a parameter
+/// to its constructor. A child-window object keeps track of its parent through the
+/// TWindow::Parent data member. A parent keeps track of its
+/// child-window objects in a private data member called ChildList. Each parent
+/// maintains its list of child windows automatically.
+/// You can access an object's child windows using the window iterator member
+/// functions TWindow::FirstThat() and TWindow::ForEach().
+///
+///
+///
+/// \section seealso See Also
+/// - \ref automaticcreation "Automatic Creation "
+/// - \ref constructingchildwindows "Constructing Child Windows "
+/// - \ref creatingchildinterfaceelements "Creating Child Interface Elements "
+/// - \ref destroyingwindows "Destroying Windows "
+/// - \ref manipulatingchildwindows "Manipulating Child Windows "
+///
+///
+///
+/// \page constructingchildwindows Constructing Child Windows
+/// As with all interface objects, child-window objects get created in two steps:
+/// constructing the interface object and creating the interface element. If you
+/// construct child-window objects in the constructor of the parent window, their
+/// interface elements are automatically created when the parent is, assuming that
+/// \ref automaticcreation "automatic creation" is enabled for the child windows. By
+/// default, automatic creation is enabled for all ObjectWindows objects based on
+/// TDialog, with the exception of TDialog.
+///
+/// For example, the constructor for a window object derived from TWindow that
+/// contains three button child windows would look like this:
+/// \code
+/// TTestWindow::TTestWindow(TWindow *parent, const char far *title)
+/// {
+///  Init(parent, title);
+///  button1 = new TButton(this, ID_BUTTON1, "Show", 190, 270, 65, 20, false);
+///  button2 = new TButton(this, ID_BUTTON2, "Hide", 275, 270, 65, 20, false);
+///  button3 = new TButton(this, ID_BUTTON3, "Transfer", 360, 270, 65, 20, false);
+/// }
+/// \endcode
+/// Note the use of the this pointer to link the child windows with their parent.
+/// Interface object constructors automatically add themselves to their parents'
+/// child window lists. When an instance of TTestWindow is created, the three
+/// buttons are automatically displayed in the window.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref childwindowlists "Child-window Lists "
+/// - \ref creatingchildinterfaceelements "Creating Child Interface Elements "
+/// - \ref destroyingwindows "Destroying Windows "
+/// - \ref manipulatingchildwindows "Manipulating Child Windows "
+///
+///
+///
+/// \page creatingchildinterfaceelements Creating Child Interface Elements
+/// If you do not construct child-window objects in their parent window object's
+/// constructor, they will not be automatically created and displayed when the
+/// parent is. You can then create them yourself using TWindow::Create()
+/// or, in the case of modal dialog boxes, Execute. In this context, creating means
+/// instantiating an interface element.
+///
+/// For example, suppose you have two buttons displayed when the main window is
+/// created, one labeled Show and the other labeled Hide. When the user presses the
+/// Show button, you want to display a third button labeled Transfer. When the user
+/// presses the Hide button, you want to remove the Transfer button:
+/// \code
+/// class TTestWindow : public TFrameWindow
+/// {
+///  TButton *button1, *button2, *button3;
+///  public:
+///   TTestWindow(TWindow *parent, const char far *title);
+///
+///   void
+///   EvButton1()
+///   {
+///     if(!button3->HWindow) {
+///       button3->Create();
+///    }
+///   }
+///
+///   void
+///   EvButton2()
+///   {
+///     if(button3->HWindow)
+///       button3->Destroy();
+///   }
+///
+///   void
+///   EvButton3()
+///   {
+///     MessageBeep(-1);
+///   }
+///
+/// 
+/// DECLARE_RESPONSE_TABLE(TTestWindow);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE1(TTestWindow, TFrameWindow)
+///  EV_COMMAND(ID_BUTTON1, EvButton1),
+///  EV_COMMAND(ID_BUTTON2, EvButton2),
+///  EV_COMMAND(ID_BUTTON3, EvButton3),
+/// END_RESPONSE_TABLE;
+///
+/// TTestWindow::TTestWindow(TWindow *parent, const char far *title)
+/// {
+///  Init(parent, title);
+///  button1 = new TButton(this, ID_BUTTON1, "Show", 10, 10, 75, 25, false);
+///  button2 = new TButton(this, ID_BUTTON2, "Hide", 95, 10, 75, 25, false);
+///  button3 = new TButton(this, ID_BUTTON3, "Transfer", 180, 10, 75, 25, false);
+///  button3->DisableAutoCreate();
+/// }
+/// \endcode
+/// The call to DisableAutoCreate in the constructor prevents the Transfer button
+/// from being displayed when TTestWindow is created. The conditional tests in the
+/// EvButton1 and EvButton2 functions work by testing the validity of the HWindow
+/// data member of the button3 interface object; if the Transfer button is already
+/// being displayed, EvButton1 does not try to display it again, and EvButton2 does
+/// not try to destroy the Transfer button if it is not being displayed.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref automaticcreation "Automatic Creation "
+/// - \ref childwindowlists "Child-window Lists "
+/// - \ref constructingchildwindows "Constructing Child Windows "
+/// - \ref destroyingwindows "Destroying Windows "
+/// - \ref manipulatingchildwindows "Manipulating Child Windows "
+/// - TButton class
+/// - TFrameWindow class
+///
+///
+///
+/// \page destroyingwindows Destroying Windows
+/// Destroying a parent window also destroys all its child windows. You do not need
+/// to explicitly destroy child windows or delete child window interface objects.
+/// The same is true for the TWindow::CanClose() mechanism; CanClose for
+/// a parent window calls CanClose for all its children. The parent's CanClose
+/// returns true only if all its children return true for CanClose.
+///
+/// When you destroy an object's interface element, it enables automatic creation
+/// for all its children, regardless of whether automatic creation was on or off
+/// before. This way, when you create the parent, all the children are restored in
+/// the state they were in before their parent was destroyed. You can use this
+/// technique to destroy an interface element, and then re-create it in the same
+/// state it was in when you destroyed it.
+///
+/// To prevent this behavior, you must explicitly turn off automatic creation for
+/// any child objects you do not want to have created automatically.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref automaticcreation "Automatic Creation "
+/// - \ref childwindowlists "Child-window Lists "
+/// - \ref constructingchildwindows "Constructing Child Windows "
+/// - \ref creatingchildinterfaceelements "Creating Child Interface Elements "
+/// - \ref manipulatingchildwindows "Manipulating Child Windows "
+///
+///
+///
+/// \page automaticcreation Automatic Creation
+/// When automatic creation is enabled for a child interface object before its
+/// parent is created, the child is automatically created at the same time the
+/// parent is created. This is true for all the parent object's children.
+///
+/// To explicitly exclude a child window from the automatic create-and-show
+/// mechanism, call the DisableAutoCreate member function in the child object's
+/// constructor. To explicitly add a child window (such as a dialog box, which would
+/// normally be excluded) to the automatic create-and-show mechanism, call the
+/// EnableAutoCreate member function in the child object's constructor.
+///
+/// By default automatic creation is enabled for all ObjectWindows classes except
+/// dialog boxes.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref childwindowlists "Child-window Lists "
+/// - \ref constructingchildwindows "Constructing Child Windows "
+/// - \ref creatingchildinterfaceelements "Creating Child Interface Elements "
+/// - \ref destroyingwindows "Destroying Windows "
+/// - \ref manipulatingchildwindows "Manipulating Child Windows "
+///
+///
+///
+/// \page manipulatingchildwindows Manipulating Child Windows
+/// TDialog provides two iterator functions,
+/// ForEach() and FirstThat(), that let you
+/// perform operations either on all the children in the parent's child list or on a
+/// single child at a time. TWindow also provides a number of other functions that
+/// let you determine the number of children in the child list, move through them
+/// one at a time, or move to the top or bottom of the list.
+/// The following topics explain more about manipulating child windows:
+/// - \subpage operatingonallchildrenforeach "Operating On All Children: ForEach "
+/// - \subpage findingaspecificchild "Finding a Specific Child "
+/// - \subpage workingwiththechildlist "Working with the Child List "
+///
+///
+///
+/// \section seealso See Also
+/// - \ref automaticcreation "Automatic Creation "
+/// - \ref childwindowlists "Child-window Lists "
+/// - \ref constructingchildwindows "Constructing Child Windows "
+/// - \ref creatingchildinterfaceelements "Creating Child Interface Elements "
+/// - \ref destroyingwindows "Destroying Windows "
+///
+///
+///
+/// \page operatingonallchildrenforeach Operating On All Children: ForEach
+/// You might want to perform some operation on each of a parent window's child
+/// windows. The iterator function ForEach() takes a pointer to
+/// a function. The function can be either a member function or a stand-alone
+/// function. The function should take a TWindow * and a void
+/// * argument. ForEach calls the function once for each child. The child is passed
+/// as the TWindow *. The void * defaults to 0. You can use the void * to pass any
+/// arguments you want to your function.
+///
+/// After ForEach has called your function, you often need to be careful when
+/// dealing with the child object. Although the object is passed as a TWindow *, it
+/// is actually usually a descendant of TWindow. To make sure the child object is
+/// handled correctly, you should use the TYPESAFE_DOWNCAST macro to cast the
+/// TWindow * to a TClass *, where TClass is whatever type the child object is.
+///
+/// For example, suppose you want to check all the check box child windows in a
+/// parent window:
+/// \code
+/// void CheckTheBox(TWindow* win, void*)
+/// {
+///  TCheckbox *cb = TYPESAFE_DOWNCAST(win, TCheckbox);
+///  if(cb)
+///   cb->Check();
+/// }
+///
+/// void TMDIFileWindow::CheckAllBoxes()
+/// {
+///  ForEach(CheckTheBox);
+/// }
+/// \endcode
+/// If the class you're downcasting to (in this case from a TWindow to a
+/// TCheckbox) is virtually derived from its base, you must
+/// use the TYPESAFE_DOWNCAST macro to make the assignment. In this case, TCheckbox
+/// is not virtually derived from TWindow, making the TYPESAFE_DOWNCAST macro seem
+/// superfluous in this case.
+///
+/// But TYPESAFE_DOWNCAST returns 0 if the cast could not be performed. This is how
+/// the TYPESAFE_DOWNCAST macro is used here, because not all of the children are
+/// necessarily of type TCheckbox. If a child of type
+/// TControlBar were encountered, the value of cb would be
+/// 0, thus assuring that you do not try to check a control bar.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref findingaspecificchild "Finding a Specific Child "
+/// - \ref workingwiththechildlist "Working with the Child List "
+///
+///
+///
+/// \page findingaspecificchild Finding a Specific Child
+/// You might want to perform a function only on a specific child window. For
+/// example, if you wanted to find the first check box that is checked in a parent
+/// window with several check boxes, you would use
+/// TWindow::FirstThat()
+/// \code
+/// bool IsThisBoxChecked(TWindow* cb, void*)
+/// {
+///  return cb ?
+///   (cb->GetCheck == BF_CHECKED) :
+///   false;
+/// }
+///
+/// TCheckBox*
+/// TMDIFileWindow::GetFirstChecked()
+/// {
+///  return FirstThat(IsThisBoxChecked);
+/// }
+/// \endcode
+///
+///
+/// \section seealso See Also
+/// - \ref operatingonallchildrenforeach "Operating On All Children: ForEach "
+/// - \ref workingwiththechildlist "Working with the Child List "
+///
+///
+///
+/// \page workingwiththechildlist Working with the Child List
+/// In addition to the iterator functions ForEach() and
+/// FirstThat(), TDialog provides a number of
+/// functions that let you locate and manipulate a single child window:
+/// - NumChildren() returns an unsigned. This value indicates
+/// the total number of child windows in the child list.
+/// - GetFirstChild() returns a TWindow * that points to the
+/// first entry in the child list.
+/// - GetLastChild() returns a TWindow * that points to the
+/// last entry in the child list.
+/// - Next() returns a TWindow * that points to the next
+/// entry in the child list.
+/// - Previous() returns a TWindow * that points to the prior
+/// entry in the child list.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref findingaspecificchild "Finding a Specific Child "
+/// - \ref operatingonallchildrenforeach "Operating On All Children: ForEach "
+///
+/// \page registeringwindowclasses Registering Window Classes
+/// Whenever you create an interface element from an interface object using the
+/// Create or Execute functions, the object checks to see if another object of the
+/// same type has registered with Windows. If so, the element is created based on
+/// the existing Windows registration class. If not, the object automatically
+/// registers itself, then is created based on the class just registered.
+/// This removes the burden from the programmer of making sure all window classes
+/// are registered before use.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatinginterfaceobjects "Creating Interface Objects "
+/// - \ref destroyinginterfaceobjects "Destroying Interface Objects "
+/// - \ref interfaceobjectsoverview "Interface Objects Overview "
+/// - \ref parentandchildinterfaceelements "Parent and Child Interface Elements "
+/// - \ref thegenericinterfaceobject "The Generic Interface Object: TWindow "

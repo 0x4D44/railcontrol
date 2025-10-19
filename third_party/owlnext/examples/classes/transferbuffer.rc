@@ -1,0 +1,205 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "transferbuffer.rh"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include <owl/winres.rh>
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "transferbuffer.rh\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include <owl/winres.rh>\r\n\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SAFETRANSFERBUFFERDIALOG DIALOGEX 0, 0, 505, 227
+STYLE DS_SHELLFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Safe Transfer Buffer Dialog"
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+    LTEXT           "Static:",IDC_STATIC,12,12,22,8
+    LTEXT           "",IDC_STATIC1,62,12,67,10,0,WS_EX_STATICEDGE
+    LTEXT           "StringStatic:",IDC_STATIC,12,27,40,8
+    LTEXT           "",IDC_STRINGSTATIC,62,27,67,10,0,WS_EX_STATICEDGE
+    LTEXT           "Edit:",IDC_STATIC,12,41,16,8
+    EDITTEXT        IDC_EDIT,62,41,67,14,ES_AUTOHSCROLL
+    LTEXT           "StringEdit:",IDC_STATIC,12,59,34,8
+    EDITTEXT        IDC_STRINGEDIT,62,59,67,14,ES_AUTOHSCROLL
+    LTEXT           "ListBox:",IDC_STATIC,12,78,26,8
+    LISTBOX         IDC_LISTBOX,62,78,67,29,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "ComboBox:",IDC_STATIC,12,112,38,8
+    COMBOBOX        IDC_COMBOBOX,62,112,67,53,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "ComboBoxEx:",IDC_STATIC,12,129,46,8
+    CONTROL         "",IDC_COMBOBOXEX,"ComboBoxEx32",CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP,62,129,67,52
+    CONTROL         "CheckBox",IDC_CHECKBOX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,62,148,67,10
+    CONTROL         "RadioButton",IDC_RADIOBUTTON,"Button",BS_AUTORADIOBUTTON,62,164,67,10
+    CONTROL         "...",IDC_RADIOBUTTON2,"Button",BS_AUTORADIOBUTTON,62,175,67,10
+    LTEXT           "ScrollBar:",IDC_STATIC,147,12,31,8
+    SCROLLBAR       IDC_SCROLLBAR,222,12,105,11
+    LTEXT           "Slider:",IDC_STATIC,147,28,21,8
+    CONTROL         "",IDC_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,222,28,105,15
+    LTEXT           "CheckList:",IDC_STATIC,147,48,34,8
+    LISTBOX         IDC_CHECKLIST,222,48,105,27,LBS_SORT | LBS_OWNERDRAWFIXED | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "DateTimePicker:",IDC_STATIC,147,81,52,8
+    CONTROL         "",IDC_DATETIMEPICKER,"SysDateTimePick32",WS_TABSTOP,222,81,105,15
+    LTEXT           "HotKey:",IDC_STATIC,147,101,27,8
+    CONTROL         "",IDC_HOTKEY,"msctls_hotkey32",WS_BORDER | WS_TABSTOP,222,101,105,14
+    LTEXT           "IPAddress:",IDC_STATIC,147,120,36,8
+    CONTROL         "",IDC_IPADDRESS,"SysIPAddress32",WS_TABSTOP,222,120,105,15
+    LTEXT           "MemComboBox:",IDC_STATIC,147,139,52,8
+    COMBOBOX        IDC_MEMCOMBOBOX,222,139,105,53,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "StringMemComboBox:",IDC_STATIC,147,157,71,8
+    COMBOBOX        IDC_STRINGMEMCOMBOBOX,222,157,105,51,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "MonthCalendar:",IDC_STATIC,348,13,52,8
+    CONTROL         "",IDC_MONTHCALENDAR,"SysMonthCal32",WS_TABSTOP,348,25,140,100
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,197,491,1
+    PUSHBUTTON      "Set controls",IDC_SETCONTROLS,7,206,71,14
+    PUSHBUTTON      "Clear controls",IDC_CLEARCONTROLS,83,206,71,14
+    PUSHBUTTON      "Change TextLimit (violates string buffers)",IDC_CHANGETEXTLIMIT,159,206,155,14
+    DEFPUSHBUTTON   "OK",IDOK,391,206,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,448,206,50,14
+END
+
+IDD_SAFETRANSFERBUFFERPAGE DIALOGEX 0, 0, 505, 227
+STYLE DS_SHELLFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Safe Transfer Buffer Dialog"
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+    LTEXT           "Static:",IDC_STATIC,12,12,22,8
+    LTEXT           "",IDC_STATIC1,62,12,67,10,0,WS_EX_STATICEDGE
+    LTEXT           "StringStatic:",IDC_STATIC,12,27,40,8
+    LTEXT           "",IDC_STRINGSTATIC,62,27,67,10,0,WS_EX_STATICEDGE
+    LTEXT           "Edit:",IDC_STATIC,12,41,16,8
+    EDITTEXT        IDC_EDIT,62,41,67,14,ES_AUTOHSCROLL
+    LTEXT           "StringEdit:",IDC_STATIC,12,59,34,8
+    EDITTEXT        IDC_STRINGEDIT,62,59,67,14,ES_AUTOHSCROLL
+    LTEXT           "ListBox:",IDC_STATIC,12,78,26,8
+    LISTBOX         IDC_LISTBOX,62,78,67,29,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "ComboBox:",IDC_STATIC,12,112,38,8
+    COMBOBOX        IDC_COMBOBOX,62,112,67,53,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "ComboBoxEx:",IDC_STATIC,12,129,46,8
+    CONTROL         "",IDC_COMBOBOXEX,"ComboBoxEx32",CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP,62,129,67,52
+    CONTROL         "CheckBox",IDC_CHECKBOX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,62,148,67,10
+    CONTROL         "RadioButton",IDC_RADIOBUTTON,"Button",BS_AUTORADIOBUTTON,62,164,67,10
+    CONTROL         "...",IDC_RADIOBUTTON2,"Button",BS_AUTORADIOBUTTON,62,175,67,10
+    LTEXT           "ScrollBar:",IDC_STATIC,147,12,31,8
+    SCROLLBAR       IDC_SCROLLBAR,222,12,105,11
+    LTEXT           "Slider:",IDC_STATIC,147,28,21,8
+    CONTROL         "",IDC_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,222,28,105,15
+    LTEXT           "CheckList:",IDC_STATIC,147,48,34,8
+    LISTBOX         IDC_CHECKLIST,222,48,105,27,LBS_SORT | LBS_OWNERDRAWFIXED | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "DateTimePicker:",IDC_STATIC,147,81,52,8
+    CONTROL         "",IDC_DATETIMEPICKER,"SysDateTimePick32",WS_TABSTOP,222,81,105,15
+    LTEXT           "HotKey:",IDC_STATIC,147,101,27,8
+    CONTROL         "",IDC_HOTKEY,"msctls_hotkey32",WS_BORDER | WS_TABSTOP,222,101,105,14
+    LTEXT           "IPAddress:",IDC_STATIC,147,120,36,8
+    CONTROL         "",IDC_IPADDRESS,"SysIPAddress32",WS_TABSTOP,222,120,105,15
+    LTEXT           "MemComboBox:",IDC_STATIC,147,139,52,8
+    COMBOBOX        IDC_MEMCOMBOBOX,222,139,105,53,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "StringMemComboBox:",IDC_STATIC,147,157,71,8
+    COMBOBOX        IDC_STRINGMEMCOMBOBOX,222,157,105,51,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "MonthCalendar:",IDC_STATIC,348,13,52,8
+    CONTROL         "",IDC_MONTHCALENDAR,"SysMonthCal32",WS_TABSTOP,348,25,140,100
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,197,491,1
+    PUSHBUTTON      "Set controls",IDC_SETCONTROLS,7,206,71,14
+    PUSHBUTTON      "Clear controls",IDC_CLEARCONTROLS,83,206,71,14
+    PUSHBUTTON      "Change TextLimit (violates string buffers)",IDC_CHANGETEXTLIMIT,159,206,155,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_TRANSFERBUFFER MENU 
+BEGIN
+    POPUP "&Test"
+    BEGIN
+        MENUITEM "Safe Transfer Buffer Dialog...\tF1", CM_SAFETRANSFERBUFFERDIALOG
+        MENUITEM "Safe Transfer Buffer Property Sheet...\tF2", CM_SAFETRANSFERBUFFERPROPERTYSHEET
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDA_TRANSFERBUFFER ACCELERATORS 
+BEGIN
+    VK_F1,          CM_SAFETRANSFERBUFFERDIALOG, VIRTKEY, NOINVERT
+    VK_F2,          CM_SAFETRANSFERBUFFERPROPERTYSHEET, VIRTKEY, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_SAFETRANSFERBUFFERDIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 498
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 220
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.K.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

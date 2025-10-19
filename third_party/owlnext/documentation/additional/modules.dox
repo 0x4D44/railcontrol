@@ -1,0 +1,380 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+/// \namespace owl 
+/// \brief Object Windows Library (OWLNext Core)
+
+/// \namespace ocf 
+/// \brief Object Component Framework (COM encapsulation)
+
+/// \defgroup base Base classes
+/// TEventHandler, TStreamableBase, and TGdiBase are important base classes. All
+/// ObjectWindows classes are derived from one or more of these classes. Classes
+/// that inherit from TEventHandler are able to respond to window messages. Classes
+/// that inherit from TStreamableBase support streaming; that is, their objects can
+/// write to and read from streams. Almost all of the ObjectWindows classes are
+/// derived from TStreamableBase. You can use multiple inheritance to derive a class
+/// from both TEventHandler and TStreamableBase. Classes that inherit from TGDIBase,
+/// a private base class, support GDI drawing objects such as pens, brushes, fonts,
+/// and bitmaps.
+/// - \c \b  TEventHandler sends messages to the appropriate message handler.
+/// - \c \b  TStreamableBase provides support for C++ streaming and
+/// persistence.
+/// - \c \b  TGdiBase is the root class for all derived GDI classes that
+/// support Windows' GDI library.
+
+/// \defgroup window Window management classes
+/// Derived from TEventHandler and TStreamableBase, TWindow is the parent class for
+/// all window classes. It represents the functionality common to all windows,
+/// whether they are dialog boxes, controls, multiple document interface (MDI)
+/// windows, or layout windows. One of the fundamental ObjectWindows classes that
+/// implements OLE functionality, TOleWindow, provides support for embedding objects
+/// in a compound document application.
+
+/// \defgroup frame Frame Windows
+/// A frame window, which is actually an application's main window, has the ability
+/// to contain other client windows and also support UI elements such as menus and
+/// icons. Serving as main windows of MDI-compliant applications, MDI frame windows
+/// manage multiple documents or windows in a single document (SDI) application.
+/// ObjectWindows also provides OLE support for both SDI and MDI applications. A
+/// floating frame window provides the same functionality but lets you position the
+/// window anywhere within the parent window.
+/// 
+/// - \c \b  TFrameWindow adds special functionality designed to simplify the
+/// managment of main windows.
+/// - \c \b  TFloatingFrame, derived from TFrameWindow and TTinyCaption,
+/// provides the functionality of a frame window enhanced with a tiny caption bar.
+/// - \c \b  TMDIChild defines the behavior of MDI child windows.
+/// - \c \b  TMDIFrame provides support for frame windows designed to be used
+/// as MDI windows.
+/// - \c \b  TOleFrame provides OLE support for the main window of an SDI
+/// application.
+/// - \c \b  TOleMDIFrame provides OLE support for the main window of an MDI
+/// application.
+/// 
+/// Mix-in window classes such as TLayoutWindow and TClipboardViewer add the special
+/// functionality of layout capabilities and Clipboards to the main window classes.
+/// Use TLayoutWindow to design the placement of a window on the screen and
+/// TClipboardViewer to view the data shared between applications.
+
+/// \defgroup decor Decorated  windows
+/// Multiply inherited from TFrameWindow and TLayoutWindow, decorated window classes
+/// let you add decorated control bars, and status bars to the frame of a window and
+/// adjust the child window to accommodate the placement of these decorations.
+/// - \c \b  TDecoratedFrame is basically a frame window with added
+/// decorations.
+/// - \c \b  TDecoratedMDIFrame is an MDI frame window that supports
+/// decorations.
+
+/// \defgroup module Module and application management classes
+/// Derived from TModule, TApplication supplies functionality common to all
+/// ObjectWindows applications. Classes derived from TApplication have the ability
+/// to create instances of a class, create main windows, and process messages.
+/// TModule defines behavior shared by both library (DLL) and application modules.
+/// Virtually derived from TModule.
+/// - \c \b  Command enabling
+/// - \c \b  Doc/view
+/// - \c \b  Print and print/preview
+
+/// \defgroup enabler Command enabling classes
+/// Although several ObjectWindows classes process commands, there are three classes
+/// specifically devoted to enabling and disabling the commands available to an
+/// application.
+/// - \c \b  TCommandEnabler is the base class from which TButtonGadgetEnabler
+/// and TMenuItemEnabler are derived.
+/// - \c \b  TButtonGadgetEnabler enables and disables button gadgets.
+/// - \c \b  TTextButtonGadgetEnabler enables and disables text-button gadgets.
+/// - \c \b  TMenuItemEnabler enables and disables menu options and places
+/// check marks by menu options.
+/// - \c \b  TControlEnabler enables and disables controls in dialog.
+
+/// \defgroup docview Doc/View classes
+/// Doc/View class support the Doc/View model, a system in which data is contained
+/// in and accessed through a document object, and displayed and manipulated through
+/// a view object. Any number of views can be associated with a particular document
+/// type. Various classes control the flow of information within this system.
+/// Several classes also provide support for OLE's compound document and compound
+/// file structure within the Doc/View model.
+///
+/// TDocManager is the base class designed to handle documents, templates, messages
+/// and so on.
+/// - \c \b  TDocument is an abstract base class that serves as an interface
+/// between the document, its views and its document manager.
+/// - \c \b  TStorageDocument supports OLE's compound file structure and lets
+/// you create compound documents with embedded objects.
+/// - \c \b  TOleDocument implements the document half of an OLE-enabled
+/// Doc/View application.
+/// - \c \b  TView is the base class that displays the document's data and gets
+/// user input.
+/// - \c \b  TListBoxView supports views for list boxes.
+/// - \c \b  TEditView supports views for edit control.
+/// - \c \b  TDialogView supports views for dialog.
+/// - \c \b  TRichEditView supports views for edit control.
+/// - \c \b  TOleView supports the view half of an OLE-enabled Doc/View
+/// application.
+
+/// \defgroup print Printer classes
+/// TPrinter, TPrintout, and TPreviewPage provide various functions that make it
+/// easy for you to set up a printer dialog box, view a document in a print preview
+/// window, and print a document.
+/// - \c \b  TPrinter represents the physical printer device.
+/// - \c \b  TPrintout represents the physical printed document sent to the
+/// printer
+/// - \c \b  TPreviewPage displays a page of a document in a print preview
+/// window.
+
+/// \defgroup graphics Graphics classes
+/// ObjectWindows GDI classes encapsulate Windows' Graphics Device Interface (GDI)
+/// to make it easier to use device context (DC) classes and GDI objects. The GDI
+/// library supports device independent drawing operations using DIBS (device
+/// independent bitmaps).
+/// - \c \b  GDI objects
+/// - \c \b  Device contexts
+
+/// \defgroup gdi GDI classes
+/// ObjectWindows graphics library contains several classes that you can use to
+/// create DIBS, brushes, palettes, pens, and other drawing tools.
+/// - \c \b  TGdiBase is the private base class from which TGdiObject, TIcon,
+/// TCursor, and TDib are derived.
+/// - \c \b  TGdiObject is a base class for several other GDI classes that
+/// support drawing tools.
+/// - \c \b  TDib encapsulates the creation of structures containing format and
+/// palette information.
+/// - \c \b  TCursor encapsulates GDI cursor objects.
+
+/// \defgroup dc Device context (DC) classes
+/// Instead of drawing directly on a device (like the screen or a printer), you can
+/// use GDI classes to draw on a bitmap using a device context (DC). A device
+/// context is a structure that contains information about the drawing attributes
+/// (pens, brushes, text color, and so on) of a particular device. DC classes
+/// support a variety of device context operations.
+/// - \c \b  TDC is the root class for GDI DC wrapper classes.
+/// - \c \b  TWindowDC and its derived classes such as TClientDC and TScreenDC
+/// provide access to the area owned by a window.
+/// - \c \b  TCreatedDC and its derived classes provide access to various DCs
+/// that are created and deleted such as memory and print DCs.
+
+/// \defgroup validator Validator classes
+/// TValidator forms the base class for several ObjectWindows classes that
+/// encapsulate validation objects. The following derived classes make it easy for
+/// you to add data validation to your applications.
+/// - \c \b  TFilterValidator and its derived class, TRangeValidator, check an
+/// input field as the user types data into the field in order to determine the
+/// validity of the entered data.
+/// - \c \b  TPXPictureValidator compares user input with a picture of a data
+/// format.
+/// - \c \b  TLookupValidator compares a string typed by a user with a list of
+/// acceptable values.
+
+/// \defgroup except Exception handling classes
+/// Exception handling classes provide various functions that help you write
+/// error-free ObjectWindows applications. TXBase is the base class for all
+/// ObjectWindows and ObjectComponents classes. Derived from the TXBase class, TXOwl
+/// is the base class for the following ObjectWindows exception classes:
+/// - \c \b  TXCompatibility is included for backward compatibility with
+/// ObjectWindows 1.0 code.
+/// - \c \b  TXOutOfMemory describes exceptions that arise from out of memory
+/// conditions.
+/// - \c \b  Exception classes such as TXInvalidMainWindow, TXInvalidModule,
+/// TXWIndow, TXMenu, TXValidator, TXGdi, and TXPrinter describe specific error
+/// conditions such as those that occur when a main window, a module, a menu object,
+/// a validator object, a GDI object, or a printer device context is invalid.
+
+/// \defgroup ctrl Controls
+/// The control classes support standard Windows controls such as list boxes, combo
+/// boxes, group boxes, check boxes, scroll bars, buttons, radio buttons, edit
+/// controls, and static controls.
+/// 
+/// Although most windows come with scroll bars already installed, you can use
+/// TScrollBar to create a standalone vertical or horizontal scroll bar; for
+/// example, as a dialog box control.
+/// 
+/// Unlike standard Windows controls, ObjectWindows supports widgets, specialized
+/// controls written entirely in C++. The widget classes ObjectWindows provides
+/// include support for sliders, controls that are used for providing nonscrolling
+/// position information, and gauges, controls that provide duration or analog
+/// information about a particular process.
+/// 
+/// - \c \b  TSlider defines the basic behavior of sliders.
+/// - \c \b  THSlider implements horizontal sliders.
+/// - \c \b  TVSlider implements vertical sliders.
+/// - \c \b  TGauge defines the basic behavior of gauge controls.
+/// - \c \b  TUrlLink defines the basic behavior of URL Link controls.
+/// - \c \b  TGridPicker defines the basic behavior of grid controls.
+
+/// \defgroup gadgets Gadgets
+/// TGadget is the base class for several derived classes that support gadget
+/// objects that belong to a gadget window, have borders and margins, and their own
+/// style attributes. Derived from TWindow, TGadgetWindow maintains a list of
+/// gadgets, controls the display of the gadgets, and sends the necessary messages
+/// to the gadgets.
+///
+/// Additional gadget classes derived from TGadgetWindow such as TToolBox,
+/// TMessageBar, TStatusBar, and TControlBar manipulate gadgets in different ways so
+/// that you can enhance a bar or tool box attached to a frame window.
+/// - \c \b  TToolBox lets you place a set of gadgets in a matrix of columns
+/// and rows.
+/// - \c \b  TMessageBar implements a message bar with one text gadget.
+/// - \c \b  TStatusBar lets you include multiple text gadgets and different
+/// border styles in a status bar.
+/// - \c \b  TControlBar implements a control bar that provides a set of
+/// buttons on a bar in a frame window.
+
+/// \defgroup menus Menus
+/// TMenu and its derived classes let you construct, modify, and create menu
+/// objects. The classes derived from TMenu include
+/// - \c \b  TPopupMenu lets you add a pop-up menu to an existing window or
+/// pop-up menu.
+/// - \c \b  TSystemMenu creates a system menu object.
+
+/// \defgroup commctrl Common Controls
+
+/// \defgroup dlg Dialogs
+
+/// \defgroup commdlg Common Dialogs
+/// TDialog lets you create specialized windows referred to as dialog boxes. Dialog
+/// boxes typically ask users for information about fonts, colors, files, printing
+/// options, or searching and replacing text. Depending on their purpose, dialog
+/// boxes can be either modal, those which prevent a user from selecting other
+/// windows, or modeless, those which permit a user to select other windows.
+/// You can create your own customized dialog boxes or use one of the ObjectWindows
+/// classes that encapsulates Windows' common dialog boxes. The following common
+/// dialog classes are derived from TCommonDialog which is itself derived from
+/// TDialog, the base dialog box class.
+/// - \c \b  TChooseFontDialog objects represent modal dialog boxes that allow font
+/// selection, style, point, size, and color.
+/// - \c \b  TChooseColorDialog objects represent modal dialog boxes that allow
+/// color selection and custom color adjustment.
+/// - \c \b  TOpenSaveDialog is the base class for modal dialog boxes that let
+/// you open and save a file under a specified name.
+/// - \c \b  TPrintDialog displays a modal print or a printer setup dialog box.
+/// - \c \b  TFindReplaceDialog is the base class for modeless dialog boxes
+/// that let you search for and replace text.
+
+/// \defgroup newctrl New Controls
+/// New UI controls introduced in OWLNext
+
+/// \defgroup winsys Windows System classes
+/// Internal classes
+
+/// \defgroup utility Utility classes
+/// Utility classes
+
+/// \defgroup internal Internal framework classes
+/// Internal classes
+
+
+/// \defgroup mixin Mix-in Classes
+/// Classes designed to be used in conjunction with other classes to provide special
+/// functionality or behavior. Mix-in classes are designed not to stand alone, but
+/// to be combined with other bases when declaring a new class. The new class is
+/// derived through multiple inheritance from the mix-in and other base classes.
+/// 
+/// For example, if you are building a frame window, you can derive your frame
+/// window class from both the base class TFrameWindow and the mix-in class
+/// TLayoutWindow to get the additional functionality of layout windows.
+
+/// \defgroup factory Factory Template classes 
+/// The factory template classes create callback code for both automated and non
+/// automated Doc/View and non-Doc/view ObjectWindows applications. Use these
+/// factory template classes to make objects for embedding and linking. (That is,
+/// when an application object needs to be embedded within another container, the
+/// callback function is responsible for creating the embedded object.) Depending on
+/// the template arguments passed to the factory class, you obtain different kinds
+/// of factories designed to create the object you need. All the templetized
+/// classes, however, assume that the application is using a global AppDictionary
+/// (the application's dictionary), and a global Registrar (the TRegistrar pointer
+/// that manages registering the application in the database).
+/// 
+/// ObjectWindows includes several factory template classes, divided into two main
+/// categories: those designed for Doc/View applications and those designed for
+/// non-Doc/View applications. Although all these classes contain the same
+/// functions, they are designed to create different types of objects.
+/// 
+/// The factory class hierarchy chart illustrates the inheritance relationship among
+/// these classes.
+/// Each class takes three arguments: the application class, the automation class,
+/// and the Doc/View class. The arguments indicate whether or not the application is
+/// a Doc/View application and whether or not the application is automated. The
+/// factory classes and their definitions include the following four classes.
+/// \code
+/// TOleDocViewFactory class for Doc/View, non-automated, OLE components
+/// template <class T> class TOleDocViewFactory
+/// : public TOleFactoryBase<T, TOleFactoryDocView<T, TOleFactoryNoAuto<T>>>{ };
+/// 
+/// TOleDocViewAutoFactory class for Doc/View, automated OLE components
+/// template <class T> class TOleDocViewAutoFactory
+/// : public TOleFactoryBase<T, TOleFactoryDocView<T, TOleFactoryAuto<T>>>{ };
+/// TOleFactory class for non-Doc/View, non-automated, OLE components
+/// template <class T> class TOleFactory
+/// : public TOleFactoryBase<T, TOleFactoryNoDocView<T, TOleFactoryNoAuto<T>>>{ };
+/// TOleAutoFactory class for non-Doc/View, automated OLE components
+/// template <class T> class TOleAutoFactory
+/// : public TOleFactoryBase<T, TOleFactoryNoDocView<T, TOleFactoryAuto<T>>>{ };
+/// \endcode
+/// For either a Doc/View or a non-Doc/View application, you need to register your
+/// application in your OwlMain function. The argument to TOcRegistrar (in this
+/// case, TOleFactory<TDrawApp>) constructs an object and converts it to a
+/// TComponentFactory type, using the operator TComponentFactory to create a
+/// function pointer. In reality, the object is never created because all the
+/// factory class's functions are static.
+/// 
+/// Pass your application object derived from TApplication as the parameter to
+/// TOleFactory, as the following code from STEP15.CPP illustrates:
+/// \code
+/// int
+/// OwlMain(int /*argc*/, char* /*argv*/ [])
+/// { 
+///   try { 
+///     Registrar = new TOcRegistrar(AppReg, TOleFactory<TDrawApp>(),
+///                                  TApplication::GetCmdLine());
+///     if (Registrar->IsOptionSet(TOcCmdLine::AnyRegOption))
+///       return 0;
+/// //If this is a normal exe server, run the application now; otherwise,
+/// // wait until the factory is called.
+///     return Registrar->Run();
+/// }
+/// \endcode
+/// In general, the following steps, illustrated in the Factory Class Callback
+/// Flowchart, show the steps each factory class follows in the default callback
+/// code:
+/// -# The factory gets the application. This is the application object derived
+/// from TApplication. For a DLL server, there can be several instances of the
+/// object. Using TAppDictionary::GetApplication, the factory verifies whether or
+/// not there is an entry in the application dictionary for an application object
+/// for the current process.
+/// -# If the application does not exist, the factory creates the application
+/// object and tests to see if the application was created successfully before
+/// creating its corresponding TOcApp object. If the shutdown option flag is set, it
+/// then exits. (If the application has already been destroyed, the shutdown flag is
+/// set.)
+/// -# If the factory is passed a shutdown option flag (one of the TOcAppMode enum
+/// values), it then shuts down the application and calls the factory's DestroyApp
+/// function to destroy the application.
+/// -# If the application is automated, the factory creates a corresponding
+/// automation object.
+/// -# If the object ID is not zero, the factory creates the object and gets the
+/// OLE interface. Otherwise, it gets the application's OLE interface. At this
+/// point, the Doc/View and non-Doc/View processes differ because they need to
+/// create different types of objects. If the application is automated, the factory
+/// creates an automated helper object.
+/// -# The factory checks to see if the option flag amRun (one of the TOcAppMode
+/// enum values) is set, and, if so, it runs the application. This occurs if the
+/// application either was built as an .EXE or is a DLL running as an .EXE. If the
+/// amRun flag is not set and the application is an in-proc DLL server and should
+/// not be running, the factory just starts the application.
+/// -# The factory returns either the OLE interface for the object or 0 if no
+/// interface was requested or if an error occurred.
+/// 
+/// The factory can be called back to walk through this process several times:
+/// -# On the first callback, the factory creates the application, and if the amRun
+/// flag is set, it enters a message loop.
+/// -# On the second callback, OLE calls the factory to automate or embed or link
+/// an object. In the case of an embedded and/or linked object, this pass can occur
+/// one or more times. (In the case of an automation object, however, this second
+/// pass occurs only once because any subsequent requests pass through the automated
+/// application itself.)
+/// -# On the final callback, the factory shuts down the application.
+/// 
+/// \image html bm58.BMP

@@ -1,0 +1,6 @@
+//
+// This file includes all the OWLNext resources.
+// Note: In 6.40.2 and later you can include "owl/all.rc" instead.
+// You can tune this file to include only the resources needed.
+//
+#include <owl/all.rc>

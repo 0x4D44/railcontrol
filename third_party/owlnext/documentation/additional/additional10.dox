@@ -1,0 +1,432 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+/// \page printerobjectsoverview Printer Objects Overview
+/// Two ObjectWindows classes let you complete the following printing tasks:
+/// - \subpage creatingaprinterobject "Create a printer object"
+/// - \subpage creatingaprintoutobject "Create a printout object"
+/// - \subpage printingwindowcontents "Print window contents"
+/// - \subpage printingadocument "Print a document"
+/// - \subpage choosingadifferentprinter "Choose and configure a printer"
+///
+/// TPrinter encapsulates printer behavior and access to the
+/// printer drivers. It brings up a dialog box that lets the user select the desired
+/// printer and set the current settings for printing.
+///
+/// TPrintout encapsulates the actual printout. Its
+/// relationship to the printer is similar to TWindow's
+/// relationship to the screen. Drawing on the screen happens in the Paint member
+/// function of the TWindow object, while writing to the printer happens in the
+/// PrintPage member function of the TPrintout object. To print something on the
+/// printer, the application passes an instance of TPrintout to an instance of
+/// TPrinter's Print member function.
+///
+///
+///
+/// \page creatingaprinterobject Creating a Printer Object
+/// \section declaringtprinter Declaring TPrinter
+/// The easiest way to create a printer object is to declare a
+/// TPrinter* in your window object that other objects in the
+/// program can use for their printing needs.
+/// \code
+/// class MyWindow : public TFrameWindow
+/// {
+///  .
+///  .
+///  .
+///  protected:
+///   TPrinter* Printer;
+///   .
+///   .
+///   .
+/// };
+/// \endcode
+///
+/// \section makingtheprinteravailable Making the printer available
+/// To make the printer available, make Printer point to an instance of TPrinter.
+/// This can be done in the constructor:
+/// \code
+/// MyWindow::MyWindow(TWindow* parent, char *title)
+/// {
+///  .
+///  .
+///  .
+///  Printer = new TPrinter;
+/// }
+/// \endcode
+/// You should also eliminate the printer object in the destructor:
+/// \code
+/// MyWindow::~MyWindow()
+/// {
+///  .
+///  .
+///  .
+///  delete Printer;
+/// }
+/// \endcode
+/// \section example Example
+/// Here is how it is done in the PRINTING.CPP example from directory
+/// CLASSES\\PRINTING:
+/// \code
+/// class TRulerWin : public TFrameWindow
+/// {
+///  .
+///  .
+///  .
+///  protected:
+///   TPrinter* Printer;
+/// };
+///
+/// TRulerWin::TRulerWin(TWindow* parent, const char* title, TModule* module)
+///  : TFrameWindow(parent, title, 0, false, module),
+///   TWindow(parent, title, module)
+/// {
+///  .
+///  .
+///  .
+///  Printer = new TPrinter;
+/// }
+/// \endcode
+///
+/// For most applications, this is sufficient. The application's main window
+/// initializes a printer object that uses the default printer specified in WIN.INI.
+/// In some cases, however, you might have applications that use different printers
+/// from different windows simultaneously. In that case, construct a printer object
+/// in the constructors of each of the appropriate windows, then change the printer
+/// device for one or more of the printers. If the program uses different printers
+/// but not at the same time, it is probably best to use the same printer object and
+/// select different printers as needed.
+/// \note Although you might be tempted to override the TPrinter constructor to use
+/// a printer other than the system default, the recommended procedure is to always
+/// use the default constructor, then change the device associated with the
+/// object.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref choosingadifferentprinter "Choosing a Different Printer "
+/// - \ref creatingaprintoutobject "Creating a Printout Object "
+/// - \ref printingadocument "Printing a Document "
+/// - \ref printingwindowcontents "Printing Window Contents "
+///
+///
+///
+/// \page creatingaprintoutobject Creating a Printout Object
+/// Creating a printout object is similar to writing a Paint member function for a
+/// window object: you use Windows' \ref graphicsobjectsoverview "graphics functions" to
+/// generate the image you want on a device context. Just as the window object's
+/// display context takes care of interactions with the screen device, the printout
+/// object's device context insulates you from the printer device.
+///
+/// \section creatingprintoutobjects Creating printout objects
+/// - Derive a new object type from TPrintout that
+/// overrides the PrintPage member function. In very simple cases, that is all you
+/// need to do.
+/// - If the document has more than one page, you must also override the HasPage
+/// member function. It must return a non-zero value as long as there is another
+/// page to be printed. The current page number is passed as a parameter to
+/// PrintPage.
+///
+/// The printout object has fields that hold the size of the page and a device
+/// context that is already initialized to render to the printer. The printer object
+/// sets those values by calling the printout object's SetPrintParams member
+/// function. You should use the printout object's device context in any calls to
+/// Windows graphics functions.
+///
+/// \section example Example
+/// Here is the class TWindowPrintout, derived from TPrintout in the sample program
+/// PRINTING.CPP:
+/// \code
+/// class TWindowPrintout : public TPrintout
+/// {
+///  public:
+///   TWindowPrintout(const char* title, TWindow* window);
+///
+///   void GetDialogInfo(int& minPage, int& maxPage,
+///       int& selFromPage, int& selToPage);
+///   void PrintPage(int page, TRect& rect, unsigned flags);
+///   void SetBanding(bool b) {Banding = b;}
+///   bool HasPage(int pageNumber) {return pageNumber == 1;}
+///
+///  protected:
+///   TWindow* Window;
+///   bool Scale;
+/// };
+/// \endcode
+/// GetDialogInfo retrieves page-range information from a dialog box if page
+/// selection is possible. Since there is only one page, GetDialogInfo for
+/// TWindowPrintout looks like this:
+/// \code
+/// TWindowPrintout::GetDialogInfo(int& minPage, int& maxPage,
+///    int& selFromPage, int& selToPage)
+/// {
+///  minPage = 0;
+///  maxPage = 0;
+///  selFromPage = selToPage = 0;
+/// }
+/// \endcode
+/// PrintPage must be overridden to print the contents of each page, band (if
+/// banding is enabled), or window. PrintPage for TWindowPrintout looks like
+/// this:
+/// \code
+/// void TWindowPrintout::PrintPage(int, TRect& rect, unsigned)
+/// {
+///  // Conditionally scale the DC to the window so the printout
+///  // will resemble the window
+///  //
+///  int  prevMode;
+///  TSize oldVExt, oldWExt;
+///  if (Scale) {
+///   prevMode = DC->SetMapMode(MM_ISOTROPIC);
+///   TRect windowSize = Window->GetClientRect();
+///  
+///   DC->SetViewportExt(PageSize, &oldVExt);
+///  
+///   DC->SetWindowExt(windowSize.Size(), &oldWExt);
+///  
+///   DC->IntersectClipRect(windowSize);
+///   DC->DPtoLP(rect, 2);
+///  }
+///
+///  // Call the window to paint itself
+///  Window->Paint(*DC, false, rect);
+///
+///  // Restore changes made to the DC
+///  if (Scale) {
+///  
+///    DC->SetWindowExt(oldWExt);
+///  
+///    DC->SetViewportExt(oldVExt);
+///  
+///    DC->SetMapMode(prevMode);
+///  }
+/// }
+/// \endcode
+/// SetBanding is called with banding enabled, as follows:
+/// \code
+/// printout.SetBanding (true);
+/// \endcode
+/// HasPage is called after every page is printed and by default returns false,
+/// which means that only one page will be printed. This function must be overridden
+/// to return true while pages remain in multipage documents.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref choosingadifferentprinter "Choosing a Different Printer "
+/// - \ref creatingaprinterobject "Creating a Printer Object "
+/// - \ref printingadocument "Printing a Document "
+/// - \ref printingwindowcontents "Printing Window Contents "
+///
+///
+///
+/// \page printingwindowcontents Printing Window Contents
+/// A simple kind of printout to generate is a copy of a window, because windows do
+/// not have multiple pages and window objects already know how to draw themselves
+/// on a device context.
+///
+/// \section windowprintoutobjects Window printout objects
+/// To create a window printout object, construct a window printout object and pass
+/// it a title string and a pointer to the window you want printed, like this:
+/// \code
+/// TWindowPrintout printout("Ruler Test", this);
+/// \endcode
+/// \section aprintoutofthewindowitself A printout of the Window Itself
+/// Often you want a window to create a printout of itself in response to a menu
+/// command. Here is the message response member function that responds to the print
+/// command in PRINTING.CPP:
+/// \code
+/// void
+/// TRulerWin::CmFilePrint()   // Execute File|Print command
+/// {
+///  if (Printer) {
+///   TWindowPrintout printout("Ruler Test", this);
+///  
+/// printout.SetBanding(true);
+///   Printer->Print(this, printout, true);
+///  }
+/// }
+/// \endcode
+/// This member function calls the printer object's Print member function, which
+/// passes a pointer to the parent window and a pointer to the printout object, and
+/// specifies whether or not a printer dialog box should be displayed.
+///
+/// TWindowPrintout prints itself by calling your window object's Paint member
+/// function (within TWindowPrintout::PrintPage), but with a printer device context
+/// instead of a display context.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref choosingadifferentprinter "Choosing a Different Printer "
+/// - \ref creatingaprinterobject "Creating a Printer Object "
+/// - \ref creatingaprintoutobject "Creating a Printout Object "
+/// - \ref printingadocument "Printing a Document "
+///
+///
+///
+/// \page printingadocument Printing a Document
+/// Windows sees a printout as a series of pages, so your printout object must turn
+/// a document into a series of page images for Windows to print. Just as you use
+/// window objects to paint images for Windows to display on the screen, you use
+/// printout objects to paint images on the printer.
+///
+/// Your printout object needs to be able to
+/// - \subpage settingprintparameters "Set print parameters"
+/// - \subpage countingpages "Count the total number of pages"
+/// - \subpage printingeachpage "Print pages"
+/// - \subpage indicatingfurtherpages "Indicate if there are more pages"
+///
+/// \section otherconsiderations Other considerations
+/// In addition to the member functions you use doing the above tasks, printout
+/// objects have several other member functions you can override as needed.
+/// BeginPrinting and EndPrinting are called before and after any documents are
+/// printed, respectively. If you need special setup code, you can put it in
+/// BeginPrinting and undo it in EndPrinting.
+///
+/// Printing of pages takes place sequentially. That is, the printer calls PrintPage
+/// for each page in sequence. Before the first call to PrintPage, however, the
+/// printer object calls BeginDocument, passing the numbers of the first and last
+/// pages it prints. If your document needs to prepare to begin printing at a page
+/// other than the first, override BeginDocument. Call the corresponding member
+/// function, EndDocument, after the last page prints.
+///
+/// If multiple copies are printed, the multiple BeginDocument/EndDocument pairs can
+/// be called between BeginPrinting and EndPrinting.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref choosingadifferentprinter "Choosing a Different Printer "
+/// - \ref creatingaprinterobject "Creating a Printer Object "
+/// - \ref creatingaprintoutobject "Creating a Printout Object "
+/// - \ref printingwindowcontents "Printing Window Contents "
+///
+///
+///
+/// \page settingprintparameters Setting Print Parameters
+/// To enable your document to paginate itself, the printer object (derived from
+/// class TPrinter) calls two of the printout object's
+/// member functions: first SetPrintParams, and then GetDialogInfo.
+///
+/// SetPrintParams initializes page size and device-context variables in the
+/// printout object. It can also calculate any information needed to produce an
+/// efficient printout of individual pages. For example, SetPrintParams can
+/// calculate how many lines of text in the selected font can fit within the print
+/// area (using Windows API GetTextMetrics). If you override SetPrintParams, be sure
+/// to call the inherited member function, which sets the printout object's
+/// page-size and device-context defaults.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref countingpages "Counting Pages "
+/// - \ref indicatingfurtherpages "Indicating Further Pages "
+/// - \ref printingeachpage "Printing Each Page "
+///
+///
+///
+/// \page countingpages Counting Pages
+/// After calling SetPrintParams, the printer object calls GetDialogInfo.
+/// GetDialogInfo retrieves user page-range information from the printer dialog box.
+/// It can also be used to calculate the total number of pages based on page-size
+/// information calculated by SetPrintParams.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref indicatingfurtherpages "Indicating Further Pages "
+/// - \ref printingeachpage "Printing Each Page "
+/// - \ref settingprintparameters "Setting Print Parameters "
+///
+///
+///
+/// \page printingeachpage Printing Each Page
+/// After the printer object has given the document a chance to paginate itself, it
+/// calls the printout object's PrintPage member function for each page to be
+/// printed. The process of printing out just the part of the document that belongs
+/// on the given page is similar to deciding which portion gets drawn on a scrolling
+/// window.
+///
+/// There are two issues to keep in mind when writing PrintPage member
+/// functions:
+/// - Device independence. Make sure your code does not make assumptions about
+/// scale, aspect ratio, or colors. Those properties can vary between different
+/// video and printing devices, so you should remove any device dependencies from
+/// your code.
+/// - Device capabilities. Although most video devices support all GDI operations,
+/// some printers do not. For example, many print devices, such as plotters, do not
+/// accept bitmaps at all. Others support only certain operations. When performing
+/// complex output tasks, your code should call the Windows API function
+/// GetDeviceCaps, which returns important information about the capabilities of a
+/// given output device.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref countingpages "Counting Pages "
+/// - \ref indicatingfurtherpages "Indicating Further Pages "
+/// - \ref settingprintparameters "Setting Print Parameters "
+///
+///
+///
+/// \page indicatingfurtherpages Indicating Further Pages
+/// Printout objects have one last duty: to indicate to the printer object whether
+/// there are printable pages beyond a given page. The HasPage member function takes
+/// a page number as a parameter and returns a Boolean value indicating whether
+/// further pages exist. By default, HasPage returns true for the first page only.
+/// In order to print multiple pages, your printout object needs to override HasPage
+/// to return true if the document has more pages to print and false if the
+/// parameter passed is the last page.
+///
+/// Be sure that HasPage returns false at some point. If HasPage always returns
+/// true, printing goes into an endless loop.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref countingpages "Counting Pages "
+/// - \ref printingeachpage "Printing Each Page "
+/// - \ref settingprintparameters "Setting Print Parameters "
+///
+///
+///
+/// \page choosingadifferentprinter Choosing a Different Printer
+/// You can associate the printer objects in your applications with any printer
+/// device installed in Windows. By default, TPrinter uses
+/// the Windows default printer, as specified in the [devices] section of the
+/// WIN.INI file.
+///
+/// There are two ways to specify an alternate printer: through a user dialog box
+/// and directly in code.
+///
+/// \section choosingandconfiguringwithauserdialogbox Choosing and Configuring with a User Dialog Box
+/// A common way to assign a different printer is to bring up a dialog box that
+/// gives the user the ability to choose from a list of installed printer devices.
+/// TPrinter does this automatically when you call its
+/// TPrinter::Setup member function. Setup displays a dialog box
+/// based on TPrinterDialog.
+///
+/// One of the buttons in the printer dialog allows the user to change the printer's
+/// configuration. The Setup button brings up a configuration dialog box defined in
+/// the printer's device driver. Your application has no control over the appearance
+/// or function of the driver's configuration dialog box.
+///
+/// \section assigningaprinterdirectly Assigning a Printer directly
+/// In some cases, you might want to assign a specific printer device to your
+/// printer object, without user input. TPrinter has a
+/// TPrinter::SetPrinter member function that does just that.
+/// SetPrinter takes three strings as parameters: a device name, a driver name, and
+/// a port name.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatingaprinterobject "Creating a Printer Object "
+/// - \ref creatingaprintoutobject "Creating a Printout Object "
+/// - \ref printingadocument "Printing a Document "
+/// - \ref printingwindowcontents "Printing Window Contents "
+///
+///

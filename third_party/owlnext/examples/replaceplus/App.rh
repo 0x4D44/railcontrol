@@ -1,0 +1,32 @@
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ generated include file.
+// Used by App.rc
+//
+
+//
+// Application specific definitions:
+//
+#define IDI_SDIAPPLICATION      1001            // Application icon
+
+#define IDM_SDI                 100             // Menu resource ID and Accelerator IDs
+
+#define IDD_HELP  2001
+
+#define IDD_CLIENT      2000
+#define IDC_FOLDER      101
+#define IDC_FILTER      102
+#define IDC_FIND        103
+#define IDC_REPLACE     104
+#define IDC_BROWSE      105
+#define IDC_EDITTIME    106
+#define IDC_EDITDATE    107
+#define IDC_ACTIONFIND  108
+#define IDC_ACTIONTOUCH 109
+#define IDC_SUBFOLDERS  110
+#define IDC_ST_FIND     111
+#define IDC_ST_REPLACE  112
+#define IDC_ST_TIME     113
+#define IDC_HLP         114
+
+#define CM_REPLACE 100
+

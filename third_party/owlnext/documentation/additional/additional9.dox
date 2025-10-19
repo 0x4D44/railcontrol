@@ -1,0 +1,1824 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+///
+/// \page gadgetandgadgetwindowobjectsoverview Gadget and Gadget Window Objects Overview
+/// Functionally, gadgets are similar to controls, in that they gather input from or
+/// convey information to the user. But gadgets are implemented differently from
+/// controls. Unlike most other interface elements, gadgets are not windows: they do
+/// not have window handles, do not receive events and messages, and are not based
+/// on TDialog.
+///
+/// Instead, gadgets must be contained in a gadget window that controls the
+/// presentation of the gadget, all message processing, and so on. The gadget
+/// receives its commands and direction from the gadget window.
+/// - To learn more about working with gadgets and the TGadget class, see
+/// \subpage classtgadget "Class TGadget" and 
+/// \subpage objectwindowsgadgetclasses "Gadget Classes"
+/// - To learn more about working with gadget windows, see
+/// \subpage gadgetwindows "Gadget Windows" and
+/// \subpage objectwindowsgadgetwindowclasses "Gadget Window Classes"
+///
+/// \page objectwindowsgadgetclasses ObjectWindows Gadget Classes
+/// ObjectWindows provides a number of classes derived from TGadget. These gadgets
+/// provide versatile, easy-to-use decorations and new ways to communicate with the
+/// user of your application.
+///
+/// To learn more about working with the classes derived from TGadget, see
+/// - \subpage classtbitmapgadget "Class TBitmapGadget"
+/// - \subpage classtbuttongadget "Class TButtonGadget"
+/// - \subpage classtcontrolgadget "Class TControlGadget"
+/// - \subpage classtseparatorgadget "Class TSeparatorGadget"
+/// - \subpage classttextgadget "Class TTextGadget"
+///
+///
+///
+/// \page classtgadget Class TGadget
+/// All gadgets are based on the TGadget class, which
+/// contains the basic functionality required by all gadgets. When you work with a
+/// gadget, you can
+/// - \subpage constructinganddestroyingtgadget "Construct and destroy it"
+/// - \subpage identifyingagadget "Identify it"
+/// - \subpage modifyingandaccessinggadgetappearance "Modify and access its appearance"
+/// - \subpage boundingthegadget "Set its bounds"
+/// - \subpage shrinkwrappingagadget "Shrink wrap it" (calculate its size automatically)
+/// - \subpage settinggadgetsize "Set its size"
+/// - \subpage matchinggadgetcolorstosystemcolors "Match its colors to the system colors"
+/// - \subpage enablinganddisablingagadget "Enable and disable it"
+///
+/// \section derivingaclassfromtgadget Deriving a class from TGadget
+/// TGadget provides a number of protected access functions that you can use when
+/// deriving a gadget class from TGadget. These functions are described in
+/// - \subpage initializingandcleaningup "Initializing and Cleaning Up"
+/// - \subpage paintingthegadget "Painting the Gadget"
+/// - \subpage invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \subpage mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+/// - \subpage tgadgetpublicdatamembers "TGadget Public Data Members"
+///
+///
+///
+/// \page constructinganddestroyingtgadget Constructing and Destroying TGadget
+/// The TGadget constructor syntax is
+/// \code
+/// TGadget(int id = 0, TBorderStyle style = None);
+/// \endcode
+/// The following table describes the TGadget parameters:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">id</TD><TD class="owltable">An arbitrary value used as the identifier number for the gadget. You can use
+/// the identifier to identify a particular gadget in a gadget window. Other uses
+/// for the gadget identifier are discussed in \ref identifyingagadget "Identifying a Gadget".</TD></TR>
+/// <TR class="owltable"><TD class="owltable">style</TD>
+/// <TD class="owltable">An enum of type TBorderStyle. There are five possible values for
+/// style:
+/// - None gives the gadget no border style; that is, it has no visible
+/// borders.
+/// - Plain makes the gadget borders visible as lines, much like the border of a
+/// window frame.
+/// - Raised makes the gadget look like it is raised up from the gadget
+/// window.
+/// - Recessed makes the gadget look like it is recessed into the gadget
+/// window.
+/// - Embossed makes the gadget border look like it has an embossed ridge as a
+/// border.
+/// </TD></TR>
+/// </TABLE>
+///
+/// The TGadget destructor is declared virtual. The only thing it does is to remove
+/// the gadget from its gadget window if that window is still valid.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref boundingthegadget "Bounding the Gadget"
+/// - \ref shrinkwrappingagadget "Shrink Wrapping a Gadget"
+/// - \ref settinggadgetsize "Setting Gadget Size"
+/// - \ref matchinggadgetcolorstosystemcolors "Matching Gadget Colors To System Colors"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page identifyingagadget Identifying a Gadget
+/// You can identify a gadget by using the GetId function to access its identifier.
+/// GetId takes no parameters and returns an int, the gadget identifier. The
+/// identifier comes from the value passed in as the first parameter of the TGadget
+/// constructor.
+///
+/// There are a number of uses for the gadget identifier:
+/// - You can use the identifier to identify a particular gadget. If you have a
+/// large number of gadgets in a gadget window, the easiest way to determine which
+/// gadget is which is to use the gadget identifier.
+/// - You can set the identifier to the desired event identifier when the gadget is
+/// used to generate a command. For example, a button gadget used to open a file
+/// usually has the identifier CM_FILEOPEN.
+/// - You can set the identifier to a string identifier if you want to display a
+/// text string in a message bar or status bar when the gadget is pressed. For
+/// example, suppose you have a string identifier named IDS_MYSTRING that describes
+/// your gadget. You can set the gadget identifier to IDS_MYSTRING. Then, assuming
+/// your window has a message or status bar and you have turned menu tracking on,
+/// the string IDS_MYSTRING is displayed in the message or status bar whenever you
+/// press the gadget IDS_MYSTRING.
+///
+/// These last two techniques are often combined. Suppose you have a command
+/// identifier CM_FILEOPEN for the File|Open menu command and a string with the
+/// resource identifier CM_FILEOPEN. If you also give the gadget the identifier
+/// CM_FILEOPEN, when you press the gadget, the gadget window posts the CM_FILEOPEN
+/// event, and the string with the resource identifier CM_FILEOPEN is displayed in
+/// the message or status bar.
+///
+/// You can see an illustration of this technique in Step 10 of the Learning
+/// ObjectWindows Tutorial manual.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref constructinganddestroyingtgadget "Constructing and Destroying TGadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref boundingthegadget "Bounding the Gadget"
+/// - \ref shrinkwrappingagadget "Shrink Wrapping a Gadget"
+/// - \ref settinggadgetsize "Setting Gadget Size"
+/// - \ref matchinggadgetcolorstosystemcolors "Matching Gadget Colors To System Colors"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page modifyingandaccessinggadgetappearance Modifying and Accessing Gadget Appearance
+/// You can modify and check the margin width, border width, and border style of a
+/// gadget by using the following functions:
+/// \code
+/// void SetBorders(TBorders& borders);
+/// TBorders &GetBorders();
+/// void SetMargins(TMargins& margins);
+/// TMargins &GetMargins();
+/// void SetBorderStyle(TBorderStyle style);
+/// TBorderStyle GetBorderStyle();
+/// \endcode
+/// The border is the outermost boundary of a gadget. The TBorders structure used
+/// with the SetBorders and GetBorders functions has four data members. These
+/// unsigned data members, Left, Right, Top, and Bottom, contain the width of the
+/// respective borders of the gadget.
+///
+/// The margin is the area between the border of the gadget and the inner rectangle
+/// of the gadget. The TMargins structure used with the TGadget::SetMargins and
+/// TGadget::GetMargins functions has four data members. These
+/// int data members, Left, Right, Top, and Bottom, contain the width of the
+/// respective margins of the gadget.
+///
+/// The TGadget::TBorderStyle enum used with the TGadget::SetBorderStyle and
+/// TGadget::GetBorderStyle functions is the same one used
+/// with the TGadget constructor. The various border style
+/// effects are achieved by painting the sides of the gadget borders and margins
+/// differently for each style.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref constructinganddestroyingtgadget "Constructing and Destroying TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref boundingthegadget "Bounding the Gadget"
+/// - \ref shrinkwrappingagadget "Shrink Wrapping a Gadget"
+/// - \ref settinggadgetsize "Setting Gadget Size"
+/// - \ref matchinggadgetcolorstosystemcolors "Matching Gadget Colors To System Colors"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page boundingthegadget Bounding the Gadget
+/// The gadget's bounding rectangle is the entire area occupied by a gadget. It is
+/// contained in a TRect structure and is composed of the
+/// relative X and Y coordinates of the upper left and lower right corners of the
+/// gadget in the gadget window. The gadget window uses the bounding rectangle of
+/// the gadget to place the gadget. The gadget's bounding rectangle is also
+/// important in determining when the user has clicked the gadget.
+///
+/// To find and set the bounding rectangle of a gadget, use the following
+/// functions:
+/// \code
+/// TRect &TGadget::GetBounds();
+/// virtual void TGadget::SetBounds(TRect& rect);
+/// \endcode
+/// Note that SetBounds is declared virtual. The default SetBounds updates only the
+/// bounding rectangle data. A derived class can override SetBounds to monitor
+/// changes and update the gadget's internal state.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref constructinganddestroyingtgadget "Constructing and Destroying TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref shrinkwrappingagadget "Shrink Wrapping a Gadget"
+/// - \ref settinggadgetsize "Setting Gadget Size"
+/// - \ref matchinggadgetcolorstosystemcolors "Matching Gadget Colors To System Colors"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page shrinkwrappingagadget Shrink Wrapping a Gadget
+/// You can use the TGadget::SetShrinkWrap function to
+/// specify whether you want the gadget window to "shrink wrap" a gadget. When
+/// shrink wrapping is on for an axis, the overall size required for the gadget is
+/// calculated automatically based on the border size, margin size, and inner
+/// rectangle. This saves you from having to calculate the bounds size of the gadget
+/// manually.
+///
+/// You can turn shrink wrapping on and off independently for the width and height
+/// of the gadget. The syntax of SetShrinkWrap is
+/// \code
+/// void SetShrinkWrap(bool shrinkWrapWidth, bool shrinkWrapHeight);
+/// \endcode
+/// - shrinkWrapWidth turns horizontal shrink wrapping on or off, depending on
+/// whether true or false is passed in.
+/// - shrinkWrapHeight turns vertical shrink wrapping on or off, depending on
+/// whether true or false is passed in.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref constructinganddestroyingtgadget "Constructing and Destroying TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref boundingthegadget "Bounding the Gadget"
+/// - \ref settinggadgetsize "Setting Gadget Size"
+/// - \ref matchinggadgetcolorstosystemcolors "Matching Gadget Colors To System Colors"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page settinggadgetsize Setting Gadget Size
+/// The gadget's size is the size of the bounding rectangle of the gadget. The size
+/// differs from the bounding rectangle in that it is independent of the position of
+/// the gadget. Thus, you can adjust the size of the gadget without changing the
+/// location of the gadget.
+///
+/// You can set the desired size of a gadget using the
+/// TGadget::SetSize function,
+/// \code
+/// void SetSize(TSize& size);
+/// \endcode
+/// Changing the gadget's size effectively moves the lower right corner of the
+/// bounding rectangle.
+///
+/// You can get use the TGadget::GetDesiredSize
+/// function to get the size the gadget would like to be:
+/// \code
+/// virtual void GetDesiredSize(TSize& size);
+/// \endcode
+/// \note Because gadget windows can change the desired size of a gadget during the
+/// layout process, even if you have set the desired size of the gadget with
+/// SetSize, you should call GetDesiredSize to get the gadget's desired size.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref constructinganddestroyingtgadget "Constructing and Destroying TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref boundingthegadget "Bounding the Gadget"
+/// - \ref shrinkwrappingagadget "Shrink Wrapping a Gadget"
+/// - \ref matchinggadgetcolorstosystemcolors "Matching Gadget Colors To System Colors"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page matchinggadgetcolorstosystemcolors Matching Gadget Colors To System Colors
+/// To make your interface consistent with your application user's system, you
+/// should implement the SysColorChange function. The gadget window calls the
+/// SysColorChange function of each gadget contained in the window when the window
+/// receives a WM_SYSCOLORCHANGE message. This function has the following
+/// syntax:
+/// \code
+/// virtual void SysColorChange();
+/// \endcode
+/// The default version of SysColorChange does nothing. If you want your gadgets to
+/// follow changes in system colors, implement this function. Make sure to delete
+/// and reallocate any resources that are dependent on system color settings.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref constructinganddestroyingtgadget "Constructing and Destroying TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref boundingthegadget "Bounding the Gadget"
+/// - \ref shrinkwrappingagadget "Shrink Wrapping a Gadget"
+/// - \ref settinggadgetsize "Setting Gadget Size"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page tgadgetpublicdatamembers TGadget Public Data Members
+/// There are two public data members in TGadget. Both are bools:
+/// \code
+/// bool Clip;
+/// bool WideAsPossible;
+/// \endcode
+/// The value of Clip indicates whether a clipping rectangle should be applied
+/// before painting the gadget.
+///
+/// The value of WideAsPossible indicates whether the gadget should be expanded to
+/// fit the available room in the window. This is useful for such things as a text
+/// gadget in a message bar.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref constructinganddestroyingtgadget "Constructing and Destroying TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref boundingthegadget "Bounding the Gadget"
+/// - \ref shrinkwrappingagadget "Shrink Wrapping a Gadget"
+/// - \ref settinggadgetsize "Setting Gadget Size"
+/// - \ref matchinggadgetcolorstosystemcolors "Matching Gadget Colors To System Colors"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page enablinganddisablingagadget Enabling and Disabling a Gadget
+/// You can enable and disable a gadget using the following functions:
+/// \code
+/// virtual void TGadget::SetEnabled(bool);
+/// bool TGadget::GetEnabled();
+/// \endcode
+/// Changing the state of a gadget using the default SetEnabled function causes the
+/// gadget's bounding rectangle to be invalidated, but not erased. A derived class
+/// can override SetEnabled to modify this behavior.
+///
+/// If your gadget generates a command, you should implement the CommandEnable
+/// function:
+/// \code
+/// virtual void CommandEnable();
+/// \endcode
+/// The default version of CommandEnable does nothing. A derived class can override
+/// this function to provide command enabling. The gadget should send a
+/// WM_COMMAND_ENABLE message to the gadget window's parent with a command-enabler
+/// object representing the gadget.
+///
+/// For example, here's how the CommandEnable function might be implemented:
+/// \code
+/// void TMyGadget::CommandEnable()
+/// {
+/// 
+/// Window->Parent->HandleMessage(
+///   WM_COMMAND_ENABLE,
+///   0,
+///   (LPARAM) &TMyGadgetEnabler(*Window->Parent, this));
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref constructinganddestroyingtgadget "Constructing and Destroying TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref boundingthegadget "Bounding the Gadget"
+/// - \ref shrinkwrappingagadget "Shrink Wrapping a Gadget"
+/// - \ref settinggadgetsize "Setting Gadget Size"
+/// - \ref matchinggadgetcolorstosystemcolors "Matching Gadget Colors To System Colors"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page initializingandcleaningup Initializing and Cleaning Up
+/// TGadget provides a couple of virtual functions that give
+/// a gadget a chance to initialize or clean up:
+/// \code
+/// virtual void Inserted();
+/// virtual void Removed();
+/// \endcode
+/// Inserted is called after inserting a gadget into a gadget window. Removed is
+/// called before removing the gadget from its gadget window. The default versions
+/// of these function do nothing.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref constructinganddestroyingtgadget "Constructing and Destroying TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref boundingthegadget "Bounding the Gadget"
+/// - \ref shrinkwrappingagadget "Shrink Wrapping a Gadget"
+/// - \ref settinggadgetsize "Setting Gadget Size"
+/// - \ref matchinggadgetcolorstosystemcolors "Matching Gadget Colors To System Colors"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page paintingthegadget Painting the Gadget
+/// The TGadget class provides two different paint functions:
+/// TGadget::PaintBorder and TGadget::Paint.
+///
+/// The PaintBorder function paints the border of the gadget. This virtual function
+/// takes a single parameter, a TDC &, and returns void.
+///
+/// PaintBorder implements the standard border styles. If you want to create a new
+/// border style, override this function and provide the functionality for the new
+/// style. If you want to continue to provide the standard border styles, you should
+/// also call the TGadget version of this function. PaintBorder is called by the
+/// Paint function.
+///
+/// The Paint function is similar to the TWindow::Paint. This function takes a single parameter, a TDC &, and returns
+/// void. Paint is declared virtual. TGadget's PaintGadgets function calls each
+/// gadget's Paint function when painting the gadget window. The default Paint
+/// function only calls the PaintBorder function. To paint the inner rectangle of
+/// the gadget's bounding rectangle, override this function and provide the
+/// necessary code.
+///
+/// If you are painting the gadget yourself with the Paint function, you often need
+/// to find the area inside the borders and margins of the gadget. This area is
+/// called the inner rectangle. You can find the inner rectangle using the
+/// TGadget::GetInnerRect function:
+/// \code
+/// void GetInnerRect(TRect& rect);
+/// \endcode
+/// GetInnerRect places the coordinates of the inner rectangle into the
+/// TRect reference passed into it.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref constructinganddestroyingtgadget "Constructing and Destroying TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref boundingthegadget "Bounding the Gadget"
+/// - \ref shrinkwrappingagadget "Shrink Wrapping a Gadget"
+/// - \ref settinggadgetsize "Setting Gadget Size"
+/// - \ref matchinggadgetcolorstosystemcolors "Matching Gadget Colors To System Colors"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page invalidatingandupdatingthegadget Invalidating and Updating the Gadget
+/// Just like a window, a gadget can be invalidated. TGadget
+/// provides two functions to invalidate the gadget:
+/// \code
+/// void TGadget::Invalidate(bool erase = true);
+/// void TGadget::InvalidateRect(const TRect& rect, bool erase = true);
+/// \endcode
+/// These functions are similar to the TDialog functions
+/// TDialog::InvalidateRect and TDialog::Invalidate.
+///
+/// InvalidateRect looks and functions much like its Windows API version, except
+/// that it omits its HWND parameters. Invalidate invalidates the entire bounding
+/// rectangle of the gadget. It takes a single parameter, a bool indicating whether
+/// the invalid area should be erased when it is updated. By default, this parameter
+/// is true. So, to erase the entire area of your gadget, you need only call
+/// Invalidate, either specifying true or nothing at all for its parameter.
+///
+/// A related function is the TGadget::Update function,
+/// \code
+/// void Update();
+/// \endcode
+/// This function attempts to force an immediate update of the gadget. It is similar
+/// to the Windows API UpdateWindow function.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref constructinganddestroyingtgadget "Constructing and Destroying TGadget"
+/// - \ref identifyingagadget "Identifying a Gadget"
+/// - \ref modifyingandaccessinggadgetappearance "Modifying and Accessing Gadget Appearance"
+/// - \ref boundingthegadget "Bounding the Gadget"
+/// - \ref shrinkwrappingagadget "Shrink Wrapping a Gadget"
+/// - \ref settinggadgetsize "Setting Gadget Size"
+/// - \ref matchinggadgetcolorstosystemcolors "Matching Gadget Colors To System Colors"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref mouseeventsinagadget "Mouse Events in a Gadget"
+///
+///
+///
+/// \page mouseeventsinagadget Mouse Events in a Gadget
+/// You can track mouse events that happen inside and outside a gadget through a
+/// number of pseudo-event handlers in the TGadget class.
+///
+/// These functions look much like standard ObjectWindows event-handling functions
+/// except that the names of the functions are not prefixed with Ev.
+///
+/// Because gadgets are not actually windows, they do not have response tables like
+/// other ObjectWindows classes. All of a gadget's communication with the outside is
+/// handled through the gadget window. When a mouse event takes place in the gadget
+/// window, the window tries to determine which gadget is affected by the event. To
+/// find out if an event took place inside a particular gadget, you can call the
+/// TGadget::PtIn function:
+/// \code
+/// virtual bool PtIn(TPoint& point);
+/// \endcode
+/// The default behavior for this function is to return true if point is within the
+/// gadget's bounding rectangle. You could override this function if you were
+/// designing an oddly shaped gadget.
+///
+/// When the mouse enters the bounding rectangle of a gadget, the gadget window
+/// calls the function TGadget::MouseEnter. This function
+/// looks like this:
+/// \code
+/// virtual void MouseEnter(uint modKeys, TPoint& point);
+/// \endcode
+/// modKeys contains virtual key information identical to that passed-in in the
+/// standard ObjectWindows EvMouseMove function. It indicates whether various
+/// virtual keys are pressed. This parameter can be any combination of the following
+/// values: MK_CONTROL, MK_LBUTTON, MK_MBUTTON, MK_RBUTTON, or MK_SHIFT.
+/// point tells the gadget where the mouse entered the gadget.
+///
+/// After the gadget window calls the gadget's MouseEnter function to inform the
+/// gadget that the mouse has entered the gadget's area, the gadget captures mouse
+/// movements by calling the gadget window's GadgetSetCapture function to guarantee
+/// that the gadget's MouseLeave function is called.
+///
+/// After the mouse leaves the gadget bounds, the gadget window calls MouseLeave,
+/// which function looks like this:
+/// \code
+/// virtual void MouseLeave(uint modKeys, TPoint& point);
+/// \endcode
+/// There are also a couple of functions to detect left mouse button clicks,
+/// TGadget::LButtonDown and
+/// TGadget::LButtonUp. The default behavior for LButtonDown is
+/// to capture the mouse if the bool flag TrackMouse is set. The default behavior
+/// for LButtonUp is to release the mouse if the bool flag TrackMouse is set. By
+/// default TrackMouse is not set.
+/// \code
+/// virtual void LButtonDown(uint modKeys, TPoint& point);
+/// virtual void LButtonUp(uint modKeys, TPoint& point);
+/// \endcode
+/// When the mouse is moved inside the bounding rectangle of a gadget while mouse
+/// movements are being captured by the gadget window, the window calls the gadget's
+/// TGadget::MouseMove function. This function looks like
+/// this:
+/// \code
+/// virtual void MouseMove(uint modKeys, TPoint& point);
+/// \endcode
+/// As with MouseEnter, modKeys contains virtual key information. point tells the
+/// gadget where the mouse stopped moving.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtgadget "Class TGadget"
+/// - \ref tgadgetpublicdatamembers "TGadget Public Data Members"
+/// - \ref enablinganddisablingagadget "Enabling and Disabling a Gadget"
+/// - \ref initializingandcleaningup "Initializing and Cleaning Up"
+/// - \ref paintingthegadget "Painting the Gadget"
+/// - \ref invalidatingandupdatingthegadget "Invalidating and Updating the Gadget"
+///
+///
+///
+/// \page classtseparatorgadget Class TSeparatorGadget
+/// TSeparatorGadget is a very simple gadget. Its
+/// only function is to take up space in a gadget window. You can use it when laying
+/// other gadgets out in a window to provide a margin of space between gadgets that
+/// would otherwise be placed border-to-border in the window.
+///
+/// The TSeparatorGadget constructor looks like this:
+/// \code
+/// TSeparatorGadget(int size = 6);
+/// \endcode
+/// The separator disables itself and turns off shrink wrapping. The size
+/// parameter, used for both the width and the height of the gadget, lets you
+/// use the separator gadget for both vertical and horizontal spacing.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+/// - \ref classtbitmapgadget "Class TBitmapGadget"
+/// - \ref classtbuttongadget "Class TButtonGadget"
+/// - \ref classtcontrolgadget "Class TControlGadget"
+/// - \ref classttextgadget "Class TTextGadget"
+///
+///
+///
+/// \page classttextgadget Class TTextGadget
+/// TTextGadget is used to display text information in a gadget window. You can
+/// specify the number of characters you want to be able to display in the gadget.
+/// You can also specify how the text should be aligned in the text
+/// gadget.
+///
+/// For more information on working with text gadgets, see
+/// - \subpage constructinganddestroyingttextgadget "Constructing and Destroying TTextGadget"
+/// - \subpage accessingthegadgettext "Accessing the Gadget Text"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+///
+///
+///
+/// \page constructinganddestroyingttextgadget Constructing and Destroying TTextGadget
+/// Here is the constructor for
+/// TTextGadget:
+/// \code
+/// TTextGadget(int id = 0, TBorderStyle style = Recessed, TAlign alignment = Left,
+///    uint numChars = 10, const char* text = 0);
+/// \endcode
+/// The constructor parameters are described in the following table:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">id</TD><TD class="owltable">The gadget identifier.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">style</TD><TD class="owltable">The gadget border style.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">align</TD><TD class="owltable">Specifies how text should be aligned in the gadget. There are three
+/// possible values for the enum TAlign: Left, Center, and Right.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">numChars</TD><TD class="owltable">Specifies the number of characters to be displayed in the gadget
+/// and determines gadget's width. To calculate the required gadget width, the
+/// gadget multiplies the number of characters by the maximum character width of the
+/// current font. The height of the gadget is based on the maximum character height
+/// of the current font, plus space for the margin and border.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">text</TD><TD class="owltable">A default message to be displayed in the gadget.</TD></TR>
+/// </TABLE>
+///
+/// The destructor TTextGadget::~TTextGadget automatically deletes the storage for the gadget's
+/// text string.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingthegadgettext "Accessing the Gadget Text"
+/// - \ref classttextgadget "Class TTextGadget"
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+///
+///
+///
+/// \page accessingthegadgettext Accessing the Gadget Text
+/// You can get and set the text in the gadget using the
+/// TTextGadget functions TTextGadget::GetText and TTextGadget::SetText.
+///
+/// GetText takes no parameters and returns a const char *. Do not attempt to modify
+/// the gadget text through the use of the returned pointer.
+///
+/// SetText takes a const char * and returns void. The gadget makes a copy of the
+/// text and stores it internally.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructinganddestroyingttextgadget "Constructing and Destroying TTextGadget"
+/// - \ref classttextgadget "Class TTextGadget"
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+///
+///
+///
+/// \page classtbitmapgadget Class TBitmapGadget
+/// TBitmapGadget is a simple gadget that can display
+/// an array of bitmap images, one at a time. You should store the bitmaps as an
+/// array. To do this, the bitmaps should be drawn side by side in a single bitmap
+/// resource. The bitmaps should each be the same width.
+///
+/// With TBitmapGadget you can
+/// - \subpage constructinganddestroyingtbitmapgadget "Construct and destroy bitmap objects"
+/// - \subpage selectinganewimage "Select a new image"
+/// - \subpage settingthesystemcolorswithtbitmapgadget "Set the system colors"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+/// - \ref classtbuttongadget "Class TButtonGadget"
+/// - \ref classtcontrolgadget "Class TControlGadget"
+/// - \ref classtseparatorgadget "Class TSeparatorGadget"
+/// - \ref classttextgadget "Class TTextGadget"
+///
+///
+///
+/// \page constructinganddestroyingtbitmapgadget Constructing and Destroying TBitmapGadget
+/// Following is the constructor syntax for
+/// TBitmapGadget:
+/// \code
+/// TBitmapGadget(TResId bmpResId, int id, TBorderStyle style, int numImages, int startImage);
+/// \endcode
+/// The constructor parameters are described in the following table:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">bmResId</TD><TD class="owltable">The resource identifier for the bitmap resource.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">id</TD><TD class="owltable">The gadget identifier.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">style</TD><TD class="owltable">The gadget border style.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">numImages</TD><TD class="owltable">The total number of images contained in the bitmap. The gadget
+/// figures the width of each single bitmap in the resource by dividing the width of
+/// the resource bitmap by numImages.
+///
+/// For example, suppose you pass a bitmap resource to the TBitmapGadget
+/// constructor that is 400 pixels wide by 200 pixels high, and you specify
+/// numImages as 4. The constructor would divide the bitmap resource into four
+/// separate bitmaps, each one 100 pixels wide by 200 pixels high.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">startImage</TD><TD class="owltable">Specifies which bitmap in the array should be initially displayed in
+/// the gadget.</TD></TR>
+/// </TABLE>
+///
+///
+/// The destructor TBitmapGadget::~TBitmapGadget deletes the storage for the bitmap images.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+/// - \ref classtbitmapgadget "Class TBitmapGadget"
+///
+///
+///
+/// \page selectinganewimage Selecting a New Image
+/// You can change the image being displayed in a bitmap gadget with the
+/// TBitmapGadget::SelectImage function:
+/// \code
+/// int SelectImage(int imageNum, bool immediate);
+/// \endcode
+/// The imageNum parameter is the array index of the image you want displayed in the
+/// gadget. Specifying true for immediate causes the gadget to update the display
+/// immediately. Otherwise, the area is invalidated and updated when the next
+/// WM_PAINT message is received.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+/// - \ref classtbitmapgadget "Class TBitmapGadget"
+///
+///
+///
+/// \page settingthesystemcolorswithtbitmapgadget Setting the System Colors with TBitmapGadget
+/// TBitmapGadget implements the SysColorChange
+/// function to allow the gadget's bitmaps to track the system colors. It deletes
+/// the bitmap array, calls the MapUiColors function on the bitmap resource, and
+/// then re-creates the array.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+/// - \ref classtbitmapgadget "Class TBitmapGadget"
+///
+///
+///
+/// \page classtbuttongadget Class TButtonGadget
+/// Button gadgets are the only type of gadget included in ObjectWindows that the
+/// user interacts with directly. Control gadgets also provide a gadget that
+/// receives input from the user, but they do so through a control class. The gadget
+/// in that case only acts as an intermediary between the control and gadget
+/// window.
+///
+/// There are three normal button gadget states: up, down, and indeterminate. In
+/// addition the button can be highlighted when pressed in all three states.
+/// There are two basic type of button gadgets, command gadgets and setting gadgets.
+/// Setting gadgets can be exclusive (like a radio button) or non-exclusive (like a
+/// check box). Commands can only be in the up state. Settings can be in all three
+/// states.
+///
+/// A button gadget is pressed when the user presses the left mouse button while the
+/// cursor position is inside the gadget's bounding rectangle. The gadget is
+/// highlighted when pressed.
+///
+/// After the gadget has been pressed, it captures the mouse's movements. When the
+/// mouse moves outside the gadget's bounding rectangle without the left mouse
+/// button being released, highlighting is canceled but mouse movements are still
+/// captured by the gadget. The gadget is highlighted again when the mouse comes
+/// back into the gadget's bounding rectangle without the left mouse button's being
+/// released.
+///
+/// When the left mouse button is released, mouse movements are no longer captured.
+/// If the cursor position is inside the bounding rectangle when the button is
+/// released, the gadget identifier is posted as a command message by the gadget
+/// window.
+///
+///
+///
+/// \section seealso See Also
+/// To work with button gadgets, see:
+/// - \subpage constructinganddestroyingtbuttongadget "Constructing and Destroying TButtonGadget"
+/// - \subpage accessingbuttongadgetinformation "Accessing Button Gadget Information"
+/// - \subpage settingbuttongadgetstyle "Setting Button Gadget Style"
+/// - \subpage commandenabling "Command Enabling"
+/// - \subpage settingthesystemcolorswithtbuttongadget "Setting the System Colors With TButtonGadget"
+///
+/// For information on working with other gadgets or with gadget windows, see:
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+/// - \ref classtbitmapgadget "Class TBitmapGadget"
+/// - \ref classtcontrolgadget "Class TControlGadget"
+/// - \ref classtseparatorgadget "Class TSeparatorGadget"
+/// - \ref classttextgadget "Class TTextGadget"
+///
+///
+///
+/// \page constructinganddestroyingtbuttongadget Constructing and Destroying TButtonGadget
+/// Here is the TButtonGadget constructor:
+/// \code
+/// TButtonGadget(TResId bmpResId, int id, TType type = Command, bool enabled = false, TState state = Up, bool repeat = false);
+/// \endcode
+/// where:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">bmpResId</TD><TD class="owltable">The resource identifier for the bitmap resource to be displayed in the
+/// button. The size of the bitmap determines the size of the gadget, because shrink
+/// wrapping is turned on.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">id</TD><TD class="owltable">The gadget identifier. This is also the command that is posted when the
+/// gadget is pressed.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">type</TD><TD class="owltable">Specifies the type of the gadget. The TType enum has three possible
+/// values:
+/// - Command specifies that the gadget is a command,
+/// - Exclusive specifies that the gadget is an exclusive setting button.
+/// Exclusive button gadgets that are adjacent to each other work together. You can
+/// set up exclusive groups by inserting other gadgets, such as separator gadgets or
+/// text gadgets, on either side of the group.
+/// - NonExclusive specifies that the gadget is a nonexclusive setting button.
+/// enabled Specifies whether or not the button gadget is enabled when it is
+/// first created. If the corresponding command is enabled when the gadget is
+/// created, the button is automatically enabled.
+/// </TD></TR>
+/// <TR class="owltable"><TD class="owltable">state</TD><TD class="owltable">The default state of the button gadget. The enum TState can have three
+/// values: Up, Down, or Indeterminate.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">repeat</TD><TD class="owltable">Indicates whether the button repeats when held down. If repeat is true,
+/// the button repeats when it is clicked and held.</TD></TR>
+/// </TABLE>
+///
+/// The destructor TButtonGadget::~TButtonGadget deletes the bitmap resources and, if the resource
+/// information is contained in a string, deletes the storage for the string.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtbuttongadget "Class TButtonGadget"
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+///
+///
+///
+/// \page accessingbuttongadgetinformation Accessing Button Gadget Information
+/// There are a number of TButtonGadget functions you
+/// can use to access a button gadget. These functions let you set the state of the
+/// gadget to any valid TState value, get the state of the button gadget, and get
+/// the button gadget type.
+///
+/// You can set the button gadget's state with the SetButtonState function:
+/// \code
+/// void SetButtonState(TState);
+/// \endcode
+/// You can find the button gadget's current state using the GetButtonState
+/// function:
+/// \code
+/// TState GetButtonState();
+/// \endcode
+/// You can find out what type of button a gadget is using the GetButtonType
+/// function:
+/// \code
+/// TType GetButtonType();
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtbuttongadget "Class TButtonGadget"
+/// - TButtonGadget
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+///
+///
+///
+/// \page settingbuttongadgetstyle Setting Button Gadget Style
+/// You can modify the appearance of a button gadget by using the following
+/// TButtonGadget functions:
+/// - TButtonGadget::SetNotchCorners turns corner notching on and off:
+/// \code
+///  void SetNotchCorners(bool notchCorners=true);
+/// \endcode
+/// - TButtonGadget::SetAntialiasEdges turns antialiasing of the button bevels on and off:
+/// \code
+///  void SetAntialiasEdges(bool anti=true);
+/// \endcode
+/// - TButtonGadget::SetShadowStyle changes the style of the button shadow. There are two options
+/// for the shadow style, both from the enum TShadowStyle: SingleShadow and
+/// DoubleShadow. Following is the syntax for SetShadowStyle:
+/// \code
+/// void SetShadowStyle(TShadowStyle style=DoubleShadow);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtbuttongadget "Class TButtonGadget"
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+///
+///
+///
+/// \page commandenabling Command Enabling
+/// TButtonGadget overrides the TGadget function
+/// TButtonGadget::CommandEnable. It is implemented to initiate a
+/// WM_COMMAND_ENABLE message for the gadget.
+///
+/// The syntax of the TButtonGadget::CommandEnable function is as follows:
+/// \code
+/// void CommandEnable();
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtbuttongadget "Class TButtonGadget"
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+///
+///
+///
+/// \page settingthesystemcolorswithtbuttongadget Setting the System Colors with TButtonGadget
+/// TButtonGadget implements the SysColorChange
+/// function to allow the gadget's bitmaps to track the system colors. It rebuilds
+/// the gadget using the system colors. If the system colors have changed, these
+/// changes are reflected in the new button gadget. The gadget is not set up
+/// to automatically track the system colors; that is, SysColorChange is not
+/// necessarily called in response to a WM_SYSCOLORCHANGE event.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtbuttongadget "Class TButtonGadget"
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+///
+///
+///
+/// \page classtcontrolgadget Class TControlGadget
+/// TControlGadget is a fairly simple class that serves as an
+/// interface between a regular Windows control (such as a button, edit box, list
+/// box, and so on) and a gadget window. It lets you use a standard Windows control
+/// in a gadget window, like a control bar, status bar, and so on.
+///
+/// \section constructinganddestroyingtcontrolgadget Constructing and Destroying TControlGadget
+/// Here is the constructor for TControlGadget:
+/// \code
+/// TControlGadget(TWindow& control, TBorderStyle style = None);
+/// \endcode
+/// - control is a reference to an ObjectWindows window object. This object should
+/// be a valid constructed control object.
+/// - style is the gadget border style.
+///
+/// The destructor TControlGadget::~TControlGadget destroys the control interface element, then
+/// deletes the storage for the control object.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+/// - \ref classtbitmapgadget "Class TBitmapGadget"
+/// - \ref classtbuttongadget "Class TButtonGadget"
+/// - \ref classtseparatorgadget "Class TSeparatorGadget"
+/// - \ref classttextgadget "Class TTextGadget"
+///
+///
+///
+/// \page gadgetwindows Gadget Windows
+/// Gadget windows are based on the class TGadgetWindow, which is derived from
+/// TWindow. Gadget windows are designed to hold a number of
+/// gadgets, lay them out, and display them in another window.
+///
+/// Gadget windows provide a great deal of the functionality of the gadgets they
+/// contain. Because gadgets are not actually windows, they cannot post or receive
+/// events, directly interact with windows, or call Windows function for themselves.
+/// Anything that a gadget needs to be done must be done through the gadget
+/// window.
+///
+/// A gadget has little or no control over where it is laid out in the gadget
+/// window. The gadget window is responsible for placing and laying out all the
+/// gadgets it contains. Gadgets are generally laid in a line, either vertically or
+/// horizontally.
+///
+/// Gadget windows generally do not stand on their own, but instead are usually
+/// contained in another window. The most common parent window for a gadget window
+/// is a decorated frame window, such as
+/// TDecoratedFrame or TDecoratedMDIFrame, although the class
+/// TToolBox usually uses a TFloatingFrame.
+///
+/// To learn more about working with gadget windows, see
+/// - \subpage constructinganddestroyingtgadgetwindow "Constructing and Destroying TGadgetWindow"
+/// - \subpage creatingagadgetwindow "Creating a Gadget Window"
+/// - \subpage insertingagadgetintoagadgetwindow "Inserting a Gadget Into a Gadget Window"
+/// - \subpage removingagadgetfromagadgetwindow "Removing a Gadget From a Gadget Window"
+/// - \subpage settingwindowmarginsandlayoutdirection "Setting Window Margins and Layout Direction"
+/// - \subpage layingoutthegadgets "Laying Out the Gadgets"
+/// - \subpage notifyingthewindowwhenagadgetchangessize "Notifying the Window When a Gadget Changes Size"
+/// - \subpage shrinkwrappingagadgetwindow "Shrink Wrapping a Gadget Window"
+/// - \subpage accessingthewindowfont "Accessing the Window Font"
+/// - \subpage capturingthemouseforagadget "Capturing the Mouse For a Gadget"
+/// - \subpage settingthehintmode "Setting the Hint Mode"
+/// - \subpage idleactionprocessing "Idle Action Processing"
+/// - \subpage searchingthroughthegadgets "Searching Through the Gadgets"
+/// - \subpage derivingfromtgadgetwindow "Deriving From TGadgetWindow"
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///
+///
+/// \page constructinganddestroyingtgadgetwindow Constructing and Destroying TGadgetWindow
+/// Here is the constructor for TGadgetWindow:
+/// \code
+/// TGadgetWindow(TWindow* parent = 0,
+///  TTileDirection direction = Horizontal,
+///  TFont* font = new TGadgetWindowFont,
+///  TModule* module = 0);
+/// \endcode
+/// The following table describes TGadgetWindow's parameters:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">parent</TD><TD class="owltable">A pointer to the parent window object.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">direction</TD><TD class="owltable">An enum TTileDirection. There are two possible values for direction:
+/// Horizontal or Vertical.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">font</TD><TD class="owltable">A pointer to a TFont object that contains the font for the gadget window.
+///
+/// By default, font is set to TGadgetWindowFont, which is a variable-width
+/// sans-serif font, usually Helvetica.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">module</TD><TD class="owltable">Passed as the TModule parameter for the TWindow base constructor.
+/// This parameter defaults to 0.</TD></TR>
+/// </TABLE>
+///
+/// The destructor TGadgetWindow::~TGadgetWindow deletes each of the gadgets contained in the
+/// gadget window and then deletes the font object.
+///
+///
+///
+/// \page creatingagadgetwindow Creating a Gadget Window
+/// TGadgetWindow overrides the default TWindow member
+/// function TWindow::Create. The TGadgetWindow version of
+/// TGadgetWindow::Create chooses the initial size based on a
+/// number of criteria:
+/// - Whether shrink wrapping was requested by any of the gadgets in the window
+/// - The size of the gadgets contained in the window
+/// - The direction of tiling in the gadget window
+/// - Whether the gadget window has a border, and the size of that border
+///
+/// Create determines the proper size of the window based on these factors and sets
+/// the window size attributes, then calls the base TWindow::Create to actually
+/// create the window interface element.
+///
+///
+///
+/// \page insertingagadgetintoagadgetwindow Inserting a Gadget Into a Gadget Window
+/// For a gadget window to be useful, it needs to contain some gadgets. To place a
+/// gadget into the gadget window, use the
+/// TGadgetWindow::Insert function:
+/// \code
+/// virtual void Insert(TGadget& gadget, 
+///   TPlacement placement = After,
+///   TGadget* sibling = 0);
+/// \endcode
+/// The following table describes Insert's parameters:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">gadget</TD><TD class="owltable">A reference to the gadget to be inserted into the gadget window.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">placement</TD><TD class="owltable">Indicates where the gadget should be inserted. The enum
+/// TPlacement can have two values, Before and After. If a sibling gadget is
+/// specified by the sibling parameter, the gadget is inserted before or after the
+/// sibling, depending on the value of placement. If sibling is 0, the gadget is
+/// placed at the beginning of the gadgets in the window if placement is Before or
+/// at the end of the gadgets if placement is After.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">sibling</TD><TD class="owltable">A pointer to a sibling gadget.</TD></TR>
+/// </TABLE>
+///
+/// If the gadget window has already been created, you need to call
+/// TGadgetWindow::LayoutSession after calling Insert. Any
+/// gadget you insert will not appear in the window until the window has been laid
+/// out.
+///
+///
+///
+/// \page removingagadgetfromagadgetwindow Removing a Gadget From a Gadget Window
+/// To remove a gadget from your gadget window, use the
+/// TGadgetWindow::Remove function:
+/// \code
+/// virtual TGadget* Remove(TGadget& gadget);
+/// \endcode
+/// The gadget parameter is a reference to the gadget you want to remove from the
+/// window.
+///
+/// The removed gadget is returned as a TGadget *. The gadget object is not deleted.
+/// Remove returns 0 if the gadget is not in the window.
+//
+/// As with the TGadgetWindow::Insert function, if the gadget
+/// window has already been created, you need to call
+/// TGadgetWindow::LayoutSession after calling Remove. Any
+/// gadget you remove will not disappear from the window until the window has been
+/// laid out.
+///
+///
+///
+/// \page settingwindowmarginsandlayoutdirection Setting Window Margins and Layout Direction
+/// You can change the margins and the layout direction of a gadget window, either
+/// before the window is created or afterwards. To do this, use the
+/// TGadgetWindow::SetMargins and
+/// TGadgetWindow::SetDirection functions:
+/// \code
+/// void SetMargins(TMargins& margins);
+/// virtual void SetDirection(TTileDirection direction);
+/// \endcode
+/// Both functions set the appropriate data members, then call the function
+/// TGadgetWindow::LayoutSession.
+///
+/// You can find out in which direction the gadgets are laid out by calling the
+/// TGadgetWindow::GetDirection function:
+/// \code
+/// TTileDirection GetDirection() const;
+/// \endcode
+///
+///
+///
+/// \page layingoutthegadgets Laying Out the Gadgets
+/// To lay out a gadget window, call the
+/// TGadgetWindow::LayoutSession function.
+/// \code
+/// virtual void LayoutSession();
+/// \endcode
+/// The default behavior of LayoutSession is to determine if the window interface
+/// element is already created. If not, the function returns without taking any
+/// further action, and the window is laid out automatically when the window element
+/// is created. But if the window element has already been created, LayoutSession
+/// tiles the gadgets and then invalidates the modified area of the gadget
+/// window.
+///
+/// A layout session is typically initiated by one of several actions: changing
+/// margins, inserting or removing gadgets, or changing the size of a gadget or
+/// gadget window.
+///
+/// The actual work of tiling the gadgets is left to the function
+/// \code
+/// TGadgetWindow::TileGadgets:
+/// virtual TRect TileGadgets();
+/// \endcode
+/// TileGadgets determines the space needed for each gadget and lays each gadget out
+/// in turn. It returns a TRect containing the area of the gadget window that was
+/// modified by laying out the gadgets.
+///
+/// TileGadgets calls the function TGadgetWindow::PositionGadget, which
+/// lets derived classes adjust the spacing between gadgets to help in implementing
+/// a custom layout scheme. The syntax of PositionGadget is
+/// \code
+/// virtual void PositionGadget(TGadget* previous,
+///   TGadget* next,
+///   TPoint& point);
+/// \endcode
+/// This function takes the gadgets pointed to by previous and next, figures the
+/// required spacing between the gadgets, and then fills in point. If tiling is
+/// horizontal, the relevant measure is contained in point.x. If tiling is vertical,
+/// the relevant measure is contained in point.y.
+///
+///
+///
+/// \page notifyingthewindowwhenagadgetchangessize Notifying the Window When a Gadget Changes Size
+/// When a gadget changes size, it should call the
+/// TGadgetWindow::GadgetChangedSize function for its
+/// gadget window. Here's the signature for this function:
+/// \code
+/// void GadgetChangedSize(TGadget& gadget);
+/// \endcode
+/// gadget is a reference to the gadget that changed size. The default version of
+/// this function simply initiates a layout session.
+///
+///
+///
+/// \page shrinkwrappingagadgetwindow Shrink Wrapping a Gadget Window
+/// You can specify whether you want the gadget window to shrink wrap a gadget using
+/// the TGadgetWindow::SetShrinkWrap function. Shrink
+/// wrapping for a gadget window has a slightly different meaning than for a gadget.
+/// When a gadget window is shrink wrapped for an axis, the axis' size is calculated
+/// automatically based on the desired sizes of the gadgets laid out on that
+/// axis.
+///
+/// You can turn shrink wrapping on and off independently for the width and height
+/// of the gadget window.
+///
+/// The syntax of the SetShrinkWrap function is
+/// \code
+/// void SetShrinkWrap(bool shrinkWrapWidth, bool shrinkWrapHeight);
+/// \endcode
+/// - shrinkWrapWidth turns horizontal shrink wrapping on or off, depending on
+/// whether true or false is passed in.
+/// - shrinkWrapHeight turns vertical shrink wrapping on or off, depending on
+/// whether true or false is passed in.
+///
+///
+///
+/// \page accessingthewindowfont Accessing the Window Font
+/// You can find out the current font and font size using the
+/// TGadgetWindow::GetFont and
+/// TGadgetWindow::GetFontHeight functions:
+/// \code
+/// TFont& GetFont();
+/// uint GetFontHeight() const;
+/// \endcode
+///
+///
+///
+/// \page capturingthemouseforagadget Capturing the Mouse For a Gadget
+/// A gadget is always notified when the left mouse button is pressed down within
+/// its bounding rectangle. After the button is pressed, you need to capture the
+/// mouse if you want to send notification of mouse movements. You can do this using
+/// the TGadgetWindow::GadgetSetCapture and TGadgetWindow::GadgetReleaseCapture
+/// functions:
+/// \code
+/// bool GadgetSetCapture(TGadget& gadget);
+/// void GadgetReleaseCapture(TGadget& gadget);
+/// \endcode
+/// The gadget parameter for both functions indicates for which gadget the window
+/// should set or release the capture. The bool returned by GadgetSetCapture
+/// indicates whether the capture was successful.
+///
+/// These functions are usually called by a gadget in the window through the
+/// gadget's Window pointer to its gadget window.
+///
+///
+///
+/// \page settingthehintmode Setting the Hint Mode
+/// The hint mode of a gadget dictates when hints about the gadget are displayed by
+/// the gadget window's parent. You can set the hint mode for a gadget using the
+/// TGadgetWindow::SetHintMode function:
+/// \code
+/// void SetHintMode(THintMode hintMode);
+/// \endcode
+/// The enum THintMode has three possible values:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">hintMode</TD><TD class="owltableheader">Display status</TD></TR>
+/// <TR class="owltable"><TD class="owltable">NoHints</TD><TD class="owltable">Hints are not displayed.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">PressHints</TD><TD class="owltable">Hints are displayed when the gadget is pressed until the button is
+/// released.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EnterHints</TD><TD class="owltable">Hints are displayed when the mouse passes over the gadget (when the
+/// mouse enters the gadget).</TD></TR>
+/// </TABLE>
+///
+/// You can find the current hint mode using the
+/// TGadgetWindow::GetHintMode function:
+/// \code
+/// THintMode GetHintMode();
+/// \endcode
+/// Another function, the TGadgetWindow::SetHintCommand
+/// function, determines when a hint is displayed:
+/// \code
+/// void SetHintCommand(int id);
+/// \endcode
+/// This function is usually called by a gadget through the gadget's Window pointer
+/// to its gadget window, but the gadget window could also call it. Essentially,
+/// SetHintCommand simulates a menu choice, making pressing the gadget the
+/// equivalent of selecting a menu choice.
+///
+/// For SetHintCommand to work properly with the standard ObjectWindows classes, a
+/// number of things must be in place:
+/// - The decorated frame window parent of the gadget window must have a message or
+/// status bar.
+/// - Hints must be on in the frame window.
+/// - There must be a string resource with the same identifier as the gadget. For
+/// example, if the gadget identifier is CM_MYGADGET, you must also have a string
+/// resource defined as CM_MYGADGET.
+///
+///
+///
+/// \page idleactionprocessing Idle Action Processing
+/// Gadget windows have default idle action processing. The
+/// TGadgetWindow::IdleAction function attempts to enable each
+/// gadget contained in the window by calling each gadget's
+/// TGadgetWindow::CommandEnable function. The function then
+/// returns false.
+/// IdleAction's syntax is
+/// \code
+/// bool IdleAction(long idleCount);
+/// \endcode
+///
+///
+///
+/// \page searchingthroughthegadgets Searching Through the Gadgets
+/// Use one of the following functions to search through the gadgets contained in a
+/// gadget window:
+/// \code
+/// TGadget* FirstGadget() const;
+/// TGadget* NextGadget(TGadget& gadget) const;
+/// TGadget* GadgetFromPoint(TPoint& point) const;
+/// TGadget* GadgetWithId(int id) const;
+/// \endcode
+/// - TGadgetWindow::FirstGadget returns a pointer to the
+/// first gadget in the window's gadget list.
+/// - TGadgetWindow::NextGadget returns a pointer to the next
+/// gadget in the window's gadget list. If the current gadget is the last gadget in
+/// the window, NextGadget returns 0.
+/// - TGadgetWindow::GadgetFromPoint returns a pointer to
+/// the gadget that the point point is in. If point is not in a gadget,
+/// GadgetFromPoint returns 0.
+/// - TGadgetWindow::GadgetWithId returns a pointer to the
+/// gadget with the gadget identifier id. If no gadget in the window has that gadget
+/// identifier, GadgetWithId returns 0.
+///
+///
+///
+/// \page derivingfromtgadgetwindow Deriving from TGadgetWindow
+/// You can derive a class from TGadgetWindow to make
+/// your own specialized gadget window. TGadgetWindow provides a number of protected
+/// access functions that you can use for this purpose.
+///
+/// You can use these protected functions to
+/// - \subpage paintingagadgetwindow "Paint a gadget window"
+/// - \subpage findingsizeofthewindowandtheinnerrectangle "Find the size of the window and the inner rectangle"
+/// - \subpage layoutunits "Work with units of measurement"
+/// - \subpage messageresponsefunctions "Response to messages"
+///
+///
+///
+/// \page paintingagadgetwindow Painting a Gadget Window
+/// Just as with regular windows, TGadgetWindow
+/// implements the TGadgetWindow::Paint function, as
+/// follows:
+/// \code
+/// void Paint(TDC& dc, bool erase, TRect& rect);
+/// \endcode
+/// This implementation of the Paint function selects the window's font into the
+/// device context and calls the function PaintGadgets:
+/// \code
+/// virtual void PaintGadgets(TDC& dc, bool erase, TRect& rect);
+/// \endcode
+/// PaintGadgets iterates through the gadgets in the window and requests each one to
+/// draw itself. You can override PaintGadgets to implement a custom look for your
+/// window, such as separator lines, a raised look, and so on.
+///
+///
+///
+/// \page findingsizeofthewindowandtheinnerrectangle Finding Size of the Window and the Inner Rectangle
+/// Use the TGadgetWindow::GetDesiredSize and
+/// TGadgetWindow::GetInnerRect functions to find the
+/// overall desired size (the size needed to accommodate the borders, margins, and
+/// the widest or highest gadget) and the size and location of the window's inner
+/// rectangle.
+/// \code
+/// virtual void GetDesiredSize(TSize& size);
+/// virtual void GetInnerRect(TRect& rect);
+/// \endcode
+/// If shrink wrapping was requested for the window, GetDesiredSize calculates the
+/// size the window needs to be to accommodate the borders, margins, and the widest
+/// or highest gadget. If shrink wrapping was not requested, GetDesiredSize uses the
+/// current width and height. The results are then placed into size.
+///
+/// GetInnerRect calculates the area inside the borders and margins of the window.
+/// The results are then placed into rect.
+///
+/// You can override GetDesiredSize and GetInnerRect to leave extra room for a
+/// custom look for your window. If you override one of these functions, you
+/// probably also need to override the other.
+///
+///
+///
+/// \page layoutunits Layout Units
+/// You can use three different units of measurement in a gadget window:
+/// - Pixels, which are based on a single screen pixel
+/// - Layout units, which are logical units defined by dividing the window font
+/// "em" into 8 vertical and 8 horizontal segments.
+/// - Border units, which are based on the thickness of a window frame. A border
+/// unit is usually equivalent to one pixel, but it could be greater at higher
+/// screen resolutions.
+///
+/// It is usually best to use layout units. Because they are based on the font size,
+/// you do not have to worry about scaling your measures when you change window size
+/// or system metrics.
+///
+/// If you need to convert layout units to pixels, use the
+/// TGadgetWindow::LayoutUnitsToPixels function:
+/// \code
+/// int LayoutUnitsToPixels(int units);
+/// \endcode
+/// The units parameter is the layout unit measure you want to convert to pixels.
+/// LayoutUnitsToPixels returns the pixel equivalent of units.
+///
+/// You can also convert a TMargins object to actual pixel measurements using the
+/// GetMargins function:
+/// \code
+/// void GetMargins(TMargins& margins,
+///   int& left,
+///   int& right,
+///   int& top,
+///   int& bottom);
+/// \endcode
+/// - margins is the object containing the measurements you want to convert. The
+/// measurements contained in margins can be in pixels, layout units, or border
+/// units.
+/// - left, right, top, and bottom are the results of the conversion in pixels.
+///
+///
+///
+/// \page messageresponsefunctions Message Response Functions
+/// TGadgetWindow catches the following events and
+/// implements the corresponding event-handling functions:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Response table entry</TD><TD class="owltableheader">Member function</TD></TR>
+/// <TR class="owltable"><TD class="owltable">WM_CTLCOLOR</TD><TD class="owltable">TGadgetWindow::EvCtlColor</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_WM_LBUTTONDOWN</TD><TD class="owltable">TGadgetWindow::EvLButtonDown</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_WM_LBUTTONUP</TD><TD class="owltable">TGadgetWindow::EvLButtonUp</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_WM_MOUSEMOVE</TD><TD class="owltable">TGadgetWindow::EvMouseMove</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_WM_SIZE</TD><TD class="owltable">TGadgetWindow::EvSize</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_WM_SYSCOLORCHANGE</TD><TD class="owltable">TGadgetWindow::EvSysColorChange</TD></TR>
+/// </TABLE>
+///
+///
+///
+/// \page objectwindowsgadgetwindowclasses ObjectWindows Gadget Window Classes
+/// ObjectWindows provides several classes derived from
+/// TGadgetWindow. that provide various ways to
+/// display and lay out gadgets. The gadget window classes are:
+/// - \subpage classtcontrolbar "TControlBar"
+/// - \subpage classtmessagebar "TMessageBar"
+/// - \subpage clasststatusbar "TStatusBar"
+/// - \subpage classttoolbox "TToolBox"
+///
+///
+///
+/// \page classtcontrolbar Class TControlBar
+/// The class TControlBar implements a control bar
+/// similar to the tool bar or control bar found along the top of the window of many
+/// popular applications. You can place any type of gadget in a control bar.
+///
+/// Here's the constructor for TControlBar:
+/// \code
+/// TControlBar(TWindow* parent = 0,
+///   TTileDirection direction = Horizontal,
+///   TFont* font = new TGadgetWindowFont,
+///   TModule* module = 0);
+/// \endcode
+/// The parameters are described in the following table:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">parent</TD><TD class="owltable">A pointer to the control bar's parent window.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">direction</TD><TD class="owltable">An enum TTileDirection. There are two possible values for direction:
+/// Horizontal or Vertical.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">font</TD><TD class="owltable">A pointer to a TFont object that contains the font for the gadget window.
+///
+/// By default, font is set to TGadgetWindowFont, which is a variable-width
+/// sans-serif font, usually Helvetica.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">module</TD><TD class="owltable">Passed as the TModule parameter for the
+/// TDialog base constructor. Defaults to 0.</TD></TR>
+/// </TABLE>
+///
+///
+///
+/// \page classtmessagebar Class TMessageBar
+/// TMessageBar implements a message bar with no border
+/// and one text gadget as wide as the window. It positions itself horizontally
+/// across the bottom of its parent window.
+///
+/// To learn more about working with message bars, see
+/// - \subpage constructinganddestroyingtmessagebar "Constructing and Destroying TMessageBar"
+/// - \subpage settingmessagebartext "Setting Message Bar Text"
+/// - \subpage settingthehinttext "Setting the Hint Text"
+///
+///
+///
+/// \page constructinganddestroyingtmessagebar Constructing and Destroying TMessageBar
+/// Here's the constructor for TMessageBar:
+/// \code
+/// TMessageBar(TWindow*  parent = 0, TFont* font = new TGadgetWindowFont, TModule*  module = 0);
+/// \endcode
+/// Its parameters are described in the following table:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">parent</TD><TD class="owltable">A pointer to the message bar's parent window.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">font</TD><TD class="owltable">A pointer to a TFont object that contains the font for the gadget window.
+///
+/// By default, font is set to TGadgetWindowFont, which is a variable-width
+/// sans-serif font, usually Helvetica.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">module</TD><TD class="owltable">Passed as the TModule parameter for the
+/// TDialog base constructor. Defaults to 0.</TD></TR>
+/// </TABLE>
+///
+///
+/// The destructor TMessageBar::~TMessageBar deletes the object's text storage.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtmessagebar "Class TMessageBar"
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///
+///
+/// \page settingmessagebartext Setting Message Bar Text
+/// Use the TMessageBar::SetText function to set the text for a message
+/// bar text gadget:
+/// \code
+/// void SetText(const char* text);
+/// \endcode
+/// This function causes the string text to be displayed in the message bar.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtmessagebar "Class TMessageBar"
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///
+///
+/// \page settingthehinttext Setting the Hint Text
+/// Use the TMessageBar::SetHintText function to set the menu or command
+/// item hint text to be displayed in a raised field over a message bar:
+/// \code
+/// virtual void SetHintText(const char* text);
+/// \endcode
+/// If you pass text as 0, the hint text is cleared.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtmessagebar "Class TMessageBar"
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///
+///
+/// \page clasststatusbar Class TStatusBar
+/// TStatusBar is similar to TMessageBar. The difference is that status bars have
+/// more options than a plain message bar, such as multiple text gadgets and
+/// reserved space for keyboard mode indicators like Caps Lock, Insert or Overwrite,
+/// and so on.
+///
+/// For information on working with status bars, see
+/// - \subpage constructinganddestroyingtstatusbar "Constructing and Destroying TStatusBar"
+/// - \subpage insertinggadgetsintoastatusbar "Inserting Gadgets Into a Status Bar"
+/// - \subpage displayingmodeindicators "Displaying Mode Indicators"
+/// - \subpage spacingstatusbargadgets "Spacing Status Bar Gadgets"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///
+///
+/// \page constructinganddestroyingtstatusbar Constructing and Destroying TStatusBar
+/// The syntax for the TStatusBar constructor is
+/// \code
+/// TStatusBar(TWindow* parent = 0,
+///    TGadget::TBorderStyle borderStyle = TGadget::Recessed,
+///    uint modeIndicators = 0,
+///    TFont* font = new TGadgetWindowFont,
+///    TModule* module = 0);
+/// \endcode
+/// The constructor parameters are described in the following table:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">parent</TD><TD class="owltable">A pointer to the parent window object.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">style</TD><TD class="owltable">An enum TBorderStyle.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">modeIndicators</TD><TD class="owltable">Indicates which keyboard modes can be displayed in the status
+/// bar. A defined enum type called TModeIndicator provides the following values for
+/// this parameter:
+/// - ExtendSelection
+/// - CapsLock
+/// - NumLock
+/// - ScrollLock
+/// - Overtype
+/// - RecordingMacro
+///
+/// These values can be ORed together to indicate multiple keyboard mode
+/// indicators.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">font</TD><TD class="owltable">A pointer to a TFont object that contains the font for the gadget
+/// window.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">module</TD><TD class="owltable">Passed as the TModule parameter for the
+/// TDialog base constructor. Defaults to 0.</TD></TR>
+/// </TABLE>
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clasststatusbar "Class TStatusBar"
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///
+///
+/// \page insertinggadgetsintoastatusbar Inserting Gadgets Into a Status Bar
+/// TStatusBar overrides the default Insert function. By
+/// default, the TStatusBar version adds the new gadget after the existing text
+/// gadgets but before the mode indicator gadgets.
+///
+/// You can place a gadget next to an existing gadget in the status bar by passing a
+/// pointer to the existing gadget in the Insert function as the new gadget's
+/// sibling. However, you cannot insert a gadget beyond the mode indicators.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clasststatusbar "Class TStatusBar"
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///
+///
+/// \page displayingmodeindicators Displaying Mode Indicators
+/// For a particular mode indicator to appear on the status bar, you must have
+/// specified the mode when the status bar was constructed. But once the mode
+/// indicator is on the status bar, it is up to you to make any changes in the
+/// indicator. TStatusBar provides the following functions
+/// to modify the mode indicators.
+///
+/// - TStatusBar::SetModeIndicator changes the status of a mode indicator to
+/// any valid arbitrary state.
+/// \code
+/// void SetModeIndicator(TModeIndicator indicator, bool state);
+/// \endcode
+///  - indicator is the mode indicator you want to set. This can be any value from
+/// the enum TModeIndicator used in the constructor.
+///  - state is the state to which you want to set the mode indicator.
+/// - TStatusBar::ToggleModeIndicator toggles a mode indicator with
+/// the function:
+/// \code
+/// void ToggleModeIndicator(TModeIndicator indicator);
+/// \endcode
+///  - indicator is the mode indicator you want to toggle. This can be any value from
+/// the enum TModeIndicator used in the constructor.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clasststatusbar "Class TStatusBar"
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///
+///
+/// \page spacingstatusbargadgets Spacing Status Bar Gadgets
+/// You can vary the spacing between mode indicator gadgets on the status bar using
+/// the TStatusBar::SetSpacing function:
+/// \code
+/// void SetSpacing(TSpacing& spacing);
+/// \endcode
+/// spacing is a reference to a TSpacing object. TSpacing is a struct defined in the
+/// TStatusBar class. It has two data members, a
+/// TMargins::TUnits member named Units and an int named Value. The TSpacing
+/// constructor sets Units to TMargins::LayoutUnits and Value to 0.
+///
+/// The TSpacing struct lets you specify a unit of measurement and a number of units
+/// in a single object. When you pass this object into the SetSpacing command, the
+/// spacing between mode indicator gadgets is set to Value Units. You need to lay
+/// out the status bar before any changes take effect.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classtmessagebar "Class TMessageBar"
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///
+///
+/// \page classttoolbox Class TToolBox
+/// TToolBox differs from the other ObjectWindows gadget
+/// window classes in that it does not arrange its gadgets in a single line.
+/// Instead, it arranges them in a matrix. The columns of the matrix are all the
+/// same width (as wide as the widest gadget) and the rows of the matrix are all the
+/// same height (as high as the highest gadget). The gadgets are arranged so that
+/// the borders overlap and are hidden under the tool box's border.
+///
+/// TToolBox can be created as a client window in a
+/// TFloatingFrame to produce a palette-type tool box.
+///
+/// For an example of this, see the PAINT example in the directory
+/// EXAMPLES\\OWL\\OWLAPPS\\PAINT.
+/// For information on working with tool boxes, see
+/// - \subpage constructinganddestroyingttoolbox "Constructing and Destroying TToolBox"
+/// - \subpage changingtoolboxdimensions "Changing Tool Box Dimensions"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///
+///
+/// \page constructinganddestroyingttoolbox Constructing and Destroying TToolBox
+/// The syntax of the TToolBox constructor is
+/// \code
+/// TToolBox(TWindow* parent,
+///   int numColumns = 2,
+///   int numRows = AS_MANY_AS_NEEDED,
+///   TTileDirection direction = Horizontal,
+///   TModule* module = 0);
+/// \endcode
+/// The constructor parameters are described in the following table:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">parent</TD><TD class="owltable">A pointer to the parent window object.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">numColumns</TD><TD class="owltable">The number of columns in the tool box.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">numRows</TD><TD class="owltable">The number of rows in the tool box.
+/// direction An enum TTileDirection. There are two possible values for direction,
+/// Horizontal or Vertical. If direction is Horizontal, the gadgets are tiled
+/// starting at the upper left corner and moving from left to right, going down one
+/// row as each row is filled. If direction is Vertical, the gadgets are tiled
+/// starting at the upper left corner and moving down, going right one column as
+/// each column is filled.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">module</TD><TD class="owltable">Passed as the TModule parameter for the
+/// TDialog base constructor. This parameter defaults to 0.</TD></TR>
+/// </TABLE>
+///
+/// You can specify the constant AS_MANY_AS_NEEDED for either numColumns or numRows,
+/// but not both. When you specify AS_MANY_AS_NEEDED for either parameter, the
+/// toolbox figures out how many divisions are needed based on the opposite
+/// dimension. For example, if you have twenty gadgets and you request four columns,
+/// you get five rows.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classttoolbox "Class TToolBox"
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///
+///
+/// \page changingtoolboxdimensions Changing Tool Box Dimensions
+/// You can switch the dimensions of your tool box using the
+/// TToolBox::SetDirection function:
+//// \code
+///   virtual void SetDirection(TTileDirection direction);
+/// \endcode
+/// The parameter direction is an enum TTileDirection. There are two possible values
+/// for direction: Horizontal or Vertical.
+/// If direction is not equal to the current direction for the tool box, the tool
+/// box switches its rows and columns count. For example, suppose you have a tool
+/// box that has three columns and five rows, and is laid out vertically. If you
+/// call SetDirection and set direction to Horizontal, the tool box switches rows
+/// and columns, giving it five columns and three rows.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref classttoolbox "Class TToolBox"
+/// - \ref objectwindowsgadgetwindowclasses "ObjectWindows Gadget Window Classes"
+///
+///

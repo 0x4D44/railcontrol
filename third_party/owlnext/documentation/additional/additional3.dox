@@ -1,0 +1,1243 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+/// \page eventhandlingoverview Event Handling Overview
+/// Response tables are the method you use to handle all events in an ObjectWindows
+/// application. There are four main steps to using ObjectWindows response
+/// tables:
+/// -# \subpage declaringresponsetables "Declare the response table."
+/// -# \subpage definingresponsetables "Define the response table."
+/// -# \subpage definingresponsetablesentries "Define the response table entries."
+/// -# Declare and define the response member functions.
+///
+/// \note ObjectWindows response tables use a set of macros defined in
+/// owl\eventhan.h. Since this file is already included by owl\module.h,
+/// owl\applicat.h, and owl\window.h, there is usually no need to explicitly include
+/// eventhan.h.
+///
+/// \section rsp Response Table Features
+/// ObjectWindows response tables are a major improvement over other methods of
+/// handling Windows events and messages, including switch statements (such as those
+/// in standard C Windows programs) and schemes used in other types of application
+/// frameworks. Unlike other methods of event handling, ObjectWindows response
+/// tables provide:
+/// - Automatic message cracking for predefined command messages, thus eliminating
+/// the need for manual cracking of the WPARAM and LPARAM values
+/// - Compile-time error and type checking, which checks the event-handling
+/// function's return type and parameter types
+/// - Ability to have one function handle multiple messages
+/// - Support for multiple inheritance, enabling each derived class to build on top
+/// of the base class or classes' response tables
+/// - Portability across platforms by not relying on product-specific compiler
+/// extensions
+/// - Easy handling of command, registered, child ID notification, and custom
+/// messages, using the predefined response table macros
+///
+/// \section seealso See Also
+/// - \subpage aboutcommandenabling "About command enabling"
+/// - \subpage objectwindowsexceptionhandling 
+///
+/// \page declaringresponsetables Declaring Response Tables
+/// Because the response table is a member of an ObjectWindows class, you must
+/// declare the response table when you define the class. ObjectWindows provides the
+/// DECLARE_RESPONSE_TABLE macro to hide the actual template syntax that response
+/// tables use.
+///
+/// The DECLARE_RESPONSE_TABLE macro takes a single argument, the name of the class
+/// for which the response table is being declared. Add the macro at the end of your
+/// class definition.
+///
+/// \section example Example
+/// TMyFrame, derived from TFrameWindow, would be
+/// defined like this:
+/// \code
+/// class TMyFrame : public TFrameWindow
+/// {
+///
+///  .
+///  .
+///  .
+///  DECLARE_RESPONSE_TABLE(TMyFrame);
+/// };
+/// \endcode
+/// It does not matter what the access level (public, protected, or private) is at
+/// the point where you declare the response table: The DECLARE_RESPONSE_TABLE macro
+/// sets up its own access levels when it is expanded by the preprocessor. Because
+/// the access level is reset at the point where you declare the response table, you
+/// must make the DECLARE_RESPONSE_TABLE macro the last element in your class
+/// declaration. Any members declared after the macro will have unpredictable access
+/// levels.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref definingresponsetablesentries "Defining Response Table Entries "
+/// - \ref definingresponsetables "Defining Response Tables "
+///
+///
+///
+/// \page definingresponsetables Defining Response Tables
+/// After you have declared a response table, you must define it. Response table
+/// definitions must appear outside the class definition.
+///
+/// ObjectWindows provides the DEFINE_RESPONSE_TABLEX macro to help define response
+/// tables. The value of X depends on your class's inheritance and is a number equal
+/// to the number of immediate base classes your class has. END_RESPONSE_TABLE ends
+/// the event response table definition.
+/// To define your response table,
+/// -# Begin the response table definition for your class using the
+/// DEFINE_RESPONSE_TABLEX macro. DEFINE_RESPONSE_TABLEX takes X + 1 arguments: the
+/// name of the class you are defining the response table for and the name of each
+/// immediate base class
+/// -# \ref definingresponsetablesentries "Fill in the response table entries"
+/// -# End the response table definition using the END_RESPONSE_TABLE macro.
+/// Example
+/// For example, the response table definition for TMyFrame, derived from
+/// TFrameWindow, would look like this:
+/// \code
+/// DEFINE_RESPONSE_TABLE1(TMyFrame, TFrameWindow)
+///  EV_WM_LBUTTONDOWN,
+///  EV_WM_LBUTTONUP,
+///  EV_WM_MOUSEMOVE,
+///  EV_WM_RBUTTONDOWN,
+/// END_RESPONSE_TABLE;
+/// \endcode
+/// You must always place a comma after each response table entry and a semicolon
+/// after the END_RESPONSE_TABLE macro.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref declaringresponsetables "Declaring Response Tables "
+/// - \ref definingresponsetablesentries "Defining Response Table Entries "
+///
+///
+///
+/// \page definingresponsetablesentries Defining Response Table Entries
+/// Response table entries associate a Windows event with a particular function.
+/// When a window or control receives a message, it checks its response table to see
+/// if there is an entry for that message. If there is, it passes the message on to
+/// that function. If not, it passes the message up to its parent. If the window is
+/// the main window, it passes the message on to the application object. If the
+/// application object doesn't have a response entry for that particular message,
+/// the message is handled by ObjectWindows default processing.
+///
+/// ObjectWindows provides a large number of macros for response table entries.
+/// These include:
+/// - Command message macros that let you handle command messages and route them to
+/// a specified function.
+/// - Standard Windows message macros for handling Windows messages.
+/// - Registered messages (messages returned by RegisterWindowMessage).
+/// - Child ID notification macros that let you handle child ID notification codes
+/// at the child or the parent.
+/// - Control notification macros that handle messages from specialized controls
+/// such as buttons, combo boxes, edit controls, list boxes, and so on.
+/// - Document manager message macros to notify the application that a document or
+/// view has been created or destroyed and to notify views about events from the
+/// document manager.
+/// - VBX control notifications.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage childidnotificationmessagemacros "Child ID Notification Message Macros "
+/// - \subpage commandmessagemacros "Command Message Macros "
+/// - \ref declaringresponsetables "Declaring Response Tables "
+/// - \ref definingresponsetables "Defining Response Tables "
+/// - \subpage windowsmessagemacros "Windows Message Macros "
+///
+///
+///
+/// \page commandmessagemacros Command Message Macros
+/// ObjectWindows provides a large number of macros, called command message macros,
+/// that let you assign command messages to any function. The only requirement is
+/// that the signature of the function you specify to handle a message must match
+/// the signature required by the macro for that message. The different types of
+/// command message macros are listed in the following table:
+///
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Macro and Prototype</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">macro: EV_COMMAND(CMD, UserName)</TD>
+/// <TD class="owltable" ROWSPAN="2">Calls the member function UserName when the command message CMD is received.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">prototype: void UserName()</TD></TR>
+/// <TR class="owltable"><TD class="owltable">macro: EV_COMMAND_AND_ID(CMD, UserName)</TD>
+/// <TD class="owltable" ROWSPAN="2"> Calls the member function UserName when
+///  the command message CMD is received. Passes the command's ID (the WPARAM parameter) to the function.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">prototype: void UserName(WPARAM)</TD></TR>
+/// <TR class="owltable"><TD class="owltable">macro: EV_COMMAND_ENABLE(CMD, UserName)</TD>
+/// <TD class="owltable" ROWSPAN="2"> Used to automatically enable and disable command controls such as menu items, tool bar buttons, and so on.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">prototype: void UserName(TCommandEnabler&)</TD></TR>
+/// </TABLE>
+///
+/// The following table shows message macros that let you pass the raw, unprocessed
+/// message on to the event-handling function. These message macros handle any kind
+/// of generic message and registered message.
+///
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Macro and Prototype</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">macro: EV_MESSAGE(MSG, UserName)</TD>
+/// <TD class="owltable" ROWSPAN="2"> Calls the member function UserName when
+/// the user-defined message MSG is received. MSG is passed to UserName without modification.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">prototype: LRESULT UserName(WPARAM, LPARAM)
+/// <TR class="owltable"><TD class="owltable">macro: EV_REGISTERED(MSG, UserName)</TD>
+/// <TD class="owltable" ROWSPAN="2"> Calls the member function UserName when
+/// the registered message MSG is received. MSG is passed to UserName without
+/// modification.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">prototype: LRESULT UserName(WPARAM, LPARAM)</TD>
+/// </TABLE>
+///
+///
+/// \section mfs Matching Function Signatures
+/// It is very important that you correctly match the function signature with the
+/// macro that you use in the response table definition. For example, suppose you
+/// have the following code:
+/// \code
+/// class TMyFrame : public
+/// TFrameWindow {
+/// public:
+///  TMyFrame(TWindow* parent, const char* name) :
+///   TFrameWindow(parent,name)
+/// ()
+///
+/// protected:
+///  void CmAdvise();
+///
+///  DECLARE_RESPONSE_TABLE(TMyFrame);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE(TMyFrame,
+/// TFrameWindow)
+///  EV_COMMAND_AND_ID(CM_ADVISE,
+/// CmAdvise),
+/// END_RESPONSE_TABLE;
+///
+/// void TMyFrame::CmAdvise() {
+///
+///  .
+///  .
+///  .
+/// }
+/// \code
+/// This code produces a compile-time error because the EV_COMMAND_AND_ID macro
+/// requires a function that returns void and takes a single WPARAM parameter. In
+/// this example, the function correctly returns a void, but incorrectly takes no
+/// parameters.
+///
+/// To make this code compile correctly, change the member declaration and function
+/// definition of TMyFrame::CmAdvise to
+/// \code
+/// void TMyFrame::CmAdvise(WPARAM cmd);
+/// \endcode
+///
+///
+/// \section seealso See Also
+/// - \ref childidnotificationmessagemacros "Child ID Notification Message Macros "
+/// - \ref windowsmessagemacros "Windows Message Macros "
+///
+///
+///
+/// \page windowsmessagemacros Windows Message Macros
+/// ObjectWindows provides predefined macros for all standard Windows messages. You
+/// can use these macros to handle standard Windows messages in one of your class's
+/// member functions.
+///
+/// To determine the name of the macro, preface the message name with EV_. For
+/// example, the macro that handles the WM_PAINT message is EV_WM_PAINT. The macro
+/// that handles the WM_LBUTTONDOWN message is EV_WM_LBUTTONDOWN.
+///
+/// These predefined macros pass the message on to functions with predefined names.
+/// To determine the function name, remove the WM_ from the message name, add Ev to
+/// the remaining part of the message name and convert the name to lowercase with
+/// capital letters at word boundaries. For example, the WM_PAINT message is passed
+/// to a function called EvPaint. The WM_LBUTTONDOWN message is passed to a function
+/// called EvLButtonDown.
+///
+/// The advantage of using these Windows message macros is that the Windows message
+/// is automatically cracked; that is, the parameters that are normally encoded in
+/// the LPARAM and WPARAM parameters are broken out into their constituent parts and
+/// passed to the event-handling function as individual parameters.
+///
+/// For example, the EV_WM_CTLCOLOR macro passes the cracked parameters to an
+/// event-handling function with the following signature:
+/// \code
+/// HBRUSH EvCtlColor(HDC hDCChild, HWND hWndChild, uint nCtrlType);
+/// \endcode
+/// Message cracking provides for strict C++ compile-time type checking and helps
+/// you catch errors as you compile your code rather when you run your code. It also
+/// helps when migrating applications from 16-bit to 32-bit and vice versa. See
+/// \ref thegenericinterfaceobject "Standard Windows Messages" for lists showing each Windows
+/// message response table macro and the signature of the corresponding
+/// event-handling function.
+///
+/// To use a predefined Windows message macro, add the macro to your response table
+/// and add the appropriate member function with the correct name and signature to
+/// your class, then define the member function to handle the message the way you
+/// want it to.
+///
+/// \section example Example
+/// Suppose you want to perform some operation when your TMyFrame window object
+/// receives the WM_ERASEBKGND message. The code would look like this:
+/// \code
+/// class TMyFrame : public TFrameWindow {
+/// public:
+///  bool EvEraseBkgnd(HDC);
+///
+///  DECLARE_RESPONSE_TABLE(TMyFrame);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE(TMyFrame, TFrameWindow)
+///  EV_WM_ERASEBKGND,
+/// END_RESPONSE_TABLE;
+///
+/// bool TMyFrame::EvEraseBkgnd(HDC hdc) {
+///
+///  .
+///  .
+///  .
+/// }
+/// \endcode
+///
+///
+/// \section seealso See Also
+/// - \ref childidnotificationmessagemacros "Child ID Notification Message Macros "
+/// - \ref commandmessagemacros "Command Message Macros "
+/// - \ref windowsmessagemacros "Windows Message Macros "
+///
+///
+///
+/// \page childidnotificationmessagemacros Child ID Notification Message Macros
+/// The child ID notification message macros provide a number of different ways to
+/// handle child ID notification messages. You can handle notification codes from
+/// multiple children with a single function, pass all notification codes from a
+/// child to a response window, or handle the notification code at the child.
+/// You use these macros to facilitate controlling and communicating with child
+/// controls. The different types of child ID notification message macros are listed
+/// in the following table:
+///
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Macro and Prototype</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">macro: EV_CHILD_NOTIFY(ID,Code,UserName)</TD>
+/// <TD class="owltable" ROWSPAN="2">Dispatches message and notification code to the member
+/// function UserName.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">prototype: void UserName()</TD></TR>
+/// <TR class="owltable"><TD class="owltable">macro: EV_CHILD_NOTIFY_AND_CODE(Id, Code, UserName)</TD>
+/// <TD class="owltable" ROWSPAN="2">Dispatches message Id with the notification
+///    code Code to the function UserName.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">prototype: void UserName(WPARAM code)</TD></TR>
+/// <TR class="owltable"><TD class="owltable">macro: EV_CHILD_NOTIFY_ALL_CODES(Id, UserName)</TD>
+/// <TD class="owltable" ROWSPAN="2">Dispatches message Id to the function
+///   UserName, regardless of the message's notification code.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">prototype: void UserName(WPARAM code)</TD></TR>
+/// <TR class="owltable"><TD class="owltable">macro: EV_NOTIFY_AT_CHILD(Code, UserName)</TD>
+/// <TD class="owltable" ROWSPAN="2">Dispatches the notification code Code to the child-object
+/// member function UserName.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">prototype: void UserName()</TD></TR>
+/// </TABLE>
+/// These macros provide different methods for handling child ID notification codes.
+/// For more about these macros, see
+/// - \subpage evchildnotify "EV_CHILD_NOTIFY"
+/// - \subpage evchildnotifyallcodes "EV_CHILD_NOTIFY_ALL_CODES"
+/// - \subpage evchildnotifyandcode "EV_CHILD_NOTIFY_AND_CODE"
+/// - \subpage evchildnotifyatchild "EV_CHILD_NOTIFY_AT_CHILD"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref childidnotificationmessagemacros "Child ID Notification Message Macros "
+/// - \ref commandmessagemacros "Command Message Macros "
+/// - \ref windowsmessagemacros "Windows Message Macros "
+///
+///
+///
+/// \page evchildnotify EV_CHILD_NOTIFY
+/// If you want child ID notifications to be handled at the child's parent window,
+/// use EV_CHILD_NOTIFY, which passes the notification code as a parameter and lets
+/// multiple child ID notifications be handled with a single function. This macro
+/// also saves you from having to handle each child's notification message in
+/// separate response tables for each control. Instead, each message is handled at
+/// the parent, enabling, for example, a dialog box to handle all its controls in
+/// its response table.
+///
+/// \section examples Examples
+/// Suppose you have a dialog box called TTestDialog that has four buttons. The
+/// buttons IDs are ID_BUTTON1, ID_BUTTON2, ID_BUTTON3, and ID_BUTTON4. When the
+/// user clicks a button, you want a single function to handle the event, regardless
+/// of which button was pressed. If the user double-clicks a button, you want a
+/// special function to handle the event.
+/// The code looks like this:
+/// \code
+/// class TTestDialog : public TDialog {
+/// public:
+///  TTestDialog(TWindow* parent, TResId resId);
+///
+///  void HandleClick();
+///  void HandleDblClick1();
+///  void HandleDblClick2();
+///  void HandleDblClick3();
+///  void HandleDblClick4();
+///
+/// 
+/// DECLARE_RESPONSE_TABLE(TTestDialog);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE1(TTestDialog,
+/// TDialog)
+///  EV_CHILD_NOTIFY(ID_BUTTON1, BN_CLICKED, HandleClick),
+///  EV_CHILD_NOTIFY(ID_BUTTON2, BN_CLICKED, HandleClick),
+///  EV_CHILD_NOTIFY(ID_BUTTON3, BN_CLICKED, HandleClick),
+///  EV_CHILD_NOTIFY(ID_BUTTON4, BN_CLICKED, HandleClick),
+///  EV_CHILD_NOTIFY(ID_BUTTON1, BN_DOUBLECLICKED, HandleDblClick1),
+///  EV_CHILD_NOTIFY(ID_BUTTON2, BN_DOUBLECLICKED, HandleDblClick2),
+///  EV_CHILD_NOTIFY(ID_BUTTON3, BN_DOUBLECLICKED, HandleDblClick3),
+///  EV_CHILD_NOTIFY(ID_BUTTON4, BN_DOUBLECLICKED, HandleDblClick4),
+/// END_RESPONSE_TABLE;
+/// \endcode
+///
+///
+/// \section seealso See Also
+/// - \ref childidnotificationmessagemacros "Child ID Notification Message Macros "
+/// - \ref evchildnotifyallcodes "EV_CHILD_NOTIFY_ALL_CODES"
+/// - \ref evchildnotifyandcode "EV_CHILD_NOTIFY_AND_CODE"
+/// - \ref evchildnotifyatchild "EV_CHILD_NOTIFY_AT_CHILD"
+///
+///
+///
+/// \page evchildnotifyallcodes EV_CHILD_NOTIFY_ALL_CODES
+/// If you want all notification codes from the child to be passed to the parent
+/// window, use EV_CHILD_NOTIFY_ALL_CODES, the generic handler for child ID
+/// notifications. For example, the sample program BUTTONX.CPP defines this response
+/// table:
+/// \code
+/// DEFINE_RESPONSE_TABLE1(TTestWindow, TWindow)
+///  EV_COMMAND(ID_BUTTON, HandleButtonMsg),
+///  EV_COMMAND(ID_CHECKBOX, HandleCheckBoxMsg),
+///  EV_CHILD_NOTIFY_ALL_CODES(ID_GROUPBOX, HandleGroupBoxMsg),
+/// END_RESPONSE_TABLE;
+/// \endcode
+/// This table handles button, check box, and group box messages. In this case, the
+/// parent window (TTestWindow) gets all notification messages sent by the child
+/// (ID_GROUPBOX). The EV_CHILD_NOTIFY_ALL_CODES macro uses the user-defined
+/// function HandleGroupBoxMsg to process these messages. As a result, if the user
+/// clicks one of the group box radio buttons, a message box appears that tells the
+/// user which button was selected.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref childidnotificationmessagemacros "Child ID Notification Message Macros "
+/// - \ref evchildnotify "EV_CHILD_NOTIFY"
+/// - \ref evchildnotifyandcode "EV_CHILD_NOTIFY_AND_CODE"
+/// - \ref evchildnotifyatchild "EV_CHILD_NOTIFY_AT_CHILD"
+///
+///
+///
+/// \page evchildnotifyandcode EV_CHILD_NOTIFY_AND_CODE
+/// You can use the macro EV_CHILD_NOTIFY_AND_CODE if you want the parent window to
+/// handle more than one message using the same function. For example:
+/// \code
+/// DEFINE_RESPONSE_TABLE1(TTestWindow, TWindow)
+///  EV_CHILD_NOTIFY_AND_CODE(ID_GROUPBOX, SomeNotifyCode, HandleThisMessage),
+///  EV_CHILD_NOTIFY_AND_CODE(ID_GROUPBOX, AnotherNotifyCode, HandleThisMessage),
+/// END_RESPONSE_TABLE;
+/// \endcode
+/// \note If your window has several different messages to handle and uses several
+/// different functions to handle these messages, it's better to use
+/// EV_CHILD_NOTIFY_AND_CODE instead of evchildnotify because EV_CHILD_NOTIFY
+/// message-handling function receives no parameters and therefore doesn't know
+/// which message it's handling.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref childidnotificationmessagemacros "Child ID Notification Message Macros "
+/// - \ref evchildnotify "EV_CHILD_NOTIFY"
+/// - \ref evchildnotifyallcodes "EV_CHILD_NOTIFY_ALL_CODES"
+/// - \ref evchildnotifyatchild "EV_CHILD_NOTIFY_AT_CHILD"
+///
+///
+///
+/// \page evchildnotifyatchild EV_CHILD_NOTIFY_AT_CHILD
+/// To handle child ID notifications at the child window, use
+/// EV_CHILD_NOTIFY_AT_CHILD. The sample program NOTITEST.CPP contains the following
+/// response table:
+/// \code
+/// DEFINE_RESPONSE_TABLE1(TBeepButton, TButton)
+///  EV_NOTIFY_AT_CHILD(BN_CLICKED, BnClicked),
+/// END_RESPONSE_TABLE;
+/// \endcode
+/// This response table uses the macro EV_NOTIFY_AT_CHILD to tell the child window
+/// (TBeepButton) to handle the notification code (BN_CLICKED) using the function
+/// BnClicked.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref childidnotificationmessagemacros "Child ID Notification Message Macros "
+/// - \ref evchildnotify "EV_CHILD_NOTIFY"
+/// - \ref evchildnotifyallcodes "EV_CHILD_NOTIFY_ALL_CODES"
+/// - \ref evchildnotifyandcode "EV_CHILD_NOTIFY_AND_CODE"
+///
+///
+///
+/// \page aboutcommandenabling About command enabling
+/// ObjectWindows provides a mechanism, command enabling, that you can use to
+/// dynamically change the appearance of controls to indicate if a feature is
+/// available or to indicate the state of the application. Typical changes are
+/// dimming the control, adding or deleting a check next to the control, or changing
+/// the text of menu items.
+///
+/// The following topics explain how to use command enabling in your programs:
+/// - \subpage handlingcommandenablingmessages "Handling command-enabling messages"
+/// - \subpage workingwithcommandenabling "Working with command enabling"
+/// - \subpage commoncommandenablingtasks "Common command-enabling tasks"
+/// - \ref enablinganddisablingcommanditems "Enabling and disabling command items"
+/// - \ref changingmenuitemtext "Changing menu item text"
+/// - \ref togglingcommanditems "Toggling command items"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingmenuobjects "Constructing menu objects"
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and gadget window objects"
+/// - TCommandEnabler class
+///
+///
+///
+/// \page handlingcommandenablingmessages Handling command-enabling messages
+/// The basic idea behind command enabling is that the decision to enable or disable
+/// a function should be made by the object that handles the command. ObjectWindows
+/// does this by sending the WM_COMMAND_ENABLE message through the same command
+/// chain as a WM_COMMAND event. The event is then received by the window that
+/// implements the functionality that you are enabling or disabling.
+/// When a WM_COMMAND_ENABLE message is sent depends on the type of command item
+/// that is affected. TFrameWindow performs command enabling for menu items when the user
+/// clicks a menu, spawning a WM_INITMENUPOPUP message. Gadget windows perform
+/// command enabling for control bar buttons during the window's idle
+/// processing.
+///
+/// To handle command-enabling messages for a particular function,
+/// -# Add a member function to the window class to handle the command-enabling
+/// message. This function should return void and take a single parameter, a
+/// reference to a TCommandEnabler object. The abstract base class TCommandEnabler is
+/// declared in the header file window.h.
+/// -# Place the \ref commandmessagemacros "EV_COMMAND_ENABLE" macro in the parent
+/// window's response table. This macro takes two parameters, the command identifier
+/// and the name of the handler function.
+///
+/// Suppose you have a frame window class that handles a File|Save menu command that
+/// uses the command identifier CM_FILESAVE. The class definition would look
+/// something like this:
+/// \code
+/// class TMyFrame : public TFrameWindow
+/// {
+///  public:
+///   TMyFrame(TWindow* parent = 0, char* title = 0)
+///    :
+/// TFrameWindow(parent, title), IsDirty(false) {}
+///
+///  protected:
+///   voidCmFileSave();
+///
+///  DECLARE_RESPONSE_TABLE(TMyFrame);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE(TMyFrame)
+///  EV_COMMAND(CM_FILESAVE,CmFileSave),
+/// END_RESPONSE_TABLE;
+/// \endcode
+/// If you did not want the user to be able to access the File|Save command if the
+/// file had not been modified since it was opened or last saved, you could add a
+/// handler function and response table macro to affect the CmFileSave function like
+/// this:
+/// \code
+/// class TMyFrame : public
+/// TFrameWindow
+/// {
+///  public:
+///   TMyFrame(TWindow *parent = 0, char *title = 0)
+///    :
+/// TFrameWindow(parent, title), IsDirty(false) {}
+///
+///  protected:
+///   void CmFileSave();
+///
+///   // This is the command-enabling handler function.
+///   void
+/// CeFileSave(TCommandEnabler& commandEnabler);
+///
+///  DECLARE_RESPONSE_TABLE(TMyFrame);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE(TMyFrame)
+///  EV_COMMAND(CM_FILESAVE, CmFileSave),
+///  EV_COMMAND_ENABLE(CM_FILESAVE, CeFileSave),
+/// END_RESPONSE_TABLE;
+/// \endcode
+/// Notice that the EV_COMMAND macro and the EV_COMMAND_ENABLE macro both use the
+/// same command identifier. Often a single function can be accessed through
+/// multiple means. For example, many applications let you open a file through a
+/// menu item and also through a button on the control bar. Command enabling in
+/// ObjectWindows lets you use a single, common identifier to do command enabling
+/// for all means of accessing a function, making it unnecessary to write separate
+/// command-enabling functions for each different command item.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref eventhandlingoverview "Event handling overview"
+/// - \ref workingwithcommandenabling "Working with command enabling"
+/// - TCommandEnabler class
+/// - \ref enablinganddisablingcommanditems "Enabling and disabling command items"
+/// - \ref changingmenuitemtext "Changing menu item text"
+/// - \ref togglingcommanditems "Toggling command items"
+///
+///
+///
+/// \page workingwithcommandenabling Working with command-enabling
+/// If you receive a command-enabling message and the handler function was called,
+/// you can perform actions using the command-enabling object passed to the handler
+/// function. This section discusses the various types of command-enabling
+/// objects.
+///
+/// ObjectWindows provides three predefined command-enabling objects:
+/// - TCommandEnabler is the abstract base class for command-enabling objects.
+/// It's declared in the header file window.h.
+/// - TMenuItemEnabler is the command-enabling class for menu items. This class
+/// enables and disables menu items, sets check marks by menu items, and changes
+/// menu item text. This class is declared in the source file FRAMEWIN.CPP.
+/// - TButtonGadgetEnabler is the command-enabling class for button gadgets. This
+/// class enables and disables button gadgets and toggles boolean button gadgets.
+/// This class is declared in the source file BUTTONGA.CPP.
+///
+/// \section seealso See Also
+/// - \subpage tcommandenablerthecommandenablinginterface
+///
+///
+/// \page tcommandenablerthecommandenablinginterface TCommandEnabler: The command-enabling interface
+/// Although in command-enabling functions you always manipulate an object derived
+/// from TCommandEnabler as opposed to an actual TCommandEnabler object, in practice
+/// it appears as if you are working with a TCommandEnabler object. TCommandEnabler
+/// provides a consistent interface for the other command-enabling classes, which
+/// implement the appropriate functionality for the type of command object that each
+/// class services.
+///
+/// Because you never create an instance of the TMenuItemEnabler and
+/// TButtonGadgetEnabler classes, they are declared in source files instead of
+/// header files. You don't need to be able to
+/// create one of these objects; instead you work with the basic TCommandEnabler
+/// interface, while your handler functions are ignorant of the specific command
+/// tool that is being handled.
+///
+/// This topic describes the TCommandEnabler function interface. There are two
+/// approaches to the TCommandEnabler function interface:
+/// - If you are using existing command-enabling classes, you need to be familiar
+/// with the basic interface as implemented in the TCommandEnabler class.
+/// -  If you are deriving new command-enabling classes, you need to be
+/// familiar with the actual implementation of functionality in the TCommandEnabler
+/// base class.
+///
+/// This topic discusses both approaches and points out which aspects are relevant
+/// to using existing classes and which are relevant to creating new classes.
+///
+/// \section func TCommandEnabler functions
+/// TCommandEnabler has a number of member functions:
+/// - Because TCommandEnabler is an abstract class, its constructor is of interest
+/// only when you are deriving a new command-enabling class. The TCommandEnabler
+/// constructor takes two parameters, a uint and an HWND. The uint is the command
+/// identifier. The constructor initializes the Id data member with the value of the
+/// command identifier. The HWND is the handle to the window that received the
+/// command-enabling message. The constructor initializes HWndReceiver with the
+/// value of the HWND parameter.
+/// - Enable takes a single bool parameter and returns void. The bool parameter
+/// indicates whether the command should be enabled or disabled; if it
+/// 's true, the command is enabled, if it
+/// 's false, the command is disabled.
+/// - From the standpoint of deriving new classes, all that TCommandEnabler::Enable
+/// does is perform initialization of data members in the base class. Any other
+/// actions required for enabling or disabling a command item must be handled in the
+/// derived class. For example, TMenuItemEnabler performs all the work necessary to
+/// turn menu items on or off. Derived classes'
+/// Enable functions should always call TCommandEnabler::Enable.
+/// - SetText takes a single parameter, a const char far*, and returns void. This
+/// function sets the text of the command item to the string passed in the character
+/// array parameter. SetText has no effect on button gadgets.
+/// - SetText is declared as a pure virtual; you must declare and define SetText in
+/// classes derived from TCommandEnabler. Whatever steps are needed to implement
+/// this functionality in your command item must be done in the derived SetText
+/// function. If, as is the case in TButtonGadgetEnabler, there is no valid
+/// application for the SetText function, you can simply implement it as an empty
+/// function.
+/// - SetCheck takes a single int parameter and returns void. This function toggles
+/// the command item on or off, depending on the value of the int parameter. This
+/// parameter can be one of three enumerated values defined in the TCommandEnabler
+/// class, Unchecked, Checked, or Indeterminate. Unchecked sets the state of the
+/// command item to be unchecked, Checked sets the state of the command item to be
+/// checked, and Indeterminate sets the command item to its indeterminate state. The
+/// nature of the indeterminate state is defined by the command item:
+/// - For menu items, the indeterminate state is the same as unchecked.
+/// - For button gadgets, the indeterminate state is an intermediate state between
+/// checked and unchecked.
+/// SetCheck is declared as a pure virtual; you must declare and define SetCheck in
+/// classes derived from TCommandEnabler. Whatever steps are needed to implement
+/// this functionality in your command item must be done in the derived SetCheck
+/// function.
+/// - GetHandled takes no parameters and returns bool. This function returns true
+/// if the command enabler has been handled by calling the Enable function.
+/// Otherwise, it returns false.
+/// - IsReceiver takes a single HWND parameter and returns a bool value. IsReceiver
+/// returns true if the HWND parameter matches the receiver HWND passed into the
+/// TCommandEnabler constructor and stored in HWndReceiver. Otherwise, it returns
+/// false.
+///
+/// \section data TCommandEnable data members
+/// TCommandEnabler contains three data members:
+/// - Id is the only public data member. This member contains the identifier for the
+/// command. It is declared as a const uint and is initialized in the constructor.
+/// Once initialized, it cannot be modified.
+/// - HWndReceiver contains the handle of the window that implements the command. This
+/// is a protected data member and cannot be directly accessed unless you are
+/// deriving a class from TCommandEnabler. HWndReceiver can be accessed indirectly
+/// by calling the IsReceiver function, which compares the value of the HWND
+/// parameter passed in to the value of HWndReceiver.
+/// - Handled indicates whether the command-enabling object has been dealt with. It is
+/// initialized to false in the TCommandEnabler constructor and set to true in
+/// TCommandEnabler::Enable. This is a protected data member and cannot be directly
+/// accessed unless you are deriving a class from TCommandEnabler. Handled can be
+/// accessed indirectly by calling the GetHandled function, which returns the value
+/// of Handled.
+///
+///
+///
+/// \page commoncommandenablingtasks Common command-enabling tasks
+/// This section describes how to perform some of the more common tasks for which
+/// you'll use command enabling, including
+/// - \subpage enablinganddisablingcommanditems "Enabling and disabling command items"
+/// - \subpage changingmenuitemtext "Changing menu item text"
+/// - \subpage togglingcommanditems "Toggling command items"
+///
+///
+///
+/// \page enablinganddisablingcommanditems Enabling and disabling command items
+/// Enabling and disabling command items is as simple as calling the 
+/// TCommandEnabler::Enable() function in your handler function. You decide the criteria for
+/// enabling and disabling a particular item. For example, if a particular library
+/// is not available, you might want to disable any commands that access that
+/// library. If your application handles files in a number of different formats, you
+/// might want to disable commands that are not appropriate to the current
+/// format.
+///
+/// To enable or disable a command,
+/// -# Add the command-enabling handler function and response table macro to your
+/// window class (as shown in \ref handlingcommandenablingmessages "Handling command-enabling
+/// messages)."
+/// -# Define the handler function.
+/// -# Inside the handler function, call the Enable member function of the
+/// command-enabling object passed into the handler function. The Enable function
+/// takes a single bool parameter. Call Enable with the value of the parameter set
+/// either to true to enable the command or to false to disable the command.
+///
+/// The following sample class has a bool flag, IsDirty, to tell if the file has
+/// been modified since it was opened or last saved, and a CeFileSave function to
+/// enable and disable the File|Save command:
+/// \code
+/// class TMyFrame : public
+/// TFrameWindow
+/// {
+///  public:
+///   TMyFrame(TWindow *parent = 0, char *title = 0)
+///    :
+/// TFrameWindow(parent, title), IsDirty(false) {}
+///
+///  protected:
+///   bool IsDirty;
+///
+///   void CmFileSave();
+///
+///   // This is the command-enabling handler function.
+///   void
+/// CeFileSave(TCommandEnabler& commandEnabler);
+///
+///  DECLARE_RESPONSE_TABLE(TMyFrame);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE(TMyFrame)
+///  EV_COMMAND(CM_FILESAVE, CmFileSave),
+///  EV_COMMAND_ENABLE(CM_FILESAVE, CeFileSave),
+/// END_RESPONSE_TABLE;
+///
+/// void
+/// TMyFrame::CeFileSave(TCommandEnabler& ce)
+/// {
+///  ce.Enable(IsDirty);
+/// }
+/// \endcode
+/// CeFileSave checks the IsDirty flag. If IsDirty is false (the file has not been
+/// modified), it disables the CmFileSave command by calling Enable, passing false
+/// as the parameter. If IsDirty is true (the file has been modified), CeFileSave
+/// enables the CmFileSave command, passing true as the parameter. Because you want
+/// to call Enable with the true parameter when IsDirty is true and vice versa, you
+/// can just pass IsDirty as the parameter to Enable.
+/// This method of enabling and disabling a command works for both menu items and
+/// button gadgets. In the preceding example, if you have both a control bar button
+/// and a menu item that send the CM_FILESAVE command, both commands are implemented
+/// in the CmFileSave function. Similarly, command enabling for the control bar
+/// button and the menu item is implemented in the CeFileSave function.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref handlingcommandenablingmessages "Handling command-enabling messages"
+/// - \ref changingmenuitemtext "Changing menu item text"
+/// - \ref togglingcommanditems "Toggling command items"
+///
+///
+///
+/// \page changingmenuitemtext Changing menu item text
+/// You use the SetText function to specify the text of a menu item. To change the
+/// text of a menu item,
+/// -# Add the command-enabling handler function and response table macro to your
+/// window class (as shown in \ref handlingcommandenablingmessages "Handling command-enabling
+/// messages)."
+/// -# Define the handler function.
+/// -# In the handler function, call the TCommandEnabler::SetText()
+/// member function of the command-enabling object passed into the handler
+/// function. SetText takes a single parameter, a const far char*, and returns void.
+/// The character array parameter should contain the new text for the menu item.
+/// \note If you are setting the text for a menu item and turning on a check mark
+/// for that menu item in the same function, you must call SetText before you call
+/// TCommandEnabler::SetCheck(). Reversing this order removes
+/// the check mark.
+///
+/// Suppose your application supports three different file formats: text, binary,
+/// and encrypted, and you want the File|Save menu item to reflect the format of the
+/// file being saved. Here is the sample class from \ref handlingcommandenablingmessages "Handling
+/// Command-Enabling Messages", modified with an enum type, TFormat, and a
+/// TFormat data member called Format:
+/// \code
+/// class TMyFrame : public TFrameWindow
+/// {
+///  public:
+///   TMyFrame(TWindow *parent = 0, char *title = 0);
+///   enum TFormat {Text, Binary, Encrypted};
+///
+///  protected:
+///   TFormat Format;
+///
+///   void CmFileSave();
+///
+///   // This is the command-enabling handler function.
+///   void
+/// CeFileSave(TCommandEnabler& commandEnabler);
+///
+///  DECLARE_RESPONSE_TABLE(TMyFrame);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE(TMyFrame)
+///  EV_COMMAND(CM_FILESAVE, CmFileSave),
+///  EV_COMMAND_ENABLE(CM_FILESAVE, CeFileSave),
+/// END_RESPONSE_TABLE;
+///
+/// void
+/// TMyFrame::CeFileSave(TCommandEnabler& ce)
+/// {
+///  switch(Format) {
+///   case Text:
+///   
+/// ce.SetText("Save as text file");
+///    break;
+///   case Binary:
+///   
+/// ce.SetText("Save as binary file");
+///    break;
+///   case Encrypted:
+///   
+/// ce.SetText("Save as encrypted file");
+///    break;
+///   default:
+///   
+/// ce.SetText("Save");
+///  }
+/// }
+/// \endcode
+///
+///
+/// \section seealso See Also
+/// - \ref enablinganddisablingcommanditems "Enabling and disabling command items"
+/// - \ref handlingcommandenablingmessages "Handling command-enabling messages"
+/// - \ref togglingcommanditems "Toggling command items"
+///
+///
+///
+/// \page togglingcommanditems Toggling command items
+/// You can use command-item toggling to provide the users of your applications
+/// visual cues about what functions are enabled, various application states, and so
+/// on. Anything that can be presented in a Boolean fashion, such as on and off, in
+/// and out, and so on, can be represented by command-item toggling.
+///
+/// Two different types of toggling are implemented in ObjectWindows, but both are
+/// implemented the same way.
+/// - You can turn check marks beside menu items on and off.
+/// - You can check and uncheck button gadgets to make the gadget stand out when it
+/// is off and be recessed and grayed when it is on.
+///
+/// There is also a third, indeterminate state, the meaning of which is up to you.
+/// It usually indicates a situation where the criteria for being enabled or
+/// disabled are mixed. For example, many word processors have control bar buttons
+/// that indicate the current text format, such as a button with a B on it to
+/// indicate bold text. This button is unchecked when the current text format is not
+/// bold and checked when the format is bold. But if a block of text contains text,
+/// some of which is bold and some not, the button is placed in its indeterminate
+/// state.
+///
+/// A variation of toggling button gadgets is to enable or disable an exclusive
+/// button gadget. Exclusive button gadgets work just like radio buttons. In a group
+/// of exclusive button gadgets only one button gadget can be on at a time. Enabling
+/// another button gadget in the group disables the previously enabled button
+/// gadget.
+///
+/// To toggle a command item,
+/// -# Add the command-enabling handler function and response table macro to your
+/// window class (as shown in \ref handlingcommandenablingmessages "Handling command-enabling
+/// messages)."
+/// -# Define the handler function.
+/// -# Inside the handler function, call the TCommandEnabker::SetCheck()
+/// member function of the command-enabling object passed into the handler
+/// function. SetCheck takes a single int parameter. Call SetCheck with one of the
+/// enumerated values defined in TCommandEnabler: Checked, Unchecked, or
+/// Indeterminate.
+///
+/// \note If you are turning on a check mark for a menu item and setting the text
+/// for that menu item in the same function, you must call TCommandEnabler::SetText()
+/// before you call SetCheck. Reversing this order removes the check
+/// mark.
+///
+/// A common use for toggling command items is to let the user of your application
+/// specify if some feature should be active. For example, suppose your application
+/// provides both a menu item and a control bar button to access the CmFileSave
+/// function. Many applications provide fly-over hints, short descriptions that
+/// appear in the status bar when the pointer moves over a menu item or button
+/// gadget. You might want to let the user turn these hints off. To provide this
+/// option to the user, you can
+/// -# Add a new command identifier to your application, such as CM_TOGGLEHINTS.
+/// -# Add a new menu, such as Options, with the menu item Fly-over Hints.
+/// -# Optionally add a new button to your button bar.
+/// -# Add a function to handle the CM_TOGGLEHINTS event and actually turn the hints
+/// on and off.
+/// -# Add a command-enabling function to check and uncheck the command items.
+///
+/// The code would look something like this:
+/// \code
+/// class TMyDecFrame : public TDecoratedFrame
+/// {
+///  public:
+///   TMyDecFrame(TWindow *parent = 0, char *title = 0, TWindow* client)
+///    :
+/// TDecoratedFrame(parent, title, client), hintMode (true) {}
+///
+///   // Cb must be set by the application object
+///   // during the InitMainWindow function.
+///   TControlBar* Cb;
+///
+///  protected:
+///   // hintMode indicates whether the hints are currently on or off.
+///   bool HintMode;
+///
+///   // This is the function that actually turns the hints on and off.
+///   void CmToggleHints();
+///
+///   // This is the command-enabling handler function.
+///   void
+/// CeToggleHints(TCommandEnabler& commandEnabler);
+///
+/// 
+/// DECLARE_RESPONSE_TABLE(TMyDecFrame);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE(TMyDecFrame)
+///  EV_COMMAND(CM_TOGGLEHINTS, CmToggleHints),
+///  EV_COMMAND_ENABLE(CM_TOGGLEHINTS, CeToggleHints),
+/// END_RESPONSE_TABLE;
+///
+/// void
+/// TMyDecFrame::CmToggleHints()
+/// {
+///  if(HintMode)
+///  
+/// Cb->SetHintMode(TGadgetWindow::EnterHints);
+///  else
+///  
+/// Cb->SetHintMode(TGadgetWindow::NoHints);
+///  HintMode = !HintMode;
+/// }
+///
+/// void
+/// TMyDecFrame::CeToggleHints(TCommandEnabler& ce)
+/// {
+///  ce.SetChecked(HintMode);
+/// }
+/// \endcode
+/// The control bar is set up by the application object in its InitMainWindow
+/// function. (The code for this is not shown here.) For a working example of
+/// command item toggling, see the example EXAMPLES\\OWL\\OWLAPPS\\MDIFILE.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref applicationandmoduleobjectsoverview "Application and module objects overview"
+/// - \ref changingmenuitemtext "Changing menu item text"
+/// - \ref enablinganddisablingcommanditems "Enabling and disabling command items"
+/// - \ref gadgetandgadgetwindowobjectsoverview "Gadget and gadget window objects"
+/// - \ref handlingcommandenablingmessages "Handling command-enabling messages"
+/// - TCommandEnabler class
+///
+///
+///
+/// \page objectwindowsexceptionhandling ObjectWindows Exception Handling
+/// ObjectWindows provides a robust exception-handling mechanism for dealing with
+/// exceptional situations. An exceptional situation is any situation that falls
+/// outside your application's normal operating parameters. It can be something as
+/// innocuous as an unexpected user response or something as serious as an invalid
+/// handle or memory allocation failure. Exception handling provides a clean,
+/// efficient way to deal with these and other conditions.
+///
+/// You should be thoroughly familiar with C++ exception handling before
+/// reading this material.
+///
+/// The following topics describe ObjectWindows exception-handling
+/// encapsulation:
+/// - \subpage objectwindowsexceptionhierarchy "ObjectWindows Exception Hierarchy"
+/// - \subpage workingwithtxbase "Working with TXBase"
+/// - \subpage workingwithtxowl "Working with TXOwl"
+/// - \subpage specializedobjectwindowsexceptionclasses "Specialized ObjectWindows Exception Classes"
+///
+///
+///
+/// \page objectwindowsexceptionhierarchy ObjectWindows Exception Hierarchy
+/// ObjectWindows provides a number of classes that can be thrown as exceptions.
+/// Based on the TXBase and TXOwl classes, these exception classes can inform the
+/// user of the existing exceptional state, prompt the user for a course of action,
+/// create new exception objects, throw exceptions, and so on.
+///
+/// There are four exception classes that are implemented as independent
+/// classes:
+/// -  TXBase is the base class for all ObjectWindows
+/// and exception classes. It is derived from the xmsg class.
+/// -  TXOwl, derived from TXBase, is the base class for
+/// the ObjectWindows exception classes.
+/// -  TXCompatibility describes exceptions
+/// that occur when TModule::Status has a non-zero
+/// value, providing backwards compatibility between the ObjectWindows 1.0 method of
+/// detecting exceptional situations and the ObjectWindows 2.x exception hierarchy.
+/// TXCompatibility maps the value of TModule::Status to a resource string identifier.
+/// - TXOutOfMemory describes an exception that
+/// occurs when an attempt to allocate memory space for an object fails. This is
+/// analogous to the xalloc object thrown when new fails to properly allocate
+/// memory.
+/// - TXBadFormat, derived from TXBase, describes
+/// an exception that occurs when an an illegal file format is encountered.
+/// - Two other classes, TXOle and TXAuto, are derived from
+/// TXBase. These classes provide exception handling for the classes.
+///
+///
+///
+///
+/// \page workingwithtxbase Working with TXBase
+/// As the base class for the ObjectWindows exception classes, TXBase provides the
+/// basic interface for working with ObjectWindows exceptions. TXBase can perform a
+/// number of functions, like
+/// -  \subpage constructinganddestroyingtxbase "Constructing itself", initializing its base xmsg
+/// object
+/// -  \subpage cloningexceptionobjects "Cloning itself", making a copy of the exception
+/// object
+/// -  \subpage throwingtxbaseexceptions "Throwing itself" as an exception object
+///
+///
+///
+/// \page constructinganddestroyingtxbase Constructing and Destroying TXBase
+/// TXBase provides two public constructors:
+/// \code
+/// TXBase(const string& msg);
+/// TXBase(const TXBase& src);
+/// \endcode
+/// The first constructor initializes the classlib.hlpxmsg" base class with the
+/// value of the string parameter, calling the xmsg constructor that takes a string
+/// parameter. The second creates a new object that is a copy of the TXBase object
+/// passed in as a parameter.
+///
+/// Both constructors increment the TXBase data member
+/// TXBase::InstanceCount, a static int (causing there to
+/// be only a single instance of the member no matter how many actual TXBase or
+/// TXBase-derived objects exist in the application). The TXBase destructor
+/// decrements InstanceCount. The destructor is declared virtual to allow easy
+/// overriding of the destructor.
+///
+/// Because each new TXBase or TXBase-derived object increments InstanceCount, and
+/// each deleted TXBase or TXBase-derived object decrements InstanceCount, the value
+/// of InstanceCount reflects the total number of TXBase and TXBase-derived objects
+/// existing in the application at the time. To access InstanceCount from outside a
+/// TXBase or TXBase-derived class, qualify the name InstanceCount with a TXBase::
+/// scope qualifier.
+///
+///
+///
+/// \page cloningexceptionobjects Cloning Exception Objects
+/// TXBase contains a function called TXBase::Clone(). This function takes no parameters and returns a
+/// TXBase*. Clone creates a copy of the current exception object by allocating a
+/// new TXBase object with new and passing a dereferenced this pointer to the copy
+/// constructor.
+/// \code
+/// TXBase*
+/// TXBase::Clone()
+/// {
+///  return new TXBase(*this);
+/// }
+/// \endcode
+/// It is important to note that any classes derived from TXBase must override Clone
+/// to use the proper constructor. For example, the TXOwl
+/// class, which is derived from TXBase, implements the
+/// TXBase::Clone() function like this:
+/// TXOwl*
+/// TXOwl::Clone()
+/// {
+///  return new TXOwl(*this);
+/// }
+///
+///
+///
+/// \section seealso See Also
+/// - \ref workingwithtxowl "Working with TXOwl"
+///
+///
+///
+/// \page throwingtxbaseexceptions Throwing TXBase Exceptions
+/// After you have created or cloned a TXBase object, you can throw the object in two ways:
+/// -  Use the throw keyword followed by the object name, as follows:
+/// \code
+///  TXBase xobj("Some exception...");
+///  throw xobj;
+/// \endcode
+/// -  Call the exception object's Throw function, as follows:
+/// \code
+///  TXBase xobj("Some exception...");
+///  xobj.Throw();
+/// \endcode
+/// This last method provides strict type safety when you throw the exception. It
+/// also provides a polymorphic interface when throwing the exception, allowing the
+/// function that catches a TXBase-derived exception object to treat the object as a
+/// TXBase object, regardless of what it actually is.
+///
+///
+///
+/// \page workingwithtxowl Working with TXOwl
+/// As the base class for the ObjectWindows exception classes,
+/// TXOwl provides the basic interface for working with
+/// ObjectWindows exceptions. In addition to the functionality provided in
+/// TXBase, TXOwl can perform other functions, such as
+/// - \subpage constructinganddestroyingtxowl "Constructing itself" (initializing its base
+/// objects)
+/// - \subpage cloningtxowlandtxowlderivedexceptionobjects "Cloning itself" (making a copy of the exception
+/// object)
+///
+/// TXOwl can also pass unhandled exceptions to the application object's Error
+/// function or to the global exception handler HandleGlobalException.
+///
+///
+///
+/// \page constructinganddestroyingtxowl Constructing and Destroying TXOwl
+/// TXOwl has two
+/// constructors to provide flexibility in passing the exception message string:
+/// \code
+/// TXOwl(const string& str, unsigned resId = 0);
+/// TXOwl(unsigned resId, TModule* module = gModule);
+/// \endcode
+/// The first constructor initializes the TXBase base object
+/// with the value of the str parameter. resId is used as an error number.
+/// The second constructor loads the string resource identified by resId and uses
+/// the string to initialize TXBase. The TModule* identifies the module from which
+/// the resource should be loaded. It defaults to the global current module pointer
+/// Module, meaning that the resource should be loaded from the current module or
+/// application.
+///
+/// The TXOwl destructor has no default functionality other than that inherited from
+/// TXBase.
+///
+///
+///
+/// \page cloningtxowlandtxowlderivedexceptionobjects Cloning TXOwl and TXOwl-Derived Exception Objects
+/// TXOwl contains a Clone function. This function takes no parameters and returns a
+/// TXOwl*. Clone creates a copy of the current exception object by allocating a new
+/// TXOwl object with new and passing a dereferenced this pointer to the automatic
+/// copy constructor. The function is defined as follows:
+/// \code
+/// TXOwl* TXOwl::Clone()
+/// {
+///  return new TXOwl(*this);
+/// }
+/// \endcode
+/// It is important to note that any classes derived from TXOwl must override this
+/// function to use the proper constructor. For example, the
+/// TXOutOfMemory class, which is derived from TXOwl,
+/// implements the Clone function like this:
+/// \code
+/// TXOwl* TXOutOfMemory::Clone()
+/// {
+///  return new TXOutOfMemory(*this);
+/// }
+/// \endcode
+/// Note that the return type is still TXOwl*. With this return type, ObjectWindows
+/// exception-handling functions can treat any exception object as a TXOwl
+/// object.
+///
+/// Also note that the return type for TXOwl::Clone differs from
+/// TXBase::Clone(). TXBase provides the basic functionality
+/// for both the ObjectWindows and the ObjectComponents exception classes, but TXOwl
+/// provides the basic interface for the ObjectWindows exception classes alone.
+///
+///
+///
+/// \page specializedobjectwindowsexceptionclasses Specialized ObjectWindows Exception Classes
+/// A number of regular ObjectWindows classes implement specialized exception
+/// classes, all of which are based on TXOwl that are defined
+/// within the implementing class definition to provide name scoping. The following
+/// table describes these classes, along with the unique functionality of each
+/// class.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Exception Class</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TXInvalidMainWindow</TD><TD class="owltable"> Initializes the
+/// exception message with the \ref constructingtheapplicationobject "IDS_INVALIDMAINWINDOW" string
+/// resource. This object is thrown when the MainWindow member of TApplication
+/// contains either an invalid pointer or a pointer to an invalid window.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TXInvalidModule</TD><TD class="owltable">  Initializes the
+/// exception message with the \ref constructingtheapplicationobject "IDS_INVALIDMODULE" string
+/// resource. This exception is thrown in the TModule constructor when the module's
+/// HInstance is invalid.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TXWindow</TD><TD class="owltable">  Initializes the exception
+/// message with the window title and with a string resource passed to the TXWindow
+/// constructor. This exception is thrown in situations where an error relating to a
+/// window object has occurred.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TXMenu</TD><TD class="owltable">  Initializes the exception message
+/// with a string resource passed to the TXMenu constructor, by default, the
+/// \ref constructingtheapplicationobject "IDS_GDIFAILURE" string resource. This exception is thrown when
+/// a menu object's handle is invalid.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TXValidator</TD><TD class="owltable">  Initializes the
+/// exception message with a string resource passed to the TXValidator constructor.
+/// By default this is the \ref constructingtheapplicationobject "IDS_VALIDATORSYNTAX" string
+/// resource. This exception is thrown when a validator expression is corrupt or
+/// invalid.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TXGdi</TD><TD class="owltable">  Initializes the exception message
+/// with a string resource passed to the TXGdi constructor, along with the GDI
+/// object handle. By default, the string resource is
+/// \ref constructingtheapplicationobject "IDS_GDIFAILURE" and the GDI object handle is 0 (zero). This
+/// exception is thrown in many situations when an error relating to a graphics
+/// object has occurred.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TXPrinter</TD><TD class="owltable">  Initializes the exception
+/// message with a string resource passed to the TXPrinter constructor. By default
+/// this is the \ref constructingtheapplicationobject "IDS_PRINTERERROR" string resource. This
+/// exception is thrown when the printer's device context is invalid.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TXBadFormat</TD><TD class="owltable">  Initializes the
+/// exception message with the \ref constructingtheapplicationobject "IDS_BADFILEFORMAT" string
+/// resource. This exception is thrown when an illegal file format is encountered.</TD></TR>
+/// </TABLE>
+///
+///

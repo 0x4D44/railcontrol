@@ -1,0 +1,429 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+/// \page validatorobjectsoverview Validator Objects Overview
+/// ObjectWindows provides several ways you can associate validator objects with the
+/// edit control objects to validate the information a user types into an edit
+/// control. Using validator objects makes it easy to add data validation to
+/// existing ObjectWindows applications or to change the way a field validates its
+/// data.
+///
+/// These three tasks are related to data validation:
+/// - \subpage thestandardvalidatorclasses "Using the standard validator classes"
+/// - \subpage usingdatavalidators "Using data validator objects"
+/// - \subpage overridingvalidatormemberfunctions "Overriding validator member functions"
+///
+/// At any time, you can validate the contents of any edit control or data screen by
+/// calling that object's CanClose method, which in turn calls the appropriate
+/// validator object. ObjectWindows validator classes also interact at the keystroke
+/// and the gain/lose focus level.
+///
+///
+///
+/// \page thestandardvalidatorclasses The Standard Validator Classes
+/// The ObjectWindows standard validator classes automate data validation.
+/// ObjectWindows defines six validator classes in validate.h:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Class type</TD><TD class="owltableheader">Class Name</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">\subpage validatorbaseclass "Validator base class"</TD><TD class="owltable">TValidator</TD><TD class="owltable">
+/// A base class from which all other validator classes are derived</TD></TR>
+/// <TR class="owltable"><TD class="owltable">\subpage filtervalidatorclass "Filter validator class"</TD><TD class="owltable">
+/// TFilterValidator</TD><TD class="owltable">A filter validator class</TD></TR>
+/// <TR class="owltable"><TD class="owltable">\subpage rangevalidatorclass "Range validator class"</TD><TD class="owltable">
+/// TRangeValidator</TD><TD class="owltable">A numeric-range validator class based on TFilterValidator</TD></TR>
+/// <TR class="owltable"><TD class="owltable">\subpage lookupvalidatorclass "Lookup validator class"</TD><TD class="owltable">
+/// TLookupValidator</TD><TD class="owltable">A lookup validator base class
+/// <TR class="owltable"><TD class="owltable">\subpage stringlookupvalidatorclass "String lookup validator class"</TD><TD class="owltable">
+/// TStringLookupValidator</TD><TD class="owltable">A string lookup validator class based on TLookupValidator</TD></TR>
+/// <TR class="owltable"><TD class="owltable">\subpage picturevalidatorclass "Picture validator class"
+/// </TD><TD class="owltable">TPXPictureValidator</TD><TD class="owltable">A picture validator class that validates a string based on a given pattern or "picture"</TD></TR>
+/// </TABLE>
+///
+///
+///
+/// \section seealso See Also
+/// - \ref validatorobjectsoverview "Validator Objects"
+///
+///
+///
+/// \page validatorbaseclass Validator Base Class
+/// The abstract class TValidator is the base class from
+/// which all validator classes are derived. TValidator is a validator for which all
+/// input is valid: Member functions TValidator::IsValid and TValidator::IsValidInput
+/// always return true, and TValidator::Error
+/// does nothing. Derived classes should override IsValid, IsValidInput, and Error
+/// to define which values are valid and when errors should be reported. Use
+/// TValidator as a starting point for your own validator classes if none of the
+/// other validator classes are appropriate starting points.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref filtervalidatorclass "Filter Validator Class"
+/// - \ref rangevalidatorclass "Range Validator Class"
+/// - \ref lookupvalidatorclass "Lookup Validator Class"
+/// - \ref stringlookupvalidatorclass "String Lookup Validator Class"
+/// - \ref picturevalidatorclass "Picture Validator Class"
+///
+///
+///
+/// \page filtervalidatorclass Filter Validator Class
+/// TFilterValidator is a simple validator that
+/// checks input as the user enters it. The filter validator constructor takes one
+/// parameter, a set of valid characters:
+/// \code
+/// TFilterValidator(const TCharSet& validChars);
+/// \endcode
+/// TCharSet is defined in bitset.h.
+///
+/// TFilterValidator overrides IsValidInput to return true only if all characters in
+/// the current input string are contained in the set of characters passed to the
+/// constructor.
+///
+/// The edit control inserts characters only if IsValidInput returns true, so there
+/// is no need to override IsValid. Because the characters made it through the input
+/// filter, the complete string is valid by definition.
+///
+/// Descendants of TFilterValidator, such as TRangeValidator, can combine
+/// filtering of input with other checks on the completed string.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref validatorbaseclass "Validator Base Class"
+/// - \ref rangevalidatorclass "Range Validator Class"
+/// - \ref lookupvalidatorclass "Lookup Validator Class"
+/// - \ref stringlookupvalidatorclass "String Lookup Validator Class"
+/// - \ref picturevalidatorclass "Picture Validator Class"
+///
+///
+///
+/// \page rangevalidatorclass Range Validator Class
+/// TRangeValidator is a range validator derived from TFilterValidator. It accepts only numbers and
+/// adds range checking on the final result.
+///
+/// The constructor takes two parameters that define the minimum and maximum valid
+/// values:
+/// \code
+/// TRangeValidator(long minValue, long maxValue);
+/// \endcode
+/// The range validator constructs itself as a filter validator that accepts only
+/// the digits 0 through 9 and the plus (+) and minus (-) characters. The inherited
+/// TRangeValidator::IsValidInput, therefore, ensures that only
+/// numbers filter through. TRangeValidator then overrides TRangeValidator::IsValid to
+/// return true only if the entered numbers are a valid integer within the range
+/// defined in the constructor. The TRangeValidator::Error method displays a message box indicating
+/// that the entered value is out of range.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref validatorbaseclass "Validator Base Class"
+/// - \ref filtervalidatorclass "Filter Validator Class"
+/// - \ref lookupvalidatorclass "Lookup Validator Class"
+/// - \ref stringlookupvalidatorclass "String Lookup Validator Class"
+/// - \ref picturevalidatorclass "Picture Validator Class"
+///
+///
+///
+/// \page lookupvalidatorclass Lookup Validator Class
+/// TLookupValidator is an abstract class that
+/// compares entered values with a list of acceptable values to determine validity.
+/// TLookupValidator introduces the virtual member function
+/// TLookupValidator::Lookup. By default, Lookup returns true. Derived classes
+/// should override Lookup to compare the parameter with a list of items, returning
+/// true if a match is found.
+///
+/// TLookupValidator overrides TLookupValidator::IsValid
+/// to return true only if Lookup returns true. In derived
+/// classes you should not override IsValid; you should instead override Lookup.
+///
+/// TStringLookupValidator class is an instance
+/// class based on TLookupValidator.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref validatorbaseclass "Validator Base Class"
+/// - \ref filtervalidatorclass "Filter Validator Class"
+/// - \ref rangevalidatorclass "Range Validator Class"
+/// - \ref stringlookupvalidatorclass "String Lookup Validator Class"
+/// - \ref picturevalidatorclass "Picture Validator Class"
+///
+///
+///
+/// \page stringlookupvalidatorclass String Lookup Validator Class
+/// TStringLookupValidator is a working
+/// example of a lookup validator; it compares the string passed from the edit
+/// control with the items in a string list. If the passed-in string occurs in the
+/// list, TStringLookupValidator::IsValid returns true.
+///
+/// The constructor takes only one parameter, a pointer to a
+/// TSortedStringArray object containing the list of
+/// valid strings:
+/// \code
+/// TStringLookupValidator(TSortedStringArray* strings);
+/// \endcode
+///
+/// \section usingadifferentstringlist Using a different string list
+/// To use a different string list after constructing the string lookup validator,
+/// use member function TStringLookupValidator::NewStringList, which
+/// disposes of the old list and installs the new list.
+///
+/// TStringLookupValidator overrides TStringLookupValidator::Lookup and
+/// TStringLookupValidator::Error. Lookup returns
+/// true if the passed-in string is in the list. Error displays a message box
+/// indicating that the string is not in the list.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref validatorbaseclass "Validator Base Class"
+/// - \ref filtervalidatorclass "Filter Validator Class"
+/// - \ref rangevalidatorclass "Range Validator Class"
+/// - \ref lookupvalidatorclass "Lookup Validator Class"
+/// - \ref picturevalidatorclass "Picture Validator Class"
+///
+///
+///
+/// \page picturevalidatorclass Picture Validator Class
+/// Picture validators compare the string entered by the user with a "picture" or
+/// template that describes the format of valid input. The pictures used are
+/// compatible with those used by Borland's Paradox relational database to control
+/// user input.
+///
+/// Constructing a picture validator requires two parameters: a string holding the
+/// template image and a Boolean value indicating whether to automatically fill-in
+/// the picture with literal characters:
+/// \code
+/// TPXPictureValidator(const char far* pic, bool autoFill=false);
+/// \endcode
+/// TPXPictureValidator overrides
+/// TPXPictureValidator::Error, TPXPictureValidator::IsValid, and
+/// TPXPictureValidator::IsValidInput, and adds a new member function,
+/// TPXPictureValidator::Picture. Error displays a message box
+/// indicating what format the string should have. IsValid returns true only if the
+/// function Picture returns true; thus you can derive new kinds of picture
+/// validators by overriding only the Picture member function. IsValidInput checks
+/// characters as the user enters them, allowing only those characters permitted by
+/// the picture format and optionally filling in literal characters from the picture
+/// format.
+///
+/// \section example Example
+/// Here is an example of a picture validator that is being constructed to accept
+/// social security numbers:
+/// \code
+/// edit->SetValidator(new TPXPictureValidator("###-##-####"));
+/// \endcode
+/// The Picture member function tries to format the given input string according to
+/// the picture format and returns a value indicating the degree of its
+/// success.
+///
+/// The following code lists those return values:
+/// \code
+/// //
+/// // TPXPictureValidator result type
+/// //
+/// enum TPicResult {
+///  prComplete,
+///  prIncomplete,
+///  prEmpty,
+///  prError,
+///  prSyntax,
+///  prAmbiguous,
+///  prIncompNoFill
+/// };
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref validatorbaseclass "Validator Base Class"
+/// - \ref filtervalidatorclass "Filter Validator Class"
+/// - \ref rangevalidatorclass "Range Validator Class"
+/// - \ref lookupvalidatorclass "Lookup Validator Class"
+/// - \ref stringlookupvalidatorclass "String Lookup Validator Class"
+///
+///
+///
+/// \page usingdatavalidators Using Data Validators
+/// To use data validator objects, you must:
+/// -# \subpage constructinganeditcontrolobject "Construct an edit control object"
+/// -# \subpage constructingandassigningvalidatorobjects "Construct a validator object"
+/// -# \subpage constructingandassigningvalidatorobjects "Assign it to the edit control"
+///
+/// From that point on, you do not need to interact with the validator object
+/// directly. The edit control knows when to call validator methods at the
+/// appropriate times.
+///
+///
+///
+/// \page constructinganeditcontrolobject Constructing an Edit Control Object
+/// Edit-control objects are instances of the TEdit class.
+///
+/// Here is an example of how to construct an edit control:
+/// \code
+/// TEdit* edit;
+/// edit = new TEdit(this, 101, sizeof(transfer.NameEdit));
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingandassigningvalidatorobjects "Constructing and Assigning a Validator Object"
+///
+///
+///
+/// \page constructingandassigningvalidatorobjects Constructing and Assigning Validator Objects
+/// \section establishingthevalidationcriteria Establishing the validation criteria
+/// Because validator objects are not interface objects, their constructors require
+/// only enough information to establish the validation criteria. For example, a
+/// numeric-range validator object requires only two parameters: the minimum and
+/// maximum values in the valid range.
+///
+/// Every edit control object has a data member that can point to a validator
+/// object. This pointer's declaration looks like this:
+/// \code
+/// TValidator *Validator
+/// \endcode
+///
+/// \section assigningvalidatorobjects Assigning Validator Objects
+/// Assign a validator by calling the edit control object's TEdit::SetValidator
+/// member function. The edit control
+/// automatically checks with the validator object when processing key events and
+/// when called on to validate itself.
+///
+/// \section examples Examples
+/// The following code shows the construction of a validator and its assignment to
+/// an edit control. In this case, a filter validator that allows only alphabetic
+/// characters is used.
+/// \code
+/// edit->SetValidator(new TFilterValidator("A-Za-z. "));
+/// \endcode
+///
+/// A complete example showing the use of the standard validators can be found in
+/// EXAMPLES\\OWL\\CLASSES\\VALIDATE.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructinganeditcontrolobject "Constructing an Edit Control Object"
+/// - TFilterValidator
+/// - TValidator
+///
+///
+///
+/// \page overridingvalidatormemberfunctions Overriding Validator Member Functions
+/// Although the standard validator objects should satisfy most of your data
+/// validation needs, you can also modify the standard validators or write your own
+/// validation objects. If you decide to do this, you should be familiar with the
+/// following list of member functions inherited from the base class TValidator.
+/// - \subpage memberfunctionvalid "Valid"
+/// - \subpage memberfunctionisvalid "IsValid"
+/// - \subpage memberfunctionisvalidinput "IsValidInput"
+/// - \subpage memberfunctionerror "Error"
+///
+/// In addition to understanding what each member function does, you should also
+/// know how edit controls use them and how to override them if necessary.
+///
+///
+///
+/// \page memberfunctionvalid Member Function Valid
+/// Member function Valid is called by
+/// the associated edit-control object to verify that the data entered is valid.
+/// Much like the TEdit::CanClose methods of interface objects, Valid is a Boolean
+/// function that returns true only if the string passed to it is valid data. One
+/// responsibility of an edit control's CanClose method is to call the validator
+/// object's Valid method, passing the edit control's current text.
+///
+/// When using validators with edit controls, you usually do not need to call or
+/// override the validator's Valid method; the inherited version of Valid will
+/// suffice. By default, Valid returns true if the method IsValid returns true;
+/// otherwise, it calls Error to notify the user of the error, and then it returns
+/// false.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref memberfunctionisvalid "Member Function IsValid"
+/// - \ref memberfunctionisvalidinput "Member Function IsValidInput"
+/// - \ref memberfunctionerror "Member Function Error"
+///
+///
+///
+/// \page memberfunctionisvalid Member Function IsValid
+/// The virtual member function IsValid
+/// is called by Valid, which passes IsValid the text string to be validated.
+/// IsValid returns true if the string represents valid data. IsValid does the
+/// actual data validation, so if you create your own validator objects, you will
+/// probably override IsValid.
+/// \note Do not call IsValid directly. Use Valid to call IsValid, because if
+/// IsValid returns false, Valid calls Error to alert the user. This behavior 
+/// separates the validation role from the error-reporting role.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref memberfunctionvalid "Member Function Valid"
+/// - \ref memberfunctionisvalidinput "Member Function IsValidInput"
+/// - \ref memberfunctionerror "Member Function Error"
+///
+///
+///
+/// \page memberfunctionisvalidinput Member Function IsValidInput
+/// When an edit control object recognizes a keystroke event intended for it, it
+/// calls its validator's TValidator::IsValidInput method to ensure that the entered character is a valid
+/// entry. By default, IsValidInput methods always return true, meaning that all
+/// keystrokes are acceptable, but some derived validators override IsValidInput to
+/// filter out unwanted keystrokes.
+///
+/// For example, range validators, which are used for numeric input, return true
+/// from IsValidInput only for numeric digits and the characters '+' and '-'.
+/// IsValidInput takes two parameters, as shown in the following syntax
+/// statement:
+/// \code
+/// virtual bool IsValidInput(char far* str, bool suppressFill);
+/// \endcode
+/// The first parameter, str, points to the current input text being validated. The
+/// second parameter is a Boolean value indicating whether the validator should
+/// apply filling or padding to the input string before attempting to validate it.
+///
+/// TPXPictureValidator is the only standard
+/// validator object that uses the second parameter.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref memberfunctionvalid "Member Function Valid"
+/// - \ref memberfunctionisvalid "Member Function IsValid"
+/// - \ref memberfunctionerror "Member Function Error"
+///
+///
+///
+/// \page memberfunctionerror Member Function Error
+/// Virtual member function TValidator::Error
+/// alerts the user that the contents of the edit control do not pass the
+/// validation check. The standard validator objects generally present a simple
+/// message box notifying the user that the contents of the input are invalid and
+/// describing what proper input would be.
+///
+/// For example, the Error member function for a range validator object creates a
+/// message box indicating that the value in the edit control is not between the
+/// indicated minimum and maximum values.
+///
+/// Although most descendant validator objects override Error, you never call it
+/// directly. TValidator::Valid calls Error for you if TEdit::IsValid
+/// returns false, which is the only time Error needs to
+/// be called.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref memberfunctionvalid "Member Function Valid"
+/// - \ref memberfunctionisvalid "Member Function IsValid"
+/// - \ref memberfunctionisvalidinput "Member Function IsValidInput"
+///
+///
+///

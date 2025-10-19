@@ -1,0 +1,1029 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+/// \page overviewofthewindowssocketclasses Overview of the Windows Socket Classes
+/// The Sockets layer provides network access for application programs, as shown
+/// below.
+///
+/// \image html bm73.bmp
+///
+/// The Windows Socket classes support the Transmission Control Protocol (TCP) and
+/// the User Datagram Protocol (UDP).
+/// - The TCP protocol is used for \subpage streamsocketcommunication "stream socket communication".
+/// - The UDP protocol is used for \subpage datagramsocketcommunication "datagram socket communication".
+///
+/// The TCP and UDP layers support the Internet Protocol (IP) layer.
+///
+/// \section blockingandnonblockingsockets Blocking and Non-Blocking Sockets
+/// A socket can be set to the \subpage blockingandnonblockingmodes "blocking or non-blocking mode".
+///
+/// \section seealso See Also
+/// \subpage thewindowssocketclasses The Windows Socket Classes
+///
+/// \page thewindowssocketclasses The Windows Socket Classes
+/// The following classes are used to create window sockets:
+/// - \subpage aboutthostinfomanager "THostInfoManager"
+/// - \subpage abouttinetsocketaddress "TINetSocketAddress"
+/// - \subpage abouttservicemanager "TServiceManager"
+/// - \subpage abouttsocket "TSocket"
+/// - \subpage abouttsocketaddress "TSocketAddress"
+/// - \subpage abouttsocketerror "TSocketError"
+/// - \subpage abouttsocketmanager "TSocketManager"
+///
+///
+///
+/// \page streamsocketcommunication Stream Socket Communication
+/// In stream-based communication, the server client applications request services
+/// from a server application, as shown below.
+/// \image html bm74.bmp
+///
+/// The table below shows the sequence of operations for the server and the
+/// client.
+/// <TABLE BORDER="0" CELLSPACING="0">
+/// <TR><TD><b>Server</b></TD><TD><b>Client</b></TD></TR>
+/// <TR><TD>\subpage acceptingaconnection "Create a socket"</TD><TD></TD></TR>
+/// <TR><TD>\ref acceptingaconnection "Bind an address to the socket"</TD><TD></TD></TR>
+/// <TR><TD>\ref acceptingaconnection "Listen for service requests"</TD><TD></TD></TR>
+/// <TR><TD></TD><TD>Create a socket</TD></TR>
+/// <TR><TD>\ref acceptingaconnection "Accept the connection"</TD>
+/// <TD>Connect to the server</TD></TR>
+/// <TR><TD>Send and receive data</TD><TD>Send and receive data</TD></TR>
+/// <TR><TD>\subpage closingtheconnection "Close the connection"
+/// </TD><TD>\ref closingtheconnection "Close the connection"</TD></TR>
+/// </TABLE>
+///
+/// \section using Using
+/// - \subpage usingastreamserver "Using a stream server"
+/// - \subpage usingastreamclient "Using a stream client"
+///
+/// \section seealso See Also
+/// - \subpage creatingandconnectingastreamserverandaclient "Creating and Connecting a Stream Server and a Client"
+///
+/// \page acceptingaconnection Accepting a Connection
+/// The code below, a non-blocking socket is created on a server. This socket is
+/// bound, starts asynchronous notification, and then starts listening. Some time
+/// later, Winsock posts an accept notification, and this causes the listening
+/// socket's DoAcceptNotification() function to be called. At this point, the
+/// listening socket's Accept() function can be called to complete the
+/// acceptance.
+///
+/// Note that the tempSocket doesn't get initialized to have any address; it will
+/// get set by the Accept() call.
+///
+/// This example does not use any error checking and reporting.
+/// \ref creatingandconnectingastreamserverandaclient "Creating and Connecting a Stream Server and Client" shows a
+/// similiar sequence of operations.
+/// \code
+/// TStreamSocket
+/// tempListeningSocket(TINetSocketAddress(htons(47), INADDR_ANY);
+/// TStreamSocket tempSocket;
+///
+/// tempListeningStreamSocket.CreateSocket();
+/// tempListeningStreamSocket.BindSocket();
+/// tempListeningStreamSocket.StartAcceptNotification();
+/// tempListeningStreamSocket.Listen();
+/// .../*Wait until tempListeningStreamSocket.DoAcceptNotification() gets called*/
+/// tempListeningStreamSocket.Accept(tempSocket);
+/// tempSocket.StartRegularNotification();
+/// /*Converts socket to non-blocking*/
+/// //If you are now going to hand off 'tempSocket' to some other class to
+/// // copy it, you may want to call SetSaveSocketOnDelete() on tempSocket,
+/// // because tempSocket defaults to calling closesocket() when it goes out of scope.
+/// \endcode
+///
+///
+///
+/// \page creatingandconnectingastreamserverandaclient Creating and Connecting a Stream Server and a Client
+/// The code below creates a listening stream socket and waits for connections.
+/// ShutDownApp() is called in the event of an error.
+/// \code
+/// #define SERVICE_PORT 5001
+/// int nError;
+/// TStreamSocket tempListeningSocket(TINetSocketAddress(htons(SERVICE_PORT)), INADDR_ANY));
+///
+/// tempListeningStreamSocket.CreateSocket();
+/// nError = tempListeningStreamSocket.BindSocket();
+/// if(nError == SOCKET_ERROR){
+/// 
+///   MessageBox(TSocketError(tempListeningStreamSocket.GetLastError()).
+///  
+///   AppendError("Error on call to BindSocket"), "Error" MB_OK);
+///   ShutDownApp();
+/// }
+/// tempListeningStreamSocket.StartAcceptNotification();
+/// nError = tempListeningStreamSocket.Listen();
+/// if(nError == SOCKET_ERROR){
+/// 
+///   MessageBox(TSocketError(tempListeningStreamSocket.GetLastError()).
+///  
+///   AppendError("Error on call to BindSocket"), "Error" MB_OK);
+///   ShutDownApp();
+/// }
+/// for(;;){ /*Accept and service incoming connection requests indefinitely*/
+/// 
+///   tempListeningStreamSocket.Accept(tempSocket);
+///   if(nError == SOCKET_ERROR){
+///   
+///     MessageBox(TSocketError(tempListeningStreamSocket.GetLastError()).
+///  
+///     AppendError("Error on call to BindSocket"), "Error" MB_OK);
+///   
+///     ShutDownApp();
+///   }
+///   // ...do something with the socket...
+/// 
+/// tempSocket.StartRegularNotification(); /*Converts socket to non-blocking*/
+/// 
+/// tempSocket.CloseSocket();
+/// }
+/// \endcode
+///
+/// The code below creates a client stream socket that then connects to a server.
+/// There is no error checking. The code is blocking, in order to simplify
+/// reading.
+/// \code
+/// #define SZ_SERVER "131.107.1.121"
+///
+/// TServiceManager 
+/// myServiceManager;
+/// TServiceEntry* 
+/// tempServiceEntry;
+/// TStreamSocket  
+/// myStreamSocket(INetSocketAddress());
+/// TINetSocketAddress peerAddress;
+///
+/// myStreamSocket.CreateSocket();
+/// myStreamSocket.BindSocket();
+/// myServiceManager.GetService(tempServiceEntry, "ftp");
+/// peerAddress.SetAddress(AF_INET,
+/// tempServiceEntry.s_port, TINetSocketAddress::ConvertAddress(SZ_SERVER));
+/// myStreamSocket.Connect(peerAddress);
+/// ...
+/// \endcode
+///
+///
+///
+/// \page closingtheconnection Closing the Connection
+/// The code to close a connection is identical for both client and server, whether
+/// the socket is a stream socket or datagram socket.
+/// If you have a pointer to the socket object:
+/// \code
+///  TSocket* socket;
+/// \endcode
+/// You can close the socket connection with
+/// \code
+///  socket->CloseSocket().
+/// \endcode
+/// Note that the destructor for the TSocket class will also close the socket.
+///
+///
+///
+/// \page usingastreamserver Using a Stream Server
+/// -# Create a stream socket:
+/// \code
+///  TStreamSocket socket(TINetSocketAddress(htons(2000), INADDR_ANY);
+///  socket.CreateSocket();
+/// \endcode
+/// -# Bind the socket to a well-known name (bind()):
+/// \code
+///  socket.BindSocket();
+/// \endcode
+/// -# Listen for connections (listen()):
+/// \code
+///  socket.Listen();
+/// \endcode
+/// -# Accept a connection (accept()):
+/// \code
+///  TStreamSocket client;
+///  socket.Accept(client);
+/// \endcode
+/// -# To write (send()):
+/// \code
+///  socket.Write("Hello");
+/// \endcode
+/// -# To read (recv()):
+/// \code
+///  char buffer[80];
+///  socket.Read(buffer, sizeof(buffer));
+/// \endcode
+/// -# Close the socket (closesocket())
+/// \code
+///  socket.CloseSocket();
+/// \endcode
+///
+///
+///
+/// \page usingastreamclient Using a Stream Client
+/// -# Create a stream socket (socket()):
+/// \code
+///  TStreamSocket socket(TINetSocketAddress());
+///  socket.CreateSocket();
+/// \endcode
+/// -# Connect to the server (connect()):
+/// \code
+/// socket.Connect(TINetSocketAddress(htons(2000),
+///   
+/// TINetSocketAddress::ConvertAddress("soyeun@harvard.edu"));
+/// \endcode
+/// -# To Write (send()):
+/// \code
+///  socket.Write("Hello");
+/// \endcode
+/// -# To Read (recv()):
+/// \code
+///  char buffer[80];
+///  socket.Read(buffer, sizeof(buffer));
+/// \endcode
+/// -# Close the connection (closesocket()):
+/// \code
+///  socket.CloseSocket();
+/// \endcode
+///
+///
+///
+/// \page datagramsocketcommunication Datagram Socket Communication
+/// The WinSocket classes also support datagram sockets. Datagram communication does
+/// not require a connection because each datagram messages contains a destination
+/// address. A datagram socket can send data to many addresses, and receive data
+/// from many sources.
+///
+/// Datagram communication does not use a client-server relationship. For
+/// convenience, however, these terms are used in the table below.
+/// <TABLE BORDER="0" CELLSPACING="0">
+/// <TR><TD><b>Server</b></TD><TD><b>Client</b></TD></TR>
+/// <TR><TD>\subpage creatingadatagramsocket "Create a socket"</TD><TD></TD></TR>
+/// <TR><TD>\ref creatingadatagramsocket "Bind an address to the socket"</TD><TD></TD></TR>
+/// <TR><TD></TD><TD>Create a socket</TD></TR>
+/// <TR><TD>\subpage sendingdatafromadatagramsocket "Send" and
+/// \subpage receivingdatafromadatagramsocket "receive" data</TD><TD>
+/// \ref sendingdatafromadatagramsocket "Send" and
+/// \ref receivingdatafromadatagramsocket "receive" data</TD></TR>
+/// <TR><TD>\subpage closingtheconnection "Close the connection"</TD><TD>
+/// \ref closingtheconnection "Close the connection"</TD></TR>
+/// </TABLE>
+///
+/// Using
+/// - \subpage usingadatagramserver "Using a datagram server"
+/// - \subpage usingadatagramclient "Using a datagram client"
+///
+///
+///
+/// \page creatingadatagramsocket Creating a Datagram Socket
+/// In the code below, a Datagram (UDP) Socket is created with several options
+/// (including broadcasting).
+/// \code
+/// int MySocketUsingClass::SetupASocket(u_short nPeerPortInNetworkOrder, char* szPeerIPAddressDottedDecimal)
+/// {
+///   TINetSocketAddress myAddress; //(port 0, address INADDR_ANY)
+///   TINetSocketAddress peerAddress(nPeerPortInNetworkOrder, szPeerIPAddressDottedDecimal);
+///   TDatagramSocket myDatagramSocket(myAddress);
+///
+/// 
+/// myDatagramSocket.CreateSocket();
+/// 
+/// myDatagramSocket.BindSocket();
+/// 
+/// myDatagramSocket.SetBroadcastOption(TRUE); //enable broadcasting.
+/// 
+/// myDatagramSocket.SetDebugOption(TRUE);   //record
+/// debugging information.
+/// 
+/// myDatagramSocket.SetLingerOption(TRUE, 5); //set linger to 5 seconds.
+/// 
+/// myDatagramSocket.SetSendBufferOption(512); //set send buffer size to 512
+/// bytes.
+/// 
+/// myDatagramSocket.SetPeerAddress(TINetSocketAddress(ntohs(N_PORT), INADDR_BROADCAST);
+/// }
+/// \endcode
+///
+///
+///
+/// \page sendingdatafromadatagramsocket Sending Data From a Datagram Socket
+/// The code below sends a C string by datagram to a given peer on a given port.
+/// Both blocking and non-blocking code is demonstrated. Note that the switch back
+/// and forth between blocking and non-blocking mode involves only a single line of
+/// code. Note also that after the last write call, the local TDatagramSocket object
+/// is deleted without any closesocket() function being called. This is because the
+/// socket cleans up after itself and calls CloseSocket() if it had not been called
+/// already.
+/// \code
+/// WriteDataThreeTimes(){
+///   #define N_PORT    501
+///   #define SZ_PEER_ADDR "132.162.211.199"
+///   char szString[]   ="Hello";
+///
+///   TDatagramSocket myDatagramSocket(TINetSocketAddress(htons(N_PORT)));
+/// 
+/// myDatagramSocket.CreateSocket();
+/// 
+/// myDatagramSocket.BindSocket();
+/// 
+/// myDatagramSocket.SetPeerAddress(TINetSocketAddress(ntohs(N_PORT), inet_addr(SZ_PEER_ADDR));
+///   myDatagramSocket.Write(szString, sizeof(szString)); //blocking write call.
+/// 
+/// myDatagramSocket.StartRegularNotification();  
+///  //socket is now non-blocking.
+///   myDatagramSocket.Write(szString, sizeof(szString)) //non-blocking write call.
+/// 
+/// myDatagramSocket.CancelNotification();   
+///    //socket is blocking again.
+///   myDatagramSocket.Write(szString, sizeof(szString)); //blocking write call.
+/// } //The socket will clean up after itself; you don't have to.
+/// \endcode
+/// The code below broadcasts a C string on the network, minus error-checking. Note
+/// that when you broadcast with the address "INADDR_BORADCAST", you don't need to
+/// say htonl(INADDR_BROADCAST) or  inet_addr(INADDR_BORADCAST). This is because the
+/// definition for INADDR_BROADCAST and its
+/// related predefined addresses are already in binary network
+/// format.
+/// \code
+/// BroadcastHelloString(){
+///   #define N_PORT 501
+///   char szString[]="Hello Everybody";
+///
+///   TINetSocketAddress myINetAddress (0, INADDR_ANY);
+///   TINetSocketAddress allINetAddresses(ntohs(N_PORT), INADDR_BROADCAST);
+///
+///   TDatagramSocket myDatagramSocket(myINetAddress);
+/// 
+///   myDatagramSocket.CreateSocket();
+/// 
+///   myDatagramSocket.BindSocket();
+/// 
+///   myDatagramSocket.SetBroadcastOption(true); //enable broadcasting
+/// 
+///   myDatagramSocket.SetPeerAddress(allINetAddresses);
+///   myDatagramSocket.Write(szString, sizeof(szString)); //blocking write call.
+/// }
+/// \endcode
+///
+///
+///
+/// \page receivingdatafromadatagramsocket Receiving Data From a Datagram Socket
+/// The code below reads data from a socket. Since this is a datagram example, we
+/// simply read the next datagram that gets received. It is important to note that
+/// Windows Socket classes don't consider a WSAEWOULDBLOCK return from Recv() as an
+/// error. Thus, when you call Read() in non-blocking mode, and the Read()
+/// internally encounters a WSAEWOULDBLOCK, it simply sets nBytes to zero and
+/// returns without an error. Only real errors are returned by Windows Socket
+/// functions.
+/// \code
+/// TDatagramSocket myDS(INetSocketAddress(nPeerPortInNetworkOrder, INADDR_ANY);
+/// myDS.CreateSocket();
+/// myDS.BindSocket();    
+/// myDS.StartRegularNotification(); //Turns on -non-blocking mode.
+/// ...
+/// int      nError;
+/// char     chBuffer[1000];
+/// int      nBytes=1000;
+/// SocketAddress sAddressOfSender;
+///
+/// nError = myDS.Read(chBuffer, nBytes, sAddressOfSender);
+/// if(nError == WINSOCK_ERROR){
+///   MessageBox(hWnd, TSocketError(nError).GetReasonString(), "Sockets Error", MB_OK);
+/// 
+/// DoLikeNovellAndBombSystemUponReceivingAnyError();
+/// }
+/// if(nBytes){
+///   ProcessTheBytes(chBuffer, nBytes); //Some function you may have made.
+/// }
+/// ...
+/// \endcode
+///
+///
+///
+/// \page usingadatagramserver Using a Datagram Server
+/// -# Create the socket (socket()):
+/// \code
+/// TDatagramSocket socket(TINetSocketAddress());
+///  socket.CreateSocket();
+/// \endcode
+/// -# Bind the socket to a well-known name (bind()):
+/// \code
+///  socket.BindSocket();
+/// 
+/// socket.SetPeerAddress(TINetSocketAddress(htons(2050), INADDR_BROADCAST));
+/// \endcode
+/// -# To Write (sendto()):
+/// \code
+///  socket.Write("Hello");
+/// \endcode
+/// -# To Read (recvfrom()):
+/// \code
+///  char buffer[80];
+///  socket.Read(buffer, sizeof(buffer));
+/// \endcode
+/// -# Close the connection (closesocket()):
+/// \code
+///  socket.CloseSocket();
+/// \endcode
+///
+///
+///
+/// \page usingadatagramclient Using a Datagram Client
+/// -# Create the socket (socket()):
+/// \code
+/// TDatagramSocket socket(TINetSocketAddress());
+///  socket.CreateSocket();
+/// \endcode
+/// -# Bind the socket to a well-known name (bind()):
+/// \code
+/// socket.SetPeerAddress(TINetSocketAddress(htons(2050), INADDR_BROADCAST));
+/// \endcode
+/// -# To Write (sendto()):
+/// \code
+///  socket.Write("Hello");
+/// \endcode
+/// -# To Read (recvfrom()):
+/// \code
+///  char buffer[80];
+///  socket.Read(buffer, sizeof(buffer));
+/// \endcode
+/// -# Close the connection (closesocket()):
+/// \code
+///  socket.CloseSocket();
+/// \endcode
+///
+///
+///
+/// \page blockingandnonblockingmodes Blocking and Non-Blocking Modes
+/// If a socket is in the blocking mode, the socket will not relinquish control
+/// until a socket command has been completed. All windows applications will stop,
+/// no communications can occur between applications, and the active window cannot
+/// be changed.
+///
+/// For this reason, asynchronous notification is included in order to prevent
+/// thread blocking. This is mostly useful in Windows 3.X. Nevertheless, a lot of
+/// programmers will be making even Windows NT programs with single threads, and so
+/// asynchronous read/write capabilities are still useful. In fact, even if you do
+/// use separate threads for sockets calls, you'll find that as soon as you make a
+/// blocking call on one thread, you'll have to wait until it's done to use it, or
+/// you have to create another thread. Windows non-blocking extensions are useful
+/// for all of Windows programming.
+///
+/// The Windows Socket classes provide support for internal notification and
+/// external notification. This provides a way for you to make calls and to be
+/// notified upon completion of the call. You don't have to respond to the Winsock
+/// asynchronous notification system yourself if you don't want to, or you can take
+/// care of all notifications yourself.
+///
+/// You may want to use notifications for the following classes:
+/// - \subpage tservicemanagernotifications "TServiceManager"
+/// - \subpage thostinfomanagernotifications "THostInfoManager"
+/// - \subpage tsocketnotifications "TSocket"
+/// - \subpage tstreamsocketnotifications "TStreamSocket"
+/// - \subpage tdatagramsocketnotifications "TDatagramSocket"
+///
+///
+///
+/// \page tservicemanagernotifications TServiceManager Notifications
+/// The TServiceManager manages the service database GetXbyY() functions. You can
+/// use it, for example, to specify a service name, such as "ftp", and retrieve the
+/// port associated with that service.
+///
+/// The class TServiceManager supports blocking and non-blocking calls, and it uses
+/// notifications to signal that a non-blocking call has completed.
+///
+/// You can let TServiceManager receive the notification itself, whereby you can
+/// call the GetServiceRequestCompleted() function to see if that request has
+/// completed. Otherwise, you can tell the TServiceManager to notify a given TWindow
+/// (which you supply) when the request is completed. In either case, you can call
+/// the CancelServiceRequest() function to cancel the pending asynchronous
+/// request.
+///
+///
+///
+/// \page thostinfomanagernotifications THostInfoManager Notifications
+/// The class THostInfoManager has notification options that are much like the
+/// TServiceManager options. THostInfoManager manages the host entry ('hostent')
+/// database GetXbyY() functions. You can use it, for example, to convert a name
+/// such as "joes_computer@abc.com" to an IP address.
+///
+/// THostInfoManager supports blocking and non-blocking calls, and it uses
+/// notifications to signal that a non-blocking call has completed.
+///
+/// You can let THostInfoManager receive the notification itself, whereby you can
+/// call the GetHostRequestCompleted() function to see if that request has
+/// completed. Otherwise, you can tell THostInfoManager to notifiy a given TWindow
+/// (which you supply) when the request is completed. In either case, you can call
+/// the CancelHostRequest() function to cancel the pending asynchronous
+/// request.
+///
+///
+///
+/// \page tsocketnotifications TSocket Notifications
+/// The TSocket class has a couple different notification options that you can use.
+/// First, we'll give a brief description of how Winsock notification works. Then
+/// we'll talk about how it works with the Socket class and your options.
+/// A blocking socket causes read, write, etc. calls to sometimes block the
+/// executing thread until the call has completed, depending on whether the Winsock
+/// driver is ready to make the call. You cannot know for sure if any given socket
+/// read or write call will make the socket block or not.
+///
+/// Winsock provides a way for you to be notified by Winsock when it is ready to
+/// make a read or write call without blocking: you call the Winsock function
+/// WSAAsyncSelect() to tell Winsock to notify you (you supply an HWND) with
+/// FD_READ, FD_WRITE, FD_OOB, FD_ACCEPT, FD_CONNECT, FD_CLOSE identifiers. For
+/// example, when Winsock is ready to accept read calls on the socket, it sends your
+/// HWND an FD_READ message. If you don't call WSAAsyncSelect(), then all socket
+/// functions you use will block.
+///
+/// The OWLSock TSocket class has both an internal notification mechanism and an
+/// external notification mechanism. In the internal mechanism, TSocket has an
+/// internal hidden friend window that receives all FD_XXX notifications. With the
+/// external notification mechanism, you tell the TSocket class that you want all
+/// FD_XXX notifications to go to the window of your choice. These two internal and
+/// external notification systems are mutually exclusive. The TSocket class uses
+/// internal notification by default, but you can redirect any of the notifications
+/// to a given window.
+///
+/// In the Windows Socket Classes, the equivalent Socket functions to
+/// WSAAsyncSelect() are DoAcceptNotification() and DoRegularNotification(). These
+/// two functions cause a socket to be notified of FD_ACCEPT and all other FD's,
+/// respectively. Since a listening socket can do nothing else in life but listen,
+/// and a connected (read/write) socket can never be a listening socket, we have a
+/// separate functions to turn on both of the notification types.
+///
+/// When TSocket gets an internal notification, it calls the appropriate
+/// DoXNotification() function. In the TSocket class, these functions are empty,
+/// while the TStreamSocket and TDatagramSocket classes do an appropriate action
+/// based on the message. You can subclass the TSocket class (or more likely, the
+/// TStreamSocket or TDatagramSocket) and write your own DoXNotification() functions
+/// to override the default behavior. For example, the
+/// TStreamSocket::DoWriteNotification() function tries to write any data that is in
+/// its outgoing queue. You could, for example, make a subclass called TPOPSocket()
+/// that sends and receives POP notifications and commands upon DoReadNotification()
+/// and DoWriteNotification() calls.
+///
+/// If you set TSocket to do external notifications, it will redirect FD_XXX
+/// notifications to the window of your choice. You can tell TSocket to redirect any
+/// combination of notifications to the given window by OR-ing the appropriate
+/// values together. Only the notifications that you OR together will get redirected
+/// to the window; the others go to the DoXNotification() functions, as usual.
+/// You may want to redirect all notifications to a window so that you can respond
+/// to each of the notifications when they come. You could, for example, redirect
+/// only FD_ACCEPT messages to a window so that all listening sockets send FD_ACCEPT
+/// messages to the same window. You call the SetNotificationWindow function to set
+/// the window for the notifications to be set. These windows are set on a TSocket
+/// by TSocket basis, and you only have to set it once for a given TSocket. When you
+/// call SetNotificationSet() you tell the it what notifications to redirect. There
+/// is an enumeration set (nNotifyWrite) that duplicates the FD set (FD_WRITE). You
+/// can use either set, as they are effectively equal.
+///
+/// Identifiers and functions for external notification:
+/// \code
+/// //These two FD macros supplement those in winsock.h.
+/// #define FD_ALL   (FD_READ|FD_WRITE|FD_OOB|FD_ACCEPT|FD_CONNECT|FD_CLOSE)
+/// #define FD_NONE  (0)
+///
+/// //These enumerations duplicate those defined in 'winsock.h'
+/// //You can OR or add these together to make a notification set.
+/// enum NotificationSet{nNotifyNone = 0x00,
+/// nNotifyRead = 0x01, nNotifyWrite = 0x02,
+/// nNotifyOOB = 0x04, nNotifyAccept = 0x08, nNotifyConnect = 0x10,
+/// nNotifyClose = 0x20, nNotifyAll = 0x3F};
+///
+/// virtual void SetNotificationWindow(TWindow* windowNewNotification);
+/// virtual void SetNotificationSet(int nNewNotificationSet);
+/// \endcode
+///
+///
+///
+/// \page tstreamsocketnotifications TStreamSocket Notifications
+/// The TStreamSocket class is a subclass of the TSocket class, and as such it
+/// supports all the notification mechanisms that the TSocket class supports. Thus,
+/// you can call StartRegularNotification() and SetNotificationSet() on a
+/// TStreamSocket as well as on a TSocket.
+///
+/// The TStreamSocket class subclasses all the DoXNotification() functions. You can
+/// subclass TStreamSocket and make your own virtual DoReadNotification(),
+/// DoWriteNotification(), etc functions to receive these notifications in the
+/// subclass and respond to them any way you want.
+///
+///
+///
+/// \page tdatagramsocketnotifications TDatagramSocket Notifications
+/// The TDatagramSocket class, like the TStreamSocket class, is a subclass of the
+/// TSocket class, and it supports all the notification mechanisms that the TSocket
+/// class supports. Thus, you can call StartRegularNotification() and
+/// SetNotificationSet() on a TDatagramSocket as well as on a TSocket.
+///
+/// The TDatagramSocket class subclasses all the DoXNotification() functions from
+/// the TSocket class. You can subclass TDatagramSocket and make your own virtual
+/// DoReadNotification(), DoWriteNotification(), etc functions to receive these
+/// notifications in the subclass and respond to them any way you want.
+///
+///
+///
+/// \page aboutthostinfomanager About THostInfoManager
+/// The THostInfoManager class (and its friend class
+/// THostInfoWindow) encapsulate the Winsock database functions gethostbyname(),
+/// gethostbyaddr(), and gethostname(). These blocking (gethostby...) and
+/// non-blocking (gethostname) functions return information about the host in a
+/// hostent structure.
+///
+/// The THostInfoManager supports direct equivalents to the blocking gethostbyaddr()
+/// and gethostbyname() Winsock functions. In Winsock 1.1, the gethostbyaddr() and
+/// gethostbyname() functions work only for Internet addresses. Thus, the
+/// THostInfoManager has the same restriction. However, the THostInfoManager
+/// functions accept a TSocketAddress as the address parameter instead of an
+/// TINetSocketAddress. This is to be forward-compatible with Winsock 2.0.
+/// Lets say you have a host name, "elvis@ms.com," and you want to get its THostInfo
+/// (hostent). In Winsock, you could say:
+/// \code
+/// tempHostent = gethostbyname("elvis@ms.com");
+/// \endcode
+///
+/// Calling the THostInfoManager function GetHostInfo() has the same effect:
+/// \code
+/// nError = myHostInfoMgr.GetHostInfo(tempHostent, "elvis@ms.com");
+/// \endcode
+///
+/// While the above example will get you a THostInfo (hostent) structure, it doesn't
+/// give you an IP address or TSocketAddress directly. Most often, you'll want to
+/// use the THostInfoManager to convert fully qualified names such as "elvis@ms.com"
+/// to IP addresses or TSocketAddresses. You can use the GetHostAddress(char*
+/// szHostAddress, const char* szHostName) or the GetHostAddress(SocketAddress&
+/// sAddress, const char* szHostName) to do this. Lets say you have a host name,
+/// "elvis@ms.com," and you want to get its equivalent IP address. In Winsock, you
+/// would say:
+/// \code
+/// char szDottedDecimalAddress[16];
+/// hostent* tempHostent;
+/// in_addr tempInAddr;
+/// char* szAddress;
+/// tempHostent = gethostbyname("elvis@ms.com");
+/// tempInAddr.s_addr = *((u_long*)tempHostEntry->h_addr);
+/// szAddress = inet_ntoa(tempInAddr);
+/// strcpy(szDottedDecimalAddress, szAddress);
+/// \endcode
+///
+/// Calling the HostInfoManager function GetHostInfo() has the same effect, but is
+/// more concise, because it takes care of all the housekeeping:
+/// \code
+/// char szDottedDecimalAddress[16];
+/// nError = myHostInfoMgr.GetHostInfo(szDottedDecimalAddress, "elvis@ms.com");
+/// \endcode
+///
+/// THostInfoManager also supports asynchronous (non-blocking) Winsock host
+/// information lookups. These correspond to the WSAGetHostByName() and
+/// WSAGetHostByAddr() functions. To use these classes in Winsock, you need to pass
+/// an HWND to these functions and wait till Winsock calls you back with an answer.
+/// In Windows Socket Class, you have two choices:
+/// -# You can give the THostInfoManager a TWindow to notify upon completion using
+/// GetHostInfoAsync().
+/// -# You can let THostInfoManager get the notification itself, and you simply get
+/// the information from the THostInfoManager when the information is ready. This
+/// approach lets the THostInfoManager do all the work; you simply don't have to
+/// deal with HWNDs, wMsgs, wParams, etc. This option is very similar to the
+/// Overlapped I/O concept of Windows NT: Reads and Writes don't block, but the
+/// function returns as if the data was read or sent, and a notification will be
+/// posted when the read/write actually occurs. This is very useful for times when
+/// one thread handles multiple sockets at a time.
+///
+/// When the asynchronous call completes, the THostInfoManager::
+/// SetHostRequestCompleted() function gets called, and the HostRequestCompleted
+/// member is set to true. You may at any time call (poll)
+/// THostInfoManager::GetHostRequestCompleted() to see if the last request has
+/// completed. If GetHostRequestCompleted() returns true, then you can examine the
+/// THostInfoManager::HostEntry member, or call THostInfoManager::
+/// HostEntryToAddress()to get an address.
+///
+/// The Winsock host information database functions return a pointer to a read-only
+/// hostent structure.
+///
+/// THostInfoManager uses a subclass of the hostent class called the THostEntry
+/// class. Since THostEntry is a subclass of hostent, it can be used anywhere that
+/// Winsock or Windows Socket Class requires a hostent.
+///
+///
+///
+/// \page abouttinetsocketaddress About TINetSocketAddress
+/// \subpage usingtsocketaddressandtinetsocketaddress "Using"
+///
+/// The TINetSocketAddress class encapsulates a Winsock
+/// Internet address. This class stores a complete Internet address, which includes
+/// an address family, a port, and a 32 bit (4 byte) IP address. The Internet
+/// address-specific information is stored in the sa_data field of the
+/// sockaddr.
+///
+/// All addresses stored by the TSocketAddress class are in network byte ordering.
+/// While the address family field (sa_family) is stored in network byte ordering,
+/// these families are \#defined in winsock.h to values which are already in network
+/// byte ordering. Thus, you can simply refer to them by their names (e.g. AF_INET)
+/// and not have to call htons() on them.
+///
+/// The TINetSocketAddress class can be thought of as a C++ version of the
+/// sockaddr_in class. Some sockets class implementations (e.g. The Distinct corp.)
+/// encapsulate only the IP address (u_long) in their version of an address class.
+/// However, we feel that a full Internet address encompasses both a port and the 4
+/// byte u_long IP address. You can think of port and addresses in terms of the US
+/// Mail system. The IP address (u_long) is like the address on a letter, and the
+/// port is like the name of the person that receives the letter at that address. An
+/// address on a letter received in the mail is incomplete without the name of who
+/// gets the letter. Thus, a full address includes both the address and who should
+/// receive the mail at that address. Likewise, a complete Internet address consists
+/// of both a port and an address.
+///
+/// There are a number of constructors for TINetSocketAddress. Among them are a copy
+/// constructor, an empty constructor, a constructor from a char*, and a constructor
+/// from a port and u_long. These constructors set up the sa_data portion of the
+/// sockaddr structure to make it look like a properly filled-in sockaddr_in
+/// structure. The TINetSocketAddress class also has functions to get and set the
+/// addrress information, get address class information, and functions to convert
+/// between dotted-decimal and u_long versions of the Internet address (Winsock's
+/// inet_ntoa() and inet_addr()).
+///
+/// Many OWL Windows Socket functions expect a TSocketAddress as a parameter. You
+/// can pass an TINetSocketAddress or a TSocketAddress as the parameter.
+///
+///
+///
+/// \page usingtsocketaddressandtinetsocketaddress Using TSocketAddress and TINetSocketAddress
+/// TSocketAddress and TINetSocketAddress encapsulate the address
+/// objects. There are two types of addresses. The first is the generic socket
+/// address encapsulated by TSocketAddress. It is always stored in network-byte
+/// order. The family determines how the other bytes of the structure is used. The
+/// most common value is AF_INET.
+///
+/// The TINetSocketAddress class is derived from TSocketAddress. It encapsulates the
+/// Internet address. It stores a complete Internet address which includes an
+/// address family (which is AF_NET), a port, and a 32 bit (4 byte) IP address.
+/// The class you're more likely to use is TINetSocketAddress. You create the
+/// address by specifying the port and an optional address on the constructor.
+/// \code
+///  TINetSocketAddress address(80);
+/// \endcode
+///
+///
+///
+/// \page abouttservicemanager About TServiceManager
+/// \subpage usingtservicemanager "Using"
+///
+/// The TServiceManager class (and its friend class
+/// TServiceWindow) encapsulate the Winsock database functions getservbyname(),
+/// getservbyport(), WSAAsyncGetServByName(), and WSAAsyncGetServByPort(). These
+/// blocking (get...) and non-blocking (WSA...) functions return information about
+/// the service name, port, and protocol when given only a service name or a
+/// port.
+///
+/// The Winsock service database functions return a pointer to a read-only servent
+/// structure.
+///
+/// The TServiceManager uses a subclass of the servent class called the
+/// TServiceEntry class. Since TServiceEntry is a subclass of servant, it can be
+/// used anywhere that Winsock or Windows Socket Class requires a servent.
+/// The TServiceManager supports direct equivalents to the blocking getservbyname()
+/// and getservbyport() Winsock functions. If you wanted to find the port that the
+/// service "ftp" resides on, you could use the TServiceManager to give you this
+/// information. Calling the Winsock function:
+/// \code
+/// tempServent = getservbyport("ftp");
+/// \endcode
+///
+/// will store the service name, the port, and the protocol in the servent
+/// structure. Calling the TServiceManager function GetService() has the same
+/// effect:
+/// \code
+/// nError = GetService(tempServent, "ftp");
+/// \endcode
+///
+/// The TServiceManager also supports asynchronous (non-blocking) Winsock service
+/// lookups. These correspond to the WSAGetServByName() and WSAGetServByPort()
+/// functions. To use these classes in Winsock, you need to pass an HWND to these
+/// functions and wait until Winsock calls you back with an answer. In the Windows
+/// Socket Class, you have two choices:
+/// -# You can give the TServiceManager a TWindow to notify upon completion using
+/// GetServiceAsync().
+/// -# You can let TServiceManager get the notification itself, and then get the
+/// information from the TServiceManager when the information is ready. This
+/// approach lets TServiceManager do all the work; you don't have to work with
+/// HWNDs, wMsgs, wParams, etc. This option is very similar to the Overlapped I/O
+/// concept of Windows NT: Reads and Writes don't block, but the function returns as
+/// if the data was read or sent, and a notification will be posted when the
+/// read/write actually occurs. This is very useful for times when one thread
+/// handles multiple sockets at a time.
+///
+///
+///
+/// \page usingtservicemanager Using TServiceManager
+/// The TServiceManager class encapsulates the
+/// service information functions. It provides information about a service given its
+/// name or port number and a specific protocol. The information can be retrieved in
+/// either blocking mode or non-blocking mode (see online help under blocking mode).
+/// The information is returned in the form of a TServiceEntry which encapsulates
+/// the Winsock servent structure.
+///
+/// For example, to retrieve the port number of the time service on the udp protocol
+/// in blocking mode, you would use the following code:
+/// \code
+///  TServiceManager manager;
+///  int port;
+///  manager.GetServicePort("time", port, "udp");
+/// \endcode
+///
+///
+///
+/// \page abouttsocket About TSocket
+/// The TSocket class encapsulates a Winsock SOCKET. It
+/// simplifies the use of SOCKETs while letting you fall back to Winsock API calls
+/// if desired. For example, the TSocket class allows you to say:
+/// \code
+/// mySocket.SetLingerOption(true, 5);
+/// \endcode
+///
+/// Whereas in Winsock, you would have to say:
+/// \code
+/// LINGER ling;
+/// ling.l_onoff = 1;
+/// ling.l_linger = 5;
+/// setsockopt(socket, SOL_SOCKET, SO_LINGER, (LPSTR)&ling, sizeof(ling));
+/// \endcode
+///
+/// You can use a TSocket class anywhere you can use a SOCKET identifier, since
+/// class TSocket provides an automatic conversion operator from TSocket to SOCKET.
+/// So if you really want to use the Winsock API, you can say:
+/// \code
+/// LINGER ling;
+/// ling.l_onoff = 1;
+/// ling.l_linger = 5;
+/// TSocket myS;
+/// setsockopt(myS, SOL_SOCKET, SO_LINGER, (LPSTR)&ling, sizeof(ling));
+/// \endcode
+///
+/// TSocket offers a number of methods for construction. These are the default
+/// constructor, a constructor from an TSocketAddress and protocol info, and a copy
+/// constructor. The construction from a TSocketAddress and protocol info is the
+/// most common form. You would say something like the following:
+/// \code
+/// TINetSocketAddress myAddress(htons(23), INADDR_ANY);
+/// TSocket tempStreamSocket(myAddress, AF_INET, SOCK_STREAM, IPPROTO_TCP);
+/// \endcode
+/// or, equally
+/// \code
+/// TSocket tempStreamSocket(myAddress);
+/// \endcode
+///
+/// The TSocket class provides socket creating, binding, and closing functions, read
+/// and write functions, socket option setting and getting functions, and more. In
+/// actuality, you will most often use the TSocket-derived TStreamSocket and
+/// TDatagramSocket, especially for reading and writing the socket.
+///
+/// The Socket class supports both blocking and non-blocking socket operation. By
+/// default, the Socket class blocks on calls to Read and Write, etc. But, like in
+/// the Winsock API, you can turn on asynchronous notification of events like
+/// FD_READ, etc. In the Socket class, you use the StartRegularNotification(),
+/// StartAcceptNotification(), and CancelNotification() functions. These functions
+/// cause the Socket functions DoReadNotification(), etc. to be called when the
+/// appropriate FD_READ, etc. messages are sent to an internal Socket hidden window.
+/// You can redirect these notifications to a given window of your choice with the
+/// Socket SetNotificationWindow() and SetNotificationSet() functions. This way, you
+/// get full flexibility with Socket asynchronous notifications.
+///
+/// The TSocket class (and its subclasses) optionally supports read/write data
+/// queueing during asynchronous operation. This allows you to tell the socket to
+/// send a block of data with one send and have the Socket save that block of data
+/// and send it automatically as soon as possible; you don't have to wait for a
+/// notification to come-the Socket will take care of that for you. This queueing
+/// also applies to data receiving. You have TSocket bring the data in and wait
+/// until it gets to a certain size and then get what you want from the queue.
+///
+///
+///
+/// \page abouttsocketaddress About TSocketAddress
+/// \subpage usingtsocketaddressandtinetsocketaddress "Using"
+///
+/// The TSocketAddress class stores a Winsock socket
+/// address. Note that the TSocketAddress class does not store Internet (IP)
+/// addresses specifically. It stores generic socket addresses. The
+/// TINetSocketAddress class is used to store Internet addresses.
+///
+/// All addresses stored by the TSocketAddress class are in network byte ordering.
+/// While the address family field (sa_family) is stored in network byte ordering,
+/// these families are \#defined in winsock.h to values which are already in network
+/// byte ordering. Thus, you can simply refer to them by their names (e.g. AF_INET)
+/// and not have to call htons() on them.
+///
+/// The TSocketAddress class can be thought of as a C++ version of the sockaddr
+/// class.
+///
+/// Note that the only typed data that the sockaddr holds is the sa_family field.
+/// The sa_data field is a raw array of bytes that can hold any address supported by
+/// Winsock. For example, the sa_data field can hold an Internet address in the
+/// first 6 bytes of sa_data and leave the other 8 bytes zeroed out. Other address
+/// formats, such as IPX/SPX addresses, can also fit within 14 bytes.
+/// There are a number of constructors for TSocketAddress. Among them are a copy
+/// constructor, an empty constructor, a constructor from a char*, and
+/// others.
+///
+/// Many OWLSock functions expect a TSocketAddress as a parameter. You can pass a
+/// TSocketAddress or a subclass of it as the parameter. Some functions may expect a
+/// TINetSocketAddress as a parameter instead of just a TSocketAddress.
+///
+///
+///
+/// \page abouttsocketerror About TSocketError
+/// \subpage usingtsocketerror "Using"
+///
+/// The TSocketError class stores an error numerical
+/// value and a string describing the error. It automatically fills in the string
+/// part of the error if you give it the numerical error value. This class can be
+/// used to help make error strings to report to the user, and to store errors for
+/// later use. Every error index defined in Winsock can be reported here.
+/// With the TSocketError class you can use strings from the string table resource,
+/// or you can use static strings that are already stored directly in the source
+/// code for the class. The choice between the two is made with a compilation
+/// switch:
+/// \code
+/// #define B_USING_STRING_RESOURCES //Use the application's string
+///                                  //table instead of static strings.
+/// \endcode
+/// The advantage of static strings in the source code is that they are already done
+/// and you don't have to deal with the string table resource. The disadvantage is
+/// that static strings are harder to maintain and take up space in your program's
+/// data segment. It may be best to use static strings for pre-release work work
+/// prototyping, and use string tables for the final product.
+///
+/// This class does not have a function here to actually print the string to the
+/// screen in, say, a MessageBox(). This was done to make the TSocketError base
+/// class more portable. You can subclass the TSocketError class with, for example,
+/// "WinSocketError : public TSocketError" and add one function:
+/// "ReportError()."
+///
+///
+///
+/// \page usingtsocketerror Using TSocketError
+/// TSocketError is a class provided for your
+/// convenience. It converts a WinSock error code into a string. These strings are
+/// stored in a string table resource, so you must add
+/// \code
+///  #include <owl/winsock.rc>
+/// \endcode
+/// near the top of your .RC file before you can use TSocketError. Otherwise, the
+/// error code will convert to an empty string.
+/// You convert an error code into a string by creating an instance of
+/// TSocketError:
+/// \code
+///  THostInfoManager myHostInfoManager;
+/// 
+/// THostEntry*   tempHostEntry;
+/// 
+/// int       nError;
+///
+///  nError = myHostInfoManager.GetHostInfo(tempHostEntry, "j_shmoe@anywhere.com");
+///  if (nError == SOCKET_ERROR) {
+///  
+///    MessageBox(TSocketError(nError).GetReasonString(), "Sockets Error");
+///  }
+/// \endcode
+///
+/// Note that the default size of the strings cannot be greater than 128. You can
+/// increase this value by specifying the new size as an argument to the
+/// constructor.
+///
+///
+///
+/// \page abouttsocketmanager About TSocketManager
+/// \subpage usingtsocketmanager "Using"
+///
+/// The TSocketManager class is a small class that can
+/// be used to do two things:
+/// -# Start up and shut down the Winsock session
+/// -# Store arrays of Sockets
+///
+/// You don't absolutely need the TSocketManager to do either of the above things,
+/// and you may never even be interested in having any class store an array of
+/// TSockets, but the TSocketManager is there to do either if you wish.
+///
+/// The Winsock startup function WSAStartup(), returns a WSAData structure.
+/// TSocketManager uses a subclass of the WSAData class called the TSocketInfo
+/// class. Since TSocketInfo is a subclass of WSAData, it can be used anywhere that
+/// Winsock or Windows Socket Class requires a WSAData.
+///
+/// TSocketManager calls WSAStartup() in its constructor, and saves the result for
+/// later use. For Winsock version information, call the TSocketManager function
+/// "Information()." TSocketManager automatically calls WSACleanup in its
+/// destructor.
+///
+///
+///
+/// \page usingtsocketmanager Using TSocketManager
+/// TSocketManager is the core of OWL's WinSock
+/// encapsulation. It initializes and deinitializes the WinSock DLL. You must create
+/// an instance of this class to work with WinSock. The lifetime of this object
+/// determines when you can communicate with WinSock.
+/// You create an instance of TSocketManager by:
+/// \code
+///  TSocketManager* manager = new TSocketManager;
+/// \endcode
+///
+/// When you're done, use:
+/// \code
+///  delete manager;
+/// \endcode
+///
+///
+///

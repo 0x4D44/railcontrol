@@ -1,0 +1,459 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+/// \page writingdllfunctionsoverview Writing DLL Functions Overview
+/// When writing \subpage dynamiclinklibrary "DLL" functions that will be called from an
+/// application, keep these things in mind:
+/// - Make calls to 16-bit DLL functions far calls, and make pointers specified as
+/// parameters and return values far pointers. You need to do this because a 16-bit
+/// DLL has different code and data segments than the calling application. This is
+/// not necessary for 32-bit DLLs. Use the _FAR macro to make your code portable
+/// between platforms.
+/// - Static data defined in a 16-bit DLL is global to all calling applications
+/// because 16-bit DLLs have one data segment that all 16-bit DLL instances share.
+/// Global data set by one caller can be accessed by another. If you need data to be
+/// private for a given caller of a 16-bit DLL, you need to dynamically allocate and
+/// manage the data yourself on a per-task basis. For 32-bit DLLs, static data is
+/// private for each process, except under Win32s.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage writingsharedclasses "Writing Shared Classes "
+/// - \subpage thetmoduleobject "The TModule Object"
+/// - \subpage usingobjectwindowsasadll "Using ObjectWindows as a DLL "
+/// - \subpage callinganobjectwindowsdll "Calling an ObjectWindows DLL"
+/// - \subpage implicitandexplicitloading "Implicit and Explicit Loading "
+/// - \subpage mixingstaticanddynamiclinkedlibraries "Mixing Static and Dynamic-linked Libraries "
+/// - \subpage dllentryandexitfunctions "DLL Entry and Exit Functions "
+/// - \subpage exportingdllfunctions "Exporting DLL Functions "
+/// - \subpage importingcallingdllfunctions "Importing (calling) DLL Functions "
+///
+///
+///
+/// \page dllentryandexitfunctions DLL Entry and Exit Functions
+/// Windows requires that two functions be defined in every
+/// - \ref dynamiclinklibrary "DLL:" an entry function and an exit function.
+/// 16-bit DLLs \subpage libmain "LibMain" is the entry function and
+/// \subpage wep "WEP" (Windows Exit Procedure) is the exit function. LibMain is
+/// called by Windows for the first application that calls the DLL, and WEP is
+/// called by Windows for the last application that uses the DLL.
+///
+/// 32-bit DLLs \subpage dllentrypoint "DllEntryPoint" serves as both the entry and
+/// exit function. DllEntryPoint is called each time the DLL is loaded or unloaded,
+/// each time a process attaches to or detaches from the DLL, and each time a thread
+/// within a process is created or destroyed.
+///
+/// Windows calls the entry procedure (LibMain or DllEntryPoint) once, when the
+/// library is first loaded. The entry procedure initializes the DLL; this
+/// initialization depends almost entirely on the particular DLL function, but might
+/// include the following tasks:
+/// - Unlocking the data segment with UnlockData, if it has been declared as
+/// MOVEABLE
+/// - Setting up global variables for the DLL, if it uses any
+///
+/// There is no need to initialize the heap because the DLL startup code (C0Dx.OBJ)
+/// initializes the local heap automatically.
+///
+///
+///
+/// \page libmain LibMain
+/// The 16-bit \ref dynamiclinklibrary "DLL" entry procedure, LibMain, is defined as
+/// follows:
+/// \code
+/// int PASCAL LibMain(HINSTANCE hInstance, uint16 wDataSeg,
+///     uint16 cbHeapSize, LPSTR lpCmdLine)
+/// \endcode
+/// LibMain, HINSTANCE, uint16, and LPSTR are defined in windows.h. The parameters
+/// are described in the following table:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">hInstance</TD><TD class="owltable">instance handle of the DLL.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">wDataSeg</TD><TD class="owltable">value of the data segment (DS) register.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">cbHeapSize</TD><TD class="owltable">size of the local heap specified in the module definition file for
+/// the DLL.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lpCmdLine</TD><TD class="owltable">far pointer to the command line specified when the DLL was loaded.
+/// This is almost always null, because typically DLLs are loaded automatically
+/// without parameters. It is possible, however, to supply a command line to a DLL
+/// when it is loaded explicitly.</TD></TR>
+/// </TABLE>
+///
+/// The return value for LibMain is either 1 (successful initialization) or 0
+/// (unsuccessful initialization). Windows unloads the DLL from memory if 0 is
+/// returned.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref dllentrypoint "DllEntryPoint "
+/// - \ref wep "WEP "
+///
+///
+///
+/// \page wep WEP
+/// WEP is the exit procedure of a \ref dynamiclinklibrary "DLL." Windows calls it
+/// prior to unloading the DLL. Because the Borland C++ run-time libraries provide a
+/// default WEP, this function is not necessary in a DLL, but you can write one to
+/// perform any cleanup before the DLL is unloaded from memory. Often the
+/// application has terminated by the time WEP is called, so valid options are
+/// limited.
+///
+/// Under Borland C++, WEP does not need to be exported, although you should export
+/// it if you are concerned with portability. WEP returns 1 to indicate success.
+/// Windows currently does not use this return value. Here is the WEP prototype:
+/// \code
+/// int FAR PASCAL WEP (int nParameter)
+/// \endcode
+/// The nParameter can be one of the following:
+/// - \b \c WEP_SYSTEMEXIT Windows is shutting down.
+/// - \b \c WEP_FREE_DLL Just this DLL is unloading.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref dllentrypoint "DllEntryPoint "
+/// - \ref libmain "LibMain "
+///
+///
+///
+/// \page dllentrypoint DllEntryPoint
+/// The 32-bit \ref dynamiclinklibrary "DLL" entry point, DllEntryPoint, is defined as
+/// follows:
+/// \code
+/// bool WINAPI DllEntryPoint(HINSTANCE hinstDll, uint32 fdwReason, LPVOID lpvReserved)
+/// \endcode
+/// DllEntryPoint is defined in winbase.h. The parameters are as follows:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">hinstDll</TD><TD class="owltable">The DLL instance handle.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">fdwReason</TD><TD class="owltable">A flag that describes why the DLL is being called (either a process or
+/// thread). The flags can take the following values:
+/// - DLL_PROCESS_ATTACH
+/// - DLL_THREAD_ATTACH
+/// - DLL_THREAD_DETACH
+/// - DLL_PROCESS_DETACH
+/// </TD></TR>
+/// <TR class="owltable"><TD class="owltable">lpvReserved</TD><TD class="owltable">Specifies further aspects of the DLL initialization and cleanup
+/// based on the value of fdwReason.</TD></TR>
+/// </TABLE>
+///
+///
+///
+/// \section seealso See Also
+/// - \ref libmain "LibMain "
+/// - \ref wep "WEP "
+///
+///
+///
+/// \page exportingdllfunctions Exporting DLL Functions
+/// After writing your \ref dynamiclinklibrary "DLL" functions, you must export the
+/// functions that you want to be available to a calling application. There are two
+/// steps involved: compiling your DLL functions as exportable functions and
+/// exporting them. You can do this in the following ways:
+/// - If you flag a function with the _export keyword, it is compiled as exportable
+/// and is then exported.
+/// - If you add the _export keyword to a class declaration, the entire class (data
+/// and function members) is compiled as exportable and is exported.
+/// - If you do not flag a function with _export, use the appropriate compiler
+/// switch or IDE setting to compile functions as exportable. Then list the function
+/// in the module definition (.DEF) file EXPORTS section.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref importingcallingdllfunctions "Importing (calling) DLL Functions "
+///
+///
+///
+/// \page importingcallingdllfunctions Importing (calling) DLL Functions
+/// You call a \ref dynamiclinklibrary "DLL" function from an application just as you
+/// would call a function defined in the application itself. However, you must
+/// import the DLL functions that your application calls.
+///
+/// To import a DLL function,
+/// - Add an IMPORTS section to the calling application's module definition (.DEF)
+/// file and list the DLL function as an import.
+/// - Link an import library that contains import information for the DLL function
+/// to the calling application. (Use IMPLIB to make the import library.)
+/// - Explicitly load the DLL using LoadLibrary and obtain function addresses using
+/// GetProcAddress.
+///
+/// When your application executes, the files for the called DLLs must be in one of
+/// the following locations, or your application will not be able to find the DLL
+/// files and will not load:
+/// - In the current directory
+/// - On the path
+/// - In the Windows or Windows system directory
+///
+///
+///
+/// \section seealso See Also
+/// - \ref exportingdllfunctions "Exporting DLL Functions "
+///
+///
+///
+/// \page writingsharedclasses Writing Shared Classes
+/// A class instance in a \ref dynamiclinklibrary "DLL" can be shared among multiple
+/// applications. For example, you can share code that defines a dialog box by
+/// defining a shared dialog class in a DLL. The shared class can then be used in or
+/// derived from by other applications or DLLs. To share a class you need to export
+/// the class from the DLL and import the class into your application.
+///
+/// To define shared classes:
+/// - Conditionally declare your class as either _export or _import.
+/// - Pass a TModule* parameter to the window constructors
+/// (in some situations).
+///
+/// If you declare a shared class in an include file that is included by both the
+/// DLL and an application using the DLL, the class must be declared _export when
+/// compiling the DLL and _import when compiling the application. You can do this by
+/// defining a group of macros, one of which is conditionally set to _export when
+/// building the DLL and to _import when using the DLL. For example:
+/// \code
+/// // BUILDEXAMPLEDLL is defined when building EXAMPLE as a DLL,
+/// // but not when building it as a static library.
+/// #if defined(BUILDEXAMPLEDLL)
+///   #define _EXAMPLECLASS __export
+/// // USEEXAMPLEDLL is defined when building an application or DLL
+/// // that uses EXAMPLE as a DLL.
+/// #elif defined (USEEXAMPLEDLL)
+///   #define _EXAMPLECLASS __import
+/// // This is used when compiling EXAMPLE as a static library.
+/// #else
+///   #define _EXAMPLECLASS
+/// #endif
+///
+/// class _EXAMPLECLASS TColorControl : public TControl {
+///  public:
+///
+///  ...
+///
+/// };
+/// \endcode
+/// By defining BUILDEXAMPLEDLL (on the command line, for example) when you are
+/// building the DLL, you cause _EXAMPLECLASS to expand to _export. This causes the
+/// class to be exported and shared by applications using the DLL.
+///
+/// By defining USEEXAMPLEDLL when you are building the application that will use
+/// the DLL, you cause _EXAMPLECLASS to expand to _import. The application will know
+/// what type of object it will import.
+///
+///
+///
+/// \page thetmoduleobject The TModule Object
+/// An instance of the TModule class serves as the
+/// object-oriented interface for an ObjectWindows \ref dynamiclinklibrary "DLL."
+/// TModule member functions provide support for window and memory management, and
+/// process errors.
+///
+/// The following code example shows the declaration and initialization of a TModule
+/// object. This example is conditionalized so that either 16-bit
+/// - \ref libmain "(LibMain)" or 32-bit \ref dllentrypoint "(DllEntryPoint)"
+/// DLLs can use the same source file.
+/// \code
+/// static TModule *ResMod;
+///
+/// #if defined(__WIN32__)
+///
+///  bool WINAPI
+///  DllEntryPoint(HINSTANCE instance, uint32 /*flag*/, LPVOID)
+///
+/// #else  // !defined(__WIN32__)
+///
+///  int
+///  FAR PASCAL
+///  LibMain(HINSTANCE instance, uint16   /*wDataSeg*/, uint16   /*cbHeapSize*/, char far* /*cmdLine*/)
+///
+/// #endif
+///
+///  {
+///   // We are using the DLL and want to use the DLL's resources
+///   //
+///   if (!ResMod)
+///    ResMod = new TModule(0,instance);
+///   return true;
+///  }
+/// \endcode
+/// Within the entry point function the TModule object ResMod is initialized with
+/// the instance handle of the DLL. If the module is not loaded an exception is
+/// thrown.
+///
+/// If your DLL requires additional initialization and cleanup, you can perform this
+/// processing in your LibMain, DllEntryPoint, or \ref wep "WEP"
+/// functions. A better method, though, is to derive a TModule class, define data
+/// members for data global to your DLL within the class, and perform the required
+/// initialization and cleanup in its constructor and destructor.
+///
+/// After you have compiled and linked your DLL, use IMPLIB to generate an import
+/// library for your DLL. This import library will list all exported member
+/// functions from your shared classes as well as any ordinary functions you have
+/// exported.
+///
+///
+///
+/// \page usingobjectwindowsasadll Using ObjectWindows as a DLL
+/// To enable your ObjectWindows applications to share the ObjectWindows Library,
+/// you can dynamically link them to the ObjectWindows \ref dynamiclinklibrary "DLL."
+///
+/// To do this:
+/// -# When compiling, define the macro _OWLDLL on the compiler command line or in
+/// the IDE.
+/// -# Instead of specifying the static-link ObjectWindows Library when linking
+/// (that is, OWLWS.LIB, OWLWM.LIB, OWLWL.LIB, or OWLWF.LIB), specify the
+/// ObjectWindows DLL import library (OWLWI.LIB for 16-bit applications, or
+/// OWLWFI.LIB for 32-bit applications).
+///
+///
+///
+/// \section seealso See Also
+/// - \ref callinganobjectwindowsdll "Calling an ObjectWindows DLL"
+/// - \ref implicitandexplicitloading "Implicit and Explicit Loading "
+/// - \ref mixingstaticanddynamiclinkedlibraries "Mixing Static and Dynamic-linked Libraries "
+///
+///
+///
+/// \page callinganobjectwindowsdll Calling an ObjectWindows DLL
+/// When both a child window and the parent window are created in an ObjectWindows
+/// application, communication between the parent and child windows is in place. But
+/// you can also prepare your DLL for use by non-ObjectWindows applications.
+///
+/// When a child window is created in an ObjectWindows DLL and the parent window is
+/// created by a non-ObjectWindows application, the parent-child relationship must
+/// be simulated in the ObjectWindows DLL. This is done by constructing an alias
+/// window object in the ObjectWindows DLL that is associated with the parent window
+/// whose handle is specified on a DLL call.
+///
+/// In the following code, the exported function CreateDLLWindow is in an
+/// ObjectWindows DLL. The function will work for both ObjectWindows and
+/// non-ObjectWindows applications.
+/// \code
+/// bool far _export CreateDLLWindow(HWND parentHWnd)
+/// {
+///  TWindow* parentAlias = GetWindowPtr(parentHWnd); // check if an OWL window
+///  if (!parentAlias)
+///   parentAlias = new TWindow(parentHWnd); // if not, make an alias
+///  TWindow* window = new TWindow(parentAlias, "Hello from a DLL!");
+///  window->Attr.Style |= WS_POPUPWINDOW | WS_CAPTION | WS_THICKFRAME
+///      | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+///  window->Attr.X = 100;
+///  window->Attr.Y = 100;
+///  window->Attr.W = 300;
+///  window->Attr.H = 300;
+///  return window->Create();
+/// }
+/// \endcode
+/// CreateDLLWindow determines if it has been passed a non-ObjectWindows window
+/// handle by the call to GetWindowPtr, which returns 0 when passed a
+/// non-ObjectWindows window handle. If it is a non-ObjectWindows window handle, an
+/// alias parent TDialog object is constructed to serve as
+/// the parent window.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref implicitandexplicitloading "Implicit and Explicit Loading "
+/// - \ref mixingstaticanddynamiclinkedlibraries "Mixing Static and Dynamic-linked Libraries "
+///
+///
+///
+/// \page implicitandexplicitloading Implicit and Explicit Loading
+/// Implicit loading is done when you use a .DEF or import library to link your
+/// application. The \ref dynamiclinklibrary "DLL" is loaded by Windows when the
+/// application using the DLL is loaded.
+///
+/// Explicit loading is used to load DLLs at run time and requires the use of the
+/// Windows API functions LoadLibrary to load the DLL and GetProcAddress to return
+/// DLL function addresses.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref mixingstaticanddynamiclinkedlibraries "Mixing Static and Dynamic-linked Libraries "
+///
+///
+///
+/// \page mixingstaticanddynamiclinkedlibraries Mixing Static and Dynamic-linked Libraries
+/// The ObjectWindows libraries are built using the BIDS (container class)
+/// libraries, which in turn are built using the C run-time library.
+///
+/// If you link with the \ref dynamiclinklibrary "DLL" version of the ObjectWindows
+/// libraries, you must link with the DLL version of the BIDS and run-time
+/// libraries. You do this by defining the _OWLDLL macro. This is not the only
+/// combination of static and dynamic-linked libraries you can use: Each line in the
+/// table below lists the allowable combinations of static and dynamic-linked
+/// libraries.
+///
+/// Allowable library combinations
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">STATIC</TD><TD class="owltableheader">DLL</TD></TR>
+/// <TR class="owltable"><TD class="owltable">OWL, BIDS, RTL</TD><TD class="owltable">(none)</TD></TR>
+/// <TR class="owltable"><TD class="owltable">OWL, BIDS</TD><TD class="owltable">RTL</TD></TR>
+/// <TR class="owltable"><TD class="owltable">OWL</TD><TD class="owltable">BIDS, RTL</TD></TR>
+/// <TR class="owltable"><TD class="owltable">(none)</TD><TD class="owltable">OWL, BIDS, RTL</TD></TR>
+/// </TABLE>
+///
+///
+///
+/// \section seealso See Also
+/// - \ref implicitandexplicitloading "Implicit and Explicit Loading "
+///
+///
+///
+/// \page dynamiclinklibrary Dynamic-link Library
+/// A dynamic-link library (DLL) is a library of functions, data, and resources
+/// whose references are resolved at run time rather than at compile time.
+/// Applications that use code from static-linked libraries attach copies of that
+/// code at link time. Applications that use code from DLLs share that code with all
+/// other applications using the DLL, therefore reducing application size. For
+/// example, you might want to define in an ObjectWindows DLL complex windowing
+/// behavior shared by a group of your applications.
+///
+///
+///
+///
+///
+/// \page abouttheshellclasses About the Shell Classes
+/// The shell classes allow a program to navigate the Windows 95 shell hierarchical
+/// namespace. The shell namespace consists of objects such as files,
+/// directories, drives, printers, and networked computers. The root of this
+/// hierarchical namespace is the desktop.
+///
+/// In OWL's shell classes, every object in the shell namespace is a
+/// TShellItem. If an object is a folder and/or it contains sub-folders, an iterator (of type
+/// TShellItemIterator) can be created on it to iterate through its contents.
+///
+/// Before any shell navigation can take place, an initial TShellItem must be
+/// created. This initial TShellItem can be any file or directory in the file
+/// system, or any special folder such as the Desktop, the Recycle Bin, the Control
+/// Panel, or My Computer.
+///
+///
+///
+/// \section usingtheshellclasses Using the Shell Classes
+/// The general strategy is to:
+/// -# Create TShellItem for the object (or objects) of interest.
+/// -# Use the TShellItem member functions to access the object properties.
+///
+/// The following example shows how to display the names of the items in a folder,
+/// and its sub-folders:
+/// -# Create an TShellItem for the c:\\users folder.
+/// \code
+/// TShellItem folder ("c:\\users");
+/// \endcode
+/// -# Create an initialized TShellItem for the iterator.
+/// \code
+/// TShellItem item;
+/// \endcode
+/// -# Iterate through the folder and display the item name.
+/// \code
+/// for (TShellItemIterator i(folder); i.valid();)
+/// {
+///  item = i++;
+///  MessageBox (0, item.GetDisplayName(), "Title", MB_OK);
+///  }
+/// \endcode
+///
+///
+///

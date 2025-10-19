@@ -1,0 +1,1642 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen //-------------------------------
+---------------------------------------------
+
+///
+///
+/// \page docviewobjectsoverview Doc/View Objects Overview
+/// ObjectWindows provides the Doc/View model as a way to contain and manipulate
+/// data. The Doc/View model consists of three parts:
+/// - Document objects, which can contain many different types of data and provide
+/// methods to access that data.
+/// - View objects, which form an interface between a document object and the user
+/// interface and control how the data is displayed and how the user can interact
+/// with the data.
+/// - An application-wide document manager that maintains and coordinates document
+/// objects and the corresponding view objects.
+///
+/// To understand more about using Doc/View objects, review the following
+/// topics:
+/// - \subpage howdocumentsandviewsworktogether "How Documents and Views Work Together"
+/// - \subpage documenttemplates "Document Templates"
+/// - \subpage usingthedocumentmanager "Using the Document Manager"
+/// - \subpage creatingadocumentclass "Creating a Document Class"
+/// - \subpage creatingaviewclass "Creating a View Class"
+/// - \subpage docvieweventhandling "Doc/View Event Handling"
+/// - \subpage docviewproperties "Doc/View Properties"
+///
+///
+///
+/// \page howdocumentsandviewsworktogether How Documents and Views Work Together
+/// The Doc/View model frees the programmer and the user from worrying about what
+/// type of data a file contains and how that data is presented on the screen.
+/// Doc/View associates data file types with a document class and a view class. The
+/// document manager keeps a list of associations between document classes and view
+/// classes. Each association is called a document template (note that document
+/// templates are not related to C++ templates).
+///
+/// A document class handles data storage and manipulation. It contains the
+/// information that is displayed on the screen. A document object controls changes
+/// to the data and when and how the data is transferred to persistent storage (such
+/// as the hard drive, RAM disk, and so on).
+///
+/// When the user opens a \subpage documents "document," whether by creating a new
+/// document or opening an existing document, the document is displayed using an
+/// associated \subpage views "view class". The view class manages how the data
+/// is displayed and how the user interacts with the data onscreen. In effect, the
+/// view forms an interface between the display window and the document. Some
+/// document types might have only one associated view class; others might have
+/// several. You can use different view types to let the user interact with the data
+/// in different ways.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage associatingdocumentandviewclasses "Associating Document and View Classes"
+/// - \subpage documentmanager "Document Manager"
+/// - \ref creatingadocumentclass "Creating a Document Class"
+/// - \ref creatingaviewclass "Creating a View Class"
+/// - \ref docvieweventhandling "Doc/View Event Handling"
+/// - \ref docviewobjectsoverview "Doc/View Objects Overview"
+/// - \ref docviewproperties "Doc/View Properties"
+/// - \ref documenttemplates "Document Templates"
+/// - \ref howdocumentsandviewsworktogether "How Documents and Views Work Together"
+/// - \ref usingthedocumentmanager "Using the Document Manager"
+///
+///
+///
+/// \page documents Documents
+/// The traditional concept of a document and the Doc/View concept of a document
+/// differ in several important ways. The traditional concept of a document is
+/// generally like that of a word-processing file: It consists of text mixed with
+/// the occasional graphic, along with embedded commands to assist the
+/// word-processing program in formatting the document.
+///
+/// A Doc/View document differs significantly from a traditional document.
+/// - Contents: A traditional document is mostly text with a few other bits of
+/// data, while a Doc/View document can contain literally any type of data, such as
+/// text, graphics, sounds, multimedia files, and even other documents.
+/// - Presentation: The format of a traditional document is usually designed with
+/// the document's presentation in mind, while a Doc/View document is completely
+/// independent of the way it is displayed.
+/// - Application format: A document from a particular word-processing program is
+/// generally dependent on the format demanded by that program; documents are
+/// usually portable between different word-processing programs only after a tedious
+/// porting process. Doc/View documents are intended to be application independent,
+/// so data can be easily ported between different applications, even applications
+/// whose basic functions are highly divergent.
+///
+/// The basic functionality for a document object is provided in the ObjectWindows
+/// class TDocument.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref associatingdocumentandviewclasses "Associating Document and View Classes"
+/// - \ref documentmanager "Document Manager"
+/// - \ref views "View Objects"
+///
+///
+///
+/// \page views Views
+/// View objects enable document objects to present themselves to the world. Without
+/// a view object, you can't see or manipulate the document. But when you pair a
+/// document with a view object into a document template, you have a functional
+/// piece of data and code that provides both a graphic representation of the data
+/// stored in the document and a way to interact with and change that data.
+/// The separation between the document and view also permits flexibility in when
+/// and how the data in the document is modified. Although the data is manipulated
+/// through the view, the view only relays those changes on to the document. It is
+/// then up to the document to determine whether to change the data in the document
+/// (known as committing the changes) or discarding the changes (known as reverting
+/// back to the document).
+///
+/// Another advantage of using view objects instead of some sort of fixed display
+/// method (such as a word-processing program) is that view objects offer the
+/// programmer and the user a number of different ways to display and manipulate the
+/// same document. Although you might need to provide only one view for a document
+/// type, you might also want to provide three or four views.
+///
+/// For example, suppose you create a document class to store graphic information,
+/// such as a picture or drawing. For a basic product, you might want to provide
+/// only one type of view, such as a view that draws the picture in a window and
+/// then lets the user paint and modify the picture. For a more advanced version,
+/// you might want to provide extra views; for example, the drawing could be
+/// displayed as a color separation, as a hexadecimal file, or even as a series of
+/// equations if the drawing was mathematically generated. To access these other
+/// views, users choose the type of view desired when they open the document. In all
+/// these scenarios, the document itself never changes.
+///
+/// The basic functionality for a view is provided in the ObjectWindows class TView.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref associatingdocumentandviewclasses "Associating Document and View Classes"
+/// - \ref creatingaviewclass "Creating a View Class"
+/// - \ref documentmanager "Document Manager"
+/// - \ref documents "Document Objects"
+///
+///
+///
+/// \page associatingdocumentandviewclasses Associating Document and View Classes
+/// A document class is associated with its view class (or classes) by a document
+/// template. Document templates are created in two steps:
+/// -# Define a template class that associates a document class with a view
+/// class.
+/// -# Instantiate a template object from a defined class.
+///
+/// The difference between these two steps is important. After you have defined a
+/// template class, you can create any number of instances of that template class.
+/// Each template associates only a document class and a view class. Each instance
+/// has a name, a default file extension, a directory, flags, and file filters. Thus
+/// you could provide a single template class that associates a document with a
+/// view. You could then provide a number of different instances of that template
+/// class, where each instance handles files in a different default directory, with
+/// different extensions, and so on, still using the same document and view classes.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref documentmanager "Document Manager"
+/// - \ref documents "Document Objects"
+/// - \ref views "View Objects"
+///
+///
+///
+/// \page documentmanager Document Manager
+/// The document manager maintains the list of template instances used in your
+/// application and the list of current documents. Every application that uses
+/// Doc/View documents must have a document manager, but each instance of an
+/// application can have only one document manager at a time.
+/// The document manager brings the Doc/View model together: document classes, view
+/// classes, and templates. The document manager provides a default File menu and
+/// default handling for each of the following choices on the File menu:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Menu choice</TD><TD class="owltableheader">Handling</TD></TR>
+/// <TR class="owltable"><TD class="owltable">New</TD><TD class="owltable">Creates a new document.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Open...</TD><TD class="owltable">Opens an existing document.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Save</TD><TD class="owltable">Saves the current document.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Save As...</TD><TD class="owltable">Saves the current document with a new name.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Revert To Saved</TD><TD class="owltable">Reverts changes to the last document saved.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Close</TD><TD class="owltable">Closes the current document.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Exit</TD><TD class="owltable">Quits the application, prompts to save documents.</TD></TR>
+/// </TABLE>
+///
+/// After you have written your document and view classes, defined any necessary
+/// templates, and made instances of the required templates, you need to create your
+/// document manager. When the document manager is created, it sets up its list of
+/// template instances and (if specified in the constructor) sets up its menu. Then
+/// whenever it receives one of the events that it handles, it performs the command
+/// specified for that event (see \ref usingthedocumentmanager "Using the Document
+/// Manager").
+///
+///
+///
+/// \section seealso See Also
+/// - \ref associatingdocumentandviewclasses "Associating Document and View Classes"
+/// - \ref documents "Document Objects"
+/// - \ref views "View Objects"
+/// - \ref usingthedocumentmanager "Using the Document Manager"
+///
+///
+///
+/// \page documenttemplates Document Templates
+/// Document templates join together document classes and view classes by creating a
+/// new class. The document manager maintains a list of document templates that it
+/// uses when creating a new Doc/View instance.
+/// Review the following topics to learn about document templates:
+/// - \subpage designingdocumenttemplateclasses "Designing Document Template Classes"
+/// - \subpage creatingdocumentregistrationtables "Creating Document Registration Tables"
+/// - \subpage creatingtemplateclassinstances "Creating Template Class Instances"
+/// - \subpage modifyingexistingtemplates "Modifying Existing Templates"
+///
+///
+///
+/// \page designingdocumenttemplateclasses Designing Document Template Classes
+/// You create a document template class using the DEFINE_DOC_TEMPLATE_CLASS macro.
+/// This macro takes three arguments:
+/// - Document class
+/// - View class
+/// - Template class name
+///
+/// The document class should be the document class you want to use for data
+/// containment. The view class should be the view class you want to use to display
+/// the data contained in the document class. The template class name should be
+/// indicative of the function of the template. It cannot be a C++ keyword (such as
+/// int, switch, and so on) or the name of any other type in the application.
+/// For example, suppose you have two document classes--one called TPlotDocument,
+/// which contains graphics data, and another called TDataDocument, which contains
+/// numerical data. Now suppose you have four view classes, two for each document
+/// class. For TPlotDocument, you have TPlotView, which displays the data in a
+/// TPlotDocument object as a drawing, and THexView, which displays the data in a
+/// TPlotDocument object as arrays of hexadecimal numbers. For TDataDocument, you
+/// have TSpreadView, which displays the data in a TDataDocument object much like a
+/// spreadsheet, and TCalcView, which displays the data in a TDataDocument object
+/// after performing a series of calculations on the data.
+///
+/// To associate the document classes with their views, you would use the
+/// DEFINE_DOC_TEMPLATE_CLASS macro. The code would look something like this:
+/// \code
+/// DEFINE_DOC_TEMPLATE_CLASS(TPlotDocument, TPlotView, TPlotTemplate);
+/// DEFINE_DOC_TEMPLATE_CLASS(TPlotDocument, THexView, THexTemplate);
+/// DEFINE_DOC_TEMPLATE_CLASS(TDataDocument, TSpreadView, TSpreadTemplate);
+/// DEFINE_DOC_TEMPLATE_CLASS(TDataDocument, TCalcView, TCalcTemplate);
+/// \endcode
+/// As you can see from the first line, the existing document class TPlotDocument
+/// and the existing view class TPlotView are brought together and associated in a
+/// new class called TPlotTemplate. The same thing happens in all the other lines,
+/// so that you have four new classes, TPlotTemplate, THexTemplate, TSpreadTemplate,
+/// and TCalcTemplate. The next section describes how to use these new classes you
+/// have created.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatingdocumentregistrationtables "Creating Document Registration Tables"
+/// - \ref creatingtemplateclassinstances "Creating Template Class Instances"
+/// - \ref modifyingexistingtemplates "Modifying Existing Templates"
+///
+///
+///
+/// \page creatingdocumentregistrationtables Creating Document Registration Tables
+/// After you have defined a template class, you can create any number of instances
+/// of that class. You can use template class instances to provide different
+/// descriptions of a template, search for different default file names, look in
+/// different default directories, and so on. Each of these attributes of a template
+/// class instance is affected by the document registration table passed to the
+/// template class constructor.
+///
+/// Document registration tables let you specify the various attributes and place
+/// them in a single object. The object type is TRegList, although in normal
+/// circumstances, you should never have to access this object directly. To create a
+/// registration table,
+///
+/// -# Start your registration table definition with BEGIN_REGISTRATION. This macro
+/// takes a single parameter, the name of the registration object. This name can be
+/// whatever you want it to be, although it should be somewhat descriptive of the
+/// particular template instance you want to create with it.
+/// -# Register data items in the table. You can place these items in the table
+/// using the REGDATA macro. REGDATA takes two parameters. The first is a key that
+/// identifies the type of data, while the second is a string containing the actual
+/// data. The key should be a string composed of alphanumeric characters; you don't
+/// need to place quotes around this value. The actual data string can be any legal
+/// string; you do need to place quotes around this value. Also, you don't need to
+/// use commas or semicolons after the macros. There are three data items you need
+/// to enter in the table for an instance of a document template:
+///  - The description value is a short text description of the
+/// template class indicates the type of data handled by the document class and how
+/// that data is displayed by the view class.
+///  - The extension value indicates the default file extension
+/// for documents of this type.
+///  - The docfilter value indicates the file name masks that
+/// should be applied to documents when searching through file names.
+/// -# Register flags describing how this document type is to be opened or created.
+/// These document flags can be registered with the REGDOCFLAGS macro. REGDOCFLAGS
+/// takes a single parameter, the flags themselves. The flags specified can be one
+/// or more of the following:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Flag</TD><TD class="owltableheader">Function</TD></TR>
+/// <TR class="owltable"><TD class="owltable">dtAutoDelete</TD><TD class="owltable">Close and delete the document object when the last view is
+/// closed.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">dtNoAutoView</TD><TD class="owltable">Do not automatically create a default view.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">dtSingleView</TD><TD class="owltable">Allow only one view per document.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">dtAutoOpen</TD><TD class="owltable">Open a document upon creation.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">dtHidden</TD><TD class="owltable">Hide template from list of user selections.</TD></TR>
+/// </TABLE>
+/// -# After you have registered the necessary data items and the document mode
+/// flags, you can end the table definition with the END_REGISTRATION macro. This
+/// macro takes no parameters. You do not need to append a semicolon at the end to
+/// the line.
+///
+/// \section example Example
+/// The code below shows a sample registration table declaration. The resulting
+/// registration table is called ListReg and applies to a document template class
+/// described as a Line List, which has the default extension .PTS and the default
+/// file-name mask *.pts, is set to be automatically deleted when the last view on
+/// the document is closed, and is hidden from the list of documents available to
+/// the user.
+/// \code
+/// BEGIN_REGISTRATION(ListReg)
+///  REGDATA(description,"Line List")
+///  REGDATA(extension, ".PTS")
+///  REGDATA(docfilter, "*.pts")
+///  REGDOCFLAGS(dtAutoDelete | dtHidden)
+/// END_REGISTRATION
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref designingdocumenttemplateclasses "Designing Document Template Classes"
+/// - \ref creatingtemplateclassinstances "Creating Template Class Instances"
+/// - \ref modifyingexistingtemplates "Modifying Existing Templates"
+///
+///
+///
+/// \page creatingtemplateclassinstances Creating Template Class Instances
+/// Once you have defined a template class, you can create any number of instances
+/// of that class. You can use template class instances to provide different
+/// descriptions of a template, search for different default file names, look in
+/// different default directories, and so on. You can affect all these things when
+/// calling the template class constructor.
+///
+/// The signature of a template class constructor is always the same:
+/// \code
+/// TplName name(TRegList& regTable);
+/// \endcode
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Element</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TplName</TD><TD class="owltable">The class name you specified when defining the template class</TD></TR>
+/// <TR class="owltable"><TD class="owltable">name</TD><TD class="owltable">Whatever name you want to give this instance</TD></TR>
+/// <TR class="owltable"><TD class="owltable">regTable</TD><TD class="owltable">The name of a registration table created using the
+/// BEGIN/END_REGISTRATION macros (see \ref creatingdocumentregistrationtables "Creating Document
+/// Registration Tables)"</TD></TR>
+/// </TABLE>
+/// \section example Example
+/// For example, suppose you have the following template class definition:
+/// \code
+/// DEFINE_DOC_TEMPLATE_CLASS(TPlotDocument, TPlotView, TPlotTemplate);
+/// \endcode
+/// Now suppose you want to create three instances of this template class:
+/// - One instance should have the description "Approved plots" for document files
+/// with the extension .PLT. Allow only a single view of the document and
+/// automatically delete the document when the view is closed.
+/// - Another instance should have the description "In progress" for document files
+/// with the extension .PLT. Automatically delete the document when the last view is
+/// closed.
+/// - Another instance should have the description "Proposals" for document files
+/// with the extensions .PLT or .TMP, but with the default extension of .PLT. Keep
+/// this template hidden until the user has entered a password and delete the
+/// document object when the last view is closed.
+///
+/// The code for these instances would look something like this:
+/// \code
+/// BEGIN_REGISTRATION(aReg)
+///  REGDATA(description, "Approved plots")
+///  REGDATA(docfilter, "*.PLT")
+///  REGDATA(extension, "PLT")
+///  REGDOCFLAGS(dtSingleView | dtAutoDelete)
+/// END_REGISTRATION
+///
+/// TPlotTemplate atpl(aReg);
+///
+/// BEGIN_REGISTRATION(bReg)
+///  REGDATA(description, "In progress")
+///  REGDATA(docfilter,"*.PLT")
+///  REGDATA(extension, "PLT")
+///  REGDOCFLAGS(dtAutoDelete)
+/// END_REGISTRATION
+///
+/// TPlotTemplate btpl(bReg);
+///
+/// BEGIN_REGISTRATION(cReg)
+///  REGDATA(description, "Proposals")
+///  REGDATA(docfilter, "*.PLT; *.TMP")
+///  REGDATA(extension, "PLT")
+///  REGDOCFLAGS(dtHidden | dtAutoDelete)
+/// END_REGISTRATION
+///
+/// TPlotTemplate *ctpl = new TPlotTemplate(cReg);
+/// \endcode
+/// Note that, as with any other class, you can create both static and dynamic
+/// instances of a document template.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref designingdocumenttemplateclasses "Designing Document Template Classes"
+/// - \ref creatingdocumentregistrationtables "Creating Document Registration Tables"
+/// - \ref modifyingexistingtemplates "Modifying Existing Templates"
+///
+///
+///
+/// \page modifyingexistingtemplates Modifying Existing Templates
+/// Once you have created an instance of a template class, you usually do not need
+/// to modify the template object. However, you might want to modify the properties
+/// with which you constructed the template by using the following access
+/// functions:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Functions</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDocTemplate::GetFileFilter, TDocTemplate::SetFileFilter</TD><TD class="owltable">
+/// Get and set the string used to filter file names in the current directory.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDocTemplate::GetDescription, TDocTemplate::SetDescription</TD><TD class="owltable">Get and set the text description of the template class.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDocTemplate::GetDirectory, TDocTemplate::SetDirectory</TD><TD class="owltable">Get and set the default directory.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDocTemplate::GetDefaultExt, TDocTemplate::SetDefaultExt</TD><TD class="owltable">Get and set the default file extension.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDocTemplate::GetFlags, TDocTemplate::IsFlagSet, TDocTemplate::SetFlag, TDocTemplate::ClearFlag</TD><TD class="owltable">Get and set the flag settings.</TD></TR>
+/// </TABLE> 
+///
+///
+///
+/// \section seealso See Also
+/// - \ref designingdocumenttemplateclasses "Designing Document Template Classes"
+/// - \ref creatingdocumentregistrationtables "Creating Document Registration Tables"
+/// - \ref creatingtemplateclassinstances "Creating Template Class Instances"
+///
+///
+///
+/// \page usingthedocumentmanager Using the Document Manager
+/// The document manager, an instance of TDocManager or a
+/// TDocManager-derived class, performs a number of tasks:
+/// - Manages the list of current documents and registered templates
+/// - Handles the standard File menu command events CM_FILENEW, CM_FILEOPEN,
+/// CM_FILESAVE, CM_FILESAVEAS, CM_FILECLOSE, and optionally CM_FILEREVERT
+/// - Provides the file selection interface
+///
+/// To support the Doc/View model, a document manager must be attached to the
+/// application. This is done by creating an instance of TDocManager and making it
+/// the document manager for your application. The following code shows an example
+/// of how to attach a document manager to your application:
+/// \code
+/// class TMyApp : public TApplication
+/// {
+///  public:
+///   TMyApp() : TApplication()
+/// {}
+///
+///   void InitMainWindow()
+/// {
+///
+///    .
+///    .
+///    .
+///   
+/// SetDocManager(new TDocManager(dmMDI | dmMenu));
+///
+///    .
+///    .
+///    .
+///   }
+/// };
+/// \endcode
+/// You can set the application document manager to a new object using the
+/// TApplication::SetDocManager() function,
+/// which takes a TDocManager* and returns a pointer to the old document
+/// manager.
+///
+/// Note that there are two SetDocManager functions, TApplication::SetDocManager() and
+/// TDocument::SetDocManager(). These functions have different signatures and member functions. Do not confuse
+/// them.
+///
+/// The document manager's public data and functions can be accessed through the
+/// document's GetDocManager function. GetDocManager takes no parameters and returns
+/// a TDocManager&. The document manager provides the following functions for
+/// creating documents and views:
+/// - CreateAnyDoc presents all the visible templates, while the TDocTemplate
+/// member function CreateDoc presents only its own template.
+/// - CreateAnyView filters the template list for those views that support the
+/// current document and presents a list of the view names, while the TDocTemplate
+/// member function CreateView directly constructs the view specified by the
+/// document template class.
+///
+/// Specialized document managers can be used to support other needs. For example,
+/// an OLE 2 server needs to support class factories that create documents and views
+/// through interfaces that are not their own. If the server is invoked with the
+/// Embedded command-line flags, it doesn't bring up its own user interface and can
+/// attach a document manager that replaces the user interface with the appropriate
+/// OLE support.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage constructingthedocumentmanager "Constructing the Document Manager"
+/// - \ref creatingadocumentclass "Creating a Document Class"
+/// - \ref creatingaviewclass "Creating a View Class"
+/// - \ref docvieweventhandling "Doc/View Event Handling"
+/// - \ref docviewobjectsoverview "Doc/View Objects Overview"
+/// - \ref docviewproperties "Doc/View Properties"
+/// - \ref documenttemplates "Document Templates"
+/// - \ref howdocumentsandviewsworktogether "How Documents and Views Work Together"
+/// - \subpage tdocmanagereventhandling "TDocManager Event Handling"
+///
+///
+///
+/// \page constructingthedocumentmanager Constructing the Document Manager
+/// The constructor for TDocManager takes a single parameter that is used to set the
+/// mode of the document manager. You can open the document manager in one of two
+/// modes:
+/// - In single-document interface (SDI) mode, you can have only a single document
+/// open at any time. If you open a new document while another document is already
+/// open, the document manager attempts to close the first document and replace it
+/// with the new document.
+/// - In multiple-document interface (MDI) mode, you can have a number of documents
+/// and views open at the same time. Each view is contained in its own client
+/// window. Furthermore, each document can be a single document type presented by
+/// the same view class, a single document presented with different views, or even
+/// entirely different document types.
+///
+/// To open the document manager in SDI mode, call the constructor with the dmSDI
+/// parameter. To open the document manager in MDI mode, call the constructor with
+/// the dmMDI parameter.
+///
+/// There are three other parameters you can also specify:
+/// - dmMenu specifies that the document manager should install its own File menu,
+/// which provides the standard document manager File menu and its corresponding
+/// commands.
+/// - dmSaveEnabled enables the Save command on the File menu even if the document
+/// has not been modified.
+/// - dmNoRevert disables the Revert command on the File menu.
+/// Once you have constructed the document manager you cannot change the
+/// mode.
+///
+/// \section example Example
+/// The following example shows how to open the document manager in either SDI or
+/// MDI mode. It uses command-line arguments to let the user specify whether the
+/// document manager should open in SDI or MDI mode.
+/// \code
+/// class TMyApp : public TApplication {
+/// public:
+///  TMyApp() : TApplication() {}
+///  void InitMainWindow();
+///  int DocMode;
+///  };
+///
+/// void TMyApp::InitMainWindow() {
+///  switch ((_argc > 1 && _argv[1][0]=='-' ? _argv[1][1] : (char)0) | ('S'^'s')){
+///   case 's': DocMode = dmSDI;
+///     break; // command line: -s
+///   case 'm': DocMode = dmMDI;
+///     break; // command line: -m
+///   default : DocMode = dmMDI;
+///     break; // no command line
+///  }
+///  SetDocManager(new TDocManager(DocMode | dmMenu));
+/// };
+/// \endcode
+/// If the user starts the application with the -s option, the document manager
+/// opens in SDI mode. If the user starts the application with the -m option or with
+/// no option at all, the document manager opens in MDI mode.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref tdocmanagereventhandling "TDocManager Event Handling"
+///
+///
+///
+/// \page tdocmanagereventhandling TDocManager Event Handling
+/// If you specify the dmMenu parameter when you construct your TDocManager object,
+/// the document manager handles certain events on behalf of the documents. It does
+/// this by using a response table to process standard menu commands. These menu
+/// commands are provided by the document manager even when no documents are opened
+/// and regardless of whether you explicitly add the resources to your application.
+/// The File menu is also provided by the document manager. These resources are
+/// defined in the DOCVIEW.RC file, which is included by DOCVIEW.H.
+/// The events that the document manager handles are
+/// - CM_FILECLOSE
+/// - CM_FILEOPEN
+/// - CM_FILENEW
+/// - CM_FILEREVERT
+/// - CM_FILESAVE
+/// - CM_FILESAVEAS
+/// - CM_VIEWCREATE
+///
+/// In some instances, you might want to handle these events yourself. Because the
+/// document manager's event table is the last to be searched, you can handle these
+/// events at the view, frame, or application level. Another option is to construct
+/// the document manager without the dmMenu parameter. You must then provide
+/// functions to handle these events, generally through the application object or
+/// your interface object.
+///
+/// You can still call the document manager's functions through the DocManager
+/// member of the application object. For example, suppose you want to perform some
+/// action before opening a file. Providing the function through your window class
+/// TMyWindow might look something like this:
+/// \code
+/// class TMyApp : public TApplication {
+/// public:
+///  TMyApp() : TApplication() {}
+///  void InitMainWindow();
+///  int DocMode;
+/// };
+///
+/// void TMyApp::InitMainWindow() {
+///  SetMainWindow(new TMyWindow());
+///  // Don't specify dmMenu when constructing TDocManager
+///  SetDocManager(new TDocManager(dmMDI));
+/// };
+///
+/// class TMyWindow : public TDecoratedMDIFrame
+/// {
+/// public:
+///  TMyWindow();
+///  void CmFileOpen();
+///  /*
+///   You also need to provide the other event handlers
+///   provided by the document manager.
+///  */
+///  DECLARE_RESPONSE_TABLE(TMyWindow);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE1(TMyWindow, TDecoratedMDIFrame)
+///  EV_COMMAND(CM_FILEOPEN, CmFileOpen),
+///
+///   .
+///   .
+///   .
+/// END_RESPONSE_TABLE;
+///
+/// void TMyWindow::CmFileOpen() {
+///  // Do your extra work here.
+/// 
+/// GetApplication()->GetDocManager()->CmFileOpen();
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingthedocumentmanager "Constructing the Document Manager"
+///
+///
+///
+/// \page creatingadocumentclass Creating a Document Class
+/// The primary function of a document class is to provide callbacks for requested
+/// data changes in a view, to handle user actions as relayed through associated
+/// views, and to tell associated views when data has been updated.
+///
+/// TDocument provides the framework for this functionality.
+///
+/// The programmer needs only to add the parts needed for a specific application of
+/// the document model.
+///
+/// To learn more about creating a document class, review the following topics:
+/// - \subpage constructingtdocument "Constructing TDocument"
+/// - \subpage addingfunctionalitytodocuments "Adding Functionality To Documents"
+/// - \subpage dataaccessfunctions "Data Access Functions"
+/// - \subpage closingadocument "Closing a Document"
+/// - \subpage expandingdocumentfunctionality "Expanding Document Functionality"
+/// - \subpage workingwiththedocumentmanager "Working with the Document Manager"
+/// - \subpage workingwithviews "Working with Views"
+///
+///
+///
+/// \page constructingtdocument Constructing TDocument
+/// TDocument is an abstract base class that cannot be
+/// directly instantiated. Therefore you implement document classes by deriving them
+/// from TDocument.
+///
+/// You must call TDocument's constructor when constructing a TDocument-derived
+/// class. The TDocument constructor takes only one parameter, a TDocument * that
+/// points to the parent document of the new document. If the document has no
+/// parent, you can either pass a 0 or pass no parameters; the default value for
+/// this parameter is 0.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingfunctionalitytodocuments "Adding Functionality To Documents"
+/// - \ref closingadocument "Closing a Document"
+/// - \ref dataaccessfunctions "Data Access Functions"
+/// - \ref expandingdocumentfunctionality "Expanding Document Functionality"
+/// - \ref workingwiththedocumentmanager "Working with the Document Manager"
+/// - \ref workingwithviews "Working with Views"
+///
+///
+///
+/// \page addingfunctionalitytodocuments Adding Functionality To Documents
+/// As a standard procedure, you should avoid overriding
+/// TDocument functions that are not declared virtual. The
+/// document manager addresses all TDocument-derived objects as if they were
+/// actually TDocument objects. If you override a nonvirtual function, it is not
+/// called when the document manager calls that function. Instead, the document
+/// manager calls the TDocument version of the function. But if you override a
+/// virtual function, the document manager correctly calls your class's version of
+/// the function.
+///
+/// The following functions are declared virtual in TDocument:
+/// <TABLE BORDER="0" CELLSPACING="0">
+/// <TR><TD>TDocument::~TDocument</TD><TD>TDocument::IsDirty</TD></TR>
+/// <TR><TD>TDocument::AttachStream</TD><TD>TDocument::IsOpen</TD></TR>
+/// <TR><TD>TDocument::CanClose</TD><TD>TDocument::Open</TD></TR>
+/// <TR><TD>TDocument::Close</TD><TD>TDocument::OutStream</TD></TR>
+/// <TR><TD>TDocument::Commit</TD><TD>TDocument::Revert</TD></TR>
+/// <TR><TD>TDocument::DetachStream</TD><TD>TDocument::RootDocument</TD></TR>
+/// <TR><TD>TDocument::GetProperty</TD><TD>TDocument::SetDocPath</TD></TR>
+/// <TR><TD>TDocument::InStream</TD><TD>TDocument::SetTitle</TD></TR>
+/// </TABLE>
+/// You can override these functions to provide your own custom interpretation of
+/// the function. But when you do override a virtual function, be sure to find out
+/// what the base class function does. When the base class performs some sort of
+/// essential task, call the base class version of the function from your own
+/// function. For example, the base class versions of many functions perform a check
+/// of the document's hierarchy, including checking or notifying any child
+/// documents, all views, any open streams, and so on.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref closingadocument "Closing a Document"
+/// - \ref constructingtdocument "Constructing TDocument"
+/// - \ref dataaccessfunctions "Data Access Functions"
+/// - \ref expandingdocumentfunctionality "Expanding Document Functionality"
+/// - \ref workingwiththedocumentmanager "Working with the Document Manager"
+/// - \ref workingwithviews "Working with Views"
+///
+///
+///
+/// \page dataaccessfunctions Data Access Functions
+/// TDocument provides a number of functions for data
+/// access. You can access data as a simple serial stream or in whatever way you
+/// design into your derived classes. The following topics describe the helper
+/// functions you can use to control when the document attempts data access
+/// operations:
+/// - \subpage streamaccess "Stream Access"
+/// - \subpage streamlist "Stream List"
+/// - \subpage complexdataaccess "Complex Data Access"
+/// - \subpage dataaccesshelperfunctions "Data Access Helper Functions"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingfunctionalitytodocuments "Adding Functionality To Documents"
+/// - \ref closingadocument "Closing a Document"
+/// - \ref constructingtdocument "Constructing TDocument"
+/// - \ref expandingdocumentfunctionality "Expanding Document Functionality"
+/// - \ref workingwiththedocumentmanager "Working with the Document Manager"
+/// - \ref workingwithviews "Working with Views"
+///
+///
+///
+/// \page streamaccess Stream Access
+/// TDocument provides two functions, InStream and
+/// OutStream, that return pointers to a TInStream and a TOutStream, respectively.
+/// The TDocument versions of these functions both return a 0, because the functions
+/// actually perform no actions. To provide stream access for your document class
+/// you must override these functions, construct the appropriate stream class, and
+/// return a pointer to the stream object.
+///
+/// TInStream and TOutStream are abstract stream classes, derived from TStream and
+/// istream or ostream, respectively. TStream provides a minimal functionality to
+/// connect the stream to a document. istream and ostream are standard C++
+/// iostreams. You must derive document-specific stream classes from TInStream and
+/// TOutStream.
+///
+/// Following is a simple description of the InStream and OutStream member
+/// functions.
+///
+/// Both InStream and OutStream take two parameters,
+/// \code
+/// XXXStream(int mode, const char far* strmId = 0);
+/// \endcode
+/// XXX is either In or Out, mode is a stream opening mode identical to the
+/// open_mode flags used for istream and ostream, and strmId is the name of a stream
+/// source if the document supports named streams, such as a file name or device
+/// name. Passing the name of an existing data source opens a stream to or from that
+/// data source as the document's stream object. Otherwise, the object opens a new
+/// stream object.
+///
+/// There are also two stream-access functions called AttachStream and DetachStream.
+/// Both these functions take a reference to an existing (that is, already
+/// constructed and open) TStream-derived object. AttachStream adds the
+/// TStream-derived object to the document's list of stream objects, making it
+/// available for access. DetachStream searches the document's list of stream
+/// objects and deletes the TStream-derived object passed to it. Both these
+/// functions have protected access and thus can be called only from inside the
+/// document object.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref complexdataaccess "Complex Data Access"
+/// - \ref dataaccesshelperfunctions "Data Access Helper Functions"
+/// - \ref streamlist "Stream List"
+///
+///
+///
+/// \page streamlist Stream List
+/// Each document maintains a list of open streams that is updated as streams are
+/// added and deleted. This list is headed by the TDocument
+/// data StreamList. StreamList is a TStream * that points to the first stream in
+/// the list. If there are no streams in the list, StreamList is 0. Each TStream
+/// object in the list has a member named NextStream, which points to the next
+/// stream in the stream list.
+///
+/// When a new stream is opened in a document object or an existing stream is
+/// attached to the document, it is added to the document's stream list. When an
+/// existing stream is closed in a document object or detached from the document, it
+/// is removed from the document's stream list.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref complexdataaccess "Complex Data Access"
+/// - \ref dataaccesshelperfunctions "Data Access Helper Functions"
+/// - \ref streamaccess "Stream Access"
+///
+///
+///
+/// \page complexdataaccess Complex Data Access
+/// Streams can provide only simple serial access to data. In cases where a document
+/// contains multimedia files, database tables, or other complex data, you probably
+/// want more sophisticated access methods. For this purpose,
+/// TDocument uses two access functions,
+/// TDocument::Open() and TDocument::Close(), that
+/// you can override to define your own opening and closing behavior.
+///
+/// The TDocument version of Open performs no actions; it always returns true. You
+/// can write your own version of Open to work however you want. There are no
+/// restrictions placed on how you define opening a document. You can make it as
+/// simple as you like or as complex as necessary. Open lets you open a document and
+/// keep it open, instead of opening the document only on demand from one of the
+/// document's stream objects.
+///
+/// The TDocument version of Close provides a little more functionality than does
+/// Open. It checks any existing children of your document and tries to close them
+/// before closing your document. If you provide your own Close, the first thing you
+/// should do in that function is call the TDocument version of Close to ensure that
+/// all children have been closed before you close the parent document. Other than
+/// this one restriction, you are free to define the implementation of the Close
+/// function. Just as with Open, Close lets you close a document when you want it
+/// closed, as opposed to permitting the document's stream objects to close the
+/// document.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref dataaccesshelperfunctions "Data Access Helper Functions"
+/// - \ref streamaccess "Stream Access"
+/// - \ref streamlist "Stream List"
+///
+///
+///
+/// \page dataaccesshelperfunctions Data Access Helper Functions
+/// TDocument provides a number of functions that you can
+/// use to help protect your data:
+/// - TDocument::IsDirty() first checks to see whether the
+/// document itself is dirty (modified but not updated) by checking the state of the
+/// data member DirtyFlag. It then checks whether any child documents are dirty,
+/// then whether any views are dirty. IsDirty returns true if any children or views
+/// are dirty.
+/// - TDocument::IsOpen() checks to see whether the document is
+/// held open or has any streams in its stream list. If the document is not open,
+/// IsOpen returns false. Otherwise, IsOpen returns .
+/// - TDocument::Commit() commits to storage any changes to your
+/// data. Once you have called Commit, you cannot back out any changes made. The
+/// TDocument version of this function checks any child documents and commits their
+/// changes. If any child document returns false, the commit is aborted and Commit
+/// returns false. All child documents must return true before Commit commits its
+/// own data. After all child documents have returned true, Commit flushes all the
+/// views for operations that might have taken place since the document last checked
+/// the views. Data in the document is updated according to the changes in the views
+/// and then saved. Commit then returns true.
+/// - TDocument::Revert() performs the opposite function from
+/// Commit. Instead of updating changes and saving the data, Revert clears any
+/// changes that have been made since the last time the data was committed. Revert
+/// also polls any child documents and aborts if any of the children return false.
+/// If all operations are successful, Revert returns true.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref complexdataaccess "Complex Data Access"
+/// - \ref streamaccess "Stream Access"
+/// - \ref streamlist "Stream List"
+///
+///
+///
+/// \page closingadocument Closing a Document
+/// Like most other objects, TDocument provides functions
+/// that let you safely close and destroy the object.
+///
+/// TDocument::~TDocument() does a lot of cleanup. First it destroys its children and closes all
+/// open streams and other resources. Then, in order, it
+/// -# Detaches its attached template
+/// -# Closes all associated views
+/// -# Deletes its stream list
+/// -# Removes itself from its parent's list of children if the document has a
+/// parent or, if it doesn't have a parent, removes itself from the document
+/// manager's document list
+///
+/// In addition to a destructor, TDocument also provides a
+/// TDocument::CanClose() function to make sure that it's OK to close.
+/// CanClose first checks whether all its children can close. If any child returns
+/// false, CanClose returns false and aborts. If all child documents return true,
+/// CanClose calls the document manager function FlushDoc, which checks to see if
+/// the document is dirty. If the document is clean, FlushDoc and CanClose return
+/// true. If the document is dirty, FlushDoc opens a message box that prompts the
+/// user to either save the data, discard any changes, or cancel the close
+/// operation.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingfunctionalitytodocuments "Adding Functionality To Documents"
+/// - \ref constructingtdocument "Constructing TDocument"
+/// - \ref dataaccessfunctions "Data Access Functions"
+/// - \ref expandingdocumentfunctionality "Expanding Document Functionality"
+/// - \ref workingwiththedocumentmanager "Working with the Document Manager"
+/// - \ref workingwithviews "Working with Views"
+///
+///
+///
+/// \page expandingdocumentfunctionality Expanding Document Functionality
+/// The TDocument class provides basic functionality for
+/// your document classes. You can expand the functionality of your document
+/// classes, for example, to add special functions for manipulating data, for
+/// understanding and acting on the information obtained from the user through a
+/// document's associated view, and so on. All this functionality goes into your
+/// TDocument-derived classes.
+///
+/// Because the Doc/View model is so flexible, there are no requirements or rules as
+/// to how you should approach this task. A document can handle almost any type of
+/// data because the Doc/View data-handling mechanism is a primitive framework,
+/// intended to be extended by derived classes. The base classes provided in
+/// ObjectWindows provide the functionality to support your extensions to the
+/// Doc/View model.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingfunctionalitytodocuments "Adding Functionality To Documents"
+/// - \ref closingadocument "Closing a Document"
+/// - \ref constructingtdocument "Constructing TDocument"
+/// - \ref dataaccessfunctions "Data Access Functions"
+/// - \ref workingwiththedocumentmanager "Working with the Document Manager"
+/// - \ref workingwithviews "Working with Views"
+///
+///
+///
+/// \page workingwiththedocumentmanager Working with the Document Manager
+/// TDocument provides two functions for accessing the
+/// document manager, TDocument::GetDocManager() and
+/// TDocument::SetDocManager().
+///
+/// GetDocManager returns a pointer to the current document manager. You can then
+/// use this pointer to access the data and function members of the document
+/// manager.
+///
+/// SetDocManager lets you assign the document to a different document
+/// manager.
+///
+/// All other document manager functionality is contained in the document manager
+/// itself.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingfunctionalitytodocuments "Adding Functionality To Documents"
+/// - \ref closingadocument "Closing a Document"
+/// - \ref constructingtdocument "Constructing TDocument"
+/// - \ref dataaccessfunctions "Data Access Functions"
+/// - \ref expandingdocumentfunctionality "Expanding Document Functionality"
+/// - \ref workingwithviews "Working with Views"
+///
+///
+///
+/// \page workingwithviews Working with Views
+/// TDocument provides two functions for working with
+/// views, TDocument::NotifyViews() and
+/// TDocument::QueryViews(). Both functions take three
+/// parameters, an int corresponding to an event, a long item, and a
+/// TView *. The meaning of the long item is dependent on the
+/// event and is essentially a parameter to the event. The TView * lets you exclude
+/// a view from your query or notification by passing a pointer to that view to the
+/// function. These two functions are your primary means of communicating
+/// information between your document and its views.
+///
+/// Both functions call views through the views' response tables. The
+/// general-purpose macro used for ObjectWindows notification events is
+/// EV_OWLNOTIFY. The response functions for EV_OWLNOTIFY events have the following
+/// signature:
+/// \code
+/// bool FnName(long);
+/// \endcode
+/// The long item used in the NotifyViews or QueryViews function call is used for
+/// the long parameter for the response function.
+///
+/// You can use NotifyViews to notify your child documents, their associated views,
+/// and the associated views of your root document of a change in data, an update,
+/// or any other event that might need to be reflected onscreen. The meaning of the
+/// event and the accompanying item passed as a parameter to the event are
+/// implementation defined.
+///
+/// NotifyViews first calls all the document's child documents' NotifyViews
+/// functions, which are called with the same parameters. After all the children
+/// have been called, NotifyViews passes the event and item to all of the document's
+/// associated views. NotifyViews returns a bool. If any child document or
+/// associated view returns false, NotifyViews returns false. Otherwise NotifyViews
+/// returns true.
+///
+/// QueryViews sends an event and accompanying parameter just like NotifyViews. The
+/// difference is that, whereas NotifyViews returns true when any child or view
+/// returns true, QueryViews returns a pointer to the first view that returns true.
+/// This behavior makes QueryViews useful for finding a view that meets some
+/// condition and then performing some action on that view. If no views return true,
+/// QueryViews returns 0.
+///
+/// Another difference between NotifyViews and QueryViews is that NotifyViews always
+/// sends the event and its parameter to all children and associated views, while
+/// QueryViews stops at the first view that returns true.
+///
+/// \section example Example
+/// Suppose you have a document class that contains graphics data in a bitmap. You
+/// want to know which of your associated views is displaying a certain area of the
+/// current bitmap. You can define an event such as WM_CHECKRECT. Then you can set
+/// up a TRect structure containing the coordinates of the
+/// rectangle you want to check for. The excerpted code would look something like
+/// this:
+/// \code
+/// DEFINE_RESPONSE_TABLE1(TMyView, TView)
+///
+///   .
+///   .
+///   .
+///  EV_OWLNOTIFY(WM_CHECKREST, EvCheckRest),
+///
+///   .
+///   .
+///   .
+/// END_RESPONSE_TABLE;
+///
+/// void MyDocClass::Function() {
+///  // Set up a TRect * with the coordinates you want to send.
+///  TRect *rect = new TRect(100, 100, 300, 300);
+///
+///  // QueryViews
+///  TView *view = QueryViews(WM_CHECKRECT, (long) rect);
+///
+///  // Clear all changes from the view
+///  if(view)
+///   view->Clear();
+/// }
+///
+/// // The view response function gets the pointer to the rectangle
+/// // as the long parameter to its response function.
+/// bool TMyView::EvCheckRest(long item) {
+///  TRect *rect = (TRect *) item;
+///
+///  // Check to see if rect is equal to this view's rect.
+///  if(*rect == this->rect)
+///   return true;
+///  else
+///   return false;
+/// }
+/// \endcode
+/// You can also set up your own event macros to handle view notifications, as
+/// described in \ref docvieweventhandling "Doc/View Event Handling."
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingfunctionalitytodocuments "Adding Functionality To Documents"
+/// - \ref closingadocument "Closing a Document"
+/// - \ref constructingtdocument "Constructing TDocument"
+/// - \ref dataaccessfunctions "Data Access Functions"
+/// - \ref expandingdocumentfunctionality "Expanding Document Functionality"
+/// - \ref workingwiththedocumentmanager "Working with the Document Manager"
+///
+///
+///
+/// \page creatingaviewclass Creating a View Class
+/// The user almost never interacts directly with a document. Instead the user works
+/// with an interface object, such as a window, a dialog box, or whatever type of
+/// display is appropriate for the data being presented and the method in which it
+/// is presented. But this interface object doesn't stand on its own. A window has
+/// no information about the data it displays, the document that contains that data,
+/// or about how the user can manipulate and change the data. All this functionality
+/// is handled by the view object.
+///
+/// A view forms an interface between an interface object (which can only do what it
+/// is told to do) and a document (which does not know how to tell the interface
+/// object what to do). The view's job is to bridge the gap between the two objects,
+/// reading the data from the document object and telling the interface object how
+/// to display that data.
+///
+/// The following topics describe how to write a view class to work with your
+/// document classes:
+/// - \subpage constructingtview "Constructing TView"
+/// - \subpage addingfunctionalitytoviews "Adding Functionality To Views"
+/// - \subpage addingadisplaytoaview "Adding a Display To a View"
+/// - \subpage addingpointerstointerfaceobjects "Adding Pointers To Interface Objects"
+/// - \subpage mixingtviewwithinterfaceobjects "Mixing TView with Interface Objects"
+/// - \subpage closingaview "Closing a View"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatingadocumentclass "Creating a Document Class"
+/// - \ref docvieweventhandling "Doc/View Event Handling"
+/// - \ref docviewobjectsoverview "Doc/View Objects Overview"
+/// - \ref docviewproperties "Doc/View Properties"
+/// - \ref documenttemplates "Document Templates"
+/// - \ref howdocumentsandviewsworktogether "How Documents and Views Work Together"
+/// - \ref usingthedocumentmanager "Using the Document Manager"
+///
+///
+///
+/// \page constructingtview Constructing TView
+/// You cannot directly create an instance of TView. TView
+/// contains a number of pure virtual functions and placeholder functions whose
+/// functionality must be provided in any derived classes. But you must call the
+/// TView constructor when you are constructing your TView-derived object. The TView
+/// constructor takes one parameter, a reference to the view's associated document.
+/// You must provide a valid reference to a TDocument-derived object.
+///
+///
+///
+/// \page addingfunctionalitytoviews Adding Functionality To Views
+/// TView contains some pure virtual functions that you must
+/// provide in every new view class. It also contains a few placeholder functions
+/// that have no base class functionality. You need to provide new versions of these
+/// functions if you plan to use them for anything.
+///
+/// Much like TDocument, you should not override a TView
+/// function unless that function is a virtual. When functions in TDocument call
+/// functions in your view, they address the view object as a TView. If you override
+/// a nonvirtual function and the document calls that function, the document
+/// actually calls the TView version of that function, rendering your function
+/// useless in that context.
+///
+/// \section sec1 TView Virtual Functions
+/// The following functions are declared virtual so you can override them to provide
+/// some useful functionality. But most are not declared as pure virtuals; you are
+/// not required to override them to construct a view. Instead, you need to override
+/// these functions only if you plan to use them.
+/// - TView::GetViewName() returns the static name of the
+/// view. This function is declared as a pure virtual function; you must provide a
+/// definition of this function in your view class.
+/// - TView::GetWindow() returns a TWindow * that should reference 
+/// the view's associated interface object if it has one; otherwise, GetWindow returns 0.
+/// - TView::SetDocTitle() sets the view window's caption. It
+/// should be set to call the SetDocTitle function in the interface object.
+///
+/// \section sec2 Adding a Menu
+/// TView contains the private TMenuDescr * data member
+/// ViewMenu. You can assign any existing TMenuDescr object to this member. Normally
+/// you set the menu up in the view's constructor to make it merge with the frame
+/// window's menu when the view is activated.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatingaviewclass "Creating A View Class"
+/// - \ref addingadisplaytoaview "Adding a Display To a View"
+/// - \ref closingaview "Closing a View"
+/// - \ref constructingtview "Constructing TView"
+///
+///
+///
+/// \page addingadisplaytoaview Adding a Display To a View
+/// TView itself makes no provision for displaying data--it has
+/// no pointer to a window, no graphics functions, no text display functions, and no
+/// keyboard handling. To provide this functionality in your derived classes, use
+/// one of the following methods:
+/// - \ref addingpointerstointerfaceobjects "Adding a pointer" to an interface object in your
+/// derived view class
+/// - \ref mixingtviewwithinterfaceobjects "Mixing TView with interface objects" when deriving your
+/// new view class
+///
+/// Each of these methods has its advantages and drawbacks. Weigh the pros and cons
+/// of each approach before deciding how to build your view class.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatingaviewclass "Creating A View Class"
+/// - \ref addingfunctionalitytoviews "Adding Functionality To Views"
+/// - \ref closingaview "Closing a View"
+/// - \ref constructingtview "Constructing TView"
+///
+///
+///
+/// \page addingpointerstointerfaceobjects Adding Pointers To Interface Objects
+/// To add a pointer to an interface object to your
+/// TView-derived class, add the member to the new class and
+/// instantiate the object in the view class's constructor. Access to the interface
+/// object's data and function members is through the pointer.
+///
+/// The advantage of this method is that it lets you easily attach and detach
+/// different interface objects. It also lets you use different types of interface
+/// objects by making the pointer a pointer to a common base class of the different
+/// objects you might want to use. For example, you can use most kinds of interface
+/// objects by making the pointer a TWindow *.
+///
+/// The disadvantage of this method is that event handling must go through either
+/// the interface object or the application first. This basically forces you to
+/// either use a derived interface object class to add your own event-handling
+/// functions that make reference to the view object, or handle the events through
+/// the application object. Either way, you decrease your flexibility in handling
+/// events.
+///
+///
+///
+/// \page mixingtviewwithinterfaceobjects Mixing TView with Interface Objects
+/// Mixing TView or a TView-derived object with an interface
+/// object class gives you the ability to display data from a document and makes
+/// that ability integral with handling the flow of data to and from the document
+/// object. To mix a view class with an interface object class is a fairly
+/// straightforward task, but one that must be undertaken with care.
+///
+/// To derive your new class, define the class based on your base view class (TView
+/// or a TView-derived class) and the selected interface object. The new constructor
+/// should call the constructors for both base classes and initialize any data that
+/// needs to be set up. At a bare minimum, the new class must define any functions
+/// that are declared pure virtual in the base classes. It should also define
+/// functions for whatever specialized screen activities it needs to perform and
+/// define event-handling functions to communicate with both the interface element
+/// and the document object.
+///
+/// The advantage of this approach is that the resulting view is highly integrated.
+/// Event handling is performed in a central location, reducing the need for event
+/// handling at the application level. Control of the interface elements does not go
+/// through a pointer but is also integrated into the new view class.
+///
+/// The disadvantage of this approach is that you lose the flexibility you have with
+/// a pointer. You cannot quickly detach and attach new interface objects because
+/// the interface object is an organic part of the whole view object. You also
+/// cannot exchange different types of objects by using a base pointer to a
+/// different interface object classes. Your new view class is locked into a single
+/// type of interface element.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingadisplaytoaview "Adding a Display To a View"
+/// - \ref addingpointerstointerfaceobjects "Adding Pointers To Interface Objects"
+///
+///
+///
+/// \page closingaview Closing a View
+/// Like most other objects, TView provides functions that let
+/// you safely close and destroy the object.
+///
+/// TView::~TView() does fairly little. It calls its associated document's DetachView
+/// function, thus removing itself from the document's list of views.
+/// TView also provides a CanClose function, which calls its associated document's
+/// CanClose function. Therefore the view's ability to close depends on the
+/// document's ability to close.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingadisplaytoaview "Adding a Display To a View"
+/// - \ref addingfunctionalitytoviews "Adding Functionality To Views"
+/// - \ref constructingtview "Constructing TView"
+///
+///
+///
+/// \page docvieweventhandling Doc/View Event Handling
+/// You normally handle Doc/View events through both the application object and your
+/// view's interface element. You can either control the view's display through a
+/// pointer to an interface object or mix the functionality of the interface object
+/// with a view class. (See \ref mixingtviewwithinterfaceobjects "Mixing TView with Interface Objects.")
+///
+/// To understand more about Doc/View event handling, review the following
+/// topics:
+/// - \subpage docvieweventhandlingintheapplicationobject "Doc/View Event Handling in the Application Object"
+/// - \subpage docvieweventhandlinginaview "Doc/View Event Handling in a View"
+/// - \subpage handlingpredefineddocviewevents "Handling Predefined Doc/View Events"
+/// - \subpage addingyourownviewevents "Adding Your Own View Events"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatingadocumentclass "Creating a Document Class"
+/// - \ref creatingaviewclass "Creating a View Class"
+/// - \ref docviewobjectsoverview "Doc/View Objects Overview"
+/// - \ref docviewproperties "Doc/View Properties"
+/// - \ref documenttemplates "Document Templates"
+/// - \ref howdocumentsandviewsworktogether "How Documents and Views Work Together"
+/// - \ref usingthedocumentmanager "Using the Document Manager"
+///
+///
+///
+/// \page docvieweventhandlingintheapplicationobject Doc/View Event Handling in the Application Object
+/// The application object generally handles only a few events, indicating when a
+/// document or a view has been created or destroyed. The dnCreate event is posted
+/// whenever a view or document is created. The dnClose event is posted whenever a
+/// view or document is closed.
+///
+/// To set up response table entries for these events, add the EV_OWLDOCUMENT and
+/// EV_OWLVIEW macros to your response table as follows:
+/// - Use the EV_OWLDOCUMENT macro to check for
+///  - The dnCreate event when a new document object is created. The standard name
+/// used for the handler function is EvNewDocument. EvNewDocument takes a reference
+/// to the new TDocument-derived object and returns
+/// void.
+///  - The dnClose event when a document object is about to be closed. The standard
+/// name used for the handler function is EvCloseDocument. EvCloseDocument takes a
+/// reference to the TDocument-derived object that is being closed and returns
+/// void.
+///
+/// The response table entries and function declarations for these two macros would
+/// look like this:
+/// \code
+/// DEFINE_RESPONSE_TABLE1(MyDVApp, TApplication)
+///
+///  .
+///  .
+///  .
+///  EV_OWLDOCUMENT(dnCreate, EvNewDocument),
+///  EV_OWLDOCUMENT(dnClose, EvCloseDocument),
+///
+///  .
+///  .
+///  .
+/// END_RESPONSE_TABLE;
+///
+/// void EvNewDocument(TDocument& document);
+/// void EvCloseDocument(TDocument& document);
+/// \endcode
+/// - Use the EV_OWLVIEW macro to check for
+///  - The dnCreate event when a new view object is constructed. The standard name
+/// used for the handler function is EvNewView. EvNewView takes a reference to the
+/// new TView-derived object and returns void.
+///  - If the view contains a window interface element, either by inheritance or
+/// through a pointer, the interface element typically has not been created when the
+/// view is constructed. You can then modify the interface element's creation
+/// attributes before actually calling the Create function.
+///  - The dnClose event when a view object is destroyed. The standard name used for
+/// the handler function is EvCloseView. EvCloseView takes a reference to the
+///  - TView-derived object that is being destroyed and returns
+/// void.
+///
+/// The response table entries and function declarations for these two macros would
+/// look like this:
+/// \code
+/// DEFINE_RESPONSE_TABLE1(MyDVApp, TApplication)
+///
+///  .
+///  .
+///  .
+///  EV_OWLVIEW(dnCreate, EvNewView),
+///  EV_OWLVIEW(dnClose, EvCloseView),
+///
+///  .
+///  .
+///  .
+/// END_RESPONSE_TABLE;
+///
+/// void EvNewView(TView &view);
+/// void EvCloseView(TView &view);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref docvieweventhandling "Doc/View Event Handling"
+/// - \ref docvieweventhandlinginaview "Doc/View Event Handling in a View"
+///
+///
+///
+/// \page docvieweventhandlinginaview Doc/View Event Handling in a View
+/// The header file docview.h provides a number of response table macros for
+/// predefined events, along with the handler function names and type checking for
+/// the function declarations. You can also define your own events and functions to
+/// handle those events using the NOTIFY_SIG and VN_DEFINE macros.
+/// To understand more about event handling in a view, review the following
+/// topics:
+/// - \ref handlingpredefineddocviewevents "Handling Predefined Doc/View Events"
+/// - \ref addingyourownviewevents "Adding Your Own View Events"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref docvieweventhandling "Doc/View Event Handling"
+/// - \ref docvieweventhandlingintheapplicationobject "Doc/View Event Handling in the Application Object"
+///
+///
+///
+/// \page handlingpredefineddocviewevents Handling Predefined Doc/View Events
+/// There are a number of predefined Doc/View events. Each event has a corresponding
+/// response table macro and handler function signature defined. Note that the
+/// Doc/View model doesn't provide versions of these functions. You must declare the
+/// functions in your view class and provide the appropriate functionality for each
+/// function.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Response table macro</TD><TD class="owltableheader">Event name</TD><TD class="owltableheader">Event handler</TD><TD class="owltableheader">Event</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_VN_VIEWOPENED</TD><TD class="owltable">vnViewOpened</TD><TD class="owltable">VnViewOpened(TView&nbsp;*)</TD><TD class="owltable">Indicates that a new view
+/// has been constructed.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_VN_VIEWCLOSED</TD><TD class="owltable">vnViewClosed</TD><TD class="owltable">VnViewClosed(TView&nbsp;*)</TD><TD class="owltable">Indicates that a view is
+/// about to be destroyed.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_VN_DOCOPENED</TD><TD class="owltable">vnDocOpened</TD><TD class="owltable">VnDocOpened(int)</TD><TD class="owltable">Indicates that a new document has
+/// been opened.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_VN_DOCCLOSED</TD><TD class="owltable">vnDocClosed</TD><TD class="owltable">VnDocClosed(int)</TD><TD class="owltable">Indicates that a document has been
+/// closed.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_VN_COMMIT</TD><TD class="owltable">vnCommit</TD><TD class="owltable">VnCommit(bool)</TD><TD class="owltable">Indicates that changes made to the data in
+/// the view should be committed to the document.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_VN_REVERT</TD><TD class="owltable">vnRevert</TD><TD class="owltable">VnRevert(bool)</TD><TD class="owltable">Indicates that changes made to the data in
+/// the view should be discarded and the data should be restored from the
+/// document.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_VN_ISDIRTY</TD><TD class="owltable">vnIsDirty</TD><TD class="owltable">VnIsDirty(void)</TD><TD class="owltable">Should return true if changes have been
+/// made to the data in the view and not yet committed to the document, otherwise
+/// returns false.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_VN_ISWINDOW</TD><TD class="owltable">vnIsWindow</TD><TD class="owltable">VnIsWindow(HWND)</TD><TD class="owltable">Should return true if the HWND
+/// parameter is the same as that of the view's display window.</TD></TR>
+/// </TABLE>
+/// All the event-handling functions used for these messages return bool.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref docvieweventhandlinginaview "Doc/View Event Handling in a View"
+/// - \ref addingyourownviewevents "Adding Your Own View Events"
+///
+///
+///
+/// \page addingyourownviewevents Adding Your Own View Events
+/// You can use the VN_DEFINE and NOTIFY_SIG macros to post your own custom view
+/// events and to define corresponding response table macros and event-handling
+/// functions. This section describes how to define an event and set up the
+/// event-handling function and response table macro for that event.
+///
+/// First you must define the name of the event you want to handle. By convention,
+/// this name should begin with the letters vn followed by the event name. A custom
+/// view event should be defined as a const int greater than the value vnCustomBase.
+/// You can define your event values as being vnCustomBase plus some offset value.
+///
+/// For example, suppose you are defining an event called vnPenChange. The code
+/// would look something like this:
+/// \code
+/// const int vnPenChange = vnCustomBase + 1;
+/// \endcode
+/// Next use the NOTIFY_SIG macro to specify the signature of the event-handling
+/// function. The NOTIFY_SIG macro takes two parameters: the event name and the
+/// exact parameter type to be passed to the function. The size of this parameter
+/// can be no larger than type long; if the object being passed is larger than a
+/// long, you must pass it by pointer. For example, suppose for the vnPenChange
+/// event, you want to pass a TPen object to the event-handling
+/// function. Because a TPen object is quite a bit larger than a long, you must pass
+/// the object by pointer. The macro would look something like this:
+/// \code
+/// NOTIFY_SIG(vnPenChange, TPen *)
+/// \endcode
+/// Now you need to define the response table macro for your event. By convention,
+/// the macro name uses the event name, in all uppercase letters, preceded by
+/// EV_VN_. Use the \#define macro to define the macro name. Use the VN_DEFINE macro
+/// to define the macro itself. This macro takes three parameters:
+/// - Event name
+/// - Event-handling function name (by convention, the same as the event name
+/// preceded by Vn instead of the vn used for the event name)
+/// - Size of the parameter for the event-handling function; this can have four
+/// different values:
+///  - void
+///  - int (size of an int parameter depends on the platform)
+///  - long (32-bit integer or far pointer)
+///  - pointer (size of a pointer parameter depends on the memory model)
+///
+/// Specify the value that most closely corresponds to the event-handling
+/// function's parameter type.
+///
+/// The definition of the response table macro for the vnPenChange event would look
+/// something like this:
+/// \code
+/// #define EV_VN_PENCHANGE \
+///  VN_DEFINE(vnPenChange, VnPenChange, pointer)
+/// \endcode
+/// \note The third parameter of the VN_DEFINE macro in this case is pointer. It
+/// indicates the size of the value passed to the event-handling function.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref docvieweventhandlinginaview "Doc/View Event Handling in a View"
+/// - \ref handlingpredefineddocviewevents "Handling Predefined Doc/View Events"
+///
+///
+///
+/// \page docviewproperties Doc/View Properties
+/// Every document and view object contains a list of properties, along with
+/// functions you can use to query and change those properties. The properties
+/// contain information about the object and its capabilities. When the document
+/// manager creates or destroys a document or view object, it sends a notification
+/// event to the application. The application can query the object's properties to
+/// determine how to proceed. Views can also access the properties of their
+/// associated document.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref creatingadocumentclass "Creating a Document Class"
+/// - \ref creatingaviewclass "Creating a View Class"
+/// - \ref docvieweventhandling "Doc/View Event Handling"
+/// - \ref docviewobjectsoverview "Doc/View Objects Overview"
+/// - \ref docviewproperties "Doc/View Properties"
+/// - \ref documenttemplates "Document Templates"
+/// - \ref howdocumentsandviewsworktogether "How Documents and Views Work Together"
+/// - \ref usingthedocumentmanager "Using the Document Manager"
+/// - \subpage propertyvaluesandnames "Property Values and Names"
+/// - \subpage accessingpropertyinformation "Accessing Property Information"
+/// - \subpage gettingandsettingproperties "Getting and Setting Properties"
+///
+///
+///
+/// \page propertyvaluesandnames Property Values and Names
+/// TDocument and TView each have some
+/// general properties. These properties are available in any classes derived from
+/// TDocument and TView. These properties are indexed by a list of enumerated
+/// values. The first property for every TDocument- and TView-derived class should
+/// be PrevProperty. The last value in the property list should be NextProperty.
+/// These two values delimit the property list of every document and view object.
+/// They ensure that your property list starts at the correct value and does not
+/// overstep another property's value, and they allow derived classes to ensure that
+/// their property lists start at a suitable value. PrevProperty should be set to
+/// the value of the most direct base class's NextProperty - 1.
+///
+/// For example, a property list for a class derived from TDocument might look
+/// something like this:
+/// \code
+/// enum {
+///  PrevProperty = TDocument::NextProperty-1,
+///  Size,
+///  StorageSize,
+///  NextProperty,
+/// };
+/// \endcode
+/// \note Use the scope operator (::) when setting PrevProperty to ensure that you
+/// set it to the correct value for NextProperty.
+///
+/// Property names are usually contained in an array of strings, with the position
+/// of each name in the array corresponding to its enumerated property index.
+/// However, when adding properties to a derived class, you can store and access the
+/// strings in any style you want. Because you have to write the functions to access
+/// the properties, complicated storage schemes aren't recommended. A property name
+/// should be a simple description of the property.
+///
+/// Property attributes, like pfGetText, are likewise
+/// usually contained in an array (of int). You can set up the array any way you
+/// like, but the usual practice is to have the attributes for a property contained
+/// in an array corresponding to the value of its property index.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingpropertyinformation "Accessing Property Information"
+///
+///
+///
+/// \page accessingpropertyinformation Accessing Property Information
+/// There are a number of functions provided in both
+/// TDocument and TView for accessing
+/// Doc/View object property information. 
+/// All these functions are declared virtual. Because the property
+/// access functions are virtual, the function in the most derived class gets called
+/// first, and can override properties defined in a base class. It is the
+/// responsibility of each class to implement property access and to resolve its
+/// property names.
+///
+/// You normally access a property by its index number. Use the FindProperty
+/// function with the property name. FindProperty takes a char * parameter and
+/// searches the property list for a property with the same name. It returns an int,
+/// which is used as the property index for succeeding calls.
+///
+/// You can also use the PropertyName function to find the property name from the
+/// index. PropertyName takes an int parameter and returns a char * containing the
+/// name of the property.
+///
+/// You can get the attributes of a property using the PropertyFlags function. This
+/// function takes an int parameter, the index of the desired property, and returns
+/// an int. You can determine whether a flag is set by using the & operator. For
+/// example, to determine whether you can get a property value in text form, you can
+/// check to see whether the pfGetText flag is set, as follows:
+/// \code
+/// if(doc->PropertyFlags() & pfGetText)
+/// {
+///  // Get property as text....
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref gettingandsettingproperties "Getting and Setting Properties"
+/// - \ref propertyvaluesandnames "Property Values and Names"
+///
+///
+///
+/// \page gettingandsettingproperties Getting and Setting Properties
+/// You can use the GetProperty and SetProperty functions to query and modify the
+/// values of a Doc/View object's properties.
+/// The GetProperty function lets you find out the value of a property. Its syntax
+/// is
+/// \code
+/// int GetProperty(int index, void far* dest, int textlen = 0);
+/// \endcode
+/// GetProperty parameters
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">index</TD><TD class="owltable">Property index.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">dest</TD><TD class="owltable">Used by GetProperty to contain the property data.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">textlen</TD><TD class="owltable">Indicates the size of the memory array pointed to by dest. If
+/// textlen is 0, the property data is not returned; instead, GetProperty returns 0.
+/// Otherwise the data is returned in a textlen size buffer.</TD></TR>
+/// </TABLE>
+///
+/// The SetProperty function lets you set the value of a property. Its syntax is
+/// \code
+/// bool SetProperty(int index, const void far* src)
+/// \endcode
+/// SetProperty parameters
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">index</TD><TD class="owltable">Property index</TD></TR>
+/// <TR class="owltable"><TD class="owltable">src</TD><TD class="owltable">Contains the data to which the property is being set. src must be in
+/// the correct native format for the property.</TD></TR>
+/// </TABLE>
+/// 
+/// A derived class that duplicates property names should use the same behavior and
+/// data type for the duplicate properties as they had in the parent class.
+///
+///
+///

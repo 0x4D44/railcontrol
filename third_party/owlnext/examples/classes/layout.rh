@@ -1,0 +1,56 @@
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ generated include file.
+// Used by layout.rc
+
+
+// change the metrics dialog
+//
+#define ID_X                    101
+#define ID_Y                    102
+#define ID_WIDTH                103
+#define ID_HEIGHT               104
+#define ID_LAYOUT               105
+#define ID_WINDOWLIST           108
+
+#define ID_MYEDGE               110
+#define ID_RELWIN               111
+#define ID_RELATIONSHIP         112
+#define ID_OTHEREDGE            113
+#define ID_VALUE                114
+#define ID_UNITS                115
+#define ID_Y2_VALUE             127
+#define ID_Y2_OTHEREDGE         124
+#define ID_Y2_RELWIN            123
+#define ID_Y2_RELATIONSHIP      122
+#define ID_Y2_MYEDGE            121
+#define ID_Y1_UNITS             416
+#define ID_Y2_UNITS             130
+#define ID_Y1_VALUE             417
+#define ID_Y1_OTHEREDGE         413
+#define ID_Y1_RELWIN            415
+#define ID_Y1_RELATIONSHIP      414
+#define ID_Y1_MYEDGE            412
+#define ID_X2_UNITS             410
+#define ID_X2_VALUE             411
+#define ID_X2_OTHEREDGE         407
+#define ID_X2_RELWIN            409
+#define ID_X2_RELATIONSHIP      408
+#define ID_X2_MYEDGE            406
+#define ID_X1_UNITS             404
+#define ID_X1_VALUE             405
+#define ID_X1_OTHEREDGE         400
+#define ID_X1_RELWIN            403
+#define ID_X1_RELATIONSHIP      402
+#define ID_X1_MYEDGE            401
+
+
+// Next default values for new objects
+// 
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NEXT_RESOURCE_VALUE        101
+#define _APS_NEXT_COMMAND_VALUE         40001
+#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_SYMED_VALUE           101
+#endif
+#endif

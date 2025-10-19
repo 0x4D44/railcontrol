@@ -1,0 +1,967 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+/// \mainpage 
+///
+/// OWLNext is a modern update and extension of Borland's Object Windows Library for writing GUI
+/// applications in standard C++ on Microsoft Windows. With support for a wide range of modern
+/// compilers, OWLNext provides a migration path for legacy OWL applications written in Borland
+/// C++. OWLNext is maintained and supported by the user community.
+///
+/// OWLNext is based on the Object Windows Library (OWL) which is copyrighted software owned by
+/// Embarcadero Technologies. See Prerequisites in our installation guide for more information on
+/// how to obtain an OWL license. OWLNext consists of modifications and additions (collectively
+/// called patches) to the original OWL source code. These patches are the property of the
+/// respective contributors to OWLNext and are licensed for general use in accordance with the MIT
+/// open source license. Note that this license only applies to the patches. The full OWLNext
+/// source code (the patched software) is further restricted by the OWL license; refer to your OWL
+/// license for details.
+///
+/// Visit <a href="http://sourceforge.net/projects/owlnext" target="_blank">
+/// http://sourceforge.net/projects/owlnext</a> for more information.
+///
+/// \subpage overviewofobjectwindows2 
+///
+///
+/// \page overviewofobjectwindows2 Overview of ObjectWindows
+/// This section presents an overview of the ObjectWindows hierarchy. It also
+/// describes the basic groupings of the ObjectWindows classes, and explains how
+/// each class fits together with the others. It covers the following topics:
+/// - \subpage workingwithclasshierarchies "Working with class hierarchies"
+/// - \subpage applicationandmoduleobjectsoverview "Application and module objects"
+/// - \subpage interfaceobjectsoverview "Interface Objects"
+/// - \subpage eventhandlingoverview "Event Handling"
+/// - \subpage windowobjectsoverview "Window Objects"
+/// - \subpage menuobjectsoverview "Menu Objects"
+/// - \subpage aboutdialogboxobjects "Dialog box objects"
+/// - \subpage docviewobjectsoverview "Doc/View Objects Overview"
+/// - \subpage controlobjectsoverview "Control Objects Overview"
+/// - \subpage gadgetandgadgetwindowobjectsoverview "Gadget and Gadget Window Objects Overview"
+/// - \subpage printerobjectsoverview "Printer Objects Overview"
+/// - \subpage graphicsobjectsoverview "Graphics Objects Overview"
+/// - \subpage validatorobjectsoverview "Validator Objects Overview"
+/// - \subpage aboutvisualbasiccontrolobjects "About Visual Basic control objects"
+/// - \subpage writingdllfunctionsoverview "Writing DLL Functions Overview"
+/// - \subpage abouttheshellclasses "About the Shell Classes"
+/// - \subpage oleclasses "OLE Classes"
+/// - \subpage overviewofthewindowssocketclasses "Overview of the Windows Socket Classes"
+/// - \subpage usingpersistentstreamsclasses "Using persistent streams classes"
+/// - \subpage classdiagnosticmacros "Diagnostic Macros"
+/// 
+/// 
+/// 
+/// \page workingwithclasshierarchies Working with class hierarchies
+/// This section describes some of the basic properties of classes. It covers the
+/// following topics:
+/// - \subpage usingaclass "What you can do with a class"
+/// - \subpage inheritingmembers "Inheriting members"
+/// - \subpage typesofmemberfunctions "Types of member functions"
+/// - \subpage abstractclasses "Create an Abstract Class"
+/// 
+/// 
+/// 
+/// \page usingaclass Using a class
+/// You can do three basic things with a class:
+/// - \subpage derivingnewclasses "Derive a new class from it"
+/// - \subpage mixingobjectbehavior "Add its behavior to that of another class"
+/// - \subpage instantiatingclasses "Create an instance of it (instantiate it)"
+/// 
+/// 
+/// 
+/// \page derivingnewclasses Deriving new classes
+/// To change or add behavior to a class, you derive a new class from it:
+/// \code
+/// class TNewWindow : public TWindow
+/// {
+///  public:
+///   TNewWindow(...);
+///  // ...
+/// };
+/// \endcode
+/// When you derive a new class, you can do three things:
+/// - Add new data members
+/// - Add new member functions
+/// - Override inherited member functions
+///
+/// Adding new members lets you add to or change the functionality of the base
+/// class. You can define a new constructor for your derived class to call the base
+/// classes' constructors and initialize any new data members you might have added.
+/// 
+/// 
+/// 
+/// \page mixingobjectbehavior Mixing object behavior
+/// With ObjectWindows designed using multiple inheritance, you can derive new
+/// classes that inherit the behavior of more than one class. Such "mixed" behavior
+/// is different from the behavior you get from single inheritance derivation.
+/// Instead of inheriting the behavior of the base class and being able to add to
+/// and change it, you're inheriting and combining the behavior of several
+/// classes.
+///
+/// As with single inheritance derivation, you can add new members and override
+/// inherited ones to change the behavior of your new class.
+/// 
+/// 
+/// 
+/// \page instantiatingclasses Instantiating classes
+/// To use a class, you must create an instance of it. You can instantiate a class
+/// in a number of ways:
+/// - Use the standard declaration syntax. This is the same syntax you use to
+/// declare any standard variable such as an int or char. In this example, app is
+/// initialized by calling the TMyApplication constructor with no arguments:
+/// TMyApplication app;
+/// You can use this syntax only when the class has a default constructor or a
+/// constructor in which all the parameters have default values.
+/// - Use the standard declaration syntax along with arguments to call a particular
+/// constructor. In this example, app is initialized by calling the TMyApplication
+/// constructor with a char * argument:
+/// \code
+/// TMyApplication app("AppName");
+/// \endcode
+/// - Use the new operator to allocate space for and instantiate an object. For
+/// example:
+/// \code
+/// TMyApplication *app;
+/// App = new TMyApplication;
+/// \endcode
+/// - Use the new operator with arguments. In this example, app is initialized by
+/// calling the TMyApplication constructor with a char * argument:
+/// \code
+/// TMyApplication* app = new TMyApplication("AppName");
+/// \endcode
+/// The constructors call the base class constructors and initialize any needed data
+/// members. You can only instantiate classes that aren't abstract; that is, classes
+/// that don't contain a pure virtual function.
+/// 
+/// 
+/// 
+/// \page abstractclasses Abstract classes
+/// Abstract classes are classes with pure virtual member functions that you must
+/// override to provide some behavior. They serve two main purposes:
+/// -# They provide a conceptual framework on which to build other classes.
+/// -# On a practical level, they reduce coding effort.
+///
+/// For example, the ObjectWindows THSlider and TVSlider classes could each be
+/// derived directly from TScrollBar. Although one is vertical and the other
+/// horizontal, they have similar functionality and responses. This commonality
+/// warrants creating an abstract class called TSlider. THSlider and TVSlider are
+/// then derived from TSlider with the addition of a few specialized member
+/// functions to draw the sliders differently.
+/// You can't create an instance of an abstract class. Its pure virtual member
+/// functions must be overridden to make a useful instance. TSlider, for example,
+/// doesn't know how to paint itself or respond directly to mouse events.
+/// To create your own slider (for example, a circular slider), try deriving your
+/// slider from TSlider or try deriving it from THSlider or TVSlider, depending on
+/// which best meets your needs. In either case, you add data members and add or
+/// override member functions to create the desired functionality. If you want to
+/// have diagonal sliders going both northwest-southeast and southwest-northeast,
+/// you can create an intermediate abstract class called TAngledSlider.
+///
+///
+/// \page inheritingmembers Inheriting members
+/// The following figure shows the inheritance of TInputDialog. As you can see, 
+/// TInputDialog is derived from TDialog,
+/// which is derived from TWindow, which is in turn derived from TEventHandler and
+/// TStreamable. Inheritance lets you add more specialized behavior as you move
+/// further along the hierarchy.
+///
+/// TDialog inheritance
+/// \image html bm60.BMP
+///
+/// The following table shows the public data members of each class, including those
+/// inherited from the TDialog and TWindow base classes:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltable">TWindow</TD><TD class="owltable">TDialog</TD><TD class="owltable">TInputDialog</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Status</TD><TD class="owltable">Status</TD><TD class="owltable">Status</TD></TR>
+/// <TR class="owltable"><TD class="owltable">HWindow</TD><TD class="owltable">HWindow</TD><TD class="owltable">HWindow</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Title</TD><TD class="owltable">Title</TD><TD class="owltable">Title</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Parent</TD><TD class="owltable">Parent</TD><TD class="owltable">Parent</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Attr</TD><TD class="owltable">Attr</TD><TD class="owltable">Attr</TD></TR>
+/// <TR class="owltable"><TD class="owltable">DefaultProc</TD><TD class="owltable">DefaultProc</TD><TD class="owltable">DefaultProc</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Scroller</TD><TD class="owltable">Scroller</TD><TD class="owltable">Scroller</TD></TR>
+/// <TR class="owltable"><TD class="owltable"> </TD><TD class="owltable">IsModal</TD><TD class="owltable">IsModal</TD></TR>
+/// <TR class="owltable"><TD class="owltable"> </TD><TD class="owltable"> </TD><TD class="owltable">Prompt</TD></TR>
+/// <TR class="owltable"><TD class="owltable"> </TD><TD class="owltable"> </TD><TD class="owltable">Buffer</TD></TR>
+/// <TR class="owltable"><TD class="owltable"> </TD><TD class="owltable"> </TD><TD class="owltable">BufferSize</TD></TR>
+/// </TABLE>
+/// TInputDialog inherits all the data members of TDialog and TWindow and adds the
+/// data members it needs to be an input dialog box.
+///
+/// To fully understand what you can do with TInputDialog, you have to understand
+/// its inheritance: a TInputDialog object is both a dialog box (TDialog) and a
+/// window (TWindow). TDialog adds the concept of modality to the TWindow class.
+/// TInputDialog extends that by adding the ability to store and retrieve user-input
+/// data.
+/// 
+/// 
+/// \page typesofmemberfunctions Types of member functions
+/// There are four (possibly overlapping) types of ObjectWindows member
+/// functions:
+/// -  \subpage virtualfunctions "Virtual"
+/// - \subpage nonvirtualfunctions "Nonvirtual"
+/// -  \subpage purevirtualfunctions "Pure virtual"
+/// -  \subpage defaultplaceholderfunctions "Default placeholder"
+/// 
+/// 
+/// 
+/// \page virtualfunctions Virtual functions
+/// Virtual functions can be overridden in derived classes. They differ from pure
+/// virtual functions in that they don't <B>have</B> to be overridden to use the
+/// class. Virtual functions provide <B>polymorphism</B>, which is the ability to
+/// provide a consistent class interface, even when the functionality of your
+/// classes is quite different.
+/// 
+/// 
+/// 
+/// \page nonvirtualfunctions Nonvirtual functions
+/// You should not override nonvirtual functions. Therefore, it's important to make
+/// virtual any member function that derived classes might need to override (an
+/// exception is the event-handling functions defined in your response tables). For
+/// example, TWindow::CanClose is virtual because derived classes should override it
+/// to verify whether the window should close. On the other hand,
+/// TWindow::SetCaption is nonvirtual because you usually don't need to change the
+/// way a window's caption is set.
+///
+/// The problem with using overriding nonvirtual functions is that classes that are
+/// derived from your derived class might try to use the overridden function. Unless
+/// the new derived classes are explicitly aware that you changed the functionality
+/// of the derived function, this can lead to faulty return values and run-time
+/// errors.
+/// 
+/// 
+/// 
+/// \page purevirtualfunctions Pure virtual functions
+/// You must override pure virtual functions in derived classes. Functions are
+/// marked as pure virtual using the = 0
+/// initializer. For example, here's the declaration of TSlider::PaintRuler:
+/// \code
+/// virtual void PaintRuler(TDC& dc) = 0;
+/// \endcode
+/// You must override all of an abstract class pure virtual functions in a derived
+/// class before you can create an instance of that derived class. In most cases,
+/// when using the standard ObjectWindows classes, this won't be much of a problem;
+/// most of the ObjectWindows classes you could need to derive from are <B>not</B>
+/// abstract classes. In lieu of pure virtual functions, many ObjectWindows classes
+/// use default placeholder functions.
+/// 
+/// 
+/// 
+/// \page defaultplaceholderfunctions Default placeholder functions
+/// Unlike pure virtual functions, default placeholder functions don't have to be
+/// overridden. They offer minimal default actions or no actions at all. They serve
+/// as placeholders, where you can place code in your derived classes. For example,
+/// here's the definition of TWindow::EvLButtonDblClk:
+/// \code
+/// inline void
+/// TWindow::EvLButtonDblClk (uint modKeys, TPoint &)
+/// {
+///  DefaultProcessing();
+/// }
+/// \endcode
+/// By default, EvLButtonDblClk calls DefaultProcessing to perform the default
+/// message processing for that message. In your own window class, you could
+/// override EvLButtonDblClk by defining it in your class response table.
+/// Your version of EvLButtonDblClk can
+/// provide some custom behavior that happens when the user clicks the left mouse
+/// button. You can also continue to provide the base class default processing by
+/// calling the base class version of the function.
+/// 
+/// 
+/// \page applicationandmoduleobjectsoverview Application and module objects overview
+/// ObjectWindows encapsulates Windows applications and DLL modules using the 
+/// TApplication and TModule
+/// classes, respectively.
+/// \section tmodule TModule Objects
+/// TModule objects do the following:
+/// - Encapsulate the initialization and closing functions of a Windows DLL.
+/// - Contain the hInstance and lpCmdLine parameters, which are equivalent to the
+/// parameters of the same name that are passed to the 
+/// \ref usingwinmainandowlmain "WinMain" function in a non-ObjectWindows application. Note
+/// that both WinMain and LibMain have these two parameters in common. 
+/// Unless you're working with a DLL, you do not need to create a TModule object
+/// yourself.
+/// \section tapplication TApplication Objects
+/// TApplication objects build on the basic functionality provided by
+/// TModule. 
+/// TApplication objects do the following:
+/// - Encapsulate the initialization, run-time management, and closing functions of
+/// a Windows application
+/// - Contain the values of the hPrevInstance and nCmdShow parameters, which are
+/// equivalent to the parameters of the same name that are passed to the WinMain
+/// function in a non-ObjectWindows application.
+///
+/// Because TApplication is based on TModule, it also has all the functionality
+/// contained in TModule.
+///
+/// In addition, the TApplication object contains functions to easily load and use
+/// the Borland Custom Controls Library and the Microsoft 3-D Controls Library.
+/// There is also a function that automatically subclasses standard controls as
+/// Microsoft 3-D controls.
+/// 
+/// \section seealso See Also
+/// - \subpage minimumrequirements Minimum requirements
+/// - \subpage initializingapplications
+/// - \subpage applicationmessagehandling "Application message handling"
+/// - \subpage closingapplications "Closing applications "
+/// - \subpage usingcontrollibraries "Using control libraries "
+/// - \ref accessingapplicationobjects
+/// - \ref findingtheobject "Finding the object "
+/// - \ref creatingasmallapplication "Creating a minimum application"
+/// - \ref usingwinmainandowlmain "Initializing applications"
+///
+/// \page minimumrequirements Minimum requirements
+///
+/// To use a TApplication object, you must
+/// -# Include the right header file
+/// -# \subpage creatinganapplicationobject "Create an application object"
+/// -# \subpage callingtherunfunction "Call the Run function".
+/// 
+/// \section includingtheheaderfile Including the Header File 
+/// TApplication is defined in the header file
+/// OWL\applicat.h. You must include this header file to use TApplication. Because
+/// TApplication is derived from TModule, OWL\applicat.h
+/// includes OWL\module.h.
+///
+/// \section seealso See Also
+/// - \subpage accessingapplicationobjects
+/// - \subpage findingtheobject "Finding the object "
+/// - \subpage creatingasmallapplication "Creating a minimum application"
+/// - \subpage usingwinmainandowlmain "Initializing applications"
+///
+///
+/// \page creatinganapplicationobject Creating an application object 
+/// You can create a TApplication object using one of
+/// two constructors. The most commonly used constructor is this:
+/// \code
+/// TApplication(const char far* name);
+/// \endcode
+/// This version of the TApplication constructor takes a string, which becomes the
+/// application's name. If you don't specify a name, by default the constructor
+/// names it the null string. TApplication uses this string as the application
+/// name.
+///
+/// The second version of the TApplication constructor lets you specify a number of
+/// parameters corresponding to the parameters normally passed to the 
+/// \ref usingwinmainandowlmain "WinMain" function:
+/// \code
+/// TApplication(const char far* name,
+///              HINSTANCE instance,
+///              HINSTANCE prevInstance,
+///              const char far* cmdLine,
+///              int cmdShow){}
+/// \endcode
+/// You can use this constructor to pass command parameters to the TApplication
+/// object.
+/// 
+/// 
+/// 
+/// \page callingtherunfunction Calling the Run function 
+/// The most obvious thing that the TApplication::Run function does is to start your
+/// application running. But in doing so it performs a number of other important
+/// tasks, including
+/// -  \ref initializingapplications "Initializing the application"
+/// -  \ref initializingthemainwindow "Creating and displaying the main window"
+/// -  \ref applicationmessagehandling "Running the application's message loop"
+///
+/// For the purposes of creating the basic application, it is sufficient to know
+/// that Run is the function you call to make your application go.
+///
+///
+/// \page accessingapplicationobjects  Accessing application objects 
+/// You might need to access an application object from outside that object's scope.
+/// For example, you might need to call one of the object's member functions from a
+/// function in a derived window class. But because the window object is not in the
+/// same scope as the application object, you have no way of accessing the
+/// application object. In this case, you must \ref findingtheobject "find the application object".
+/// You don't have to provide an explicit WinMain function for your ObjectWindows
+/// applications; you can instead use the function OwlMain. OwlMain lets you use int
+/// argc and char** argv parameters and return an int, just like a traditional C or
+/// C++ program with a main function.
+///
+///
+/// \page findingtheobject Finding the object 
+/// To find the current application object from a window object, 
+/// TWindow has a member function, 
+/// TWindow::GetApplication(), that returns a pointer to the application
+/// object. You can use this pointer to call TApplication member functions and
+/// access TApplication data members. The following listing shows a possible use of
+/// GetApplication:
+/// \code
+/// void TMyWindow::Error()
+/// {
+///  // display message box containing the application name
+///  MessageBox("An error occurred!", GetApplication()->Name, MB_OK);
+/// \endcode
+/// }
+/// 
+/// 
+/// 
+/// \page creatingasmallapplication Creating a small application 
+/// Here's the smallest application you can create. It includes the correct header
+/// file, creates a TApplication object, and calls that
+/// object's TApplication::Run() function.
+/// \code
+/// #include <owl\applicat.h>
+/// int OwlMain(int argc, char* argv[])
+/// {
+///  return TApplication("Wow!").Run();
+/// }
+/// \endcode
+/// This example creates a Windows application having a main window with the caption
+/// "Wow!" You can resize, move, minimize, maximize, and close this window. In a
+/// real application, you would derive a new class for the application to add more
+/// functionality. Notice that the only function you have to call explicitly in this
+/// example is the Run function. 
+/// 
+/// \page initializingapplications Initializing applications 
+/// Initializing an ObjectWindows application takes four steps:
+/// - \subpage constructingtheapplicationobject "Constructing the application object"
+/// - \subpage callinginitializationfunctions "Initializing the application"
+/// - \ref initializingnewinstances "Initializing each new instance"
+/// - \ref initializingthemainwindow "Initializing the main window"
+/// 
+/// \section seealso See Also
+/// - \ref applicationmessagehandling "Application message handling "
+/// - \ref creatinganapplicationobject "Application objects overview "
+/// - \ref closingapplications "Closing applications "
+/// - \ref usingcontrollibraries "Using control libraries "
+///
+///
+/// \page constructingtheapplicationobject Constructing the application object 
+/// When you construct a TApplication object, it calls
+/// its TApplication::InitApplication(), TApplication::InitInstance(), and 
+/// TApplication::InitMainWindow() member functions to start
+/// the application. You can override any of those members to customize how your
+/// application initializes. You must override InitMainWindow to have a useful
+/// application. To override a function in TApplication you need to derive your own
+/// application class from TApplication.
+///
+/// The constructor for the TApplication-derived class TMyApplication, shown in the
+/// examples that follow, takes the application name as its only argument; its
+/// default value is zero, for no name. The application name is used for the default
+/// main window title and in error messages. The application name is referenced by a
+/// char far* member of the TModule base class called Name. You can set the
+/// application name one of two ways:
+/// - Your application class constructor can explicitly call TApplication's
+/// constructor, passing the application name onto TApplication. The following
+/// example shows this method:
+/// \code
+///  #include <owl\applicat.h>
+///  class TMyApplication: public TApplication
+///  {
+///   public:
+///    // This constructor initializes the base class constructor
+///    TMyApplication(const char far* name = 0) : TApplication(name) {}
+///    .
+///    .
+///    .
+///  };
+/// \endcode
+/// - Override one of TApplication's initialization functions, usually
+/// InitMainWindow, and set the application name there. The following example shows
+/// this method:
+/// \code
+///  #include <owl\applicat.h>
+///  class TMyApplication: public TApplication
+///  {
+///   public:
+///    // This constructor just uses the default base class constructor.
+///    TMyApplication(const char far* name = 0) : Name(name) {}
+///    void InitMainWindow()
+///  {
+///   .
+///   .
+///   .
+///  protected:
+///   string Name;
+///  };
+/// \endcode
+/// ObjectWindows applications do not require an explicit 
+/// \ref usingwinmainandowlmain "WinMain" function; the ObjectWindows libraries provide one
+/// that performs error handling and exception handling. You can perform any
+/// initialization you want in the OwlMain function, which is called by the default
+/// WinMain function.
+///
+/// To construct an application object, create an instance of your application class
+/// in the OwlMain function. The following example shows a simple application
+/// object's definition and instantiation:
+/// \code
+/// #include <owl\applicat.h>
+/// 
+/// class TMyApplication: public TApplication
+/// {
+/// public:
+///  TMyApplication(const char far* name = 0): TApplication(name) {}
+/// };
+/// 
+/// int OwlMain(int argc, char* argv[])
+/// {
+///  return
+/// TMyApplication("Wow!").Run();
+/// }
+/// \endcode
+/// 
+/// 
+/// 
+/// \page usingwinmainandowlmain Using WinMain and OwlMain 
+/// ObjectWindows provides a default WinMain function that provides extensive error
+/// checking and exception handling. This WinMain function sets up the application
+/// and calls the OwlMain function.
+///
+/// Although you can use your own WinMain by placing it in a source file, there is
+/// little reason to do so. Everything you would otherwise do in WinMain you can do
+/// in OwlMain or in TApplication initialization member
+/// functions. In the following example, OwlMain checks to see whether the use
+/// specified any parameters on the application's command line. If so, OwlMain
+/// creates the application object and uses the first parameter as the application
+/// name. If not, OwlMain creates the application object and uses Wow! as the
+/// application name.
+/// \code
+/// #include <owl\applicat.h>
+/// #include <string.h>
+/// 
+/// class TMyApplication: public TApplication
+/// {
+/// public:
+///  TMyApplication(const char far* name = 0) : TApplication(name) {}
+/// };
+/// 
+/// int
+/// OwlMain(int argc, char* argv[])
+/// {
+///  char title[30];
+///  if(argc >= 2)
+///   strcpy(title, argv[1]);
+///  else
+///   strcpy(title, "Wow!");
+///  return TMyApplication(title).Run();
+/// }
+/// \endcode
+/// If you do decide to provide your own WinMain, TApplication supports passing
+/// traditional WinMain function parameters with another constructor. The following
+/// example shows how to use that constructor to pass WinMain parameters to the
+/// TApplication object:
+/// \code
+/// #include <owl\applicat.h>
+/// 
+/// class TMyApplication : public TApplication
+/// {
+/// public:
+///  TMyApplication (const char far* name,
+///    HINSTANCE instance,
+///    HINSTANCE prevInstance,
+///    const char far* cmdLine,
+///    int cmdShow)
+///   : TApplication (name, instance, prevInstance, cmdLine, cmdShow){}
+/// };
+/// 
+/// int
+/// PASCAL WinMain(HINSTANCE hInstance, HINSTANCE
+/// hPrevInstance,
+///   LPSTR lpszCmdLine, int nCmdShow)
+/// {
+///  return TMyApplication("MyApp", hInstance, hPrevInstance, lpszCmdLine, nCmdShow).Run();
+/// }
+/// \endcode
+/// 
+/// 
+/// \page callinginitializationfunctions Calling initialization functions 
+/// TApplication contains three initialization functions:
+/// 
+/// Function Description
+/// - TApplication::InitApplication() Initializes
+/// the first instance of the application.
+/// - TApplication::InitInstance() Initializes each
+/// instance of the application.
+/// - TApplication::InitMainWindow() Initializes the
+/// application's main window.
+/// 
+/// \section initializingtheapplication Initializing the Application
+/// How these functions are called depends on whether or not this is the first
+/// instance of the application. For 16-bit applications, InitApplication is called
+/// only for the first instance of the application on the system. InitInstance is
+/// the next function called for the first instance, and it is the first function
+/// called by additional instances. InitInstance calls InitMainWindow.
+/// 
+/// In the case of 32-bit applications, each application runs in its own address
+/// space, with no shared instance data, making each instance a first instance.
+/// Every time you start a 32-bit application, it performs both first-instance
+/// initialization and each-instance initialization.
+/// 
+/// If the current instance is a first instance (indicated by the data member
+/// hPrevInstance being set to zero), InitApplication is called. You can override
+/// InitApplication in your derived application class; the default InitApplication
+/// has no functionality.
+/// 
+/// For example, you could use first-instance initialization to make the main
+/// window's caption indicate whether it's the first instance. To do this, add a
+/// data member called WindowTitle in your derived application class. In the
+/// constructor, set WindowTitle to "Additional Instance". Then override
+/// InitApplication to set WindowTitle to "First Instance". If your application is
+/// the first instance of the application, InitApplication is called and overwrites
+/// what the constructor set WindowTitle to. The following example shows how the
+/// code might look:
+/// \code
+/// #include <owl\applicat.h>
+/// #include <owl\framewin.h>
+/// #include <cstring.h>
+/// 
+/// class TTestApp : public TApplication
+/// {
+///  public:
+///   TTestApp() :
+/// TApplication("Instance Tester"),
+///    WindowTitle("Additional Instance") {}
+/// 
+///  protected:
+///   string WindowTitle;
+/// 
+///   void InitApplication() {
+/// WindowTitle = string("First Instance"); }
+///   void InitMainWindow() {
+/// SetMainWindow(
+///        
+/// new TFrameWindow(0, WindowTitle.c_str())); }
+/// };
+/// 
+/// int
+/// OwlMain(int /* argc */, char* /* argv */[])
+/// {
+///  return TTestApp().Run();
+/// }
+/// \endcode
+/// When multiple 16-bit instances of this application are open on the desktop, the
+/// first one has the title "First Instance" and each subsequent instance has the
+/// title "Additional Instance".
+///
+/// Because each instance of a 32-bit application is perceived as the first instance
+/// of the application, multiple 32-bit copies running at the same time all have the
+/// caption "First Instance".
+/// 
+/// \section seealso See Also
+/// - \subpage initializingnewinstances "Initializing new instances"
+/// - \subpage initializingthemainwindow "Initializing the main window"
+/// - \subpage changingthemainwindow "Changing the main window"
+/// - \subpage specifyingthemainwindowdisplaymode "Specifying the main window display mode"
+/// 
+/// 
+/// 
+/// 
+/// \page initializingnewinstances Initializing new instances 
+/// A user can run multiple instances (copies) of an application simultaneously. You
+/// can override TApplication::InitInstance()
+/// to perform any initialization you need to do for each instance.
+/// InitInstance calls InitMainWindow and then creates and shows the main window you
+/// set up in InitMainWindow. If you override InitInstance, be sure your new
+/// InitInstance calls TApplication::InitInstance. The following example shows how
+/// to use InitInstance to load an accelerator table.
+/// \code
+/// void
+/// TTestApp::InitInstance()
+/// {
+///  TApplication::InitInstance();
+///  HAccTable = LoadAccelerators(MAKEINTRESOURCE(MYACCELS));
+/// }
+/// \endcode
+/// 
+/// 
+/// 
+/// 
+/// \page initializingthemainwindow Initializing the main window
+/// By default,
+/// TApplication::InitMainWindow() creates a
+/// frame window with the same name as the application object. This window is not
+/// very useful, because it cannot receive or process any user input. You must
+/// override InitMainWindow to create a window object that does process user input.
+/// Normally, your InitMainWindow function creates a
+/// TFrameWindow or
+/// TFrameWindow-derived object and calls the SetMainWindow
+/// function, a protected member function of TApplication. SetMainWindow takes one
+/// parameter, a pointer to a TFrameWindow object, and
+/// returns a pointer to the old main window. (If this is a new application that has
+/// not yet set up a main window, the return value is zero).
+/// The following example shows a simple application that creates a
+/// TFrameWindow object and makes it the main window:
+/// \code
+/// #include <owl\applicat.h>
+/// #include <owl\framewin.h>
+///
+/// class TMyApplication: public TApplication
+/// {
+/// public:
+///  TMyApplication(char *name):TApplication(name) {}
+///  virtual void InitMainWindow();
+/// };
+///
+/// void
+/// TMyApplication::InitMainWindow()
+/// {
+///  SetMainWindow(new TFrameWindow"(0, "My First Main Window"));
+/// }
+///
+/// int
+/// OwlMain(int argc, char* argv[])
+/// {
+///  return TMyApplication("Wow!").Run();
+/// }
+/// \endcode
+/// When you run this application, the caption bar is titled "My First Main Window,"
+/// and not "Wow!". The application name passed in the
+/// TApplication constructor is used only when you do not
+/// provide a main window. Once again, this example doesn't do a lot; there is still
+/// no provision for the frame window to process any user input. But once you have
+/// derived a window class that does interact with the user, you use the same simple
+/// method to display the window.
+///
+/// \section seealso See Also
+/// - \ref changingthemainwindow "Changing the main window"
+/// - \ref specifyingthemainwindowdisplaymode "Specifying the main window display mode"
+/// - \ref windowobjectsoverview "Window Objects"
+///
+///
+///
+/// \page specifyingthemainwindowdisplaymode Specifying the main window display mode
+/// You can change how your application's main window is displayed by setting the
+/// TApplication data member nCmdShow, which corresponds to
+/// the \ref usingwinmainandowlmain "WinMain" parameter nCmdShow. You can set this variable
+/// as soon as the Run function begins, up until the time you call
+/// TApplication::InitInstance(). This
+/// effectively means you can set nCmdShow in either the InitApplication or
+/// InitMainWindow function.
+/// For example, suppose you want to display your window maximized whenever the user
+/// runs the application. You could set nCmdShow in your InitMainWindow function as
+/// follows:
+/// \code
+/// #include <owl\applicat.h>
+/// #include <owl\framewin.h>
+///
+/// class TMyApplication : public TApplication
+/// {
+/// public :
+///  TMyApplication(char far *name) :
+/// TApplication(name) {}
+///  void InitMainWindow();
+///  };
+///
+/// void TMyApplication::InitMainWindow() {
+///
+///  //Sets the main window.
+///  SetMainWindow(new
+/// TFrameWindow(0,
+/// "Maximum Window"));
+///
+///  // Causes main window to be maximized
+/// when created.
+///  nCmdShow = SW_SHOWMAXIMIZED;
+///  }
+///
+/// int OwlMain(int argc, char* argv[])
+/// {
+///  return
+/// TMyApplication("Wow!").Run();
+/// }
+/// \endcode
+/// nCmdShow can be set to any value appropriate as a parameter to the ShowWindow
+/// Windows function or the TWindow::Show() member
+/// function, such as SW_HIDE, SW_SHOWNORMAL, SW_NORMAL, and so on.
+///
+///
+///
+/// \page changingthemainwindow Changing the main window
+/// You can use the SetMainWindow function to change your main window during the
+/// course of your application. SetMainWindow takes one parameter, a pointer to a
+/// TFrameWindow object, and returns a pointer to the old
+/// main window. (If this is a new application that hasn't yet set up a main window,
+/// the return value is 0). You can use this pointer to keep the old main window in
+/// case you want to restore it. Alternatively, you can use this pointer to delete
+/// the old main window object.
+///
+///
+///
+/// \page applicationmessagehandling Application message handling
+/// After your application is initialized, the application object's MessageLoop
+/// starts running. MessageLoop is responsible for processing incoming messages from
+/// Windows. There are two ways you can refine message processing in an
+/// ObjectWindows application:
+/// - \subpage extramessageprocessing "Extra message processing" (overriding default
+/// message-handling functions)
+/// - \subpage idleprocessing Idle processing
+///
+/// \section seealso See Also
+/// \ref creatinganapplicationobject "Application objects overview "
+/// \ref usingwinmainandowlmain "Initializing applications "
+/// \ref closingapplications "Closing applications "
+/// \ref usingcontrollibraries "Using control libraries "
+///
+///
+///
+/// \page extramessageprocessing Extra message processing
+/// TApplication has member functions that provide the
+/// message-handling functionality for any ObjectWindows application. These
+/// functions are TApplication::MessageLoop(),
+/// TApplication::IdleAction(),
+/// TApplication::PreProcessMenu(), and
+/// TApplication::ProcessAppMsg().
+///
+///
+///
+/// \page idleprocessing Idle processing
+/// Idle processing lets your application take advantage of the idle time when there
+/// are no messages waiting (including user input). If there are no waiting
+/// messages, MessageLoop calls IdleAction.
+///
+/// To perform idle processing, override IdleAction to perform the actual idle
+/// processing. Since idle processing takes place while the user isn't doing
+/// anything, it should last only a short while. If you need to do anything that
+/// takes longer than a few tenths of a second, you should split it into several
+/// processes.
+///
+/// IdleAction's parameter idleCount is a long specifying the number of times
+/// IdleAction was called between messages. You can use idleCount to choose between
+/// low-priority and high-priority idle processing. If idleCount reaches a high
+/// value, you know that a long period without user input has passed, so it's safe
+/// to perform low-priority idle processing.
+///
+/// Return true from IdleAction to call IdleAction back sooner.
+///
+/// You should always call the base class IdleAction function in addition to
+/// performing your own processing. If you are writing applications for Windows NT,
+/// you can also use multiple threads for background processing.
+///
+///
+///
+/// \page closingapplications Closing applications
+/// Users usually close a Windows application by choosing File|Exit or pressing
+/// Alt+F4. To give the user a chance to save any open files, it's important that
+/// the application be able to intercept such an attempt.
+///
+/// TApplication lets you do that.
+/// \section changingclosingbehavior Changing Closing Behavior
+/// TApplication and all window classes have or inherit
+/// the member function CanClose. Whenever an application object tries to shut down,
+/// it queries the main window's and document manager's CanClose function. (The
+/// exception is when dialog boxes are canceled by the user's clicking the Cancel
+/// button or pressing the Esc key, in which case the dialog is simply destroyed,
+/// bypassing the CanClose function.) If either the main window or document manager
+/// object has children, it calls the CanClose function for each child. In turn,
+/// each child calls the CanClose function of each of its children, if any, and so
+/// on.
+///
+/// The CanClose function gives each object a chance to prepare to be shut down. It
+/// also gives the object a chance to abort to the shutdown if necessary. When the
+/// object has completed its clean-up procedure, its CanClose function should return
+/// true.
+///
+/// If any of the CanClose functions called returns false, the shut-down procedure
+/// is aborted.
+///
+/// \section seealso See Also
+/// - \ref creatinganapplicationobject "Application objects overview "
+/// - \ref usingwinmainandowlmain "Initializing applications "
+/// - \ref usingcontrollibraries "Using control libraries "
+/// - \subpage closingtheapplication
+/// - \subpage modifyingcanclose
+///
+///
+/// \page closingtheapplication Closing the Application
+/// The CanClose mechanism gives the application object, the main window, and any
+/// other windows a chance to either prepare for closing or prevent the closing from
+/// taking place. In the end, the application object approves the closing of the
+/// application. The normal closing sequence looks like this:
+/// -# Windows sends a WM_CLOSE message to the main window.
+/// -# The main window object's EvClose member function calls the application
+/// object's CanClose member function.
+/// -# The application object's CanClose member function calls the main window
+/// object's CanClose member function.
+/// -# The main window and document manager objects call CanClose for each of their
+/// child windows. The main window and document manager objects' CanClose functions
+/// return true only if all child windows' CanClose member functions return
+/// true.
+/// -# If both the main window and document manager objects' CanClose functions
+/// return true, the application object's CanClose function returns true.
+/// -# If the application object's CanClose function returns true, the EvClose
+/// function shuts down the main window and ends the application.
+///
+///
+///
+/// \page modifyingcanclose Modifying CanClose
+/// CanClose should rarely return false. Instead, CanClose should perform any
+/// actions necessary to return true. CanClose should return false only if it's
+/// unable to do something necessary for orderly shutdown, or if the user wants to
+/// keep the application running.
+/// For example, suppose you are creating a text editor. A possible procedure to
+/// follow in the CanClose member function would be to
+/// -# Check to see if the editor text had changed
+/// -# If so, prompt the user to ask whether the text should be saved before
+/// closing, using a message box with Yes, No, and Cancel buttons
+/// -# Check the return value from the message box:
+/// --  If the user clicks Yes, save the file, return true from the CanClose
+/// function.
+/// --  If the user clicks No, simply return true from the CanClose function
+/// without saving the file.
+/// --  If the user clicks Cancel indicating that the user does not want to
+/// close the application yet, return false from the CanClose function without
+/// saving the file.
+///
+///
+///
+/// \page usingcontrollibraries Using control libraries
+/// TApplication has functions for loading the \subpage usingtheborlandcustomcontrolslibrary 
+/// "Borland Custom Controls Library" (BWCC.DLL for 16-bit applications and BWCC32.DLL for
+/// 32-bit applications) and the \subpage usingthemicrosoft3dcontrolslibrary "Microsoft 3-D Controls Library"
+///  (contained in the file CTL3DV2.DLL for 16-bit applications and in CTL3D32.DLL for 32-bit
+/// applications). These DLLs are widely used to provide a standard look-and-feel
+/// for many applications.
+/// 
+///
+///
+/// \page usingtheborlandcustomcontrolslibrary Using the Borland Custom Controls Library
+/// \note BWCC is now obsolete and should be used only for backward compatibility 
+///
+/// You can open and close the Borland Custom Controls Library using the function
+/// TApplication::EnableBWCC(). EnableBWCC takes
+/// one parameter, a bool, and returns a void. When you pass true to EnableBWCC, the
+/// function loads the DLL if it is not already loaded. When you pass false to
+/// EnableBWCC, the function unloads the DLL if it is not already unloaded.
+///
+/// You can find out if the Borland Custom Controls Library DLL is loaded by calling
+/// the function TApplication::BWCCEnabled().
+/// BWCCEnabled takes no parameters. If the DLL is loaded, BWCCEnabled returns true;
+/// if not, BWCCEnabled returns false.
+///
+/// After the DLL is loaded, you can use all the regular functionality of Borland
+/// Custom Controls Library. EnableBWCC automatically opens the correct library
+/// regardless of whether you have a 16- or a 32-bit application.
+///
+/// \page usingthemicrosoft3dcontrolslibrary Using the Microsoft 3-D Controls Library
+/// \note Usage of Ctl3d is now obsolete and should be used only for backward compatibility 
+///
+/// You can load and unload the Microsoft 3-D Controls Library with the function
+/// TApplication::EnableCtl3d(). EnableCtl3d
+/// takes one parameter, a bool, and returns a void. When you pass true to
+/// EnableCtl3d, the function loads the DLL if it is not already loaded. When you
+/// pass false to EnableCtl3d, the function unloads the DLL if it is not already
+/// unloaded.
+///
+/// You can find out if the Microsoft 3-D Controls Library DLL is loaded by calling
+/// the function
+/// TApplication::Ctl3dEnabled(). Ctl3dEnabled
+/// takes no parameters. If the DLL is loaded, Ctl3dEnabled returns true; if not,
+/// Ctl3dEnabled returns false.
+///
+/// To create a 3-D effect with non-ObjectWindows dialogs, you can turn
+/// autosubclassing on with the EnableCtl3dAutosubclass function. To use this
+/// function, first load the Microsoft 3-D Controls Library DLL with EnableCtl3d.
+/// EnableCtl3dAutosubclass takes one parameter, a bool, and returns a void. You can
+/// pass true to EnableCtl3dAutosubclass to turn autosubclassing on or false to turn
+/// autosubclassing off.
+///
+/// You can turn autosubclassing off immediately after creating the dialog box; it
+/// is not necessary to leave it on while displaying the dialog box.
+///
+/// \section seealso See Also
+/// - \ref idleprocessing "Application message handling "
+/// - \ref creatinganapplicationobject "Application objects overview "
+/// - \ref closingapplications "Closing applications "
+/// - \ref usingwinmainandowlmain "Initializing applications "
+///
