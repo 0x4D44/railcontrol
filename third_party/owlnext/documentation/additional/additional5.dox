@@ -1,0 +1,590 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+/// \page menuobjectsoverview Menu Objects Overview
+/// ObjectWindows menu objects encapsulate menu resources and provide an interface
+/// for controlling and modifying the menu. Many applications use only a single menu
+/// assigned to the main window during its initialization. Other applications might
+/// require more complicated menu handling. ObjectWindows menu objects, encapsulated
+/// in the TMenu, TSystemMenu, TPopupMenu, and TMenuDescr
+/// classes, give you an easy way to create and manipulate menus, from basic
+/// functionality to complex menu merging.
+/// 
+/// When you work with menu objects, you can
+/// - \subpage constructingmenuobjects "Construct menu objects"
+/// - \ref creatingmenugroupsinmenuresources "Create menu groups in menu resources"
+/// - \subpage modifyingmenuobjects "Modify menu objects"
+/// - \subpage queryingmenuobjects "Query menu objects"
+/// - \subpage usingpopupmenuobjects "Use popup menu objects"
+/// - \subpage usingsystemmenuobjects "Use system menu objects"
+/// - \subpage usingmenuobjectswithframewindows "Use menu objects with frame windows "
+///
+///
+///
+/// \page constructingmenuobjects Constructing Menu Objects
+/// TMenu has several constructors to create menu objects from
+/// existing windows or from menu resources. After the menu is created, you can add,
+/// delete, or modify it using TMenu member functions. The
+/// following table lists the constructors you can use to create menu objects:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">TMenu constructor</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::TMenu()</TD><TD class="owltable">Creates an empty menu.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::TMenu(HWND)</TD><TD class="owltable">Creates a menu object representing the window's current menu.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::TMenu(HMENU)</TD><TD class="owltable">Creates a menu object from an already-loaded menu.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::TMenu(LPCVOID*)</TD><TD class="owltable">Creates a menu object from a menu template in memory.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::TMenu(HINSTANCE, TResID)</TD><TD class="owltable">Creates a menu object from a resource.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref modifyingmenuobjects "Modifying Menu Objects"
+/// - \ref queryingmenuobjects "Querying Menu Objects"
+/// - \ref usingpopupmenuobjects "Using Popup Menu Objects"
+/// - \ref usingsystemmenuobjects "Using System Menu Objects"
+/// - \ref usingmenuobjectswithframewindows "Using menu objects with frame windows "
+///
+///
+///
+/// \page modifyingmenuobjects Modifying Menu Objects
+/// After you create a menu object, you can use TMenu member
+/// functions to modify it. The table that follows lists the member functions you
+/// can call to modify menu objects.
+///
+/// After modifying the menu object, call the window object's
+/// TWindow::DrawMenuBar() member function to update the menu bar with the
+/// changes you have made.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">TMenu member function</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable" COLSPAN="2"><b>Adding menu items</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::AppendMenu(uint, uint, const char*)</TD><TD class="owltable">Adds a menu item to
+/// the end of the menu.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::AppendMenu(uint, uint, const TBitmap&)</TD><TD class="owltable">Adds a bitmap
+/// as a menu item at the end of the menu.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::InsertMenu(uint, uint, uint, const char*)</TD><TD class="owltable">Adds a menu item
+/// to the menu after the menu item of the given ID.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::InsertMenu(uint, uint, uint, const TBitmap&)</TD><TD class="owltable">Adds a
+/// bitmap as a menu item after the menu item of the given ID.</TD></TR>
+/// <TR class="owltable"><TD class="owltable" COLSPAN="2"><b>Modifying menu items</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::ModifyMenu(uint, uint, uint, const char*)</TD><TD class="owltable">Changes the
+/// given menu item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::ModifyMenu(uint, uint, uint, const TBitmap&)</TD><TD class="owltable">Changes
+/// the given menu item to a bitmap.</TD></TR>
+/// <TR class="owltable"><TD class="owltable" COLSPAN="2"><b>Enabling and disabling menu items</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::EnableMenuItem(uint, uint)</TD><TD class="owltable">Enables or disables the given
+/// menu item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable" COLSPAN="2"><b>Deleting and removing menu items</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::DeleteMenu(uint, uint)</TD><TD class="owltable">Removes the menu item from the menu
+/// it is a part of. Deletes it if it is a popup menu.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::RemoveMenu(uint, uint)</TD><TD class="owltable">Removes the menu item from the menu
+/// but not from memory.</TD></TR>
+/// <TR class="owltable"><TD class="owltable" COLSPAN="2"><b>Checking menu items</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::CheckMenuItem(uint, uint)</TD><TD class="owltable">Check or unchecks the menu
+/// item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::SetMenuItemBitmaps(uint, uint,  const TBitmap*, const TBitmap*)</TD>
+/// <TD class="owltable">Specifies the bitmap to be displayed when the given menu item is checked and unchecked.</TD></TR>
+/// <TR class="owltable"><TD class="owltable" COLSPAN="2"><b>Displaying pop-up menus</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::TrackPopupMenu(uint, int, int, int, HWND, TRect*)</TD>
+/// <TD class="owltable" ROWSPAN="2">Displays the menu as a pop-up menu at the given location on the specified window.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::TrackPopupMenu(uint, TPoint&, int, HWND, Trect*)</TD></TR>
+/// </TABLE> 
+///
+///
+///
+/// \section seealso See Also
+/// - \ref menuobjectsoverview "Menu Objects Overview"
+/// - TBitmap
+///
+///
+///
+/// \page queryingmenuobjects Querying Menu Objects
+/// TMenu has a number of member functions and member operators
+/// you can call to find out information about the menu object and its menu. You
+/// might need to call one of the query member functions before you call one of the
+/// modify member functions. For example, you need to call
+/// TMenu::GetMenuCheckmarkDimensions() before calling
+/// TMenu::SetMenuItemBitmaps().
+/// The following table lists the menu object query member functions:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Menu object query member function</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable" COLSPAN="2"><b>Querying the menu object as a whole</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::operator uint()</TD><TD class="owltable">Returns the menu's handle as a uint.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::operator HMENU()</TD><TD class="owltable">Returns the menu's handle as an HMENU.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::IsOK()</TD><TD class="owltable">Checks if the menu is OK (has a valid handle).</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::GetMenuItemCount()</TD><TD class="owltable">Returns the number of items in the menu.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::GetMenuCheckMarkDimensions(TSize&)</TD><TD class="owltable">Gets the size of the bitmap used to
+/// display the check mark on checked menu items.</TD></TR>
+/// <TR class="owltable"><TD class="owltable" COLSPAN="2"><b>Querying items in the menu</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::GetMenuItemID(int)</TD><TD class="owltable">Returns the ID of the menu item at the specified
+/// position.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::GetMenuState(uint, uint)</TD><TD class="owltable">Returns the state flags of the specified menu item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::GetMenuString(uint, char*, int, uint)</TD><TD class="owltable">Gets the text of the given menu item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenu::GetSubMenu(int)</TD><TD class="owltable">Returns the handle of the menu at the given position.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref menuobjectsoverview "Menu Objects Overview"
+///
+///
+///
+/// \page usingsystemmenuobjects Using System Menu Objects
+/// The TSystemMenu class lets you modify a window's
+/// system menu. TSystemMenu is derived from TMenu and differs
+/// from it only in its constructor, which takes a window handle and a bool flag. If
+/// the flag is true, the current system menu is deleted and a menu object
+/// representing the unmodified menu that is put in its place is created. If the
+/// flag is false, the menu object represents the current system menu. By default
+/// this flag is false.
+///
+/// You can use all the member functions inherited from TMenu to manipulate the
+/// system menu.
+///
+/// \section example Example
+/// The following example shows how to add an About... menu choice to the system
+/// menu:
+/// \code
+/// void TSysMenuFrame::SetupWindow()
+/// {
+/// TFrameWindow::SetupWindow();
+///
+///  // Append About menu item to system menu.
+///  TSystemMenu sysMenu(HWindow);
+///  sysMenu.AppendMenu(MF_Separator, 0, (LPSTR)0);
+///  sysMenu.AppendMenu(MF_STRING, CM_ABOUT, "&About...");
+/// }
+/// \endcode
+/// Notice that the system menu is modified in the SetupWindow
+/// function of the window object. The system menu should be modified before the
+/// window is created. It is usually easiest to do this simply by overriding the
+/// base window class's SetupWindow function.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref menuobjectsoverview "Menu Objects Overview "
+///
+///
+///
+/// \page usingpopupmenuobjects Using Popup Menu Objects
+/// You can use TPopupMenu to create a pop-up menu that
+/// you can add to an existing menu structure or pop up anywhere in a window. Like
+/// TSystemMenu, TPopupMenu is derived from
+/// TMenu and differs from it only in its constructor, which
+/// creates an empty pop-up menu. You can then add whatever menu items you like by
+/// using the TMenu::AppendMenu() function.
+/// After you have created a pop-up menu, you can use
+/// TMenu::TrackPopupMenu() to display it as a free-floating menu.
+/// TrackPopupMenu creates a pop-up menu at a particular location in your window.
+/// There are two forms of this function:
+/// \code
+/// bool TrackPopupMenu(unit flags, int x, int y,
+/// int rsvd, HWND wnd, TRect* rect = 0)
+///
+/// bool TrackPopupMenu(unit flags, TPoint&
+/// point, int rsvd, HWND wnd, TRect* rect = 0)
+/// \endcode
+///
+/// The following table describes the parameters:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Explanation</TD></TR>
+/// <TR class="owltable"><TD class="owltable">flags</TD><TD class="owltable">Specifies the relative location of the pop-up menu. It can be one of the
+/// following values:
+/// - TPM_CENTERALIGN
+/// - TPM_LEFTALIGN
+/// - TPM_RIGHTALIGN
+/// - TPM_LEFTBUTTON
+/// - TPM_RIGHTBUTTON
+///
+/// </TD></TR>
+/// <TR class="owltable"><TD class="owltable">x and y</TD><TD class="owltable">Specify the screen location of the pop-up menu. In the second form of
+/// TrackPopupMenu, point does the same thing, combining x and y into a single
+/// TPoint object. The menu is then created relative to this point, depending on the
+/// value of flags.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">rsvd</TD><TD class="owltable">A reserved value that must be set to 0.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">wnd</TD><TD class="owltable">The handle to the window that receives messages about the menu.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">rect</TD><TD class="owltable">Defines the area that the user can click without dismissing the menu.</TD></TR>
+/// </TABLE>
+///
+/// The following example shows a window class that displays a pop-up menu in
+/// response to a right mouse button click:
+/// \code
+/// class TPopupMenuFrame : public
+/// TFrameWindow
+/// {
+///  public:
+///   TPopupMenuFrame(TWindow* parent, const char *name);
+///
+///  protected:
+///   TPopupMenu PopupMenu;
+///   void EvRButtonDown(uint modKeys, TPoint& point);
+///
+/// 
+/// DECLARE_RESPONSE_TABLE(TPopupMenuFrame);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE1(TSysMenuFrame, TFrameWindow)
+///  EV_WM_RBUTTONDOWN,
+/// END_RESPONSE_TABLE;
+///
+/// TPopupMenuFrame::TPopupMenuFrame(TWindow* parent, const char *name)
+///  : TFrameWindow(parent, name)
+/// {
+///  PopupMenu.AppendMenu(MF_STRING, CM_FILENEW, "Create new file");
+///  PopupMenu.AppendMenu(MF_STRING, CM_FILEOPEN, "Open file");
+///  PopupMenu.AppendMenu(MF_STRING, CM_FILESAVE, "Save file");
+///  PopupMenu.AppendMenu(MF_STRING, CM_FILESAVEAS, "Save file under new name");
+///  PopupMenu.AppendMenu(MF_STRING, CM_PENSIZE, "Change pen size");
+///  PopupMenu.AppendMenu(MF_STRING, CM_PENCOLOR, "Change pen color");
+///  PopupMenu.AppendMenu(MF_STRING, CM_ABOUT, "&About...");
+///  PopupMenu.AppendMenu(MF_STRING, CM_EXIT, "Exit Program");
+/// }
+///
+/// void
+/// TPopupMenuFrame::EvRButtonDown(uint /* modKeys */, TPoint& point)
+/// {
+/// 
+/// PopupMenu.TrackPopupMenu(TPM_LEFTBUTTON, point, 0, HWindow);
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref menuobjectsoverview "Menu Objects Overview "
+///
+/// 
+///
+/// \page usingmenuobjectswithframewindows Using Menu Objects with Frame Windows
+/// ObjectWindows frame window objects (TFrameWindow and
+/// TFrameWindow-derived classes) provide a number of
+/// functions that you can use to assign, change, and modify menus. There are two
+/// ways to manipulate frame window menus:
+/// -  Directly assign or change the frame window's main menu. This is
+/// typically how you work with menus when you have a single menu that does not use
+/// menu merging.
+/// - Assign and merge the frame window's menu descriptor with that of client and
+/// child windows. Menu descriptors are objects that divide the menu bar into
+/// functional groups and permit easy merging and removal of popup menus.
+///
+/// These two methods of using menu objects are described in
+/// - \subpage addingmenuresourcestoframewindows "Adding Menu Resources To Frame Windows"
+/// - \subpage usingmenudescriptors "Using Menu Descriptors"
+///
+///
+///
+/// \page addingmenuresourcestoframewindows Adding Menu Resources To Frame Windows
+/// Instead of assigning a menu resource directly to the Attr.Menu member of a frame
+/// window (for example, Attr.Menu = MENU_1;), you
+/// must use the TFrameWindow::AssignMenu() function, as in
+/// the following example:
+/// \code
+/// AssignMenu(MENU_1);
+/// \endcode
+/// AssignMenu is defined in the TFrameWindow class and
+/// is available in any class derived from TFrameWindow,
+/// such as TMDIFrame, TMDIChild,
+/// TDecoratedFrame, and
+/// TFloatingFrame. It takes a TResId for its only
+/// parameter and returns true if the assignment operation was successful.
+/// AssignMenu is declared virtual, so you can override it in your own
+/// TFrameWindow-derived classes.
+///
+/// You can change the menu after the frame window has been created. To change the
+/// frame window's menu, call the window object's
+/// TFrameWindow::SetMenu() function.
+/// \code
+/// SetMenu(MENU_2);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingmenudescriptors "Using Menu Descriptors"
+/// - \ref menuobjectsoverview "Menu Objects Overview"
+///
+///
+///
+/// \page usingmenudescriptors Using Menu Descriptors
+/// Managing menus (adding menus for child windows, merging menus, and so on) can be
+/// a tedious and confusing chore. ObjectWindows simplifies menu management with
+/// objects known as menu descriptors, which divide the menu bar into the following
+/// six groups, corresponding to conventional ways of arranging functions on a menu
+/// bar:
+/// -  File
+/// -  Edit
+/// -  Container
+/// -  Object
+/// -  Window
+/// -  Help
+///
+/// Organizing menus into functional groups makes it easy to insert a new menu into
+/// an existing menu bar. For example, consider an MDI application, such as Step 11
+/// of the tutorial in the Learning ObjectWindows manual. The frame and client
+/// windows provide menus that let the user perform general application functions
+/// such as opening files, managing windows, and so on. The child windows handle the
+/// menu commands for functions specific to a particular drawing, such as setting
+/// the line width and color.
+///
+/// In the tutorial, the menu stays the same, but menu items handled by the child
+/// windows are grayed out when no child window is available to handle the command.
+/// An additional way to handle this would be to have the menu bar populated only
+/// with the menus handled by the frame and client windows. Then, when a child
+/// window is opened, the menus handled by the child window would be merged into the
+/// existing menu bar. The following figures show how an application that uses both
+/// these techniques looks to the user:
+///
+/// The \subpage menudescriptorapplicationwithoutchildwindowsopen "first figure" shows the application with no child
+/// windows open.
+///
+/// The \subpage menudescriptorapplicationwithchildwindowsopen "second figure" shows the application after a child
+/// window has been opened.
+///
+/// Adding menu descriptors to an application is a simple process:
+/// -# Set the menu descriptor for the frame window's menu bar by calling the frame
+/// window's TFrameWindow::SetMenuDescr() function.
+/// -# When creating a new child window, set the child's menu descriptor by calling
+/// the child's SetMenuDescr function. After the child window is created,
+/// ObjectWindows automatically merges the menu from the child with the frame
+/// window's menu bar while the child is active. Note that different MDI child
+/// windows in the same application can have different menu descriptors. This is
+/// useful when the child windows contain different kinds of documents.
+///
+/// To learn more about creating menu descriptors and using the menu descriptor
+/// handling functions, see the following topics:
+/// - \subpage creatingmenudescriptors "Creating Menu Descriptors"
+/// - \subpage constructingmenudescriptorobjects "Constructing Menu Descriptor Objects"
+/// - \subpage creatingmenugroupsinmenuresources "Creating Menu Groups in Menu Resources"
+/// - \subpage mergingmenuswithmenudescriptors "Merging Menus With Menu Descriptors"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref menuobjectsoverview "Menu Objects Overview"
+/// - \ref addingmenuresourcestoframewindows "Adding Menu Resources To Frame Windows"
+/// - \ref creatingmenudescriptors "Creating Menu Descriptors"
+/// - \ref constructingmenudescriptorobjects "Constructing Menu Descriptor Objects"
+/// - \ref mergingmenuswithmenudescriptors "Merging Menus With Menu Descriptors"
+///
+///
+///
+/// \page menudescriptorapplicationwithoutchildwindowsopen Menu descriptor application without child windows open
+/// Notice that there are only four active popup menus on the menu bar. Edit is
+/// grayed out because no child window is active.
+///
+/// \image html bm64.bmp
+///
+///
+///
+/// \page menudescriptorapplicationwithchildwindowsopen Menu descriptor application with child windows open
+/// Notice that the Edit popup is now active and that there is an extra popup menu
+/// labeled Tools. The Tools menu is merged into the main menu bar only when there
+/// is a child window where the tools can be used.
+///
+/// \image html bm65.bmp
+///
+///
+///
+/// \page creatingmenudescriptors Creating Menu Descriptors
+/// The TMenuDescr class implements menu descriptor
+/// functionality. Menu descriptors take a menu resource and place the separate
+/// pop-up menus in the resource into six functional groups. The naming of the
+/// groups is arbitrary; you are not restricted to putting only menus of a certain
+/// functional type into a particular group. However, the naming convention does
+/// reflect standard conventions of menu item placement. These names are contained
+/// in the TGroup enum:
+/// -  FileGroup
+/// -  EditGroup
+/// -  ContainerGroup
+/// -  ObjectGroup
+/// -  WindowGroup
+/// -  HelpGroup
+///
+/// These groups are arranged consecutively on the menu bar from left to right. When
+/// another menu descriptor is merged with the existing menu bar, the new pop-up
+/// menus are merged according to their groups. For example, consider the two
+/// figures from \ref usingmenudescriptors "Using Menu Descriptors."
+///
+/// In the \ref menudescriptorapplicationwithoutchildwindowsopen "first figure," the original pop-up menus are placed
+/// in the following menu groups:
+/// -  The File menu is placed in the FileGroup group.
+/// -  The Edit menu is placed in the EditGroup group.
+/// -  The Window menu is placed in the WindowGroup group.
+/// -  The Help menu is placed in the HelpGroup group.
+///
+/// When the child window is created, its pop-up menu, called Tools, is placed in
+/// the ContainerGroup group. Then, when the menus are merged in the
+/// \ref menudescriptorapplicationwithchildwindowsopen "second figure," the child window's menu is automatically placed
+/// between the Edit menu and the Window menu.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingmenudescriptors "Using Menu Descriptors" (introduction to menu descriptors)
+/// - \ref constructingmenudescriptorobjects "Constructing Menu Descriptor Objects"
+/// - \ref mergingmenuswithmenudescriptors "Merging Menus With Menu Descriptors"
+///
+///
+///
+/// \page constructingmenudescriptorobjects Constructing Menu Descriptor Objects
+/// You can specify the grouping of your menu resources in the
+/// TMenuDescr constructor. There are a number of different
+/// constructors for TMenuDescr, all of which are described in the following
+/// table.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Constructor</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenuDescr::TMenuDescr(TResId id, TModule* module = ::Module)</TD>
+/// <TD class="owltable">Creates a menu descriptor from the menu resource identified by id. The grouping of the
+/// pop-up menus are determined by the occurrence of separators at the menu level
+/// (that is, separators inside of a pop-up menu are disregarded for grouping
+/// purposes) in the menu resource. Menu separators are discussed in more detail in
+/// \ref creatingmenugroupsinmenuresources "Creating Menu Groups In Menu Resources".</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenuDescr::TMenuDescr(TResId id, int fg, int eg, int cg, int og, int wg, int hg, TModule* module = ::Module)</TD>
+/// <TD class="owltable">Creates a menu descriptor from the menu resource identified by id or hMenu. The separate pop-ups in
+/// the resource are then placed in groups according to the values of fg, eg, cg, og, wg, and hg, which
+/// correspond to the groups defined in the TGroup enum. The total of
+/// all the values of these group parameters is equivalent to the number of pop-ups
+/// in the menu resource.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenuDescr::TMenuDescr(HMENU hMenu, int fg, int eg, int cg, int og, int wg, int hg, TModule* module = ::Module)</TD>
+/// <TD class="owltable">Constructs a menu descriptor from the menu handle indicated in the hmenu parameter. The menu
+/// descriptor can have zero or more pop-up menus in more than one
+/// functional group. The fb, eg, cg, of, wg, and hg
+/// parameters represent the functional groups indentified by the Tgroup enum. Calls
+/// the function Extract Groups to extract the group counts based on the separator
+/// items in the menu bar, or uses the group count parameters specified if there are
+/// no separators in the menu bar.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenuDescr::TMenuDescr()</TD><TD class="owltable">Creates a default menu constructor without menu resources or group
+/// counts.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TMenuDescr::TMenuDescr(const TMenuDescr& original)</TD><TD class="owltable">Creates a copy of the menu descriptor
+/// object original.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref usingmenudescriptors "Using Menu Descriptors" (introduction to menu descriptors)
+/// - \ref creatingmenudescriptors "Creating Menu Descriptors"
+/// - \ref creatingmenugroupsinmenuresources "Creating Menu Groups In Menu Resources"
+/// - \ref mergingmenuswithmenudescriptors "Merging Menus With Menu Descriptors"
+///
+///
+///
+/// \page creatingmenugroupsinmenuresources Creating Menu Groups in Menu Resources
+/// The TMenuDescr class provides two ways to set up the
+/// groups that your various pop-up menus belong in:
+/// - Explicitly numbering the menu resources in the TMenuDescr constructor
+/// - Placing separators at the pop-up menu level in the menu resource
+///
+/// Earlier versions of ObjectWindows provided only the first method. The second
+/// method is new in ObjectWindows 2.5 . This method is more flexible, eliminating
+/// the need to modify the TMenuDescr constructor whenever you add or remove a
+/// pop-up menu in your menu resource.
+///
+/// To set up groups in your menu resource, put separators at the pop-up menu level,
+/// outside the pop-up definitions. These separators have meaning only to the
+/// TMenuDescr constructor and do not cause any changes in the appearance of your
+/// menu bar. Separators inside pop-up menus are treated normally: They appear in
+/// the pop-up menu as separator bars between menu choices.
+///
+/// The following example shows how a menu resource might be divided up into groups
+/// using separators in the menu resource. The menu resource is divided up into the
+/// requisite six groups, with four of the groups containing actual pop-up menus:
+/// the File menu, the Edit menu, the Window menu, and the Help menu. The other two
+/// groups are empty.
+/// \code
+/// IDM_COMMANDS MENU
+/// {
+///  POPUP "File"
+///  {
+///   MENUITEM "&New\aCtrl+N", CM_FILENEW
+///   MENUITEM "&Open\aCtrl+O", CM_FILEOPEN
+///   MENUITEM "&Save\aCtrl+S", CM_FILESAVE
+///   MENUITEM "Save &as...", CM_FILESAVEAS
+///   MENUITEM SEPARATOR
+///   MENUITEM "&Print\aCtrl+P", CM_FILEPRINT
+///  }
+///  MENUITEM SEPARATOR
+///  POPUP "&Edit"
+///  {
+///   MENUITEM "&Undo\aCtrl+Z", CM_EDITUNDO
+///   MENUITEM Separator
+///   MENUITEM "&Cut\aCtrl+X", CM_EDITCUT
+///   MENUITEM "C&opy\aCtrl+C", CM_EDITCOPY
+///   MENUITEM "&Paste\aCtrl+V", CM_EDITPASTE
+///   MENUITEM "&Delete\aDel", CM_EDITDELETE
+///  }
+///  MENUITEM SEPARATOR
+///  MENUITEM SEPARATOR
+///  MENUITEM SEPARATOR
+///  POPUP "&Window"
+///  {
+///   MENUITEM "&Cascade", CM_CASCADECHILDREN
+///   MENUITEM "&Tile", CM_TILECHILDREN
+///   MENUITEM "Arrange &Icons", CM_ARRANGEICONS
+///   MENUITEM "C&lose All", CM_CLOSECHILDREN
+///   MENUITEM "Add &View", CM_VIEWCREATE
+///  }
+///  MENUITEM SEPARATOR
+///  POPUP "&Help"
+///  {
+///   MENUITEM "&About", CM_ABOUT
+///  }
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref menuobjectsoverview "Menu Objects Overview"
+/// - \ref usingmenudescriptors "Using Menu Descriptors" (introduction to menu descriptors)
+/// - \ref creatingmenudescriptors "Creating Menu Descriptors"
+/// - \ref mergingmenuswithmenudescriptors "Merging Menus With Menu Descriptors"
+///
+///
+///
+/// \page mergingmenuswithmenudescriptors Merging Menus with Menu Descriptors
+/// To use menu descriptors to merge menus, set your frame window's menu descriptor
+/// sometime before the creation of the window, usually during the
+/// InitMainWindow function. Then whenever you want to merge a
+/// child window's menu or menus with that of its parent, you set the child window's
+/// menu descriptor before creating the child. When child is created, its menu
+/// descriptor is automatically merged with the parent.
+/// You set a window's menu descriptor using the TWindow::SetMenuDescr()
+/// function. SetMenuDescr returns a void and takes a const
+/// TMenuDescr reference as its only parameter. The following
+/// example shows how you might create and set the menu descriptors for the example
+/// discussed in \ref usingmenudescriptors "Using Menu Descriptors"
+/// \code
+/// class TMenuDescrApp : public TApplication
+/// {
+///  public:
+///   TMenuDescrApp(const char* name) : TApplication(name) {}
+///
+///   void InitMainWindow()
+///   {
+///   
+///    SetMainWindow(Frame = new TMDIFrame(Name, COMMANDS, *new TMenuDescrMDIClient));
+///    Frame->SetMenuDescr(TMenuDescr(COMMANDS));
+///   }
+///
+///  protected:
+///   TMDIFrame* Frame;
+/// };
+///
+/// void
+/// TMenuDescrMDIClient::CmAddMenu1()
+/// {
+///  TMDIChild *child = new TMDIChild(*this, "Child Window 1", new TMenuDescrWindow, true);
+///  child->SetMenuDescr(TMenuDescr(IDM_MENU1));
+///  child->Create();
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingmenudescriptors "Using Menu Descriptors" (introduction to menu descriptors)
+/// - \ref constructingmenudescriptorobjects "Constructing Menu Descriptor Objects"
+/// - \ref creatingmenudescriptors "Creating Menu Descriptors"
+/// - \ref creatingmenugroupsinmenuresources "Creating Menu Groups In Menu Resources"
+///

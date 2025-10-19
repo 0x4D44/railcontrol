@@ -1,0 +1,526 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+#include "tabbed.rh"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include <owl/winres.rh>
+#include <owl/editfile.rh>
+#include <owl/mdi.rh>
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\r\n"
+    "tabbed.rh\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include <owl/winres.rh>\r\n"
+    "#include <owl/editfile.rh>\r\n"
+    "#include <owl/mdi.rh>\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#include <owlext/progress.rc>\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_MAINMENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open TTabbedWindow...\aCtrl+O", CM_OPENWINDOW
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\aAlt+F4", CM_EXIT
+    END
+    MENUITEM SEPARATOR
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "&Cut\aCtrl+X", CM_EDITCUT
+        MENUITEM "C&opy\aCtrl+C", CM_EDITCOPY
+        MENUITEM "&Paste\aCtrl+V", CM_EDITPASTE
+    END
+    MENUITEM SEPARATOR
+    POPUP "&Examples"
+    BEGIN
+        MENUITEM "Controls",                    CM_CONTROLS
+        MENUITEM SEPARATOR
+        MENUITEM "TCheckList",                  CM_TCHECKLIST
+        MENUITEM "TMonthCalendar",              CM_TMONTHCALENDAR
+        MENUITEM "TSlider",                     CM_TSLIDER
+        MENUITEM "TUrlLink",                    CM_TURLLINK
+        MENUITEM "TGlyphButton",                CM_TGLYPHBUTTON
+        MENUITEM "TValidate",                   CM_TVALIDATE
+        MENUITEM "TNoteTab",                    CM_TNOTETAB
+        MENUITEM "TGridPicker",                 CM_TGRIDPICKER
+        MENUITEM "TStatic",                     CM_TSTATIC
+        MENUITEM "TLedClock",                   CM_TLEDCLOCK
+        MENUITEM "TProgressDlg",                CM_TPROGRESSDLG
+        MENUITEM SEPARATOR
+        MENUITEM "TScroller",                   CM_TSCROLLER
+        MENUITEM "TTreeView",                   CM_TTREEVIEW
+        MENUITEM "TListView",                   CM_TLISTVIEW
+        MENUITEM "TBitmapView",                 CM_TBITMAPVIEW
+        MENUITEM "TTabControl",                 CM_TTABCONTROL
+        MENUITEM "TTabbedWindow\aCtrl+N",       CM_TTABBEDWINDOW
+        MENUITEM "TLayoutWindow",               CM_TLAYOUTWINDOW
+        MENUITEM "TTreeList",                   CM_TTREELIST
+        MENUITEM "TDragList",                   CM_TDRAGLIST
+        MENUITEM SEPARATOR
+        MENUITEM "Copy Data",                   CM_COPYDATA
+        MENUITEM "CPU Info",                    CM_CPUINFO
+        MENUITEM "Exception Transport",         CM_EXCEPTIONTRANSPORT
+        MENUITEM "Open Dialog",                 CM_OPENDIALOG
+        MENUITEM SEPARATOR
+        MENUITEM "Dialog Data Transfer",        CM_DIALOGDATATRANSFER
+        MENUITEM "Transfer",                    CM_TRANSFER
+        MENUITEM "TransferBuffer",              CM_TRANSFERBUFFER
+        MENUITEM SEPARATOR
+        MENUITEM "Resizable dialog",            CM_RESIZABLEDIALOG1
+        MENUITEM "Registry classes",            CM_REGISTRY
+  END
+  MENUITEM SEPARATOR
+  MENUITEM SEPARATOR
+  POPUP "&Window"
+  BEGIN
+    MENUITEM  "&Cascade", CM_CASCADECHILDREN
+    MENUITEM  "&Tile", CM_TILECHILDREN
+    MENUITEM  "Arrange &Icons", CM_ARRANGEICONS
+    MENUITEM  "C&lose All", CM_CLOSECHILDREN
+    MENUITEM SEPARATOR
+    MENUITEM "T&oggle caption\aF7", CM_TOGGLECAPTION,
+  END
+  MENUITEM SEPARATOR
+  POPUP "&Help"
+  BEGIN
+    MENUITEM "&About", CM_ABOUT
+  END
+END
+
+IDM_MAINMENU ACCELERATORS
+BEGIN
+  "N", CM_TTABBEDWINDOW, VIRTKEY, CONTROL, NOINVERT
+  "O", CM_OPENWINDOW, VIRTKEY, CONTROL, NOINVERT
+  VK_F7, CM_TOGGLECAPTION, VIRTKEY, NOINVERT
+END
+
+IDM_DUMMY MENU
+BEGIN
+MENUITEM SEPARATOR
+END
+
+IDM_TREEVIEWMENU MENU
+{
+  POPUP "&Item"
+  {
+    MENUITEM "&Make selected item bold", CM_SETSTATE
+    MENUITEM "&Check item expansion state", CM_GETSTATE
+    MENUITEM "&Sort descending", CM_SORTDESCENDING
+  }
+}
+
+
+IDM_BMPVIEWMENU MENU
+{
+  POPUP "&File"
+  {
+    MENUITEM "&Open...\tCtrl+O", CM_FILEOPEN
+    MENUITEM SEPARATOR
+    MENUITEM "Resource Bitmap &1", CM_READ1
+    MENUITEM "Resource Bitmap &2", CM_READ2
+    MENUITEM SEPARATOR
+    MENUITEM "&Bad Bitmap\tCtrl+B", CM_READBAD
+    MENUITEM SEPARATOR
+    MENUITEM "&Memory Handle...\tCtrl+M", CM_MEMHANDLE
+    MENUITEM "Memory Handle Refresh\tCtrl+R", CM_MEMHANDLEREFRESH
+    MENUITEM SEPARATOR
+    MENUITEM "E&xit", CM_EXIT
+  }
+
+  POPUP "&View"
+  {
+    MENUITEM "&Fit to window", CM_FIT
+    MENUITEM "&Auto clipboard view", CM_AUTOCLIPVIEW
+    MENUITEM "&Paint from DDB", CM_PAINTFROMDDB
+    MENUITEM "Paint &Icon", CM_PAINTICON
+  }
+}
+
+IDM_COPYDATA MENU
+BEGIN
+POPUP "Test"
+BEGIN
+MENUITEM "Send WM_COPYDATA message", CM_TESTCOPYDATA
+END
+END
+
+OPENDLG_MENU MENU
+{
+  POPUP "&File"
+  {
+    MENUITEM "&Open", CM_FILEOPEN
+    MENUITEM SEPARATOR
+    MENUITEM "E&xit", CM_EXIT
+  }
+
+  POPUP "&Options"
+  {
+    MENUITEM "&Share warn", CM_SHAREWARN
+    MENUITEM "Share &no warn", CM_SHARENOWARN
+    MENUITEM "Share &fall through", CM_SHAREFALLTHROUGH
+    MENUITEM SEPARATOR
+    MENUITEM "&Explorer style", CM_EXPLORERSTYLE
+  }
+}
+
+IDM_LAYOUT MENU
+{
+  POPUP "&Layout"
+{
+  MENUITEM "&Layout Tweaker...", CM_LAYOUT
+}
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CHECKLISTDIALOG DIALOGEX 0, 0, 320, 260
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "CheckList"
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,210,156,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,260,156,50,14
+END
+
+IDD_MONTHCALDIALOG DIALOGEX 6, 15, 165, 163
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Month Calendar"
+FONT 8, "MS Shell Dlg", 0, 0
+BEGIN
+    CONTROL         "Month Calendar",IDC_MONTHCAL,"SysMonthCal32",WS_TABSTOP,8,8,148,132
+    DEFPUSHBUTTON   "OK",IDOK,8,144,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,61,144,50,14
+END
+
+IDD_SLIDERDIALOG DIALOGEX 0, 0, 310, 177
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Home Heater Simulator"
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,130,156,50,14
+END
+
+IDD_URLLINKDIALOG DIALOGEX 6, 15, 207, 111
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Url Link"
+FONT 8, "MS Shell Dlg", 0, 0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,78,88,50,14
+    CONTROL         "Go To OWLNext project",IDC_LINK,"OWL_UrlLink",0x0,52,30,96,12
+    CONTROL         "Go To OWLNext examples",IDC_LINK2,"OWL_UrlLink",0x0,52,44,96,12
+END
+
+IDD_GLYPHBUTTONDIALOG DIALOGEX 6, 15, 235, 137
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Glyph Buttons"
+FONT 8, "MS Shell Dlg", 0, 0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,8,8,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,64,8,50,14
+    PUSHBUTTON      "Yes",IDYES,8,28,50,14
+    PUSHBUTTON      "No",IDNO,64,28,50,14
+    PUSHBUTTON      "Abort",IDABORT,8,48,50,14
+    PUSHBUTTON      "Ignore",IDIGNORE,64,48,50,14
+    PUSHBUTTON      "Help",IDHELP,8,68,50,14
+    PUSHBUTTON      "Close",IDCLOSE,64,68,50,14
+    PUSHBUTTON      "Apply",IDC_APPLY,120,8,50,14
+    PUSHBUTTON      "Revert",IDC_REVERT,176,8,50,14
+    PUSHBUTTON      "Add",IDC_ADD,120,28,50,14
+    PUSHBUTTON      "Delete",IDC_DELETE,176,28,50,14
+    PUSHBUTTON      "Edit",IDC_EDIT,120,48,50,14
+    PUSHBUTTON      "Setup",IDC_SETUP,176,48,50,14
+    PUSHBUTTON      "Browse",IDC_BROWSE,120,68,50,14
+    PUSHBUTTON      "Key",IDC_KEY,176,68,50,14
+    PUSHBUTTON      "Custom",IDC_CUSTOMGLYPH,85,88,65,23
+    PUSHBUTTON      "Shield", IDC_SHIELDBUTTON, 85, 117, 65, 14
+END
+
+
+IDD_EMPLOYEEINFO DIALOGEX 65, 36, 174, 152
+CAPTION "Employee Information"
+STYLE DS_SHELLFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Shell Dlg"
+{
+  RTEXT "&Name:", -1, 6, 8, 29, 9, SS_RIGHT | NOT WS_GROUP
+    EDITTEXT IDC_NAME, 36, 6, 129, 12
+    RTEXT "&SS#:", -1, 6, 26, 29, 9, SS_RIGHT | NOT WS_GROUP
+    EDITTEXT IDC_SS, 36, 24, 60, 12
+    RTEXT "Emp. &ID:", -1, 105, 26, 32, 9, SS_RIGHT | WS_CHILD | WS_VISIBLE
+    EDITTEXT IDC_EMPID, 138, 24, 27, 12
+    RTEXT "&Dept:", -1, 6, 44, 29, 9, SS_RIGHT | NOT WS_GROUP
+    EDITTEXT IDC_DEPT, 36, 42, 60, 12, ES_LEFT | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+    RTEXT "Se&curity:", -1, 6, 62, 29, 9, SS_RIGHT | NOT WS_GROUP
+    EDITTEXT IDC_SECURITY, 36, 60, 60, 12, ES_LEFT | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+    RTEXT "Coe&f.:", -1, 6, 80, 29, 9, SS_RIGHT | NOT WS_GROUP
+    EDITTEXT IDC_COEF, 36, 78, 60, 12, ES_LEFT | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP
+    GROUPBOX "", -1, 103, 38, 60, 44, BS_GROUPBOX
+    CONTROL "&Full Time", IDC_FTIME, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 110, 45, 50, 10
+    CONTROL "&Permanent", IDC_PERMANENT, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 110, 57, 50, 10
+    CONTROL "&Exempt", IDC_EXEMPT, "BUTTON", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 110, 69, 50, 10
+    EDITTEXT IDC_EDIT1, 5, 96, 77, 12
+    PUSHBUTTON "->", IDC_CUSTOM, 84, 96, 12, 12
+    EDITTEXT IDC_EDIT2, 98, 96, 67, 12
+    RTEXT "&Address:", -1, 6, 116, 29, 9, SS_RIGHT | NOT WS_GROUP
+    EDITTEXT IDC_ADDRESS, 36, 114, 129, 12
+    DEFPUSHBUTTON "OK", IDOK, 36, 134, 48, 14
+    PUSHBUTTON "Cancel", IDCANCEL, 90, 134, 48, 14
+}
+
+IDD_GRIDPICDIALOG DIALOGEX 0, 0, 500, 180
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Grid Picker"
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+DEFPUSHBUTTON   "Close", IDOK, 440, 160, 50, 14
+END
+
+IDD_LEDDIALOG DIALOGEX 0, 0, 300, 200
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "TLedStatic"
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+CONTROL "", IDC_LEDSTATIC, "static", SS_LEFT | WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, 12, 8, 138, 36
+PUSHBUTTON "Foreground", IDC_SELECTFOREGROUND, 220, 10, 50, 14
+PUSHBUTTON "Background", IDC_SELECTBACKGROUND, 220, 28, 50, 14
+CONTROL "24 Hour clock", IDC_DISPLAY24HOUR, "Button", BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP, 12, 54, 80, 10
+CONTROL "12 Hour clock", IDC_DISPLAY12HOUR, "Button", BS_AUTORADIOBUTTON, 12, 66, 80, 10
+CONTROL "Display leading zero", IDC_DISPLAYHOURLEADINGZERO, "Button", BS_AUTOCHECKBOX, 12, 80, 80, 10
+CONTROL "Display seconds", IDC_DISPLAYSECONDS, "Button", BS_AUTOCHECKBOX, 12, 92, 80, 10
+LTEXT "Horizontal margin:", -1, 12, 110, 64, 8
+CONTROL "H", IDC_HORIZONTALMARGIN, "msctls_trackbar32", TBS_AUTOTICKS | TBS_TOOLTIPS | WS_TABSTOP, 68, 108, 90, 15
+LTEXT "Vertical margin:", -1, 12, 130, 64, 8
+CONTROL "V", IDC_VERTICALMARGIN, "msctls_trackbar32", TBS_AUTOTICKS | TBS_TOOLTIPS | WS_TABSTOP, 68, 128, 90, 15
+DEFPUSHBUTTON "Close", IDOK, 220, 180, 50, 14
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_OWLGLYPH            BITMAP                  "images\owlGlyph.bmp"
+IDB_ICONS               BITMAP                  "images\icons.bmp"
+CM_READ1 BITMAP "images\SB_BW.BMP"
+CM_READ2 BITMAP "images\SBSML256.BMP"
+IDI_BMPVIEWICON ICON "images\bmpviewicon.ico"
+
+
+IDI_ICON1 ICON "images/idi_icon1.ico"
+IDI_ICON2 ICON "images/idi_icon2.ico"
+IDI_ICON3 ICON "images/idi_icon3.ico"
+IDI_ICON4 ICON "images/idi_icon4.ico"
+
+
+
+
+STRINGTABLE
+{
+  IDS_STRING0 + 0,        "Set Black color\nBlack"
+  IDS_STRING0 + 1,        "Set Dark Red color\nDark Red"
+  IDS_STRING0 + 2,        "Set Green color\nGreen"
+  IDS_STRING0 + 3,        "Set Dark Yellow color\nDark Yellow"
+  IDS_STRING0 + 4,        "Set Dark Blue color\nDark Blue"
+  IDS_STRING0 + 5,        "Set Violet color\nViolet"
+  IDS_STRING0 + 6,        "Set Teal color\nTeal"
+  IDS_STRING0 + 7,        "Set Grey - 50% color\nGrey - 50%"
+  IDS_STRING0 + 8,        "Set Grey - 25% color\nGrey - 25%"
+  IDS_STRING0 + 9,        "Set Red color\nRed"
+  IDS_STRING0 + 10,       "Set Bright Green\nBright Green"
+  IDS_STRING0 + 11,       "Set Yellow color\nYellow"
+  IDS_STRING0 + 12,       "Set Blue color\nBlue"
+  IDS_STRING0 + 13,       "Set Pink color\nPink"
+  IDS_STRING0 + 14,       "Set Turquoise color\nTurquoise"
+  IDS_STRING0 + 15,       "Set White color\nWhite"
+  IDS_STRING0 + 16,       "Set Color16 color\nColor16"
+  IDS_DEFFIELD,           "Set default field\nDefFiled"
+  IDS_CUSTFIELD,          "Set castum field\nCustFiled"
+}
+
+STRINGTABLE
+{
+  IDS_STRING1 + 0, "This is the Black Color\nBlack"
+  IDS_STRING1 + 1, "This is the Brown Color\nBrown"
+  IDS_STRING1 + 2, "This is the Dark Olive Green Color\nDark Olive Green"
+  IDS_STRING1 + 3, "This is the Dark Green Color\nDark Green"
+  IDS_STRING1 + 4, "This is the Dark Teal Color\nDark Teal"
+  IDS_STRING1 + 5, "This is the Dark Blue Color\nDark Blue"
+  IDS_STRING1 + 6, "This is the Indigo Color\nIndigo"
+  IDS_STRING1 + 7, "This is the Dark Grey Color\nDark Grey"
+  IDS_STRING1 + 8, "This is the Dark Red Color\nDark Red"
+  IDS_STRING1 + 9, "This is the Orange Color\nOrange"
+  IDS_STRING1 + 10,"This is the Dark Yellow Color\nDark Yellow"
+  IDS_STRING1 + 11,"This is the Green Color\nGreen"
+  IDS_STRING1 + 12,"This is the Teal Color\nTeal"
+  IDS_STRING1 + 13,"This is the Blue Color\nBlue"
+  IDS_STRING1 + 14,"This is the Blue-grey Color\nBlue-grey"
+  IDS_STRING1 + 15,"This is the Grey-40 Color\nGrey-40"
+  IDS_STRING1 + 16,"This is the Red Color\nRed"
+  IDS_STRING1 + 17,"This is the Light Orange Color\nLight Orange"
+  IDS_STRING1 + 18,"This is the Lime Color\nLime"
+  IDS_STRING1 + 19,"This is the Sea Green Color\nSea Green"
+  IDS_STRING1 + 20,"This is the Aqua Color\nAqua"
+  IDS_STRING1 + 21,"This is the Light Blue Color\nLight Blue"
+  IDS_STRING1 + 22,"This is the Violet Color\nViolet"
+  IDS_STRING1 + 23,"This is the Grey - 50 Color\nGrey-50"
+  IDS_STRING1 + 24,"This is the Pink Color\nPink"
+  IDS_STRING1 + 25,"This is the Gold Color\nGold"
+  IDS_STRING1 + 26,"This is the Yellow Color\nYellow"
+  IDS_STRING1 + 27,"This is the Bright Green Color\nBright Green"
+  IDS_STRING1 + 28,"This is the Turquoise Color\nTurquoise"
+  IDS_STRING1 + 29,"This is the Sky Blue Color\nSky Blue"
+  IDS_STRING1 + 30,"This is the Plum Color\nPlum"
+  IDS_STRING1 + 31,"This is the Light Grey Color\nLight Grey"
+  IDS_STRING1 + 32,"This is the Rose Color\nRose"
+  IDS_STRING1 + 33,"This is the Tan Color\nTan"
+  IDS_STRING1 + 34,"This is the Light Yellow Color\nLight Yellow"
+  IDS_STRING1 + 35,"This is the Pale Green Color\nPale Green"
+  IDS_STRING1 + 36,"This is the Pale Turquoise Color\nPale Turquoise"
+  IDS_STRING1 + 37,"This is the Pale Blue Color\nPale Blue"
+  IDS_STRING1 + 38,"This is the Lavender Color\nLavender"
+  IDS_STRING1 + 39,"This is the White Color\nWhite"
+}
+STRINGTABLE
+{
+  IDS_CHART0 + 0,         "Create Area chart.\nArea"
+  IDS_CHART0 + 1,         "Create Columns chart.\nColumns"
+  IDS_CHART0 + 2,         "Create Cubes chart.\nCubes"
+  IDS_CHART0 + 3,         "Create Lines chart.\nLines"
+  IDS_CHART0 + 4,         "Create Marks chart.\nMarks"
+  IDS_CHART0 + 5,         "Create Fit to curve chart.\nFit to curve"
+  IDS_CHART0 + 6,         "Create Horizontal bars chart.\nHorizontal bars"
+  IDS_CHART0 + 7,         "Create Scatter (X vs. Y) chart.\nScatter (X vs. Y)"
+  IDS_CHART0 + 8,         "Create (Open-)Hi-Low-Close chart.\n(Open-)Hi-Low-Close"
+  IDS_CHART0 + 9,         "Create Pie chart.\nPie"
+  IDS_CHART0 + 10,        "Create Doughnut chart.\nDoughnut"
+  IDS_CHART0 + 11,        "Create Polar chart.\nPolar"
+  IDS_CHART0 + 12,        "Create Surface chart.\nSurface"
+  IDS_CHART0 + 13,        "Create Pareto chart.\nPareto"
+}
+
+IDB_BMPARRAY BITMAP "images\chart.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_CHECKLISTDIALOG, DIALOG
+    BEGIN
+    END
+
+    IDD_MONTHCALDIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 164
+        BOTTOMMARGIN, 148
+    END
+
+    IDD_SLIDERDIALOG, DIALOG
+    BEGIN
+    END
+
+    IDD_URLLINKDIALOG, DIALOG
+    BEGIN
+    END
+
+    IDD_GLYPHBUTTONDIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 207
+        BOTTOMMARGIN, 116
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DIALOG1 AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_MONTHCALDIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_URLLINKDIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_SLIDERDIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_GLYPHBUTTONDIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include <owlext/progress.rc>
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

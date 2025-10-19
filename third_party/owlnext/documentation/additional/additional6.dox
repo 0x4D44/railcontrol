@@ -1,0 +1,1314 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+///
+/// \page aboutdialogboxobjects About dialog box objects
+/// Dialog box objects are interface objects that encapsulate the behavior of dialog
+/// boxes. The TDialog class supports initializing, creating,
+/// and executing of all types of dialog boxes. As with window objects derived from
+/// TDialog, you can derive specialized dialog box objects
+/// from TDialog for each dialog box your application uses.
+///
+/// ObjectWindows also supplies classes that encapsulate Windows' common dialog
+/// boxes. Windows provides common dialog boxes as a way to let users choose file
+/// names, fonts, colors, and so on.
+///
+/// To use dialog box objects, you will be performing the following tasks:
+/// - \subpage usingdialogboxobjects "Using dialog box objects"
+/// - \ref usingadialogboxasyourmainwindow "Using a dialog box as your main window"
+/// - \ref manipulatingcontrolsindialogboxes "Manipulating controls in dialog boxes"
+/// - \ref associatinginterfaceobjectswithcontrols "Associating interface objects with controls"
+/// - \ref usingcommondialogboxes "Using common dialog boxes"
+///
+///
+///
+/// \page usingdialogboxobjects Using dialog box objects
+/// Using dialog box objects is a lot like using window objects. For simple dialog
+/// boxes that appear for only a short period of time, you can control the dialog
+/// box in one member function of the parent window. You can construct, execute, and
+/// destroy the dialog box object in the member function.
+/// Using a dialog box object requires the following steps:
+/// - \subpage constructingadialogboxobject "Constructing the object"
+/// - \subpage executingadialogbox "Executing the dialog box"
+/// - \subpage closingthedialogbox "Closing and destroying the dialog box"
+///
+/// You also might want to know how to
+/// - \subpage usingadialogboxasyourmainwindow "Use a dialog box as your main window"
+/// - \subpage manipulatingcontrolsindialogboxes "Manipulating controls in dialog boxes"
+/// - \subpage associatinginterfaceobjectswithcontrols "Associating interface objects with controls"
+/// - \subpage usingdialogboxes "Using dialog boxes"
+/// - \ref usingcommondialogboxes "Using common dialog boxes"
+///
+///
+///
+/// \page constructingadialogboxobject Constructing a dialog box object
+/// Dialog boxes are designed and created using dialog box resources. You can use
+/// Borland's Resource Workshop or any other resource editor to create dialog box
+/// resources and bind them to your application. A dialog box resource describes the
+/// appearance and location of controls, such as buttons, list boxes, group boxes,
+/// and so on, but is not responsible for the behavior of the dialog box. That is
+/// the responsibility of the application.
+/// Each dialog box resource has an identifier that enables a dialog box object to
+/// specify which dialog box resource it uses. The identifier can be either a string
+/// or an integer. You pass this identifier to the dialog box constructor to specify
+/// which resource the object should use.
+///
+/// \section constructor Calling the constructor
+/// To construct a dialog box object, create it using a pointer to a parent window
+/// object and a resource identifier (the resource identifier can be either string
+/// or integer based) as the parameters to the constructor:
+/// \code
+/// TDialog dialog1(this, "DIALOG_1");
+///
+/// TDialog dialog2(this, IDD_MY_DIALOG);
+/// \endcode
+/// The parent window is almost always this because you normally construct dialog
+/// box objects in a member function of a window object. If you do not construct a
+/// dialog box object in a window object, use the application's main window as its
+/// parent as shown in the following code sample, because that is the only window
+/// object always present in an ObjectWindows application:
+/// \code
+/// TDialog
+/// mySpecialDialog(GetApplication()->GetMainWindow(), IDD_DLG);
+/// \endcode
+/// The exception to this parent window behavior is when you specify a dialog box
+/// object as a client window in a TFrameWindow or
+/// TFrameWindow-based constructor. The constructor passes
+/// the dialog box object to the TFrameWindow::Init()
+/// function, which automatically sets the parent of the dialog box. (See
+/// \ref usingadialogboxasyourmainwindow "Using a dialog box as your main window" for an example.)
+///
+///
+///
+/// \section seealso See Also
+/// - \ref closingthedialogbox "Closing the dialog box"
+/// - \ref usingadialogboxasyourmainwindow "Using a dialog box as your main window"
+/// - \ref usingdialogboxobjects "Using dialog box objects"
+///
+///
+///
+/// \page executingadialogbox Executing a dialog box
+/// Executing a dialog box is analogous to creating and displaying a window.
+/// However, because dialog boxes are usually displayed for a shorter period of
+/// time, some of the steps can be abbreviated. This depends on whether you are
+/// using
+/// - \subpage modaldialogboxes "Modal dialog boxes"
+/// - \subpage modelessdialogboxes "Modeless dialog box"
+///
+/// A way to save time is to use \subpage usingautocreationwithdialogboxes "autocreation with dialog boxes" 
+/// to do the work of explicitly creating your child dialog objects.
+/// Once created and displayed, you will also need to know how to
+/// - \subpage managingdialogboxes "Manage dialog boxes"
+/// - \subpage handlingerrorswhenexecutingdialogboxes "Handle errors in executing dialog boxes"
+/// - \ref closingthedialogbox "Close dialog boxes"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref closingthedialogbox "Closing the dialog box"
+/// - \ref constructingadialogboxobject "Constructing a dialog box object"
+///
+///
+///
+/// \page modaldialogboxes Modal dialog boxes
+/// Most dialog boxes are modal. While a modal dialog box is displayed, the user
+/// cannot select or use its parent window, but rather must close the dialog box
+/// before proceeding. In effect, a modal dialog box freezes the operation of the
+/// rest of the application.
+///
+/// Use TDialog::Execute() to execute a dialog box
+/// modally. When the user closes the dialog box, Execute returns an integer value
+/// indicating how the user closed the dialog box. The return value is the
+/// identifier of the control the user pressed, such as IDOK for the OK button or
+/// IDCANCEL for a Cancel button. If the dialog box object was dynamically
+/// allocated, be sure to delete the object.
+///
+/// \section example Example
+/// The following example assumes you have a dialog resource IDD_MYDIALOG, and that
+/// the dialog box has two buttons, an OK button that sends the identifier value
+/// IDOK and a Cancel button that sends some other value:
+/// \code
+/// if(TDialog(this, IDD_MYDIALOG).Execute() == IDOK)
+///  // User pressed the OK button.
+/// else
+///  // User pressed Cancel.
+/// \endcode
+/// Only the object is deleted when it goes out of scope, not the dialog box
+/// resource. You can create and delete any number of dialog boxes with a single
+/// dialog box resource.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref managingdialogboxes "Managing dialog boxes"
+/// - \ref modelessdialogboxes "Modeless dialog boxes"
+/// - \ref handlingerrorswhenexecutingdialogboxes "Handling errors when executing dialog boxes"
+/// - \ref usingautocreationwithdialogboxes "Using autocreation with dialog boxes"
+///
+///
+///
+/// \page modelessdialogboxes Modeless dialog boxes
+/// Unlike modal dialog boxes, a modeless dialog box allows you to continue using
+/// other windows in your application while it is open. You can use a modeless
+/// dialog box to let the user continue to perform actions, find information, and so
+/// on, while still using the dialog box.
+///
+/// Use TDialog::Create() to execute a modeless dialog
+/// box. When using Create to execute a dialog box, you must explicitly make the
+/// dialog box visible by either specifying the WS_VISIBLE flag for the resource
+/// style or using the ShowWindow function to force the dialog box to display
+/// itself.
+///
+/// \section example Example
+/// For example, suppose your resource script file looks something like this:
+/// \code
+/// DIALOG_1 DIALOG 18, 18, 142, 44
+/// STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION |
+/// WS_SYSMENU
+/// CAPTION "Dialog 1"
+/// {
+///  PUSHBUTTON "Button", IDOK, 58, 23, 25, 16
+/// }
+/// \endcode
+/// Now, suppose you try to create this dialog box modelessly using the following
+/// code:
+///
+/// \code
+///  .
+///  .
+///  .
+/// TDialog dialog1(this, "DIALOG_1");
+/// dialog1.Create();
+///
+///  .
+///  .
+///  .
+/// \endcode
+/// This dialog box would not appear on your screen. To make it appear, you would
+/// have to do one of two things:
+/// - Change the style of the dialog box so that the WS_VISIBLE flag is set:
+/// \code
+/// STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE
+/// \endcode
+/// - Add the ShowWindow function after the call to Create:
+///
+/// \code
+///  .
+///  .
+///  .
+/// TDialog dialog1(this, "DIALOG_1");
+/// dialog1.Create();
+/// dialog1.ShowWindow(SW_SHOW);
+///
+///  .
+///  .
+///  .
+/// \endcode
+///
+/// The TDialog::CmOk() and TDialog::CmCancel() functions close the dialog box
+/// and delete the object. These functions handle the IDOK and IDCANCEL messages,
+/// usually sent by the OK and Cancel buttons, in the TDialog
+/// response table. The CmOk function calls CloseWindow to close down the modeless
+/// dialog box. The CmCancel function calls Destroy with the IDCANCEL parameter.
+/// Both these functions close the dialog box. If you override either CmOk or
+/// CmCancel, you need to either call the base class CmOk or CmCancel function in
+/// your overriding function or perform the closing and cleanup operations
+/// yourself.
+///
+/// Alternately, you can create your dialog box object in the constructor for the
+/// parent of the dialog box. This way, you create the dialog box object just once.
+/// Furthermore, any changes made to the dialog box state, such as its location,
+/// active focus, and so on, are kept the next time you open the dialog box.
+/// Like any other child window, the dialog box object is automatically deleted when
+/// its parent is destroyed. This way, if you close down the dialog box's parent,
+/// the dialog box object is automatically destroyed; you do not need to explicitly
+/// delete the object.
+///
+/// More specifically, ObjectWindows' default behavior when the user closes a
+/// modeless dialog box is to close the dialog window, but not to delete its pointer
+/// and not to call its class's destructor. If the dialog object has a parent
+/// window, the dialog object's pointer is deleted (and its destructor is called)
+/// when the parent window closes. If there is no parent window, the pointer is not
+/// automatically deleted.
+///
+/// You can override this default behavior by setting the
+/// wfDeleteOnClose flag in the dialog object's class constructor
+/// (call SetFlag(wfDeleteOnClose)). Setting
+/// wfDeleteOnClose causes ObjectWindows to automatically delete the pointer and
+/// call the class destructor of a modeless dialog object when the dialog window
+/// receives a WM_CLOSE message (when the user closes it). Setting this flag has no
+/// effect on modal dialog boxes.
+///
+/// \section example2 Example
+/// In the following code fragment, a parent window constructor just constructs a
+/// dialog box object, and another function actually creates and displays the modal
+/// dialog box:
+/// \code
+/// class TParentWindow : public TFrameWindow
+/// {
+///  public:
+///   TParentWindow(TWindow* parent, const char* title);
+///   void CmDOIT();
+///  protected:
+///   TDialog *dialog;
+/// };
+///
+///  .
+///  .
+///  .
+/// void TParentWindow::CmDOIT()
+/// {
+///  dialog = new TDialog(this, IDD_EMPLOYEE_INFO);
+///  dialog->Create();
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref handlingerrorswhenexecutingdialogboxes "Handling errors when executing dialog boxes"
+/// - \ref managingdialogboxes "Managing dialog boxes"
+/// - \ref modaldialogboxes "Modal dialog boxes"
+/// - \ref usingautocreationwithdialogboxes "Using autocreation with dialog boxes"
+///
+///
+///
+/// \page usingautocreationwithdialogboxes Using autocreation with dialog boxes
+/// You can use autocreation to let ObjectWindows do the work of explicitly creating
+/// your child dialog objects for you. By creating the objects in the constructor of
+/// a TDialog-derived class and specifying the this pointer
+/// as the parent, the TWindow-derived class builds a list of child windows. You can
+/// produce the same behavior if you make the dialog box object a data member of the
+/// parent class. Then, when the TWindow-derived class is created, it attempts to
+/// create all the children in its list that have the wfAutoCreate flag turned on,
+/// resulting in the children appearing on the screen at the same time as the parent
+/// window.
+///
+/// Turn on the wfAutoCreate flag using the function EnableAutoCreate. Turn off the
+/// wfAutoCreate flag using the function DisableAutoCreate.
+/// TWindow uses Create for autocreating its children. Thus any dialog boxes created
+/// with autocreation are modeless dialog boxes.
+///
+/// Just as with regular modeless dialog boxes, if you are using autocreation to
+/// turn your dialog boxes on, you must make your dialog box visible; however, with
+/// autocreation you must turn the WS_VISIBLE flag on in the resource file. You
+/// cannot use the ShowWindow function to enable autocreation.
+///
+/// \section example Example
+/// The following code shows how to enable autocreation for a dialog box:
+/// \code
+/// class TMyFrame : public TFrameWindow
+/// {
+///  public:
+///   TDialog *dialog;
+///   TMyFrame(TWindow *, const char far *);
+/// };
+///
+/// TMyFrame::TMyFrame(TWindow *parent, const char far *title)
+/// {
+///  Init(parent, true);
+///  dialog = new TDialog(this, "MYDIALOG");
+///
+///  // For the next line to work properly, the WS_VISIBLE attribute
+///  // must be specified for the MYDIALOG resource.
+///
+///  dialog->EnableAutoCreate();
+/// }
+/// \endcode
+///
+/// When you execute this application, the dialog box is automatically created for
+/// you.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref handlingerrorswhenexecutingdialogboxes "Handling errors when executing dialog boxes"
+/// - \ref managingdialogboxes "Managing dialog boxes"
+/// - \ref modaldialogboxes "Modal dialog boxes"
+/// - \ref modelessdialogboxes "Modeless dialog boxes"
+/// - \ref constructingwindowobjects "Constructing window objects"
+///
+///
+///
+/// \page managingdialogboxes Managing dialog boxes
+/// Dialog boxes, unlike other child windows, such as windows and controls, are
+/// often displayed and destroyed many times during the life of their parent
+/// windows, but are rarely displayed or destroyed at the same time as their
+/// parents. Usually, an application displays a dialog box in response to a menu
+/// selection, mouse click, error condition, or other event.
+///
+/// Therefore, you must be sure to not repeatedly construct new dialog box objects
+/// without deleting previous ones. Remember that when you construct a dialog box
+/// object in its parent window object's constructor or include the dialog box as a
+/// data member of the parent window object, the dialog box object is inserted into
+/// the child-window list of the parent and deleted when the parent is
+/// destroyed.
+///
+/// You can retrieve data from a dialog box at any time, as long as the dialog box
+/// object still exists. You will do this most often in the dialog box object's CmOK
+/// member function, which is called when the user presses the dialog box's OK
+/// button.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref handlingerrorswhenexecutingdialogboxes "Handling errors when executing dialog boxes"
+/// - \ref modaldialogboxes "Modal dialog boxes"
+/// - \ref modelessdialogboxes "Modeless dialog boxes"
+/// - \ref usingautocreationwithdialogboxes "Using autocreation with dialog boxes"
+///
+///
+///
+/// \page handlingerrorswhenexecutingdialogboxes Handling errors when executing dialog boxes
+/// Like window objects, a dialog box object's Create and Execute member functions
+/// can throw the C++ exception TXWindow. This exception is usually thrown when the
+/// dialog box cannot be created, typically because the specified resource does not
+/// exist or because of insufficient memory.
+///
+/// You can rely on the global exception handler that ObjectWindows installs when
+/// your application starts to catch TXWindow, or you can install your own exception
+/// handler. To install your own exception handler, place a try/catch block around
+/// the code you want to protect.
+///
+/// \section example Example
+/// For example, if you want to know if your function DoStuff produces an error, the
+/// code would look something like this:
+/// \code
+/// try {
+///  DoStuff();
+/// }
+///
+/// catch(TWindow::TXWindow& e) {
+///  // You can do whatever exception handling you like here.
+///  MessageBox(0, e.why().c_str(), "Error", MB_OK);
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref managingdialogboxes "Managing dialog boxes"
+/// - \ref modaldialogboxes "Modal dialog boxes"
+/// - \ref modelessdialogboxes "Modeless dialog boxes"
+/// - \ref usingautocreationwithdialogboxes "Using autocreation with dialog boxes"
+///
+///
+///
+/// \page closingthedialogbox Closing the dialog box
+/// Every dialog box must have a way for the user to close it. For dialog boxes,
+/// this is usually an OK or Cancel button, or both. TDialog
+/// has the event response functions TDialog::CmOk() and
+/// TDialog::CmCancel() to respond to those buttons.
+/// CmOk calls CloseWindow, which calls CanClose to see if it is OK to close the
+/// dialog box. If CanClose returns true, CloseWindow transfers the dialog's data
+/// and closes the dialog box by calling TWindow::CloseWindow().
+///
+/// CmCancel calls EvClose, which in turn calls Destroy, which closes the
+/// dialog box. No checking of CanClose is performed, and no transfer is done.
+/// To verify the input in a dialog box, you can override the dialog box object's
+/// CanClose member function. If you override CanClose, be sure to call the parent
+/// TWindow::CanClose() function, which handles calling CanClose for child windows.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingadialogboxobject "Constructing a dialog box object"
+/// - \ref usingdialogboxobjects "Using dialog box objects"
+///
+///
+///
+/// \page usingadialogboxasyourmainwindow Using a dialog box as your main window
+/// To use a dialog box as your main window, it is best to make the main window a
+/// frame window that has your dialog box as a client window. To do this, derive an
+/// application class from TApplication. Aside from a
+/// constructor, the only function necessary for this purpose is InitMainWindow. In
+/// the InitMainWindow function, construct a frame window object, specifying a
+/// dialog box as the client window. In the five-parameter
+/// TFrameWindow constructor, pass a pointer to the client
+/// window as the third parameter. Your code should look something like this:
+/// \code
+/// #include <owl\applicat.h>
+/// #include <owl\framewin.h>
+/// #include <owl\dialog.h>
+///
+/// class TMyApp : public TApplication
+/// {
+///  public:
+///   TMyApp(char *title) : TApplication(title) {}
+///   void InitMainWindow();
+/// };
+///
+/// void TMyApp::InitMainWindow()
+/// {
+///  SetMainWindow(new TFrameWindow(0, "My App", new TDialog(0, "MYDIALOG"), true));
+/// }
+/// int OwlMain(int argc, char* argv[])
+/// {
+///  return TMyApp("My App").Run();
+/// }
+/// \endcode
+/// The TFrameWindow constructor turns
+/// \ref usingautocreationwithdialogboxes "autocreation" on for the dialog box object that you pass as a
+/// client, regardless of the state you pass it in.
+///
+/// You also must make sure the dialog box resource has certain attributes:
+/// - Destroying your dialog object does not destroy the frame. You must destroy
+/// the frame explicitly.
+/// - You can no longer dynamically add resources directly to the dialog, because
+/// it is not the main window. You must add the resources to the frame window. For
+/// example, suppose you added an icon to your dialog using the SetIcon function.
+/// You now must use the SetIcon function for your frame window.
+/// - You cannot specify the caption for your dialog in the resource itself
+/// anymore. Instead, you must set the caption through the frame window.
+/// - You must set the style of the dialog box as follows:
+///  - Visible (WS_VISIBLE)
+///  - Child window (WS_CHILD)
+///  - No Minimize and Maximize buttons, drag bars, system menus, or any of the
+/// other standard frame window attributes
+///
+///
+///
+/// \section seealso See Also
+/// - \ref associatinginterfaceobjectswithcontrols "Associating interface objects with controls"
+/// - \ref manipulatingcontrolsindialogboxes "Manipulating controls in dialog boxes"
+/// - \ref usingdialogboxobjects "Using dialog box objects"
+/// - \ref usingdialogboxes "Using dialog boxes"
+///
+///
+///
+/// \page manipulatingcontrolsindialogboxes Manipulating controls in dialog boxes
+/// Almost all dialog boxes have, as child windows, controls such as edit controls,
+/// list boxes, buttons, and so on. Those controls are created from the dialog box
+/// resource.
+///
+/// \section communicate Communicating with controls
+/// There is a two-way communication between a dialog box object and its controls.
+/// In one direction, the dialog box needs to manipulate its controls; for example,
+/// to fill a list box. In the other direction, it needs to process and respond to
+/// the messages the controls generate; for example, when the user selects an item
+/// from a list box.
+///
+/// Wndows defines a set of control messages that are sent from the application back
+/// to Windows. For example, list-box messages include LB_GETTEXT, LB_GETCURSEL, and
+/// LB_ADDSTRING.
+///
+/// It is rarely necessary to use control messages to communicate with controls:
+/// ObjectWindows control classes provide member functions to perform the same
+/// actions. The purpose of discussing these communication mechanisms is simply to
+/// enhance your understanding of the process.
+///
+/// Control messages specify the specific control and pass along information in
+/// wParam and lParam arguments. Each control in a dialog resource has an identifier
+/// that you use to specify the control that receives the message. To send a control
+/// message, you can call SendDlgItemMessage. For example, the following member
+/// function adds the specified string to the list box using the LB_ADDSTRING
+/// message:
+/// \code
+/// void TTestDialog::FillListBox(const char far* string)
+/// {
+///  SendDlgItemMessage(ID_LISTBOX,
+/// LB_ADDSTRING, 0, (LPARAM)string);
+/// }
+/// \endcode
+/// \note TListBox::AddString() does basically the
+/// same thing as this function and is easier to understand; however. you can use
+/// SendDlgItemMessage to force actions.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref associatinginterfaceobjectswithcontrols "Associating interface objects with controls"
+/// - \ref controlobjectsoverview "Control objects overview"
+/// - \ref interfaceobjectsoverview "Interface objects overview"
+/// - \ref usingadialogboxasyourmainwindow "Using a dialog box as your main window"
+/// - \ref usingdialogboxobjects "Using dialog box objects"
+/// - \ref usingdialogboxes "Using dialog boxes"
+///
+///
+///
+/// \page associatinginterfaceobjectswithcontrols Associating interface objects with controls
+/// Because a dialog box is created from its resource, you do not use C++ code to
+/// specify what it looks like or the controls in it. Although this use of the
+/// resource lets you create the dialog box visually, it makes it harder to
+/// manipulate the controls from your application. ObjectWindows overcomes this
+/// limitation by letting you associate (connect) controls in a dialog box with
+/// interface objects, allowing you to
+/// - Provide specialized responses to messages. For example, you might want an
+/// edit control that allows only digits to be entered, or you might want a button
+/// that changes styles when it is pressed.
+/// - Use member functions and data members to manipulate the control, which is
+/// easier and more object-oriented than using control messages.
+///
+/// \section control Control objects
+/// To associate a control object with a control element, you can define a pointer
+/// to a control object as a data member and construct a control object in the
+/// dialog box object's constructor. Control classes such as
+/// TButton have a constructor that takes a pointer to the
+/// parent window object and the control's resource identifier. In the following
+/// example, TTestDialog's constructor creates a TButton object from the resource
+/// ID_BUTTON:
+/// \code
+/// TTestDialog::TTestDialog(TWindow* parent, const char* resID)
+///  : TDialog(parent, resID), TWindow(parent)
+/// {
+///  new TButton(this, ID_BUTTON);
+/// }
+/// \endcode
+/// You can also define your own control class, derived from an existing control
+/// class (if you want to provide specialized behavior). In the following example,
+/// TBeepButton is a specialized TButton that overrides the default response to the
+/// BN_CLICKED notification code. A TBeepButton object is associated with the
+/// ID_BUTTON button resource.
+/// \code
+/// class TBeepButton : public TButton
+/// {
+///  public:
+///   TBeepButton(TWindow* parent, int resId):TButton(parent, resId) {}
+///
+///   void BNClicked(); // BN_CLICKED
+///  
+/// DECLARE_RESPONSE_TABLE(TBeepButton);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE1(TBeepButton, TButton)
+///  EV_NOTIFY_AT_CHILD(BN_CLICKED, BNClicked),
+/// END_RESPONSE_TABLE;
+///
+/// void TBeepButton::BNClicked()
+/// {
+///  MessageBeep(-1);
+/// }
+///
+/// .
+/// .
+/// .
+/// TBeepDialog::TBeepDialog(TWindow* parent, const char* name)
+///  : TDialog(parent, name),
+/// TWindow(parent)
+/// {
+///  button = new TBeepButton(this, ID_BUTTON);
+/// }
+/// \endcode
+/// Unlike setting up a window object, which requires two steps (construction and
+/// creation), associating an interface object with an interface element requires
+/// only the construction step. This is because the interface element already
+/// exists: it is loaded from the dialog box resource. You just have to tell the
+/// constructor which control from the resource to use, using its resource
+/// identifier.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref manipulatingcontrolsindialogboxes "Manipulating controls in dialog boxes"
+/// - \ref usingadialogboxasyourmainwindow "Using a dialog box as your main window"
+/// - \ref usingdialogboxobjects "Using dialog box objects"
+/// - \ref usingdialogboxes "Using dialog boxes"
+/// - \subpage settingupcontrols "Setting up controls"
+///
+///
+///
+/// \page settingupcontrols Setting up controls
+/// You cannot manipulate controls by adding strings to a list box or setting the
+/// font of an edit control until the dialog box object's SetupWindow member
+/// function executes. Until TDialog::SetupWindow()
+/// has called TWindow::SetupWindow(), the
+/// dialog box's controls have not been associated with the corresponding objects.
+/// Once they are associated, the objects' HWindow data members are valid for the
+/// controls.
+///
+/// In this example, the AddString function is not called until the base class
+/// SetupWindow function is called:
+/// \code
+/// class TDerivedDialog : public TDialog
+/// {
+///  public:
+///   TDerivedDialog(TWindow* parent, TResId resId)
+///    :
+/// TDialog(parent, resId), TWindow(parent)
+///   {
+///    listbox = new TListBox(this, IDD_LISTBOX);
+///   }
+///  protected:
+///   TListBox* listbox;
+/// };
+///
+/// void TDerivedDialog::SetupWindow()
+/// {
+///  TDialog::SetupWindow();
+///  listbox->AddString("First entry");
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref associatinginterfaceobjectswithcontrols "Associating interface objects with controls"
+/// - \ref manipulatingcontrolsindialogboxes "Manipulating controls in dialog boxes"
+///
+///
+///
+/// \page usingdialogboxes Using dialog boxes
+/// A Windows application often needs to prompt the user for file names, colors, or
+/// fonts. ObjectWindows provides classes that make it easy to use dialog boxes,
+/// including \subpage usinginputdialogboxes "input dialog boxes" and 
+/// \subpage usingcommondialogboxes "common dialog boxes."
+///
+/// The following table lists the different types of dialog boxes and the
+/// ObjectWindows class that encapsulates each one.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Type</TD><TD class="owltableheader">ObjectWindows class</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Color</TD><TD class="owltable">TChooseColorDialog</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Font</TD><TD class="owltable">TChooseFontDialog</TD></TR>
+/// <TR class="owltable"><TD class="owltable">File open</TD><TD class="owltable">TFileOpenDialog</TD></TR>
+/// <TR class="owltable"><TD class="owltable">File save</TD><TD class="owltable">TFileSaveDialog</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Find string</TD><TD class="owltable">TFindDialog</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Input from user</TD><TD class="owltable">TInputDialog</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Printer abort dialog</TD><TD class="owltable">TPrinterAbortDlg</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Printer control</TD><TD class="owltable">TPrintDialog</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Replace string</TD><TD class="owltable">TReplaceDialog</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref associatinginterfaceobjectswithcontrols "Associating interface objects with controls"
+/// - \ref manipulatingcontrolsindialogboxes "Manipulating controls in dialog boxes"
+/// - \ref usingadialogboxasyourmainwindow "Using a dialog box as your main window"
+/// - \ref usingdialogboxobjects "Using dialog box objects"
+///
+///
+///
+/// \page usinginputdialogboxes Using input dialog boxes
+/// Input dialog boxes are simple dialog boxes that prompt the user for a single
+/// line of text input. You can run input dialog boxes as either modal or modeless
+/// dialog boxes, but you will usually run them modally. Input dialog box objects
+/// have a dialog box resource associated with them, provided in the resource script
+/// file owl\\inputdia.rc. Your application's .RC file must include
+/// owl\\inputdia.rc.
+///
+/// When you construct an input dialog box object, you specify a pointer to the
+/// parent window object, a caption, a prompt, and the text buffer and its size. The
+/// contents of the text buffer is the default input text. When the user chooses OK
+/// or presses Enter, the line of text entered is automatically transferred into the
+/// character array.
+///
+/// \section example Example
+/// Here is an example:
+/// \code
+/// char patientName[33] = "";
+///
+/// TInputDialog(this, "Patient name", "Enter the patient's name:", patientName, sizeof(patientName)).Execute();
+/// \endcode
+/// In this example, patientName is a text buffer that gets filled with the user's
+/// input when the user chooses OK. It is initialized to an empty string for the
+/// default text.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingcolorcommondialogboxes "Using color common dialog boxes"
+/// - \ref usingcommondialogboxes "Using common dialog boxes"
+/// - \ref usingfileopencommondialogboxes "Using File Open common dialog boxes"
+/// - \ref usingfilesavecommondialogboxes "Using File Save common dialog boxes"
+/// - \ref usingfindandreplacecommondialogboxes "Using Find and Replace common dialog boxes"
+/// - \ref usingfontcommondialogboxes "Using font common dialog boxes"
+/// - \ref abouttheprintercommondialogboxes "Using printer common dialog boxes"
+///
+///
+///
+/// \page usingcommondialogboxes Using common dialog boxes
+/// The common dialog boxes encapsulate the functionality of the Windows common
+/// dialog boxes. These dialog boxes let the user choose colors, fonts, file names,
+/// find and replace strings, print options, and more. You construct, execute, and
+/// destroy them all in a similar manner. To take advantage of common dialog boxes,
+/// you will be performing the following tasks:
+/// - \subpage constructingcommondialogboxes "Constructing common dialog boxes"
+/// - \subpage executingcommondialogboxes "Executing common dialog boxes"
+/// - \subpage usingcolorcommondialogboxes "Using color common dialog boxes"
+/// - \subpage usingfontcommondialogboxes "Using font common dialog boxes"
+/// - \subpage usingfileopencommondialogboxes "Using File Open common dialog boxes"
+/// - \subpage usingfilesavecommondialogboxes "Using File Save common dialog boxes"
+/// - \subpage usingfindandreplacecommondialogboxes "Using Find and Replace common dialog boxes"
+/// - \ref constructingandcreatingfindandreplacecommondialogboxes "Constructing and creating Find and Replace common dialog boxes"
+/// - \ref processingfindandreplacemessages "Processing Find and Replace messages"
+/// - \ref handlingafindnextcommand "Handling a Find Next command"
+/// - \subpage abouttheprintercommondialogboxes "Using printer common dialog boxes"
+///
+///
+///
+/// \page constructingcommondialogboxes Constructing common dialog boxes
+/// Each common dialog box class has a nested class called TData that contains some
+/// common housekeeping members and data specific to each type of common dialog box.
+/// For example, \ref constructinganddestroyingtgadgetwindow "TChooseColorDialog::TData" has members for
+/// the color being chosen and an array for a set of custom colors. The following
+/// table lists the two members common to all TData nested classes.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Name</TD><TD class="owltableheader">Type</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Flags</TD><TD class="owltable">uint32</TD><TD class="owltable">
+/// A set of common dialog box-specific flags
+/// that control the appearance and behavior of the dialog box. For example,
+/// CC_SHOWHELP is a flag that tells the color selection common dialog box to
+/// display a Help button the user can press to get context-sensitive Help.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Error</TD><TD class="owltable">uint32</TD><TD class="owltable">
+/// An error code used if an error occurred while processing a common
+/// dialog box; zero if no error occurred. Because Execute returns IDCANCEL both
+/// when the user chose Cancel and when an error occurred, you must check Error to
+/// determine whether an error actually occurred.</TD></TR>
+/// </TABLE>
+///
+/// Each common dialog box class has a constructor that takes a pointer to a parent
+/// window object, a reference to that class's TData nested class, and optional
+/// parameters for a custom dialog box template, title string, and module
+/// pointer.
+///
+/// Here is a sample fragment that constructs a common color selection dialog
+/// box:
+/// \code
+/// TChooseColorDialog::TData colors;
+/// static TColor custColors[16] =
+/// {
+///  0x010101L, 0x101010L, 0x202020L, 0x303030L,
+///  0x404040L, 0x505050L, 0x606060L, 0x707070L,
+///  0x808080L, 0x909090L, 0xA0A0A0L, 0xB0B0B0L,
+///  0xC0C0C0L, 0xD0D0D0L, 0xE0E0E0L, 0xF0F0F0L
+/// };
+///
+/// colors.CustColors = custColors;
+/// colors.Flags = CC_RGBINIT;
+/// colors.Color = TColor::Black;
+/// if (TChooseColorDialog(this, colors).Execute() == IDOK)
+///  SetColor(colors.Color);
+/// \endcode
+/// After the user has chosen a new color in the dialog box and pressed OK, that
+/// color is placed in the Color member of the TData object.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingcommondialogboxes "Constructing common dialog boxes"
+/// - \ref executingcommondialogboxes "Executing common dialog boxes"
+///
+///
+///
+/// \page executingcommondialogboxes Executing common dialog boxes
+/// After you have constructed the common dialog box object, you either execute it
+/// (for a modal dialog box) or create it (for a modeless dialog box). The following
+/// table lists whether each type of common dialog box must be modal or
+/// modeless.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Type</TD><TD class="owltableheader">Modal or modeless</TD><TD class="owltableheader">Run by calling</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Color</TD><TD class="owltable">Modal</TD><TD class="owltable">Execute</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Font</TD><TD class="owltable">Modal</TD><TD class="owltable">Execute</TD></TR>
+/// <TR class="owltable"><TD class="owltable">File open</TD><TD class="owltable">Modal</TD><TD class="owltable">Execute</TD></TR>
+/// <TR class="owltable"><TD class="owltable">File save</TD><TD class="owltable">Modal</TD><TD class="owltable">Execute</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Find</TD><TD class="owltable">Modeless</TD><TD class="owltable">Create</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Find/replace</TD><TD class="owltable">Modeless</TD><TD class="owltable">Create</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Printer</TD><TD class="owltable">Modal</TD><TD class="owltable">Execute</TD></TR>
+/// </TABLE>
+/// You must check Execute's return value to see whether the user chose OK or
+/// Cancel, or to determine if an error occurred. For example,
+/// \code
+/// TChooseColorDialog::TData colors;
+/// TChooseColorDialog colorDlg(this, colors);
+///
+/// if (colorDlg.Execute() == IDOK)
+///  // OK: data.Color == the color the user
+/// chose
+///  // Some code here
+/// else if (data.Error)
+///  // error occurred!
+///  // Some code here
+///  MessageBox("Error in color dialog box!", GetApplication()->Name, MB_OK | MB_ICONSTOP);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingcommondialogboxes "Constructing common dialog boxes"
+/// - \ref executingcommondialogboxes "Executing common dialog boxes"
+///
+///
+///
+/// \page usingcolorcommondialogboxes Using color common dialog boxes
+/// The color common dialog box lets you choose and create colors for use in your
+/// application. For example, a paint application might use the color common dialog
+/// box to choose the color of a paint bucket.
+///
+/// TChooseColorDialog::TData has several members you must
+/// initialize before constructing the dialog box object:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">TData member</TD><TD class="owltableheader">Type</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Color</TD><TD class="owltable">TColor</TD><TD class="owltable">
+/// The selected color. When you execute the
+/// dialog box, Color specifies the default color. When the user closes the dialog
+/// box, Color specifies the color the user chose.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">CustColors</TD><TD class="owltable">TColor*</TD><TD class="owltable">
+/// A pointer to an array of sixteen custom
+/// colors. On input, it specifies the default custom colors. On output, it
+/// specifies the custom colors the user chose.</TD></TR>
+/// </TABLE>
+///
+/// In the following example, a color common dialog box is used to set the window
+/// object's Color member, which is used elsewhere to paint the window. Note the use
+/// of the TWindow::Invalidate() member function to force the
+/// window to be repainted in the new color.
+/// \code
+/// void TCommDlgWnd::CmColor()
+/// {
+///  // use static to keep custom colors around between
+///  // executions of the color common dialog box
+///  static TColor custColors[16];
+///  TChooseColorDialog::TData choose;
+///
+///  choose.Flags = CC_RGBINIT;
+///  choose.Color = Color;
+///  choose.CustColors = custColors;
+///
+///  if(TChooseColorDialog(this, choose).Execute() == IDOK)
+///   Color = choose.Color;
+///  Invalidate();
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - TChooseColorDialog
+/// - TChooseColorDialog::TData::Flags
+/// - \ref usingcommondialogboxes "Using common dialog boxes"
+/// - \ref usingfileopencommondialogboxes "Using File Open common dialog boxes"
+/// - \ref usingfilesavecommondialogboxes "Using File Save common dialog boxes"
+/// - \ref usingfindandreplacecommondialogboxes "Using Find and Replace common dialog boxes"
+/// - \ref usingfontcommondialogboxes "Using font common dialog boxes"
+/// - \ref usinginputdialogboxes "Using input dialog boxes"
+/// - \ref abouttheprintercommondialogboxes "Using printer common dialog boxes"
+///
+///
+///
+/// \page usingfontcommondialogboxes Using font common dialog boxes
+/// The font common dialog box lets you choose a font to use in your application,
+/// including the typeface, size, style, and so on. For example, a word processor
+/// might use the font common dialog box to choose the font for a paragraph.
+/// TChooseFontDialog::TData has several
+/// members you must initialize before constructing the dialog box object:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">TData member</TD><TD class="owltableheader">Type</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">DC</TD><TD class="owltable">HDC</TD><TD class="owltable">A handle to the device context of the printer whose fonts you want to
+/// select, if you specify CF_PRINTERFONTS in Flags. Otherwise ignored.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">LogFont</TD><TD class="owltable">LOGFONT</TD><TD class="owltable">
+/// A handle to a LOGFONT that specifies the font's appearance. When
+/// you execute the dialog box and specify the flag CF_INITTOLOGFONTSTRUCT, the
+/// dialog box appears with the specified font (or the closest possible match) as
+/// the default. When the user closes the dialog box, LogFont is filled with the
+/// selections the user made.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">PointSize</TD><TD class="owltable">int</TD><TD class="owltable">
+/// The point size of the selected font (in tenths of a point).
+/// On input, it sets the size of the default font. On output, it returns the size
+/// the user selected.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Color</TD><TD class="owltable">TColor</TD><TD class="owltable">
+/// The color of the selected font, if the
+/// CF_EFFECTS flag is set. On input, it sets the color of the default font. On
+/// output, it holds the color the user selected.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Style</TD><TD class="owltable">char far*</TD><TD class="owltable">
+/// Lets you specify the style of the dialog.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">FontType</TD><TD class="owltable">uint16</TD><TD class="owltable">
+/// A set of flags describing the styles of the selected font. Set</TD></TR>
+/// only on output.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">SizeMin</TD><TD class="owltable">int</TD>
+/// <TD class="owltable" ROWSPAN="2">Specifies the minimum and maximum 
+/// Point sizes (in tenths of a point) the user can select, if the
+/// CF_LIMITSIZE flag is set.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">SizeMax</TD><TD class="owltable">int</TD></TR>
+/// </TABLE>
+///
+/// In this example, a font common dialog box is used to set the window object's
+/// Font member, which is used elsewhere to paint text in the window. Note how a new
+/// font object is constructed using TFont.
+/// \code
+/// void TCommDlgWnd::CmFont()
+/// {
+///  TChooseFontDialog::TData FontData;
+///
+///  FontData.DC = 0;
+///  FontData.Flags = CF_EFFECTS | CF_FORCEFONTEXIST | CF_SCREENFONTS;
+///  FontData.Color = Color;
+///  FontData.Style = 0;
+///  FontData.FontType = SCREEN_FONTTYPE;
+///  FontData.SizeMin = 0;
+///  FontData.SizeMax = 0;
+///
+///  if (TChooseFontDialog(this, FontData).Execute() == IDOK) {
+///   delete Font;
+///   Color = FontData.Color;
+///   Font = new TFont(&FontData.LogFont);
+///  }
+///  Invalidate();
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingcolorcommondialogboxes "Using color common dialog boxes"
+/// - \ref usingcommondialogboxes "Using common dialog boxes"
+/// - \ref usingfileopencommondialogboxes "Using File Open common dialog boxes"
+/// - \ref usingfilesavecommondialogboxes "Using File Save common dialog boxes"
+/// - \ref usingfindandreplacecommondialogboxes "Using Find and Replace common dialog boxes"
+/// - \ref usinginputdialogboxes "Using input dialog boxes"
+/// - \ref abouttheprintercommondialogboxes "Using printer common dialog boxes"
+///
+///
+///
+/// \page usingfileopencommondialogboxes Using File Open common dialog boxes
+/// The file open common dialog box serves as a consistent replacement for the many
+/// different types of dialog boxes applications have used to open files.
+///
+/// TOpenSaveDialog::TData has several members
+/// you must initialize before constructing the dialog box object. You can either
+/// initialize them by assigning values, or you can use
+/// TOpenSaveDialog::TData 's constructor, which
+/// takes the most common parameters, Flags, Filter, CustomFilter, InitialDir, and
+/// DefExt, with default arguments of zero.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">TData member</TD><TD class="owltableheader">Type</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">FileName</TD><TD class="owltable">char*</TD><TD class="owltable">
+/// The selected file name. On input, it specifies the default file
+/// name. On output, it contains the selected file name.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Filter</TD><TD class="owltable">char*</TD><TD class="owltable">
+/// The file name filters and filter patterns. Each filter and filter
+/// pattern is in the form filter|filter
+/// pattern|... where filter is a text string that describes the filter and filter
+/// pattern is a DOS wildcard file name. You can repeat filter and filter pattern
+/// for as many filters as you need. You must separate them with | characters.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">CustomFilter</TD><TD class="owltable">char*</TD><TD class="owltable">
+/// Lets you specify custom filters.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">FilterIndex</TD><TD class="owltable">int</TD><TD class="owltable">
+/// Specifies which of the filters specified in Filter should be
+/// displayed by default.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">InitialDir</TD><TD class="owltable">char*</TD><TD class="owltable">
+/// The directory to be displayed on opening the file dialog box.
+/// Use zero for the current directory.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">DefExt</TD><TD class="owltable">char*</TD><TD class="owltable">
+/// Default extension appended to FileName if the user does not type an
+/// extension. If DefExt is zero, no extension is appended.</TD></TR>
+/// </TABLE>
+///
+/// In this example, a file-open common dialog box prompts the user for a file name.
+/// If an error occurred (Execute returns IDCANCEL and Error returns nonzero), a
+/// message box is displayed.
+/// \code
+/// void TCommDlgWnd::CmFileOpen()
+/// {
+///  TFileOpenDialog::TData FilenameData
+///   (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST,
+///   "All Files (*.*)|*.*|Text Files (*.txt)|*.txt|",
+///    0, "", "*");
+///
+///  if (TFileOpenDialog(this, FilenameData).Execute() != IDOK) {
+///   if (FilenameData.Errval)
+/// {
+///    char msg[50];
+///    wsprintf(msg, "GetOpenFileName returned Error #%ld", Errval);
+///    MessageBox(msg, "WARNING", MB_OK | MB_ICONSTOP);
+///   }
+///  }
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingcolorcommondialogboxes "Using color common dialog boxes"
+/// - \ref usingcommondialogboxes "Using common dialog boxes"
+/// - \ref usingfilesavecommondialogboxes "Using File Save common dialog boxes"
+/// - \ref usingfindandreplacecommondialogboxes "Using Find and Replace common dialog boxes"
+/// - \ref usingfontcommondialogboxes "Using font common dialog boxes"
+/// - \ref usinginputdialogboxes "Using input dialog boxes"
+/// - \ref abouttheprintercommondialogboxes "Using printer common dialog boxes"
+///
+///
+///
+/// \page usingfilesavecommondialogboxes Using File Save common dialog boxes
+/// The file save common dialog box serves as a single, consistent replacement for
+/// the many different types of dialog boxes that applications have previously used
+/// to let users choose file names.
+///
+/// TOpenSaveDialog::TData is used by both file open and file save common dialog boxes.
+/// 
+/// \section example Example
+/// In the following example, a file-save common dialog box prompts the user for a
+/// file name to save under. The default directory is \\WINDOWS and the default
+/// extension is .BMP.
+/// \code
+/// void TCanvasWindow::CmFileSaveAs()
+/// {
+///  TOpenSaveDialog::TData data
+///   (OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+///   "Bitmap Files (*.BMP)|*.bmp|",
+///   0, "\\windows", "BMP");
+///
+///  if (TFileSaveDialog(this, data).Execute() == IDOK) {
+///   // save data to file ifstream
+///   is(data.FileName);
+///   if (!is)
+///     MessageBox("Unable to open file", "File Error", MB_OK | MB_ICONEXCLAMATION);
+///   else
+///    // Do file output
+///  }
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingcolorcommondialogboxes "Using color common dialog boxes"
+/// - \ref usingcommondialogboxes "Using common dialog boxes"
+/// - \ref usingfileopencommondialogboxes "Using File Open common dialog boxes"
+/// - \ref usingfindandreplacecommondialogboxes "Using Find and Replace common dialog boxes"
+/// - \ref usingfontcommondialogboxes "Using font common dialog boxes"
+/// - \ref usinginputdialogboxes "Using input dialog boxes"
+/// - \ref abouttheprintercommondialogboxes "Using printer common dialog boxes"
+///
+///
+///
+/// \page usingfindandreplacecommondialogboxes Using Find and Replace common dialog boxes
+/// The find and replace common dialog boxes let you search and optionally replace
+/// text in your application's data. These dialog boxes are flexible enough to be
+/// used for documents or even databases. The simplest way to use the find and
+/// replace common dialog boxes is to use the TEditSearch or
+/// TEditFile edit control classes; they implement an edit
+/// control that you can search and replace text in. If your application is
+/// text-based, you can also use the find and replace common dialog boxes
+/// manually.
+///
+/// In order to use find and replace common dialog boxes, you will need to know how
+/// to:
+/// - \subpage constructingandcreatingfindandreplacecommondialogboxes "Construct and create find and replace common dialog boxes"
+/// - \subpage processingfindandreplacemessages "Process find and replace messages"
+/// - \subpage handlingafindnextcommand "Handle a Find Next command"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingcolorcommondialogboxes "Using color common dialog boxes"
+/// - \ref usingcommondialogboxes "Using common dialog boxes"
+/// - \ref usingfileopencommondialogboxes "Using File Open common dialog boxes"
+/// - \ref usingfilesavecommondialogboxes "Using File Save common dialog boxes"
+/// - \ref usingfontcommondialogboxes "Using font common dialog boxes"
+/// - \ref usinginputdialogboxes "Using input dialog boxes"
+/// - \ref abouttheprintercommondialogboxes "Using printer common dialog boxes"
+///
+///
+///
+/// \page constructingandcreatingfindandreplacecommondialogboxes Constructing and creating Find and Replace common dialog boxes
+/// Because the find and replace dialog boxes are modeless, you normally keep a
+/// pointer to them as a data member in your parent window object to make it easy to
+/// communicate with them.
+///
+/// The find and replace common dialog boxes are modeless. Construct and create them
+/// in response to a command (for example, a menu item Search|Find or
+/// Search|Replace) to display the dialog box and let the user enter the search
+/// information.
+///
+/// TFindReplaceDialog::TData has the
+/// standard Flags members, plus members for holding the find and replace
+/// strings.
+///
+/// The following example shows the pointer to the find dialog box in the parent
+/// window object and shows the command event response function that constructs and
+/// creates the dialog box:
+/// \code
+/// class TDatabaseWindow : public
+/// TFrameWindow
+/// {
+///
+///   .
+///   .
+///   .
+///   TFindReplaceDialog::TData SearchData;
+///   TFindReplaceDialog* SearchDialog;
+///
+///   .
+///   .
+///   .
+/// };
+///
+/// void TDatabaseWindow::CmEditFind()
+/// {
+///  // If the find dialog box is not already
+///  // constructed, construct and create it now
+///  if (!SearchDialog) {
+///   SearchData.Flags |= FR_DOWN; // default to searching down
+///   SearchDialog = new TFindDialog(this, SearchData)
+///  
+///   SearchDialog->Create();
+///  }
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref processingfindandreplacemessages "Processing Find and Replace messages"
+/// - \ref handlingafindnextcommand "Handling a Find Next command"
+///
+///
+///
+/// \page processingfindandreplacemessages Processing Find and Replace messages
+/// Since the find and replace common dialog boxes are modeless, they communicate
+/// with their parent window object by using a registered message FINDMSGSTRING. You
+/// must write an event response function that responds to FINDMSGSTRING. That event
+/// response function takes two parameters--a WPARAM and an LPARAM--and returns an
+/// LRESULT. The LPARAM parameter contains a pointer that you must pass to the
+/// dialog box object's UpdateData member function.
+///
+/// After calling UpdateData, you must check for the FR_DIALOGTERM flag. The common
+/// dialog box code sets that flag when the user closes the modeless dialog box.
+/// Your event response function should then zero the dialog box object pointer
+/// because it is no longer valid. You must construct and create the dialog box
+/// object again.
+///
+/// As long as the FR_DIALOGTERM flag was not set, you can process the FINDMSGSTRING
+/// message by performing the actual search. This can be as simple as an edit
+/// control object's Search member function or as complicated as triggering a search
+/// of a Paradox or dBASE table.
+///
+/// In this example, EvFindMsg is an event response function for a registered
+/// message. EvFindMsg calls UpdateData and then checks the FR_DIALOGTERM flag. If
+/// it was not set, EvFindMsg calls another member function to perform the
+/// search.
+/// \code
+/// DEFINE_RESPONSE_TABLE1(TDatabaseWindow, TFrameWindow)
+///
+///  .
+///  .
+///  .
+///  EV_REGISTERED(FINDMSGSTRING, EvFindMsg),
+/// END_RESPONSE_TABLE;
+///
+/// .
+/// .
+/// .
+/// LRESULT TDatabaseWindow::EvFindMsg(WPARAM, LPARAM lParam)
+/// {
+///  if (SearchDialog) {
+///  
+///    SearchDialog->UpdateData(lParam);
+///   // is the dialog box closing?
+///   if (SearchData.Flags & FR_DIALOGTERM) {
+///    SearchDialog = 0;
+///    SearchCmd = 0;
+///   } else
+///    DoSearch();
+///  }
+///  return 0;
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingandcreatingfindandreplacecommondialogboxes "Constructing and creating Find and Replace common dialog boxes"
+/// - \ref handlingafindnextcommand "Handling a Find Next command"
+///
+///
+///
+/// \page handlingafindnextcommand Handling a Find Next command
+/// The find and replace common dialog boxes have a Find Next button that users can
+/// use while the dialog boxes are visible. Most applications also support a Find
+/// Next command from the Search menu, so users can find the next occurrence in one
+/// step instead of having to open the find dialog box and click the Find Next
+/// button. TFindDialog and TReplaceDialog make it easy for you to offer the same
+/// functionality.
+///
+/// Setting the FR_FINDNEXT flag has the same effect as clicking the Find Next
+/// button. For example,
+/// \code
+/// void TDatabaseWindow::CmEditFindNext()
+/// {
+///  SearchDialog->UpdateData();
+///  SearchData.Flags |= FR_FINDNEXT;
+///  DoSearch();
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingandcreatingfindandreplacecommondialogboxes "Constructing and creating find and replace common dialog boxes"
+/// - \ref processingfindandreplacemessages "Processing find and replace messages"
+///
+///
+///
+/// \page abouttheprintercommondialogboxes About the printer common dialog boxes
+/// TPrintDialog displayed a modal print or a print setup
+/// dialog box for 16-bit applications. For 32-bit applications, it displays a modal
+/// print or a page setup dialog. The print dialog box lets you print a document.
+/// The print setup dialog box lets you configure the printer and specify additional
+/// print job characteristics. The page setup dialog lets you specify page settings,
+/// such as margins, and paper orientation. You can also use
+/// TPrinter and TPrintout to provide
+/// support for printer dialog boxes. TPrintDialog uses the
+/// TPrintDialog::TData structure to initialize the
+/// dialog box with the user's printer options, such as the number of pages to
+/// print, the output device, and so on.
+///
+/// TPrintDialog::TData's members, described in
+/// the following table, let you control the appearance and behavior of the printer
+/// common dialog boxes:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">TData member</TD><TD class="owltableheader">Type</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">FromPage</TD><TD class="owltable">int</TD><TD class="owltable">
+/// The first page of output, if the PD_PAGENUMS flag is specified. On
+/// input, it specifies the default first page. On output, it specifies the first
+/// page the user chose.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">ToPage</TD><TD class="owltable">int</TD><TD class="owltable">
+/// The last page of output, if the PD_PAGENUMS flag is specified. On
+/// input, it specifies the default last page number. On output, it specifies the
+/// last page number the user chose.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">MinPage</TD><TD class="owltable">int</TD><TD class="owltable">
+/// The fewest number of pages the user can choose.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">MaxPage</TD><TD class="owltable">int</TD><TD class="owltable">
+/// The largest number of pages the user can choose.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Copies</TD><TD class="owltable">int</TD><TD class="owltable">
+/// The number of copies to print. On input, the default number of
+/// copies. On output, the number of copies the user actually chose.</TD></TR>
+/// </TABLE>
+///
+/// \section example Example
+/// In the following example, CmFilePrint executes a standard print job common
+/// dialog box and uses the information in TPrintDialog::TData to determine what to
+/// print. CmFilePrintSetup adds a flag to bring up the print setup dialog box
+/// automatically.
+/// \code
+/// void TCanvas::CmFilePrint()
+/// {
+///  if (TPrintDialog(this, data).Execute() == IDOK)
+///   // Use TPrinter and TPrintout to print the drawing
+/// }
+///
+/// void TCanvas::CmFilePrintSetup()
+/// {
+///  static TPrintDialog::TData data;
+///  data.Flags |= PD_PRINTSETUP;
+///
+///  if (TPrintDialog(this, data, 0).Execute() == IDOK)
+///   // Print
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingcolorcommondialogboxes "Using color common dialog boxes"
+/// - \ref usingcommondialogboxes "Using common dialog boxes"
+/// - \ref usingfileopencommondialogboxes "Using File Open common dialog boxes"
+/// - \ref usingfilesavecommondialogboxes "Using File Save common dialog boxes"
+/// - \ref usingfindandreplacecommondialogboxes "Using find and replace common dialog boxes"
+/// - \ref usingfontcommondialogboxes "Using font common dialog boxes"
+/// - \ref usinginputdialogboxes "Using input dialog boxes"
+/// - \ref abouttheprintercommondialogboxes "Using printer common dialog boxes"
+///
+///
+///

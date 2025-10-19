@@ -1,0 +1,125 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resizabledialogs.rh"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resizabledialogs.rh\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_RESIZABLEDIALOG1 DIALOGEX 0, 0, 392, 317
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Resizable Dialog"
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+    GROUPBOX        "Anchor left right",IDC_GROUPBOX1,7,7,308,51
+    GROUPBOX        "Anchor top bottom",IDC_GROUPBOX2,7,64,72,198
+    GROUPBOX        "Anchor right",IDC_GROUPBOX4,322,7,63,78
+    GROUPBOX        "Anchor right bottom",IDC_GROUPBOX6,256,270,129,40
+    GROUPBOX        "Anchor bottom",IDC_GROUPBOX5,7,270,132,40
+    GROUPBOX        "Anchor all",IDC_GROUPBOX3,89,111,226,152
+    LTEXT           "Edit:",IDC_STATIC,15,22,16,8
+    EDITTEXT        IDC_EDIT1,42,21,268,14,ES_AUTOHSCROLL
+    LTEXT           "Combo:",IDC_STATIC,15,40,26,8
+    COMBOBOX        IDC_COMBO1,42,40,268,30,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Button1",IDC_BUTTON1,328,21,50,14
+    PUSHBUTTON      "Button2",IDC_BUTTON2,327,41,50,14
+    PUSHBUTTON      "Button3",IDC_BUTTON3,327,61,50,14
+    PUSHBUTTON      "Button4",IDC_BUTTON4,16,285,50,14
+    PUSHBUTTON      "Button5",IDC_BUTTON5,76,285,50,14
+    PUSHBUTTON      "Button6",IDC_BUTTON6,271,287,50,14
+    PUSHBUTTON      "Button7",IDC_BUTTON7,328,287,50,14
+    CONTROL         "",IDC_LIST2,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNTOP | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,97,122,209,134
+    LISTBOX         IDC_LIST1,16,80,54,176,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Right aligned static control",IDC_TEXT1,89,67,226,8
+    LTEXT           "Left aligned static control with word wrapping of a long text",IDC_TEXT2,91,81,81,28
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_RESIZABLEDIALOG1 AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_RESIZABLEDIALOG1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 385
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 310
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Manifest Include="..\common-controls-6.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\app.cpp" />
+    <ClCompile Include="..\bmpviewwnd.cpp" />
+    <ClCompile Include="..\checklstdlg.cpp" />
+    <ClCompile Include="..\client.cpp" />
+    <ClCompile Include="..\draglistwnd.cpp" />
+    <ClCompile Include="..\gridpicdlg.cpp" />
+    <ClCompile Include="..\copydatawnd.cpp" />
+    <ClCompile Include="..\cpuinfownd.cpp" />
+    <ClCompile Include="..\dialogdatatransfer.cpp" />
+    <ClCompile Include="..\employeedlg.cpp" />
+    <ClCompile Include="..\exceptiontransport.cpp" />
+    <ClCompile Include="..\frame.cpp" />
+    <ClCompile Include="..\layoutwnd.cpp" />
+    <ClCompile Include="..\ledclockdlg.cpp" />
+    <ClCompile Include="..\ledclock.cpp" />
+    <ClCompile Include="..\listviewwnd.cpp" />
+    <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\monthcaldlg.cpp" />
+    <ClCompile Include="..\moredlg.cpp" />
+    <ClCompile Include="..\opendlg.cpp" />
+    <ClCompile Include="..\pch.cpp" />
+    <ClCompile Include="..\resizabledialog.cpp" />
+    <ClCompile Include="..\resizabledialogs1.cpp" />
+    <ClCompile Include="..\scrollwnd.cpp" />
+    <ClCompile Include="..\sliderdlg.cpp" />
+    <ClCompile Include="..\static.cpp" />
+    <ClCompile Include="..\tabbed.cpp" />
+    <ClCompile Include="..\tabctrl.cpp" />
+    <ClCompile Include="..\thmsdlg.cpp" />
+    <ClCompile Include="..\transfer.cpp" />
+    <ClCompile Include="..\transferbuffer.cpp" />
+    <ClCompile Include="..\treelist.cpp" />
+    <ClCompile Include="..\treeviewwnd.cpp" />
+    <ClCompile Include="..\urllinkdlg.cpp" />
+    <ClCompile Include="..\glyphbtndlg.cpp" />
+    <ClCompile Include="..\progressdlg.cpp" />
+    <ClCompile Include="..\regtest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\app.h" />
+    <ClInclude Include="..\bmpviewwnd.h" />
+    <ClInclude Include="..\checklstdlg.h" />
+    <ClInclude Include="..\client.h" />
+    <ClInclude Include="..\draglistwnd.h" />
+    <ClInclude Include="..\gridpicdlg.h" />
+    <ClInclude Include="..\copydatawnd.h" />
+    <ClInclude Include="..\cpuinfownd.h" />
+    <ClInclude Include="..\employeedlg.h" />
+    <ClInclude Include="..\exceptiontransport.h" />
+    <ClInclude Include="..\frame.h" />
+    <ClInclude Include="..\layoutwnd.h" />
+    <ClInclude Include="..\ledclockdlg.h" />
+    <ClInclude Include="..\ledclock.h" />
+    <ClInclude Include="..\listviewwnd.h" />
+    <ClInclude Include="..\monthcaldlg.h" />
+    <ClInclude Include="..\moredlg.h" />
+    <ClInclude Include="..\opendlg.h" />
+    <ClInclude Include="..\pch.h" />
+    <ClInclude Include="..\resizabledialog.h" />
+    <ClInclude Include="..\resizabledialogs1.h" />
+    <ClInclude Include="..\resource.h" />
+    <ClInclude Include="..\scrollwnd.h" />
+    <ClInclude Include="..\sliderdlg.h" />
+    <ClInclude Include="..\static.h" />
+    <ClInclude Include="..\tabctrl.h" />
+    <ClInclude Include="..\thmsdlg.h" />
+    <ClInclude Include="..\treelist.h" />
+    <ClInclude Include="..\treeviewwnd.h" />
+    <ClInclude Include="..\urllinkdlg.h" />
+    <ClInclude Include="..\glyphbtndlg.h" />
+    <ClInclude Include="..\tabctrl.rh" />
+    <ClInclude Include="..\tabbed.rh" />
+    <ClInclude Include="..\layout.rh" />
+    <ClInclude Include="..\resizabledialogs.rh" />
+    <ClInclude Include="..\progressdlg.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\include\owlext\urllink.rc" />
+    <ResourceCompile Include="..\dialogdatatransfer.rc" />
+    <ResourceCompile Include="..\owl.rc" />
+    <ResourceCompile Include="..\Resource.rc" />
+    <ResourceCompile Include="..\exceptiontransport.rc" />
+    <ResourceCompile Include="..\static.rc" />
+    <ResourceCompile Include="..\tabctrl.rc" />
+    <ResourceCompile Include="..\tabbed.rc" />
+    <ResourceCompile Include="..\themsapp.rc" />
+    <ResourceCompile Include="..\transfer.rc" />
+    <ResourceCompile Include="..\transferbuffer.rc" />
+    <ResourceCompile Include="..\layout.rc" />
+    <ResourceCompile Include="..\resizabledialogs.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\owlGlyph.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\dialogdatatransfer.rh" />
+    <None Include="..\static.rh" />
+    <None Include="..\themsapp.rh" />
+    <None Include="..\transfer.rh" />
+    <None Include="..\transferbuffer.rh" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\description.txt" />
+  </ItemGroup>
+</Project>

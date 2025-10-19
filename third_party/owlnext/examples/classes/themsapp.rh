@@ -1,0 +1,55 @@
+//----------------------------------------------------------------------------
+//  Project Themes
+//  
+//  (C) 2007 Sebastian Ledesma
+//
+//  SUBSYSTEM:    Themes Application
+//  FILE:         themsapp.h
+//  AUTHOR:       Sebastian Ledesma
+//
+//  OVERVIEW
+//  ~~~~~~~~
+//  Constant definitions for all resources defined in themsapp.rc.
+//
+//----------------------------------------------------------------------------
+//#if !defined(themsapp_rh)   // Sentry use file only if it's not already included.
+//#define themsapp_rh
+
+
+//
+// Application specific definitions:
+//
+
+#define IDD_MOREDIALOG  2002
+#define IDC_SCROLLBAR1  101
+#define IDC_GROUPBOX11  102
+#define IDC_TREEVIEW1  103
+#define IDC_LISTVIEW1  104
+#define IDC_TRACKBAR1  105
+#define IDC_HEADER1  106
+#define IDC_STATUSBAR1  107
+#define IDC_UPDOWN1  108
+#define IDC_TOOLBAR1  109
+#define IDC_BUTTON2  110
+
+
+//
+// Client Dialog
+//
+#define IDD_CLIENT               2000
+#define IDC_STATICTEXT1  101
+#define IDC_EDIT11  102
+#define IDC_COMBOBOX1  103
+#define IDC_LISTBOX1  104
+#define IDC_PROGRESSBAR1  105
+#define IDC_PROGRESSBAR2  106
+#define IDC_CHECKBOX1  107
+#define IDC_RADIOBUTTON11  108
+#define IDC_RADIOBUTTON12  109
+#define IDC_BUTTON1  110
+#define IDC_TABCONTROL1  111
+#define IDC_EDIT12  112
+
+
+
+//#endif  // xpthmsap_rh

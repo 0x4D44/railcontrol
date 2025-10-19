@@ -1,0 +1,1347 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+///
+/// \page usingpersistentstreamsclasses Using persistent streams classes
+/// To persist is to hold to a state or a goal. In computer programs, an example of
+/// persistence is retaining information between application invocations--your
+/// application comes up in the same state you left it the day before. Borland
+/// provides classes that support persistence. A family of macros that makes adding
+/// persistence to your applications simpler is also provided.
+///
+/// This topic describes Borland's persistent streams class library.
+///
+/// \section thepersistentstreamsclasslibrary The persistent streams class library
+/// This section describes Borland's object streaming support, then explains how to
+/// make your objects streamable.
+///
+/// Objects that you create when an application runs--windows, dialog boxes,
+/// collections, and so on--are temporary. They are constructed, used, and destroyed
+/// as the application proceeds. Objects can appear and disappear as they enter and
+/// leave their scope, or when the program terminates. By making your objects
+/// streamable you save these objects, either in memory or file streams, so that
+/// they persist beyond their normal lifespan.
+///
+/// There are many applications for persistent objects. When saved in shared memory
+/// they can provide interprocess communication. They can be transmitted via modems
+/// to other systems. And, most significantly, objects can be saved permanently on
+/// disk using file streams. They can then be read back and restored by the same
+/// application, by other instances of the same application, or by other
+/// applications. Efficient, consistent, and safe streamability is available to all
+/// objects.
+///
+/// Building your own streamable classes is straightforward and incurs little
+/// overhead. To make your class streamable you need to add specific data members,
+/// member functions, and operators. You also must derive your class, either
+/// directly or indirectly, from the TStreamableBase class. Any derived class is
+/// also streamable.
+///
+/// To simplify creating streamable objects, the persistent streams library contains
+/// macros that add all the routines necessary to make your classes streamable. The
+/// two most important are:
+/// - DECLARE_STREAMABLE
+/// - IMPLEMENT_STREAMABLE
+///
+/// These macros add the boilerplate code necessary to make your objects streamable.
+/// In most cases you can make your objects streamable by adding these two macros at
+/// appropriate places in your code, as explained later.
+///
+/// \section whatsnewwithstreaming What's new with streaming
+/// Object streaming has been significantly changed from Borland's earlier
+/// implementation to make it easier to use and more powerful. These changes are
+/// compatible with existing code developed with Borland's ObjectWindows and Turbo
+/// Vision products.
+///
+/// The new streaming code is easier to use because it provides macros that relieve
+/// the programmer of the burden of remembering most of the details needed to create
+/// a streamable class. Its other new features include support for multiple
+/// inheritance, class versioning, and better system isolation. In addition, the
+/// streaming code has been reorganized to make it easier to write libraries that
+/// won't force streaming code to be linked in if it isn't used.
+///
+/// There have been several additions to the streaming capabilities. These changes
+/// are intended to be backward compatible, so if you compile a working application
+/// with the new streaming code, your application should be able to read streams
+/// that were written with the old code. There is no provision for writing the old
+/// stream format, however. We assume that you'll like the new features so much that
+/// you won't want to be without them.
+///
+/// The following sections describe the changes and new capabilities of streaming.
+/// Each of these changes is made for you when you use the DECLARE_STREAMABLE and
+/// IMPLEMENT_STREAMABLE macros.
+///
+/// \section objectversioning Object versioning
+/// Objects in streams now have a version number associated with them. An object
+/// version number is a 32-bit value that should not be 0. Whenever an object is
+/// written to a stream, its version number will also be written. With versioning
+/// you can recognize if there's an older version of the object you're reading in,
+/// so you can interpret the stream appropriately.
+///
+/// \section readingandwritingbaseclasses Reading and writing base classes
+/// In your current code, you might be reading and writing base classes directly, as
+/// shown here:
+/// \code
+/// void Derived::write( opstream& out )
+/// {
+///   Base::write( out );
+/// // ...
+/// }
+/// void *Derived::read( ipstream& in )
+/// {
+///   Base::read( in );
+/// // ...
+/// }
+/// \endcode
+/// This method will continue to work, but it won't write out any version numbers
+/// for the base class. To take full advantage of versioning, you should change
+/// these calls to use the new template functions that understand about
+/// versions:
+/// \code
+/// void Derived::Write( opstream& out )
+/// {
+///   WriteBaseObject( (Base *)this, out );
+/// // ...
+/// }
+/// void *Derived::Read( ipstream& in, uint32 ver )
+/// {
+///   ReadBaseObject( (Base *)this, in
+/// );
+/// // ...
+/// }
+/// \endcode
+/// \note The cast to a pointer to the base class is essential. If you leave it out
+/// your program may crash.
+///
+/// \section reading and writing integers Reading and writing integers
+/// Old streams wrote int and unsigned data types as 2-byte values. To move easily
+/// to 32-bit platforms, the new streams write int and unsigned values as 4-byte
+/// values. The new streams can read old streams, and will handle the 2-byte values
+/// correctly.
+///
+/// The old streams provide two member functions for reading and writing integer
+/// values:
+/// \code
+/// void writeWord(unsigned);
+/// unsigned readWord();
+/// \endcode
+/// These have been changed in the new streams:
+/// \code
+/// void writeWord(uint32);
+/// uint32 readWord();
+/// \endcode
+/// Existing code that uses these functions will continue to work correctly if it is
+/// recompiled and relinked, although calls to readWord will generate warnings about
+/// a loss of precision when the return value is assigned to an int or unsigned in a
+/// 16-bit application. But in new code all of these functions should be avoided. In
+/// general, you probably know the true size of the data being written, so the
+/// streaming library now provides separate functions for each data size:
+/// \code
+/// void writeWord16(uint16);
+/// void writeWord32(uint32);
+/// uint16 readWord16(unit16);
+/// uint32 readWord32(unit32);
+/// \endcode
+/// Use of these four functions is preferred.
+///
+/// \section multipleinheritanceandvirtualbasesupport Multiple inheritance and virtual base support
+/// The streaming code now provides four function templates that support virtual
+/// base classes and multiple inheritance. The following sections describe these
+/// functions.
+///
+/// \section thereadvirtualbaseandwritevirtualbasefunctiontemplates The ReadVirtualBase and WriteVirtualBase function templates
+/// Any class that has a direct virtual base should use the new ReadVirtualBase and
+/// WriteVirtualBase function templates:
+/// \code
+/// void Derived::Write( opstream& out )
+/// {
+///   WriteVirtualBase( (VirtualBase *)this, out );
+/// // ...
+/// }
+/// void *Derived::Read( ipstream& in, uint32 ver )
+/// {
+///   ReadVirtualBase( (VirtualBase *)this, in );
+/// // ...
+/// }
+/// \endcode
+/// A class derived from a class with virtual bases does not need to do anything
+/// special to deal with those virtual bases. Each class is responsible only for its
+/// direct bases.
+///
+/// \section thereadbaseobjectandwritebaseobjectfunctiontemplates The ReadBaseObject and WriteBaseObject function templates
+/// Object streams now support multiple inheritance. To read and write multiple
+/// bases, use the new WriteBaseObject and ReadBaseObject function templates for
+/// each base:
+/// \code
+/// void Derived::Write( opstream& out )
+/// {
+///   WriteBaseObject( (Base1 *)this, out );
+///   WriteBaseObject( (Base2 *)this, out ):
+/// // ...
+/// }
+/// void *Derived::Read( ipstream& in, uint32 ver )
+/// {
+///   ReadBaseObject( (Base1 *)this, in);
+///   ReadBaseObject( (Base2 *)this, in);
+/// // ...
+/// }
+/// \endcode
+///
+/// \section creatingstreamableobjects Creating streamable objects
+/// The easiest way to make a class streamable is by using the macros supplied in
+/// the persistent streams library. The following steps will work for most
+/// classes:
+/// -# Make TStreamableBase a virtual base of your class, either directly or
+/// indirectly.
+/// -# Add the DECLARE_STREAMABLE macro to your class definition.
+/// -# Add the IMPLEMENT_STREAMABLE macro to one of your source files. Adding the
+/// IMPLEMENT_CASTABLE macro is no longer needed recommended.
+/// -# Write the Read and Write member function definitions in one of your source
+/// files.
+///
+/// The following sections provide details about defining and implementing
+/// streamable classes.
+///
+/// Defining streamable classes 
+/// To define a streamable class you need to
+/// -  Include objstrm.h
+/// -  Base your class on the TStreamableBase class
+/// -  Include macro DECLARE_STREAMABLE into your class definition. For
+/// example,
+/// \code
+/// #include <objstrm.h>
+/// class Sample : public TStreamableBase
+/// {
+/// public:
+///   // member functions, etc.
+/// private:
+///   int i;
+/// DECLARE_STREAMABLE(IMPEXPMACRO, Sample, 1 );
+/// };
+/// \endcode
+///
+/// Header file objstrm.h provides the classes, templates, and macros that are
+/// needed to define a streamable class.
+///
+/// Every streamable class must inherit, directly or indirectly, from the class
+/// TStreamableBase. In this example, the class Sample inherits directly from
+/// TStreamableBase. A class derived from Sample would not need to explicitly
+/// inherit from TStreamableBase because Sample already does. If you are using
+/// multiple inheritance, you should make TStreamableBase a virtual base instead of
+/// a nonvirtual base as shown here. This will make your classes slightly larger,
+/// but won't have any other adverse affect on them.
+///
+/// In most cases the DECLARE_STREAMABLE macro is all you need to use when you're
+/// defining a streamable class. This macro takes three parameters. The first
+/// parameter is used when compiling DLLs. This parameter takes a macro that is
+/// meant to expand to either __export, __import, or nothing, depending on how the
+/// class is to be used in the DLL. The second parameter is the name of the class that you're
+/// defining, and the third is the version number of that class. The streaming code
+/// doesn't pay any attention to the version number, so it can be anything that has
+/// some significance to you. 
+///
+/// DECLARE_STREAMABLE adds a constructor to your class that takes a parameter of
+/// type StreamableInit. This is for use by the streaming code; you won't need to
+/// use it directly. DECLARE_STREAMABLE also creates two inserters and two
+/// extractors for your class so that you can write objects to and read them from
+/// persistent streams. For the class Sample (shown earlier in this section), these
+/// functions have the following prototypes:
+/// \code
+/// opstream& operator << (opstream&, const Sample& );
+/// opstream& operator << (opstream&, const Sample* );
+/// ipstream& operator >> (ipstream&, Sample& );
+/// ipstream& operator >> (ipstream&, Sample*& );
+/// \endcode
+/// The first inserter writes out objects of type Sample. The second inserter writes
+/// out objects pointed to by a pointer to Sample. This inserter gives you the full
+/// power of object streaming, because it understands about polymorphism. That is,
+/// it will correctly write objects of types derived from Sample, and when those
+/// objects are read back in using the pointer extractor (the last extractor) they
+/// will be read in as their actual types. The extractors are the inverse of the
+/// inserters.
+///
+/// Finally, DECLARE_STREAMABLE creates a nested class named Streamer, based on the
+/// TStreamer class, which defines the core of the streaming code.
+///
+/// \section implementingstreamableclasses Implementing streamable classes
+/// Most of the members added to your class by the DECLARE_STREAMABLE macro are
+/// inline functions. There are a few, however, that aren't inline; these must be
+/// implemented outside of the class. Once again, there are macros to handle these
+/// definitions.
+///
+/// The IMPLEMENT_CASTABLE macro provided a rudimentary typesafe downcast mechanism.
+/// It is no longer needed, since all modern compilers support RTTI. There are only dummy
+/// declarations to allow legacy code that used it to compile. 
+///
+/// IMPLEMENT_CASTABLE has several variants:
+/// \code
+/// IMPLEMENT_CASTABLE( cls )
+/// IMPLEMENT_CASTABLE1( cls, base1 )
+/// IMPLEMENT_CASTABLE2( cls, base1, base2 )
+/// IMPLEMENT_CASTABLE3( cls, base1, base2, base3 )
+/// IMPLEMENT_CASTABLE4( cls, base1, base2, base3, base4 )
+/// IMPLEMENT_CASTABLE5( cls, base1, base2, base3, base4, base5 )
+/// \endcode
+/// At some point in your source code you should invoke this macro with the name of
+/// your streamable class as its first parameter and the name of all its streamable
+/// base classes other than TStreamableBase as the succeeding parameters. For
+/// example,
+/// \code
+/// class Base1 : public virtual TStreamableBase
+/// {
+/// // ...
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Base1, 1 );
+/// };
+/// IMPLEMENT_CASTABLE( Base1 );      // no streamable bases
+/// class Base2 : public virtual TStreamableBase
+/// {
+/// // ...
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Base2, 1 );
+/// };
+/// IMPLEMENT_CASTABLE( Base1 );     // no streamable bases
+/// class Derived : public Base1, public virtual Base2
+/// {
+/// // ...
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Derived, 1 );
+/// };
+/// IMPLEMENT_CASTABLE2( Derived, Base1, Base2 ); //two streamable bases
+/// class MostDerived : public Derived
+/// {
+/// DECLARE_STREAMABLE( IMPEXPMACRO, MostDerived, 1 );
+/// };
+/// IMPLEMENT_CASTABLE1( MostDerived, Derived ); //one streamable base
+/// \endcode
+/// The class Derived uses IMPLEMENT_CASTABLE2 because it has two streamable base
+/// classes.
+///
+/// In addition to the IMPLEMENT_CASTABLE macros, you should invoke the appropriate
+/// IMPLEMENT_STREAMABLE macro somewhere in your code. The IMPLEMENT_STREAMABLE
+/// macro looks like the IMPLEMENT_CASTABLE macros:
+/// \code
+/// IMPLEMENT_STREAMABLE( cls )
+/// IMPLEMENT_STREAMABLE1( cls, base1 )
+/// IMPLEMENT_STREAMABLE2( cls, base1, base2 )
+/// IMPLEMENT_STREAMABLE3( cls, base1, base2, base3 )
+/// IMPLEMENT_STREAMABLE4( cls, base1, base2, base3, base4 )
+/// IMPLEMENT_STREAMABLE5( cls, base1, base2, base3, base4, base5 )
+/// \endcode
+/// The IMPLEMENT_STREAMABLE macros have one important difference from the
+/// IMPLEMENT_CASTABLE macros: when using the IMPLEMENT_STREAMABLE macros you must
+/// list all the streamable base classes of your class in the parameter list, and
+/// you must list all virtual base classes that are streamable. This is because the
+/// IMPLEMENT_STREAMABLE macros define the special constructor that the object
+/// streaming code uses; that constructor must call the corresponding constructor
+/// for all of its direct base classes and all of its virtual bases. For
+/// example,
+/// \code
+/// class Base1 : public virtual TStreamableBase
+/// {
+/// // ...
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Base1, 1 );
+/// };
+/// IMPLEMENT_CASTABLE( Base1 );     // no streamable
+/// bases
+/// IMPLEMENT_STREAMABLE( Base1 ); // no streamable bases
+/// class Base2 : public virtual TStreamableBase
+/// {
+/// // ...
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Base2, 1 );
+/// };
+/// IMPLEMENT_CASTABLE( Base2 );  // no streamable bases
+/// IMPLEMENT_STREAMABLE( Base2 ); // no streamable bases
+/// class Derived : public Base1, public virtual Base2
+/// {
+/// // ..
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Derived, 1 );
+/// };
+/// IMPLEMENT_CASTABLE2( Derived, Base1, Base2 );
+/// IMPLEMENT_STREAMABLE2( Derived, Base1, Base2 );
+/// class MostDerived : public Derived
+/// {
+/// // ...
+/// DECLARE_STREAMABLE( IMPEXPMACRO, MostDerived, 1 );
+/// };
+/// IMPLEMENT_CASTABLE1( MostDerived, Derived );
+/// IMPLEMENT_STREAMABLE2( MostDerived, Derived, Base2 );
+/// \endcode
+///
+/// \section thenestedclassstreamer The nested class Streamer
+/// The nested class Streamer is the core of the streaming code for your objects.
+/// The DECLARE_STREAMABLE macro creates Streamer inside your class. It is a
+/// protected member, so classes derived from your class can access it. Streamer
+/// inherits from TNewStreamer, which is internal to the object streaming system. It
+/// inherits the following two pure virtual functions:
+/// \code
+/// virtual void Write( opstream& ) const = 0;
+/// virtual void *Read( ipstream&, uint32 ) const = 0;
+/// \endcode
+/// Streamer overrides these two functions, but does not provide definitions for
+/// them. You must write these two functions: Write should write any data that needs
+/// to be read back in to reconstruct the object, and Read should read that data.
+/// Streamer::GetObject returns a pointer to the object being streamed. For
+/// example,
+/// \code
+/// class Demo : public TStreamableBase
+/// {
+///   int i;
+///   int j;
+/// public:
+///   Demo( int ii, int jj ) : i(ii), j(jj) {}
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Demo, 1 );
+/// };
+/// IMPLEMENT_CASTABLE( Demo );
+/// IMPLEMENT_STREAMABLE( Demo );
+/// void *Demo::Streamer::Read( ipstream& in, uint32 ) const
+/// {
+///   in >> GetObject()->i >> GetObject()->j;
+///   return GetObject();
+/// }
+/// void Demo::Streamer::Write( opstream& out ) const
+/// {
+///   out << GetObject()->i << GetObject()->j;
+/// }
+/// \endcode
+///
+/// \section writingthereadandwritefunctions Writing the Read and Write functions
+/// It is usually easiest to implement the Read function before implementing the
+/// Write function. To implement Read you need to
+/// -  Know what data you need in order to reconstruct the new streamable
+/// object.
+/// -  Devise a sensible way of reading that data into the new streamable
+/// object.
+///
+/// Then implement Write to work in parallel with Read so that it sets up the data
+/// that Read will later read. The streaming classes provide several operators to
+/// make this easier. For example, opstream provides inserters for all the built-in
+/// types, just as ostream does. So all you need to do to write out any of the
+/// built-in types is to insert them into the stream.
+///
+/// You also need to write out base classes. In the old ObjectWindows and Turbo
+/// Vision streaming, this was done by calling the base's Read and Write functions
+/// directly. This doesn't work with code that uses the new streams, because of the
+/// way class versioning is handled.
+///
+/// The streaming library provides template functions to use when reading and
+/// writing base classes. ReadVirtualBase and WriteVirtualBase are used for virtual
+/// base classes, and ReadBaseObject and WriteBaseObject are used for nonvirtual
+/// bases. Just like IMPLEMENT_CASTABLE, you only need to deal with direct bases.
+///
+/// Virtual bases of your base classes will be handled by the base class, as shown
+/// in this example:
+/// \code
+/// class Base1 : public virtual TStreamableBase
+/// {
+/// int i;
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Base1, 1 );
+/// };
+/// IMPLEMENT_CASTABLE( Base1 );     // no streamable
+/// bases
+/// IMPLEMENT_STREAMABLE( Base1 ); // no streamable bases
+/// void Base1::Streamer::Write( opstream& out ) const
+/// {
+///   out << GetObject()->i;
+/// }
+/// class Base2 : public virtual TStreamableBase
+/// {
+/// int j;
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Base2, 1 );
+/// };
+/// IMPLEMENT_CASTABLE( Base1 );     // no streamable
+/// bases
+/// IMPLEMENT_STREAMABLE( Base1 ); // no streamable bases
+/// void Base2::Streamer::Write( opstream& out ) const
+/// {
+///   out << GetObject()->j;
+/// }
+/// class Derived : public Base1, public virtual Base2
+/// {
+/// int k;
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Derived, 1 );
+/// };
+/// IMPLEMENT_CASTABLE2( Derived, Base1, Base2 );
+/// IMPLEMENT_STREAMABLE2( Derived, Base1, Base2 );
+/// void Derived::Streamer::Write( opstream& out ) const
+/// {
+///   WriteBaseObject( (Base1 *)this, out );
+///   WriteVirtualBase( (Base2 *)this, out );
+///   out << GetObject()->k;
+/// }
+/// class MostDerived : public Derived
+/// {
+/// int m;
+/// DECLARE_STREAMABLE( IMPEXPMACRO, MostDerived, 1 );
+/// };
+/// IMPLEMENT_CASTABLE1( MostDerived, Derived );
+/// IMPLEMENT_STREAMABLE2( MostDerived, Derived, Base2 );
+/// void MostDerived::Streamer::Write( opstream& out ) const
+/// {
+///   WriteBaseObject( (Derived *)this, out );
+///   out << GetObject()->m;
+/// }
+/// \endcode
+/// When you're writing out a base class, don't forget to cast the this pointer.
+/// Without the cast, the template function will think it's writing out your class
+/// and not the base class. The result will be that it calls your Write or Read
+/// function rather than the base's. This results in a lengthy series of recursive
+/// calls, which will eventually crash.
+///
+/// \section objectversioning Object versioning
+/// You can assign version numbers to different implementations of the same class as
+/// you change them in the course of maintenance. This doesn't mean that you can use
+/// different versions of the same class in the same program, but it lets you write
+/// your streaming code in such a way that a program using the newer version of a
+/// class can read a stream that contains the data for an older version of a class.
+///
+/// For example,
+/// \code
+/// class Sample : public TStreamableBase
+/// {
+/// int i;
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Sample, 1 );
+/// };
+/// IMPLEMENT_CASTABLE( Sample );
+/// IMPLEMENT_STREAMABLE( Sample );
+/// void Sample::Streamer::Write( opstream& out ) const
+/// {
+///   out << GetObject()->i;
+/// }
+/// void *Sample::Streamer::Read( ipstream& in, uint32 ) const
+/// {
+///   in >> GetObject()->i;
+///   return GetObject();
+/// }
+/// \endcode
+/// Suppose you've written out several objects of this type into a file and you
+/// discover that you need to change the class definition. You'd do it something
+/// like this:
+/// \code
+/// class Sample : public TStreamableBase
+/// {
+/// int i;
+/// int j;     // new data member
+/// DECLARE_STREAMABLE( IMPEXPMACRO, Sample, 2 );// new version number
+/// };
+/// IMPLEMENT_CASTABLE( Sample );
+/// IMPLEMENT_STREAMABLE( Sample );
+/// void Sample::Streamer::Write( opstream& out ) const
+/// {
+///   out << GetObject()->i;
+///   out << GetObject()->j;
+/// }
+/// void *Sample::Streamer::Read( ipstream& in, uint32 ver ) const
+/// {
+///   in >> GetObject()->i;
+///   if( ver > 1 )
+///     in >> GetObject()->j;
+///   else
+///     GetObject()->j = 0;
+///   return GetObject();
+/// }
+/// \endcode
+/// Streams written with the old version of Sample will have a version number of 1
+/// for all objects of type Sample. Streams written with the new version will have a
+/// version number of 2 for all objects of type Sample. The code in Read checks that
+/// version number to determine what data is present in the stream.
+///
+/// The streaming library used in the previous versions of ObjectWindows and Turbo
+/// Vision doesn't support object versioning. If you use the new library to read
+/// files created with that library, your Read function will be passed a version
+/// number of 0. Other than that, the version number has no significance to the
+/// streaming library, and you can use it however you want.
+///
+/// \section seealso See Also
+/// - \subpage persistentstreamsc "Persistent Streams (C++)"
+/// - \subpage streamingmacros "Streaming Macros"
+///
+///
+/// \page persistentstreamsc Persistent Streams (C++)
+/// Borland support for persistent streams consists of a class hierarchy and macros
+/// to help you develop streamable objects. These topics are a reference for these
+/// classes and macros. They alphabetically list and describe all the public classes
+/// that support persistent objects.
+///
+/// To get Help about an persistent stream class, choose it from the list below:
+/// - \subpage fpbase "fpbase"
+/// - \subpage ifpstream "ifpstream"
+/// - \subpage ipstream "ipstream"
+/// - \subpage ofpstream "ofpstream"
+/// - \subpage opstream "opstream"
+/// - \subpage pstream "pstream"
+/// - TStreamableBase
+/// - TStreamableClass
+/// - TStreamer
+///
+///
+/// \page streamingmacros Streaming Macros
+/// - \subpage declarestreamablemacro "DECLARE_STREAMABLE macro"
+/// - \subpage declarestreamablefrombasemacro DECLARE_STREAMABLE_FROM_BASE macro
+/// - \subpage declareabstractstreamablemacro DECLARE_ABSTRACT_STREAMABLE macro
+/// - \subpage declarestreamermacro DECLARE_STREAMER macro
+/// - \subpage declarestreamerfrombasemacro DECLARE_STREAMER_FROM_BASE macro
+/// - \subpage declareabstractstreamermacro DECLARE_ABSTRACT_STREAMER macro
+/// - \subpage declarecastablemacro DECLARE_CASTABLE macro
+/// - \subpage declarestreamableopsmacro DECLARE_STREAMABLE_OPS macro
+/// - \subpage declarestreamablectormacro DECLARE_STREAMABLE_CTOR macro
+/// - \subpage implementstreamablemacros IMPLEMENT_STREAMABLE macros
+/// - \subpage implementstreamableclassmacro IMPLEMENT_STREAMABLE_CLASS macro
+/// - \subpage implementstreamablectormacros IMPLEMENT_STREAMABLE_CTOR macros
+/// - \subpage implementstreamablepointermacro IMPLEMENT_STREAMABLE_POINTER macro
+/// - \subpage implementcastableidmacro IMPLEMENT_CASTABLE_ID macro
+/// - \subpage implementcastablemacros IMPLEMENT_CASTABLE macros
+/// - \subpage implementstreamermacro IMPLEMENT_STREAMER macro
+/// - \subpage implementabstractstreamablemacros IMPLEMENT_ABSTRACT_STREAMABLE macros
+/// - \subpage implementstreamablefrombasemacro IMPLEMENT_STREAMABLE_FROM_BASE macro
+///
+///
+///
+/// \page declarestreamablemacro DECLARE_STREAMABLE macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// DECLARE_STREAMABLE(exp, cls, ver)
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// The DECLARE_STREAMABLE macro is used within a class definition to add the
+/// members that are needed for streaming. Since it contains access specifiers, it
+/// should be followed by an access specifier or be used at the end of the class
+/// definition.
+/// - The first parameter should be a macro, which in turn should conditionally
+/// expand to either __import and __export, depending on whether the class is to
+/// be imported or exported from a DLL.
+/// - The second parameter is the streamable class name.
+/// - The third parameter is the object version number.
+///
+///
+///
+/// \page declarestreamablefrombasemacro DECLARE_STREAMABLE_FROM_BASE macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section headerfile Header File
+/// objstrm.h
+/// \section syntax Syntax
+/// \code
+/// DECLARE_STREAMABLE_FROM_BASE(exp, cls, ver)
+/// \endcode
+/// \section description Description
+/// This macro is used in the same way as
+/// \ref declarestreamablemacro "DECLARE_STREAMABLE", but in the case where the
+/// class being defined can be written and read using Read and Write functions
+/// defined in its base class without change. This usually occurs when a derived
+/// class overrides virtual functions in its base or provides different
+/// constructors, but does not add any data members.
+///
+/// If you used DECLARE_STREAMABLE in this case, you would have to write Read and
+/// Write functions that merely called the base's Read and Write functions. Using
+/// DECLARE_STREAMABLE_FROM_BASE prevents this.
+///
+///
+///
+/// \page declareabstractstreamablemacro DECLARE_ABSTRACT_STREAMABLE macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// DECLARE_ABSTRACT_STREAMABLE(exp, cls, ver)
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// This macro is used in an abstract class. DECLARE_STREAMABLE doesn't work with an
+/// abstract class because an asbtract class can never be instantiated, and the code
+/// that attempts to instantiate the object (Build) causes compiler errors.
+///
+///
+///
+/// \page declarestreamermacro DECLARE_STREAMER macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// DECLARE_STREAMER( exp, cls, ver )
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// This macro defines a nested class within your streamable class, and contains the
+/// core of the streaming code. DECLARE_STREAMER declares the Read and Write
+/// function declarations, whose definitions you must provide, and the Build
+/// function that calls the TStreamableClass constructor.
+///
+/// - The first parameter should be a macro, which in turn should conditionally
+/// expand to either __import and __export, depending on whether or not the class
+/// is to be imported or exported from a DLL.
+/// - The second parameter is the streamable class name.
+/// - The third parameter is the object version number.
+///
+///
+///
+/// \page declarestreamerfrombasemacro DECLARE_STREAMER_FROM_BASE macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// DECLARE_STREAMER_FROM_BASE( exp, cls, ver )
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// This macro is used by
+/// \ref declarestreamablefrombasemacro "DECLARE_STREAMABLE_FROM_BASE." It declares a nested
+/// Streamer class without the Read and Write functions.
+/// - The first parameter should be a macro, which in turn should conditionally
+/// expand to either __import and __export, depending on whether or not the class
+/// is to be imported or exported from a DLL.
+/// - The second parameter is the streamable class name.
+/// - The third parameter is the object version number.
+///
+///
+///
+/// \page declareabstractstreamermacro DECLARE_ABSTRACT_STREAMER macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// DECLARE_ABSTRACT_STREAMER ( exp, cls, ver )
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// This macro is used by DECLARE_ABSTRACT_STREAMABLE. It declares a nested Streamer
+/// class without the Build function.
+/// - The first parameter should be a macro, which in turn should conditionally
+/// expand to either __import and __export, depending on whether or not the class
+/// is to be imported or exported from a DLL.
+/// - The second parameter is the streamable class name.
+/// - The third parameter is the object version number.
+///
+///
+///
+/// \page declarecastablemacro DECLARE_CASTABLE macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// DECLARE_CASTABLE
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// This macro provides declarations that provide a rudimentary typesafe downcast
+/// mechanism. This is useful for compilers that don't support run-time type
+/// information.
+///
+///
+///
+/// \page declarestreamableopsmacro DECLARE_STREAMABLE_OPS macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// DECLARE_STREAMABLE_OPS(cls)
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// Declares the inserters and extractors. For template classes,
+/// DECLARE_STREAMABLE_OPS must use class<...> as the macro argument, other
+/// DECLAREs take only the class name.
+///
+///
+///
+/// \page declarestreamablectormacro DECLARE_STREAMABLE_CTOR macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// DECLARE_STREAMABLE_CTOR(cls)
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// Declares the constructor called by the Streamer::Build function.
+///
+///
+///
+/// \page implementstreamablemacros IMPLEMENT_STREAMABLE macros
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// IMPLEMENT_STREAMABLE(cls)
+/// IMPLEMENT_STREAMABLE1(cls, base1)
+/// IMPLEMENT_STREAMABLE2(cls, base1, base2)
+/// IMPLEMENT_STREAMABLE3(cls, base1, base2, base3)
+/// IMPLEMENT_STREAMABLE4(cls, base1, base2, base3, base4)
+/// IMPLEMENT_STREAMABLE5(cls, base1, base2, base3, base4, base5)
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// These macros generate the registration object for the class via
+/// \ref implementstreamableclassmacro "IMPLEMENT_STREAMABLE_CLASS," and generate
+/// the various member functions that are needed for a streamable class via
+/// \ref implementabstractstreamablemacros "IMPLEMENT_ABSTRACT_STREAMABLE."
+/// IMPLEMENT_STREAMABLE is used when the class has no base classes other than
+/// TStreamableBase. Its only parameter is the name of the class. The numbered
+/// versions (IMPLEMENT_STREAMABLE1, IMPLEMENT_STREAMABLE2, etc.) are for classes
+/// that have bases. Each base class, including all virtual bases, must be listed in
+/// the IMPLEMENT_STREAMABLE macro invocation.
+///
+/// The individual components comprising the above macros can be used separately for
+/// special situations, such as custom constructors.
+///
+///
+///
+/// \page implementstreamableclassmacro IMPLEMENT_STREAMABLE_CLASS macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// IMPLEMENT_STREAMABLE_CLASS(cls)
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// Constructs a TStreamableClass class instance.
+///
+///
+///
+/// \page implementstreamablectormacros IMPLEMENT_STREAMABLE_CTOR macros
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// IMPLEMENT_STREAMABLE_CTOR(cls)
+/// IMPLEMENT_STREAMABLE_CTOR1(cls, base1)
+/// IMPLEMENT_STREAMABLE_CTOR2(cls, base1, base2)
+/// IMPLEMENT_STREAMABLE_CTOR3(cls, base1, base2, base3)
+/// IMPLEMENT_STREAMABLE_CTOR4(cls, base1, base2, base3, base4)
+/// IMPLEMENT_STREAMABLE_CTOR5(cls, base1, base2, base3, base4, base5)
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// Defines the constructor called by the Build function. All base classes must be
+/// listed in the appropriate macro.
+///
+///
+///
+/// \page implementstreamablepointermacro IMPLEMENT_STREAMABLE_POINTER macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// IMPLEMENT_STREAMABLE_POINTER(cls)
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// Creates the instance pointer extraction operator (>>).
+///
+///
+///
+/// \page implementcastableidmacro IMPLEMENT_CASTABLE_ID macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// IMPLEMENT_CASTABLE_ID( cls )
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// Sets the typesafe downcast identifier.
+///
+///
+///
+/// \page implementcastablemacros IMPLEMENT_CASTABLE macros
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// IMPLEMENT_CASTABLE( cls )
+/// IMPLEMENT_CASTABLE1( cls )
+/// IMPLEMENT_CASTABLE2( cls )
+/// IMPLEMENT_CASTABLE3( cls )
+/// IMPLEMENT_CASTABLE4( cls )
+/// IMPLEMENT_CASTABLE5( cls )
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// These macros implement code that supports the typesafe downcast mechanism.
+///
+///
+///
+/// \page implementstreamermacro IMPLEMENT_STREAMER macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// IMPLEMENT_STREAMER( cls )
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// Defines the Streamer constructor.
+///
+///
+///
+/// \page implementabstractstreamablemacros IMPLEMENT_ABSTRACT_STREAMABLE macros
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// IMPLEMENT_ABSTRACT_STREAMABLE( cls )
+/// IMPLEMENT_ABSTRACT_STREAMABLE1( cls )
+/// IMPLEMENT_ABSTRACT_STREAMABLE2( cls )
+/// IMPLEMENT_ABSTRACT_STREAMABLE3( cls )
+/// IMPLEMENT_ABSTRACT_STREAMABLE4( cls )
+/// IMPLEMENT_ABSTRACT_STREAMABLE5( cls )
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// Expands to
+/// - \ref implementstreamermacro "IMPLEMENT_STREAMER" (defines the Streamer
+/// constructor)
+/// - \ref implementstreamablectormacros "IMPLEMENT_STREAMABLE_CTOR" (defines the
+/// TStreamableClass constructor)
+/// - \ref implementstreamablepointermacro "IMPLEMENT_STREAMABLE_POINTER"
+/// (defines the instance pointer extraction operator)
+///
+///
+///
+/// \page implementstreamablefrombasemacro IMPLEMENT_STREAMABLE_FROM_BASE macro
+/// \ref streamingmacros "Streaming Macros"
+/// \section syntax Syntax
+/// \code
+/// IMPLEMENT_STREAMABLE_FROM_BASE( cls, base1 )
+/// \endcode
+/// \section headerfile Header File
+/// objstrm.h
+/// \section description Description
+/// This macro expands to
+/// - \ref implementstreamableclassmacro "IMPLEMENT_STREAMABLE_CLASS" (constructs
+/// a TStreamableClass instance)
+/// - \ref implementstreamablectormacros "IMPLEMENT_STREAMABLE_CTOR1" (defines a
+/// one base class constructor that is called by Build)
+/// - \ref implementstreamablepointermacro "IMPLEMENT_STREAMABLE_POINTER"
+/// (defines the instance pointer extraction operator)
+///
+///
+///
+/// \page classdiagnosticmacros Diagnostic Macros
+/// Borland provides a set of macros for debugging C++ code. They are located in
+/// owl\\checks.h. There are two types of macros, default and
+/// extended.
+///
+/// The \subpage defaultmacros "default macros" are
+/// - \subpage check "CHECK"
+/// - \subpage precondition "PRECONDITION"
+/// - \subpage trace "TRACE"
+/// - \subpage warn "WARN"
+///
+/// The \subpage extendeddiagnosticmacros "extended macros" are
+/// - \subpage checkx "CHECKX"
+/// - \subpage preconditionx "PRECONDITIONX"
+/// - \subpage tracex "TRACEX"
+/// - \subpage warnx "WARNX"
+///
+/// \section seealso See Also
+/// - \subpage diagdeclaregroup DIAG_DECLARE_GROUP
+/// - \subpage diagdefinegroup DIAG_DEFINE_GROUP
+/// - \subpage diagenable DIAG_ENABLE
+/// - \subpage diagisenabled DIAG_ISENABLED
+/// - \subpage diagsetlevel DIAG_SETLEVEL
+/// - \subpage diaggetlevel DIAG_GETLEVEL
+/// - \subpage usingpreprocessorsymbols "Using Preprocessor Symbols"
+/// - \subpage traceandwarnexample 
+/// - \subpage extendeddiagnosticsmacrosexample
+/// - \subpage macromessageoutput Macro Message Output
+/// - \subpage runtimemacrocontrol Run-Time Macro Control
+/// - \subpage checksh checks.h
+///
+///
+/// \page defaultmacros Default Macros
+/// Default macros provide straightforward value checking and message output.
+///
+///
+///
+/// \page usingpreprocessorsymbols Using Preprocessor Symbols
+/// Three preprocessor symbols control diagnostic macro expansion: __DEBUG, __TRACE, 
+/// and __WARN. If one of these symbols is defined when compiling, then the
+/// corresponding macros expand and diagnostic code is generated. If none of these
+/// symbols is defined, then the macros do not expand and no diagnostic code is
+/// generated. These symbols can be defined on the command line using the -D switch,
+/// or by using \#define statements within
+/// your code.
+/// \code
+/// __DEBUG=1 __DEBUG=2 __TRACE __WARN
+///
+/// PRECONDITION X X
+/// PRECONDITIONX X X
+/// CHECK X
+/// CHECKX X
+/// TRACE  X
+/// TRACEX  X
+/// WARN  X
+/// WARNX  X
+/// \endcode
+///
+/// To create a diagnostic version of an executable, place the diagnostic macros at
+/// strategic points within the program code and compile with the appropriate
+/// preprocessor symbols defined. Diagnostic versions of the Borland class libraries
+/// are built in a similar manner.
+///
+///
+///
+/// \page check CHECK
+/// \section syntax Syntax
+/// \code
+/// CHECK(<cond>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Throws a CHECK exception if &lt;cond&gt; equals 0. Use CHECK to perform value
+/// checking within a function.
+///
+///
+///
+/// \page precondition PRECONDITION
+/// \section syntax Syntax
+/// \code
+/// PRECONDITION(<cond>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Throws a PRECONDITION exception if &lt;cond&gt; equals 0. Use PRECONDITION on
+/// entry to a function to check the validity of the arguments and to do any other
+/// checking to determine if the function has been invoked correctly.
+///
+///
+///
+/// \page trace TRACE
+/// \section seealso See Also
+/// - \ref traceandwarnexample "Example" 
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// TRACE(<msg>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Outputs &lt;msg&gt;. TRACE is used to output general messages that are not
+/// dependent upon a particular condition.
+///
+///
+///
+/// \page warn WARN
+/// \section seealso See Also
+/// - \ref traceandwarnexample "Example" 
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// WARN(<cond>,<msg>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Outputs &lt;msg&gt; if &lt;cond&gt; is nonzero. It is used to output conditional
+/// messages.
+///
+///
+///
+/// \page traceandwarnexample TRACE and WARN Example
+/// The following program illustrates the use of the default TRACE and WARN
+/// macros:
+/// \code
+/// #include <checks.h>
+///
+/// int main()
+/// {
+///   TRACE( "Hello World" );
+///   WARN( 5 != 5, "Math is broken!"
+/// );
+///   WARN( 5 != 7, "Math still works!"
+/// );
+///
+///   return 0;
+/// }
+/// \endcode
+/// When the above code is compiled with _ _TRACE and _ _WARN defined, it produces
+/// the following output when run:
+/// \code
+/// Trace PROG.C 5: [Def] Hello World
+/// Warning PROG.C 7: [Def] Math still works!
+/// \endcode
+/// The above output indicates that the message "Hello World" was output by the
+/// default TRACE macro on line 5 of PROG.C, and the message "Math still works!" was
+/// output by the default WARN macro on line 7 of PROG.C.
+/// Default diagnostic macros expand to extended diagnostic macros with the group
+/// set to "Def" and the level set to 0. This "Def" group controls the behavior of
+/// the default macros and is initially enabled with a threshold level of 0.
+///
+///
+///
+/// \page checkx CHECKX
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// CHECKX(<cond>,<msg>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Outputs &lt;msg&gt; and throws an exception if &lt;cond&gt; equals 0. Use CHECKX
+/// to perform value checking within a function.
+///
+///
+///
+/// \page preconditionx PRECONDITIONX
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// PRECONDITIONX(<cond>,<msg>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Outputs &lt;msg&gt; and throws an exception if &lt;cond&gt; equals 0. Use
+/// PRECONDITIONX on entry to a function to check the validity of the arguments and
+/// to do any other checking to determine if the function has been invoked
+/// correctly.
+///
+///
+///
+/// \page tracex TRACEX
+/// \section seealso See Also
+/// - \ref extendeddiagnosticsmacrosexample "Example" 
+/// - \ref classdiagnosticmacros "Class
+/// Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// TRACEX(<group>,<level>,<msg>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Trace only if &lt;group&gt; and &lt;level&gt; are enabled.
+///
+///
+///
+/// \page warnx WARNX
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// WARNX(<group>,<cond>,<level>,<msg>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Warn only if &lt;group&gt; and &lt;level&gt; are enabled.
+///
+///
+///
+/// \page diagdeclaregroup DIAG_DECLARE_GROUP
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// DIAG_DECLARE_GROUP(<name>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Declare a group named &lt;name&gt;. You cannot use DIAG_DECLARE_GROUP and
+/// DIAG_DEFINE_GROUP in the same compilation unit.
+///
+///
+///
+/// \page diagdefinegroup DIAG_DEFINE_GROUP
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// DIAG_DEFINE_GROUP(<name>,<enabled>,&lt;level>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Define a group named &lt;name&gt;. You cannot use DIAG_DECLARE_GROUP and
+/// DIAG_DEFINE_GROUP in the same compilation unit.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref diagdeclaregroup "DIAG_DECLARE_GROUP"
+/// - \ref diagdefinegroup "DIAG_DEFINE_GROUP"
+///
+///
+///
+/// \page diagenable DIAG_ENABLE
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// DIAG_ENABLE(<group>,<state>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Sets &lt;group&gt;'s enable flag to &lt;state&gt;.
+///
+///
+///
+/// \page diagisenabled DIAG_ISENABLED
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// DIAG_ISENABLED(<group>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Returns nonzero if &lt;group&gt; is enabled.
+///
+///
+///
+/// \page diagsetlevel DIAG_SETLEVEL
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// DIAG_SETLEVEL(<group>,<level>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Sets &lt;group&gt;'s threshold level to &lt;level&gt;.
+///
+///
+///
+/// \page diaggetlevel DIAG_GETLEVEL
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+/// \section syntax Syntax
+/// \code
+/// DIAG_GETLEVEL(<group>)
+/// \endcode
+/// \section headerfile Header File
+/// \ref checksh "checks.h"
+/// \section description Description
+/// Gets &lt;group&gt;'s threshold level.
+/// Threshold levels are arbitrary numeric values that establish a threshold for
+/// enabling macros. A macro with a level greater than the group threshold level
+/// will not be executed. For example, if a group has a threshold level of 0 (the
+/// default value), all macros that belong to that group and have levels of 1 or
+/// greater are ignored.
+///
+///
+///
+/// \page extendeddiagnosticsmacrosexample Extended Diagnostics Macros Example
+/// The following PROG.C example defines two diagnostic groups, Group1 and Group2,
+/// which are used as arguments to extended diagnostic macros:
+/// \code
+/// #include <checks.h>
+///
+/// DIAG_DEFINE_GROUP(Group1,1,0);
+/// DIAG_DEFINE_GROUP(Group2,1,0);
+///
+/// void  main( int argc, char **argv )
+/// {
+///   TRACE( "Always works, argc=" << argc );
+///
+///   TRACEX( Group1, 0, "Hello" );
+///   TRACEX( Group2, 0, "Hello" );
+///
+///   DIAG_DISABLE(Group1);
+///
+///   TRACEX( Group1, 0, "Won't execute - group is disabled!" );
+///   TRACEX( Group2, 3, "Won't execute - level is too high!" );
+/// }
+/// \endcode
+/// When the above code is compiled with _ _TRACE defined and run, it produces the
+/// following output:
+/// \code
+/// Trace PROG.C 8: [Def] Always works, argc=1
+/// Trace PROG.C 10: [Group1] Hello
+/// Trace PROG.C 11: [Group2] Hello
+/// \endcode
+/// Note that the last two macros are not executed. In the first case, the group
+/// Group1 is disabled. In the second case, the macro level exceeds Group2's
+/// threshold level (set by default to 0).
+///
+///
+///
+/// \page extendeddiagnosticmacros Extended Diagnostic Macros
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+///
+/// The extended macros \ref checkx "CHECKX" and
+/// \ref preconditionx "PRECONDITIONX" augment \ref check "CHECK" and
+/// \ref precondition "PRECONDITION" by letting you provide a message to be
+/// output when the condition fails.
+///
+/// The extended macros \ref tracex "TRACEX" and \ref warnx "WARNX"
+/// augment \ref trace "TRACE" and \ref warn "WARN" by providing a
+/// way to specify macro groups that can be independently enabled or disabled.
+/// TRACEX and WARNX require additional arguments that specify the group to which
+/// the macros belongs, and the threshold level at which the macro should be
+/// executed. The macro is excuted only if the specified group is enabled and has a
+/// threshold level which is greater than or equal to the threshhold level argument
+/// used in the macro.
+///
+///
+///
+/// \page macromessageoutput Macro Message Output
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+///
+/// The \ref trace "TRACE," \ref tracex "TRACEX,"
+/// \ref warn "WARN," and \ref warnx "WARNX" macros take a &lt;msg&gt;
+/// argument that is conditionally inserted into an output stream. This means a
+/// sequence of objects can be inserted in the output stream (for example TRACE( "Mouse @ " << x << "," << y ); ). 
+/// The use of streams is extensible to different object types and allows for parameters within trace messages.
+///
+/// Diagnostic macro message output can be viewed while the program is running. If
+/// the target environment is Windows, the output is sent to the 
+/// OutputDebugString function, and can be viewed with the DBWIN.EXE
+/// or OX.SYS utilities. If Turbo Debugger is running, the output will be sent to
+/// its log window. If the target environment is DOS, the output is sent to the
+/// standard output stream and can be easily redirected at the command line.
+///
+///
+///
+/// \page runtimemacrocontrol Run-Time Macro Control
+/// \section seealso See Also
+/// - \ref classdiagnosticmacros "Class Diagnostic Macros"
+///
+/// Diagnostic groups can be controlled at runtime by using the control macros
+/// within your program or by directly modifying the group information within the
+/// debugger.
+///
+/// This group information is contained in a template class named
+/// TDiagGroup<TDiagGroupClass\#\#Group>, where \#\#Group is the name of the
+/// group. This class contains a static structure Flags, which in turn contains the
+/// enabled flag and the threshold level. For example, to enable the group Group1,
+/// you would set the variable TDiagGroup<TDiagGroupClassGroup1>::Flags.Enabled to 1.
+///
+///
+///
+/// \page checksh checks.h
+/// The checksh header file contains the declarations and prototypes for the class
+/// diagnostic macros.
+///
+/// \section includes Includes
+/// - CSTRING.H
+/// - EXCEPT.H
+/// - STRSTREA.H
+/// - SYS\TYPES.H
+///
+/// \section macros Macros
+/// - \ref check "CHECK"
+/// - \ref checkx "CHECKX"
+/// - \ref precondition "PRECONDITION"
+/// - \ref preconditionx "PRECONDITIONX"
+/// - \ref trace "TRACE"
+/// - \ref tracex "TRACEX"
+/// - \ref warn "WARN"
+/// - \ref warnx "WARNX"
+///
+///
+///

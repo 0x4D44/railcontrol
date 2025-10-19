@@ -1,0 +1,2537 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+///
+/// \page controlobjectsoverview Control Objects Overview
+/// Controls are standard user-interface elements with specialized behavior (for
+/// example, \ref constructingbuttons "pushbuttons"). In addition to the standard
+/// controls provided by Windows, ObjectWindows provides a number of custom
+/// controls. ObjectWindows supplies interface objects for controls so you can use
+/// controls in your applications. Interface objects for controls are called control
+/// objects.
+///
+/// This section covers the following topics:
+/// - \subpage controlclasses "Control Classes"
+/// - \subpage aboutcommoncontrols "About Common Controls"
+/// - \subpage implementationofcontrols "Implementation of Controls"
+/// - \subpage usingcontrolobjects "Using Control Objects"
+/// - \subpage settingandreadingcontrolvalues "Setting and Reading Control Values"
+///
+///
+/// \page controlclasses Control Classes
+/// The following table lists all the control classes provided by ObjectWindows:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Class</TD><TD class="owltableheader">Control name</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TAnimateCtrl</TD><TD class="owltable">Animate</TD><TD class="owltable">
+/// Used to play simple animation loops in a window.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TButton</TD><TD class="owltable">Button</TD><TD class="owltable">
+/// A button with an associated text label.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TCheckBox</TD><TD class="owltable">Check box</TD><TD class="owltable">
+/// A box that can be checked (on) or unchecked (off), with an associated text label.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TColumnHeader</TD><TD class="owltable">Header Window</TD><TD class="owltable">
+/// Displays labels above columnar lists. Also accepts user input to control column widths and sorting
+/// order.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox</TD><TD class="owltable">Combo box</TD><TD class="owltable">
+/// A combined list box and edit or static control.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TControlBar</TD><TD class="owltable">Control bar</TD><TD class="owltable">
+/// Contains a row of gadgets.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDragList</TD><TD class="owltable">Drag List Box</TD><TD class="owltable">
+/// An augmented listbox that lets the user arrange list items with the mouse.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit</TD><TD class="owltable">Edit control</TD><TD class="owltable">
+/// A field for the user to type text in.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TGauge</TD><TD class="owltable">Progress Bar</TD><TD class="owltable">
+/// Static controls that display a range of process completion.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TGlyphButton</TD><TD class="owltable"></TD><TD class="owltable">
+/// A button with a bitmap in addition to text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TGroupBox</TD><TD class="owltable">Group box</TD><TD class="owltable">
+/// A static rectangle with optional text in the upper-left corner.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">THotKey</TD><TD class="owltable">Hot Key</TD><TD class="owltable">
+/// A simple edit-like control for accepting hot-key strokes from the user.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">THSlider and TVSlider</TD><TD class="owltable">Trackbar</TD><TD class="owltable">
+/// Horizontal and vertical controls that let the user choose from an upper and
+/// lower range (similar to scroll bars).</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox</TD><TD class="owltable">List box</TD><TD class="owltable">
+/// A list of items to choose from.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListViewCtrl</TD><TD class="owltable">List View</TD><TD class="owltable">
+/// Displays items in four ways: large (regular) icons, small icons, as a list, or as a report. (Right pane of
+/// Win95 Explorer).</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TPropertySheet</TD><TD class="owltable">Property Sheet</TD><TD class="owltable">
+/// Allows multipage windows to be displayed. The user switches between pages using a built-in tab
+/// control.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TRadioButton</TD><TD class="owltable">Radio button</TD><TD class="owltable">
+/// A button that can be checked (on) or unchecked (off), usually in mutually exclusive groups.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TRichEdit</TD><TD class="owltable">Rich Edit</TD><TD class="owltable">
+/// This control is a full-featured rich text format (RTF) editor. The Win95 WordPad editor is essentially a frame
+/// around this control.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TScrollBar</TD><TD class="owltable">Scroll bar</TD><TD class="owltable">
+/// A scroll bar (like those in scrolling windows and list boxes) with direction arrows and an elevator
+/// thumb.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TStatic</TD><TD class="owltable">Static control</TD><TD class="owltable">
+/// Visible text the user cannot change.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TStatusBar</TD><TD class="owltable">Status bar</TD><TD class="owltable">
+/// Provides support for status bars, inserted gadgets, hint text, and keyboard modes.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TTabControl</TD><TD class="owltable">Tab</TD><TD class="owltable">
+/// Presents a number of tabbed pages in a dialog box. Provides emulation functionality when the common control is not
+/// available.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TTooltip</TD><TD class="owltable">Tool Tip</TD><TD class="owltable">
+/// Provides small popup help tip windows.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TTreeViewCtrl</TD><TD class="owltable">Tree View</TD><TD class="owltable">
+/// Provides hierarchical tree display in a list. (Left pane of Win95 Explorer).</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TUpDown</TD><TD class="owltable">Up-Down</TD><TD class="owltable">
+/// Used to manipulate information in a single step, up and down manner. (Sometimes called a spinner or spin
+/// button).</TD></TR>
+/// </TABLE>
+/// Control object sample programs can be found in EXAMPLES\\OWL\\OWLAPI and
+/// EXAMPLES\\OWL\\OWLAPPS.
+///
+///
+///
+/// \page aboutcommoncontrols About Common Controls
+/// Windows 95 provides a set of common controls in the DLL called COMCTL32.DLL.
+/// These controls are 32-bit only-they are not supported in 16-bit Windows
+/// environments.
+///
+/// OWL 5.0 provides an encapsulation of these controls. In some cases, an existing
+/// control (such as Tgauge), will also encapsulate a common control.
+///
+/// \ref implementationofcontrols "Implementation of Controls"
+/// shows the type of implementation (common control
+/// encapsulation and/or internal implementation) for each control.
+///
+///
+///
+/// \page implementationofcontrols Implementation of Controls
+/// ObjectWindows provides two types of implementation for controls: those which
+/// encapsulate a Windows control (either a standard control, or a common control),
+/// and those which are implemented internally. The TGauge control, for example, can
+/// use the Progress Bar common control, or an internal implementation (which has
+/// more options).
+///
+/// If a control encapsulates a Windows 95 control, and also provides an internal
+/// implementation, the internal implementation can be used to provide emulation of
+/// the Windows 95 control in Windows 16.
+///
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Control</TD><TD class="owltableheader">Encapsulates</TD><TD class="owltableheader">Internal Implementation</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TAnimateCtrl</TD><TD class="owltable">Common control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TButton</TD><TD class="owltable">Standard control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TCheckBox</TD><TD class="owltable">Standard control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TColumnHeader</TD><TD class="owltable">Common control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox</TD><TD class="owltable">Standard control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TControlBar</TD><TD class="owltable">None</TD><TD class="owltable">Yes</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDragList</TD><TD class="owltable">Common control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit</TD><TD class="owltable">Standard control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TGlyphButton</TD><TD class="owltable">None</TD><TD class="owltable">Yes</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TGauge</TD><TD class="owltable">Common control</TD><TD class="owltable">Yes</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TGroupBox</TD><TD class="owltable">Standard control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">THotKey</TD><TD class="owltable">Common control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox</TD><TD class="owltable">Standard control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListViewCtrl</TD><TD class="owltable">Common control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TPropertySheet</TD><TD class="owltable">Common control</TD><TD class="owltable">Yes</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TRadioButton</TD><TD class="owltable">Standard control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TRichEdit</TD><TD class="owltable">Common control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TScrollBar</TD><TD class="owltable">Standard control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TSlider</TD><TD class="owltable">Common control</TD><TD class="owltable">Yes</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TStatic</TD><TD class="owltable">Standard control</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TStatusBar</TD><TD class="owltable">None</TD><TD class="owltable">Yes</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TTabControl</TD><TD class="owltable">Common control</TD><TD class="owltable">Yes</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TTooltip</TD><TD class="owltable">Common control</TD><TD class="owltable">Yes</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TTreeViewCtrl</TD><TD class="owltable">Common control</TD><TD class="owltable">Yes</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TUpDown</TD><TD class="owltable">Common control</TD><TD class="owltable">Yes</TD></TR>
+/// </TABLE>
+///
+///
+/// \page usingcontrolobjects Using Control Objects
+/// - \subpage whatarecontrolobjects "What Are Control Objects?"
+/// - \subpage constructinganddestroyingcontrolobjects "Constructing and Destroying Control Objects"
+/// - \subpage communicatingwithcontrolobjects "Communicating with Control Objects"
+/// - \subpage usingparticularcontrols "Using Particular Controls"
+///
+///
+/// \page whatarecontrolobjects What Are Control Objects?
+/// To Windows, controls are just specialized windows. In ObjectWindows,
+/// TControl is derived from TWindow.
+///
+/// Control objects and window objects are similar in how they behave as child
+/// windows, and in how you create and destroy them. Standard controls differ from
+/// other windows, however, in that Windows handles their event messages and is
+/// responsible for painting them. Custom ObjectWindows controls handle these tasks
+/// themselves because the ObjectWindows control classes contain the code needed to
+/// paint the controls and handle events.
+///
+/// In many cases, you can directly use instances of control classes. However,
+/// sometimes you might need to create derived classes for specialized behavior. For
+/// example, you might derive a specialized list box class from TListBox called
+/// TFontListBox that holds the names of all the fonts available to your application
+/// and automatically displays them when you create an instance of the class.
+///
+///
+///
+/// \page constructinganddestroyingcontrolobjects Constructing and Destroying Control Objects
+/// Regardless of the type of control object you're using, there are several tasks
+/// you need to perform for each:
+/// - Constructing the control object
+/// - Showing the control
+/// - Destroying the control
+///
+/// \section contruscting Constructing Control Objects
+/// Constructing a control object is no different from constructing any other child
+/// window. Generally, the parent window's constructor calls the constructors of all
+/// its child windows.
+///
+/// Controls communicate with parent windows in special ways (called notifications)
+/// in addition to the usual links between parent and child.
+///
+/// To construct and initialize a control object:
+/// -# Add a control object pointer data member to the parent window.
+/// -# Call the control object's constructor.
+/// -# Change any control attributes.
+/// -# Initialize the control in SetupWindow.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage addingthecontrolobjectpointerdatamember "Adding the Control Object Pointer Data Member"
+/// - \subpage callingcontrolobjectconstructors "Calling Control Object Constructors"
+/// - \subpage changingcontrolattributes "Changing Control Attributes"
+/// - \subpage initializingthecontrol "Initializing the Control"
+/// - \subpage showingcontrols "Showing Controls"
+/// - \subpage destroyingcontrols "Destroying Controls"
+///
+///
+///
+/// \page addingthecontrolobjectpointerdatamember Adding the Control Object Pointer Data Member
+/// Often when you construct a control in a window, you want to keep a pointer to
+/// the control in a window object data member. This is for convenience in accessing
+/// the control's member functions. Here's a fragment of a parent window object with
+/// the declaration for a pointer to a button control object:
+/// \code
+/// class TMyWindow : public TWindow {
+///
+///   TButton *OkButton;
+///
+///   ...
+///
+///   };
+/// \endcode
+/// Controls that you rarely manipulate, like static text and group boxes, do not
+/// need these pointer data members. The following example constructs a group box
+/// without a data member and a button with a data member (OkButton):
+/// \code
+/// TMyWindow::TMyWindow(TWindow *parent, const char far *title)
+///   :TWindow(parent, title)
+/// {
+///  new TGroupBox(this, ID_GROUPBOX, "Group box", 10, 10, 100, 100);
+///  OkButton = new TButton(this, IDOK, "OK", 10, 200, 50, 50, true);
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref callingcontrolobjectconstructors "Calling Control Object Constructors"
+/// - \ref changingcontrolattributes "Changing Control Attributes"
+/// - \ref initializingthecontrol "Initializing the Control"
+///
+///
+///
+/// \page callingcontrolobjectconstructors Calling Control Object Constructors
+/// Some control object constructors are passed parameters that specify
+/// characteristics of the control object. These parameters include
+/// - A pointer to the parent window object
+/// - A resource identifier
+/// - The x-coordinate of the upper-left corner
+/// - The y-coordinate of the upper-left corner
+/// - The width
+/// - The height
+/// - Optional module pointer
+///
+/// For example, one of TListBox's constructors is declared as follows:
+/// \code
+/// TListBox(TWindow *parent, int resourceID, int x, int y, int w, int h, TModule *module = 0);
+/// \endcode
+/// There are also constructors for associating a control object with an interface
+/// element (for example a dialog box) created from a resource definition:
+/// \code
+/// TListBox(TWindow* parent, int resourceId, TModule* module = 0);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingthecontrolobjectpointerdatamember "Adding the Control Object Pointer Data Member"
+/// - \ref changingcontrolattributes "Changing Control Attributes"
+/// - \ref initializingthecontrol "Initializing the Control"
+///
+///
+///
+/// \page changingcontrolattributes Changing Control Attributes
+/// All control objects get the default window styles WS_CHILD, WS_VISIBLE,
+/// WS_GROUP, and WS_TABSTOP. If you want to change a control's style, you
+/// manipulate its Attr.Style. Each control type also has other styles that define
+/// its particular properties.
+///
+/// Each control object inherits certain window styles from its base classes. You
+/// should rarely assign a value to Attr.Style. Instead, you should use the bitwise
+/// assignment operators (|= and &=) to mask in or mask out the window style you
+/// want. For example:
+/// \code
+/// // mask in the WS_BORDER window style
+/// Attr.Style |= WS_BORDER;
+///
+/// // mask out the WS_VSCROLL style
+/// Attr.Style &= ~WS_VSCROLL;
+/// \endcode
+///
+/// Using the bitwise assignment operators helps ensure that you do not
+/// inadvertently remove a style.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingthecontrolobjectpointerdatamember "Adding the Control Object Pointer Data Member"
+/// - \ref callingcontrolobjectconstructors "Calling Control Object Constructors"
+/// - \ref initializingthecontrol "Initializing the Control"
+///
+///
+///
+/// \page initializingthecontrol Initializing the Control
+/// A control object's interface element is automatically created by the SetupWindow
+/// member function inherited by the parent window object. Make sure that when you
+/// derive new window classes, you call the base class's SetupWindow member function
+/// before attempting to manipulate its controls (for example, by calling control
+/// object member functions, sending messages to those controls, and so on).
+///
+/// You must not initialize controls in their parent window object's constructor. At
+/// that time, the controls' interface elements have not yet been created.
+/// Here's a typical SetupWindow:
+/// \code
+/// void TMyWindow::SetupWindow()
+/// {
+/// 
+/// TWindow::SetupWindow();  //Lets TWindow create any child controls
+///
+///  list1->AddString("Item 1");
+///  list1->AddString("Item 2");
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref addingthecontrolobjectpointerdatamember "Adding the Control Object Pointer Data Member"
+/// - \ref callingcontrolobjectconstructors "Calling Control Object Constructors"
+/// - \ref changingcontrolattributes "Changing Control Attributes"
+///
+///
+///
+/// \page showingcontrols Showing Controls
+/// It is not necessary to call the Windows function Show to display controls.
+/// Controls are child windows, and Windows automatically displays and repaints them
+/// along with the parent window. You can use Show, however, to hide or reveal
+/// controls on demand.
+///
+///
+///
+/// \page destroyingcontrols Destroying Controls
+/// Destroying controls is the parent window's responsibility. The control's
+/// interface element is automatically destroyed along with the parent widow when
+/// the user closes the window or application. The parent window's destructor
+/// automatically destroys its child window objects (including child control
+/// objects).
+///
+///
+///
+/// \page communicatingwithcontrolobjects Communicating with Control Objects
+/// Communication between a window object and its control objects is similar in some
+/// ways to the communication between a dialog box object and its controls. Like a
+/// dialog box, a window needs a mechanism for manipulating its controls and for
+/// responding to control events, such as a list box selection.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage manipulatingcontrols "Manipulating Controls "
+/// - \subpage makingawindowactlikeadialogbox "Making a Window Act Like a Dialog Box"
+///
+///
+///
+/// \page manipulatingcontrols Manipulating Controls
+/// One way dialog boxes manipulate their controls is by sending them messages using
+/// member functions inherited from TWindow, with a control
+/// message like LB_ADDSTRING.
+///
+/// Control objects greatly simplify this process by providing member functions that
+/// send control messages for you.
+///
+/// TListBox::AddString(), for example, takes a string
+/// as its parameter and adds it to the list box by calling the list box object's
+/// HandleMessage member function:
+/// \code
+/// int TListBox::AddString(const char far* str)
+/// {
+///  return (int)HandleMessage(LB_ADDSTRING, 0, (LPARAM)str);
+/// }
+/// \endcode
+///
+/// This example shows how you can call the control objects' member functions via a
+/// pointer:
+/// \code
+/// ListBox1->AddString("Atlantic City");
+/// //ListBox1 is a TListBox *
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref makingawindowactlikeadialogbox "Making a Window Act Like a Dialog Box"
+///
+///
+///
+/// \page makingawindowactlikeadialogbox Making a Window Act Like a Dialog Box
+/// A dialog box lets the user use the Tab key to cycle through all of the dialog
+/// box's controls. It also lets the user use the arrow keys to select radio buttons
+/// in a group box. To emulate this keyboard interface for windows with controls,
+/// call EnableKBHandler in the window object's constructor.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref manipulatingcontrols "Manipulating Controls "
+///
+/// \page usingparticularcontrols Using Particular Controls
+/// - \subpage standardcontrols "Standard Controls"
+/// - \subpage commoncontrols "Common Controls"
+///
+/// \page standardcontrols Standard Controls
+/// - \subpage usinglistboxcontrols "List Box Controls"
+/// - \subpage usingstaticcontrols "Static Controls"
+/// - \subpage usingbuttons "Buttons"
+/// - \subpage usingcheckboxandradiobuttoncontrols "Check Box and Radio Button Controls"
+/// - \subpage usingselectionboxes "Selection Boxes"
+/// - \subpage usinggroupboxes "Group Boxes"
+/// - \subpage usingscrollbars "Scroll Bars"
+/// - \subpage usingeditcontrols "Edit Controls"
+/// - \subpage usingcomboboxes "Combo Boxes"
+///
+/// \page commoncontrols Common Controls
+/// - \subpage abouttheanimatecontrol "Animate Control"
+/// - \subpage aboutthecolumnheadercontrol "Column Header Control"
+/// - \subpage aboutthedraglistcontrol "Drag List Control"
+/// - \subpage abouttheglyphbuttoncontrol "Glyph Button Control"
+/// - \subpage aboutgauges "Gauges"
+/// - \subpage aboutthehotkeycontrol "Hot Key Control"
+/// - \subpage aboutthelistwindowcontrol "List View Control"
+/// - \subpage aboutthepropertysheetcontrol "Property Sheet Control"
+/// - \subpage aboutthericheditcontrol "Rich Edit Control"
+/// - \subpage aboutsliders "Sliders"
+/// - \subpage aboutthetabcontrol "Tab Control"
+/// - \subpage aboutthetooltipcontrol "Tool Tip Control"
+/// - \subpage abouttheupdowncontrol "Up-Down Control"
+///
+///
+///
+///
+/// \page usinglistboxcontrols Using List Box Controls
+/// Using a list box is the simplest way to ask the user to pick something from a
+/// list. The TListBox class encapsulates list boxes.
+///
+/// TListBox defines member functions for four purposes:
+/// - \subpage constructinglistboxobjects "Constructing List Box Objects"
+/// - \subpage modifyinglistboxes "Modifying List Boxes"
+/// - \subpage queryinglistboxes "Querying List Boxes"
+/// - \subpage respondingtolistboxes "Responding To List Boxes"
+///
+///
+///
+///
+///
+///
+/// \page constructinglistboxobjects Constructing List Box Objects
+/// One of TListBox's constructors takes seven parameters: a parent window, a
+/// resource identifier, the control's x, y, h, and w dimensions, and an optional
+/// module pointer, as shown in the following syntax statement:
+/// \code
+/// TListBox(TWindow *parent, int resourceId, int x, int y, int w, int h, TModule *module = 0);
+/// \endcode
+/// TListBox gets the default control styles (WS_CHILD, WS_VISIBLE, WS_GROUP, and
+/// WS_TABSTOP) and adds LBS_STANDARD, which is a combination of LBS_NOTIFY (to
+/// receive notification messages), WS_VSCROLL (to have a vertical scroll bar),
+/// LBS_SORT (to sort the list items alphabetically), and WS_BORDER (to have a
+/// border). If you want a different list box style, you can modify Attr.Style in
+/// the list box object's constructor or in its parent's constructor.
+///
+/// For example, for a list box that does not sort its items, use the following
+/// code:
+/// \code
+/// listbox = new TListBox(this, ID_LISTBOX, 20, 20, 340, 100);
+/// listbox->Attr.Style &= ~LBS_SORT;
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usinglistboxcontrols "Using List Box Controls"
+/// - \ref modifyinglistboxes "Modifying List Boxes"
+/// - \ref queryinglistboxes "Querying List Boxes"
+/// - \ref respondingtolistboxes "Responding To List Boxes"
+///
+///
+///
+/// \page modifyinglistboxes Modifying List Boxes
+/// After you create a list box, you need to fill it with list items (which must be
+/// strings). Later, you can add, insert, or remove items or clear the list
+/// completely. The following table summarizes the member functions you use to
+/// perform these actions.
+///
+/// TListBox member functions for modifying list boxes
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member function</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::ClearList</TD><TD class="owltable">Delete every item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::DirectoryList</TD><TD class="owltable">Put file names in the list.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::AddString</TD><TD class="owltable">Add an item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::InsertString</TD><TD class="owltable">Insert an item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::DeleteString</TD><TD class="owltable">Delete an item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::SetSelIndex, TListBox::SetSel, or TListBox::SetSelString</TD><TD class="owltable">Select an item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::SetSelStrings, TListBox::SetSelIndexes, or TListBox::SetSelItemRange</TD><TD class="owltable">Select multiple items.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::SetTopIndex</TD><TD class="owltable">Scroll the list box so the specified item is visible.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::SetTabStops</TD><TD class="owltable">Set tab stops for multicolumn list boxes.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::SetHorizontalExtent</TD><TD class="owltable">Set number of pixels by which the list box can scroll
+/// horizontally.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::SetColumnWidth</TD><TD class="owltable">Set width of all columns in multicolumn list boxes.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::SetCaretIndex</TD><TD class="owltable">Set index of the currently focused item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::SetItemData</TD><TD class="owltable">Set a uint32 value to be associated with the specified index.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::SetItemHeight</TD><TD class="owltable">Set the height of item at the specified index or height of all
+/// items.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref usinglistboxcontrols "Using List Box Controls"
+/// - \ref constructinglistboxobjects "Constructing List Box Objects"
+/// - \ref queryinglistboxes "Querying List Boxes"
+/// - \ref respondingtolistboxes "Responding To List Boxes"
+///
+///
+///
+/// \page queryinglistboxes Querying List Boxes
+/// There are several TListBox member functions you can call to find out information
+/// about the list box or its item list. The following table summarizes the list box
+/// query member functions.
+///
+/// TListBox member functions for querying list boxes
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member functions</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetCount</TD><TD class="owltable">Number of items in the list.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::FindString or TListBox::FindExactString</TD><TD class="owltable">Find string index.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetTopIndex</TD><TD class="owltable">Index of the item at the top of the list box.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetCaretIndex</TD><TD class="owltable">Index of the currently focused item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetHorizontalExtent</TD><TD class="owltable">Number of pixels the list box can scroll horizontally.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetItemData</TD><TD class="owltable">uint32 data set by SetItemData.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetItemHeight</TD><TD class="owltable">Height, in pixels, of the specified item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetItemRect</TD><TD class="owltable">Rectangle used to display the specified item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetSelCount</TD><TD class="owltable">Number of selected items (either 0 or 1).</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetSelIndex or TListBox::GetSel</TD><TD class="owltable">Index of the selected item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetSelString</TD><TD class="owltable">Selected item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetSelStrings or TListBox::GetSelIndexes</TD><TD class="owltable">Selected items.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetString</TD><TD class="owltable">Item at a particular index.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBox::GetStringLen</TD><TD class="owltable">Length of a particular item.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref usinglistboxcontrols "Using List Box Controls"
+/// - \ref constructinglistboxobjects "Constructing List Box Objects"
+/// - \ref modifyinglistboxes "Modifying List Boxes"
+/// - \ref respondingtolistboxes "Responding To List Boxes"
+///
+///
+///
+/// \page respondingtolistboxes Responding To List Boxes
+/// The member functions for modifying and querying list boxes let you set values or
+/// find out the status of the control at any given time. To know what a user is
+/// doing to a list box at run time, however, you have to respond to notification
+/// messages from the control.
+///
+/// There are only a few things a user can do with a list box: scroll through the
+/// list, click an item, and double-click an item. When the user does one of these
+/// things, Windows sends a list box notification message to the list box's parent
+/// window. Normally, you define notification-response member functions in the
+/// parent window object to handle notifications for each of the parent's
+/// controls.
+///
+/// The following table summarizes the most common list box notifications:
+///
+/// List box notification messages
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Event response table macro</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_LBN_SELCHANGE</TD><TD class="owltable">An item has been selected with a single mouse click.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_LBN_DBLCLK</TD><TD class="owltable">An item has been selected with a double mouse click.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_LBN_SELCANCEL</TD><TD class="owltable">The user has deselected an item.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_LBN_SETFOCUS</TD><TD class="owltable">The user has given the list box the focus by clicking or
+/// double-clicking an item, or by using Tab. Precedes LBN_SELCHANGE notification.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EV_LBN_KILLFOCUS</TD><TD class="owltable">The user has removed the focus from the list box by clicking
+/// another control or pressing Tab.</TD></TR>
+/// </TABLE>
+///
+/// Here is a sample parent window object member function to handle an LBN_SELCHANGE
+/// notification:
+/// \code
+/// DEFINE_RESPONSE_TABLE1(TLBoxWindow, TFrameWindow)
+///  EV_LBN_SELCHANGE(ID_LISTBOX, EvListBoxSelChange),
+/// END_RESPONSE_TABLE;
+///
+/// void TLBoxWindow::EvListBoxSelChange()
+/// {
+///  int index = ListBox->GetSelIndex();
+///  if (ListBox->GetStringLen(index) < 10) {
+///   char string[10];
+///  
+/// ListBox->GetSelString(string, sizeof(string));
+///   MessageBox(string, "You selected:", MB_OK);
+///  }
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usinglistboxcontrols "Using List Box Controls"
+/// - \ref constructinglistboxobjects "Constructing List Box Objects"
+/// - \ref modifyinglistboxes "Modifying List Boxes"
+/// - \ref queryinglistboxes "Querying List Boxes"
+///
+/// \page usingstaticcontrols Using Static Controls
+/// - \subpage constructingstaticcontrolobjects "Constructing Static Control Objects"
+/// - \subpage modifyingstaticcontrols "Modifying Static Controls"
+/// - \subpage queryingstaticcontrols "Querying Static Controls"
+///
+///
+/// \page constructingstaticcontrolobjects Constructing Static Control Objects
+/// Static controls are usually unchanging units of text or simple graphics. The
+/// user does not interact with static controls, although your application can
+/// change the static control's text.
+///
+/// See EXAMPLES\\OWL\\OWLAPI\\STATIC for an example showing static controls.
+///
+/// Because the user never interacts directly with a static control, the application
+/// does not receive control-notification messages from static controls. Therefore,
+/// you can construct most static controls with -1 as the control ID. However, if
+/// you want to use TWindow::SendDlgItemMessage() to manipulate
+/// the static control, you need a unique ID.
+///
+/// One of TStatic's constructors is declared as follows:
+/// \code
+/// TStatic(TWindow* parent, int resourceId,
+/// const char far* title, int x, int y, int w, int h,
+/// UINT textLen = 0, TModule* module = 0);
+/// \endcode
+///
+/// It takes the seven parameters commonly found in this form of a control object
+/// constructor (a parent window, a resource ID, the control's x, y, h, and w
+/// dimensions, and an optional module pointer), and two parameters specific to
+/// static controls: the text string the static control displays and its maximum
+/// length (including the terminating NULL). A typical call to construct a static
+/// control looks like this:
+/// \code
+/// new TStatic(this, -1, "Sample &Text", 170, 20, 200, 24);
+/// \endcode
+///
+/// If you want to be able to change the static control's text, you need to assign
+/// the control object to a data member in the parent window object so you can call
+/// the static control object's member function. If the static control's text does
+/// not need to change, you do not need a data member.
+///
+/// TStatic gets the default control styles (WS_CHILD, WS_VISIBLE, WS_GROUP, and
+/// WS_TABSTOP), adds SS_LEFT (to left-align the text), and removes the WS_TABSTOP
+/// style (to prevent the user from selecting the control using Tab). To change the
+/// style, modify Attr.Style in the static control object's constructor. For
+/// example, the following code centers the control's text:
+/// \code
+/// Attr.Style = (Attr.Style & ~SS_LEFT) | SS_CENTER;
+/// \endcode
+///
+/// To indicate a mnemonic for a nearby control, you can underline one or more
+/// characters in the static control's text string. To do this, insert an ampersand
+/// (&) in the string immediately preceding the character you want underlined.
+///
+/// For example, to underline the T in Text, use
+/// &Text. If you want to use an ampersand
+/// character in the string, use the static style SS_NOPREFIX.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref modifyingstaticcontrols "Modifying Static Controls"
+/// - \ref queryingstaticcontrols "Querying Static Controls"
+///
+///
+///
+/// \page modifyingstaticcontrols Modifying Static Controls
+/// TStatic has two member functions for altering the text of
+/// a static control: TStatic::SetText sets the text to the passed string, and TStatic::Clear erases
+/// the text. You cannot change the text of static controls created with the
+/// SS_SIMPLE style.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingstaticcontrolobjects "Constructing Static Control Objects"
+/// - \ref queryingstaticcontrols "Querying Static Controls"
+///
+///
+///
+/// \page queryingstaticcontrols Querying Static Controls
+/// TStatic::GetTextLen returns the length of the static control's
+/// text. To get the text itself, use TStatic::GetText.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingstaticcontrolobjects "Constructing Static Control Objects"
+/// - \ref modifyingstaticcontrols "Modifying Static Controls"
+/// - TStatic
+///
+/// \page usingbuttons Using Buttons
+/// - \subpage constructingbuttons "Constructing Buttons"
+/// - \subpage respondingtobuttons "Responding To Buttons"
+///
+/// \page constructingbuttons Constructing Buttons
+/// Buttons (sometimes called pushbuttons or command buttons) perform a task each
+/// time the button is pressed. There are two kinds of buttons: default buttons and
+/// non-default buttons. A default button, distinguished by the button style
+/// BS_DEFPUSHBUTTON, has a bold border that indicates the default user response.
+/// Non-default buttons have the button style BS_PUSHBUTTON.
+///
+/// One of TButton's constructors takes the seven parameters
+/// commonly found in a control object constructor (a parent window, a resource
+/// identifier, the control's x, y, h, and w dimensions, and an optional module
+/// pointer), plus a text string that specifies the button's label, and a bool flag
+/// that indicates whether the button should be a default button. Here is the
+/// constructor declaration:
+/// \code
+/// TButton(TWindow *parent, int resourceId, const char far *text, int X, int Y, int W, int H, 
+/// bool isDefault = false, TModule *module = 0);
+/// \endcode
+///
+/// A typical button would be constructed like this:
+/// \code
+/// btn = new TButton(this, ID_BUTTON, "DO_IT!", 38, 48, 316, 24, true);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref respondingtobuttons "Responding To Buttons"
+/// - TButton
+///
+///
+///
+/// \page respondingtobuttons Responding To Buttons
+/// When the user clicks a button, the button's parent window receives a
+/// notification message. If the parent window object intercepts the message, it can
+/// respond to these events by displaying a dialog box, saving a file, and so
+/// on.
+///
+/// To intercept and respond to button messages, define a command response member
+/// function for the button. The following example uses ID ID_BUTTON to handle the
+/// response to the user clicking the button:
+/// \code
+/// DEFINE_RESPONSE_TABLE1(TTestWindow, TFrameWindow)
+///  EV_COMMAND(ID_BUTTON, HandleButtonMsg),
+/// END_RESPONSE_TABLE;
+///
+/// void TTestWindow::HandleButtonMsg()
+/// {
+///  // Button was pressed
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingbuttons "Constructing Buttons"
+/// - TButton
+///
+///
+///
+/// \page usingcheckboxandradiobuttoncontrols Using Check Box and Radio Button Controls
+/// A check box generally presents the user with a two-state option. The user can
+/// check or uncheck the control, or leave it as is. In a group of check boxes, any
+/// or all might be checked. For example, you might use a check box to enable or
+/// disable the use of sound in your application.
+///
+/// Radio buttons, on the other hand, are used for selecting one of several mutually
+/// exclusive options. For example, you might use radio buttons to choose between a
+/// number of sounds in your application.
+///
+/// TCheckBox is derived from TButton and represents check boxes. Since radio buttons
+/// share some behavior with check boxes, TRadioButton is derived from TCheckBox.
+///
+/// Check boxes and radio buttons are sometimes collectively referred to as
+/// selection boxes. While displayed on the screen, a selection box is either
+/// checked or unchecked. When the user clicks a selection box, it is an event,
+/// generating a Windows notification. As with other controls, the selection box's
+/// parent window usually intercepts and acts on these notifications.
+///
+/// See EXAMPLES\\OWL\\OWLAPI\\BUTTON for radio button and check box control examples.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage constructingcheckboxesandradiobuttons "Constructing Check Boxes and Radio Buttons"
+///
+///
+///
+/// \page constructingcheckboxesandradiobuttons Constructing Check Boxes and Radio Buttons
+/// TCheckBox and TRadioButton each has a constructor that takes the seven parameters commonly found in a
+/// control object constructor (a parent window, a resource identifier, the
+/// control's x, y, h, and w dimensions, and an optional module pointer). They also
+/// take a text string and a pointer to a group box object that groups the selection
+/// boxes. If the group box object pointer is zero, the selection box is not part of
+/// a group box. Here are one each of their constructors:
+/// \code
+/// TCheckBox(TWindow *parent, int resourceId, const char far *title,
+///   int x, int y, int w, int h, TGroupBox *group = 0, TModule *module = 0);
+///
+/// TRadioButton(TWindow *parent, int resourceId, const char far *title, int x, int y, int w, int h,
+///   TGroupBox *group = 0, TModule *module = 0);
+/// \endcode
+/// The following listing shows some typical constructor calls for selection
+/// boxes.
+/// \code
+/// CheckBox = new TCheckBox(this, ID_CHECKBOX, "Check Box Text", 158, 12, 150, 26);
+///
+/// GroupBox = new TGroupBox(this, ID_GROUPBOX, "Group Box", 158, 102, 176, 108);
+///
+/// RButton1 = new TRadioButton(this, ID_RBUTTON1, "Radio Button 1", 174, 128, 138, 24, GroupBox);
+///
+/// RButton2 = new TRadioButton(this, ID_RBUTTON2, "Radio Button 2", 174, 162, 138, 24, GroupBox);
+/// \endcode
+/// Check boxes by default have the BS_AUTOCHECKBOX style, which means that Windows
+/// handles a click on the check box by toggling the check box. Without
+/// BS_AUTOCHECKBOX, you would have to set the check box's state manually. Radio
+/// buttons by default have the BS_AUTORADIOBUTTON style, which means that Windows
+/// handles a click on the radio button by checking the radio button and unchecking
+/// the other radio buttons in the group. Without BS_AUTORADIOBUTTON, you
+/// would have to intercept the radio button's notification messages and do
+/// this work yourself.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingcheckboxandradiobuttoncontrols "Using Check Box and Radio Button Controls"
+///
+///
+/// \page usingselectionboxes Using Selection Boxes
+/// - \subpage modifyingselectionboxes "Modifying Selection Boxes"
+/// - \subpage queryingselectionboxes "Querying Selection Boxes"
+///
+/// \page modifyingselectionboxes Modifying Selection Boxes
+/// Checking and unchecking a selection box seems like a job for the application
+/// user, not your application. But in some cases, your application needs control
+/// over a selection box's state. For example, if the user opens a text file, you
+/// might want to automatically check a check box labeled "Save as ANSI text."
+///
+/// TCheckBox defines several member functions for modifying a
+/// check box's state:
+///
+/// TCheckBox member functions for modifying selection boxes
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member function</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TCheckBox::Check or TCheckBox::SetCheck(BF_CHECKED)</TD><TD class="owltable">Check</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TCheckBox::Uncheck or TCheckBox::SetCheck(BF_UNCHECKED)</TD><TD class="owltable">Uncheck</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TCheckBox::Toggle</TD><TD class="owltable">Toggle</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TCheckBox::SetState</TD><TD class="owltable">Highlight</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TCheckBox::SetStyle</TD><TD class="owltable">Change the button's style</TD></TR>
+/// </TABLE>
+///
+/// When you use these member functions with radio buttons, ObjectWindows ensures
+/// that only one radio button per group is checked, as long as the buttons are
+/// assigned to a group.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref queryingselectionboxes "Querying Selection Boxes"
+///
+///
+///
+/// \page queryingselectionboxes Querying Selection Boxes
+/// Querying a selection box is one way to find out and respond to its state. Radio
+/// buttons have two states: checked (BF_CHECKED) and unchecked (BF_UNCHECKED).
+/// Check boxes can have an additional (and optional) third state: grayed
+/// (BF_GRAYED). The following table summarizes the selection-box query member
+/// functions.
+///
+/// TCheckBox member functions for querying selection boxes
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member function</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TCheckBox::GetCheck</TD><TD class="owltable">Return the check state.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TCheckBox::GetState</TD><TD class="owltable">Return the check, highlight, or focus state.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref modifyingselectionboxes "Modifying Selection Boxes"
+/// - TCheckBox
+///
+///
+/// \page usinggroupboxes Group Boxes
+/// - \subpage constructinggroupboxes "Constructing Group Boxes"
+/// - \subpage groupingcontrols "Grouping Controls"
+/// - \subpage respondingtogroupboxes "Responding To Group Boxes"
+///
+///
+/// \page constructinggroupboxes Constructing Group Boxes
+/// In its simplest form, a group box is a labeled static rectangle that visually
+/// groups other controls.
+///
+/// TGroupBox has a constructor that takes the seven
+/// parameters commonly found in a control object constructor (a parent window, a
+/// resource identifier, the control's x, y, h, and w dimensions, and an optional
+/// module pointer), and also takes a text string parameter to label the group:
+/// \code
+/// TGroupBox(TWindow *parent, int resourceId,
+/// const char far *text, int X, int Y, int W, int H, TModule *module = 0);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref groupingcontrols "Grouping Controls"
+/// - \ref respondingtogroupboxes "Responding To Group Boxes"
+///
+///
+///
+/// \page groupingcontrols Grouping Controls
+/// Usually a group box visually associates a group of other controls; however, it
+/// can also logically associate a group of selection boxes (check boxes and radio
+/// buttons). This logical group performs automatic unchecking (BS_AUTOCHECKBOX,
+/// BS_AUTORADIOBUTTON).
+///
+/// To add a selection box to a group box, pass a pointer to the group box object in
+/// the selection box's constructor call.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructinggroupboxes "Constructing Group Boxes"
+/// - \ref respondingtogroupboxes "Responding To Group Boxes"
+/// - TGroupBox
+///
+///
+///
+/// \page respondingtogroupboxes Responding To Group Boxes
+/// When an event occurs that might change the group box's selections (for example,
+/// when a user clicks a button or the application calls Check), Windows sends a
+/// notification message to the group box's parent window. The parent window can
+/// intercept the message for the group box as a whole, rather than responding to
+/// the individual selection boxes in the group box. To find out which control in
+/// the group was affected, you can read the current status of each control.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructinggroupboxes "Constructing Group Boxes"
+/// - \ref groupingcontrols "Grouping Controls"
+/// - TGroupBox
+///
+///
+///
+/// \page usingscrollbars Using Scroll Bars
+/// Scroll bars are the primary mechanism for changing the user's view of an
+/// application window, a list box, or a combo box. However, you might want a
+/// separate scroll bar to perform a specialized task, such as controlling the
+/// temperature on a thermostat or the color in a drawing program. Use
+/// TScrollBar objects when you need a separate, customizable
+/// scroll bar.
+///
+/// See EXAMPLES\\OWL\\OWLAPI\\SCROLLER for a scroll bar control example.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage constructingscrollbars "Constructing Scroll Bars"
+/// - \subpage controllingthescrollbarrange "Controlling the Scroll Bar Range"
+/// - \subpage controllingscrollamounts "Controlling Scroll Amounts"
+/// - \subpage queryingscrollbars "Querying Scroll Bars"
+/// - \subpage modifyingscrollbars "Modifying Scroll Bars"
+/// - \subpage respondingtoscrollbarmessages "Responding To Scroll-bar Messages"
+/// - \subpage avoidingthumbtrackingmessages "Avoiding Thumb Tracking Messages"
+/// - \subpage specializingscrollbarbehavior "Specializing Scroll Bar Behavior"
+///
+///
+///
+/// \page constructingscrollbars Constructing Scroll Bars
+/// TScrollBar has a constructor that takes the seven
+/// parameters commonly found in a control object constructor (a parent window, a
+/// resource identifier, the control's x, y, h, and w dimensions, and an optional
+/// module pointer), and also takes a bool flag parameter that specifies whether the
+/// scroll bar is horizontal. Here's a TScrollBar constructor declaration:
+/// \code
+/// TScrollBar(TWindow *parent, int resourceId,
+/// int x, int y, int w, int h, bool isHScrollBar, TModule *module = 0);
+/// \endcode
+/// If you specify a height of zero for a horizontal scroll bar or a width of zero
+/// for a vertical scroll bar, Windows gives it a standard height and width. The
+/// following code creates a standard-height horizontal scroll bar:
+/// \code
+/// new TScrollBar(this, ID_THERMOMETER, 100, 150,
+/// 180, 0, true);
+/// \endcode
+/// TScrollBar's constructor constructs scroll bars with the style SBS_HORZ for
+/// horizontal scroll bars and SBS_VERT for vertical scroll bars. You can specify
+/// additional styles, such as SBS_TOPALIGN, by changing the scroll bar object's
+/// Attr.Style.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingscrollbars "Using Scroll Bars"
+/// - \ref controllingthescrollbarrange "Controlling the Scroll Bar Range"
+/// - \ref controllingscrollamounts "Controlling Scroll Amounts"
+/// - \ref queryingscrollbars "Querying Scroll Bars"
+/// - \ref modifyingscrollbars "Modifying Scroll Bars"
+/// - \ref respondingtoscrollbarmessages "Responding To Scroll-bar Messages"
+///
+///
+///
+/// \page controllingthescrollbarrange Controlling the Scroll Bar Range
+/// One attribute of a scroll bar is its range, which is the set of all possible
+/// thumb positions. The thumb is the scroll bar's sliding box that the user drags
+/// or scrolls. Each position is associated with an integer. The parent window uses
+/// this integer, the position, to set and query the scroll bar. By default, a
+/// scroll bar object's range is 1 to 100.
+///
+/// The thumb's minimum position (at the top of a vertical scroll bar and the left
+/// of a horizontal scroll bar) corresponds to position 1, and the thumb's maximum
+/// position corresponds to position 100. Use SetRange to set the range differently.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingscrollbars "Using Scroll Bars"
+/// - \ref constructingscrollbars "Constructing Scroll Bars"
+/// - \ref controllingscrollamounts "Controlling Scroll Amounts"
+/// - \ref queryingscrollbars "Querying Scroll Bars"
+/// - \ref modifyingscrollbars "Modifying Scroll Bars"
+/// - \ref respondingtoscrollbarmessages "Responding To Scroll-bar Messages"
+///
+///
+///
+/// \page controllingscrollamounts Controlling Scroll Amounts 
+/// A scroll bar has two other important attributes: its line magnitude and page
+/// magnitude. The line magnitude, initialized to 1, is the distance, in range
+/// units, the thumb moves when the user clicks the scroll bar's arrows. The page
+/// magnitude, initialized to 10, is the distance, also in range units, the thumb
+/// moves when the user clicks the scrolling area. You can change these values by
+/// changing the TScrollBar data members LineMagnitude and PageMagnitude.
+///
+///
+///
+/// \page queryingscrollbars Querying Scroll Bars
+/// TScrollBar has two member functions for querying
+/// scroll bars:
+/// - TScrollBar::GetRange gets the upper and lower ranges.
+/// - TScrollBar::GetPosition gets the current thumb position.
+///
+/// \section seealso See Also
+/// - \ref usingscrollbars "Using Scroll Bars"
+/// - \ref constructingscrollbars "Constructing Scroll Bars"
+/// - \ref controllingthescrollbarrange "Controlling the Scroll Bar Range"
+/// - \ref controllingscrollamounts "Controlling Scroll Amounts"
+/// - \ref modifyingscrollbars "Modifying Scroll Bars"
+/// - \ref respondingtoscrollbarmessages "Responding To Scroll-bar Messages"
+///
+///
+///
+/// \page modifyingscrollbars Modifying Scroll Bars
+/// Modifying scroll bars is usually done by the user, but your application can also
+/// modify a scroll bar directly:
+/// - TScrollBar::SetRange sets the scrolling range.
+/// - TScrollBar::SetPosition sets the thumb position.
+/// - TScrollBar::DeltaPos moves the thumb position.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingscrollbars "Using Scroll Bars"
+/// - \ref constructingscrollbars "Constructing Scroll Bars"
+/// - \ref controllingthescrollbarrange "Controlling the Scroll Bar Range"
+/// - \ref controllingscrollamounts "Controlling Scroll Amounts"
+/// - \ref queryingscrollbars "Querying Scroll Bars"
+/// - \ref respondingtoscrollbarmessages "Responding To Scroll-bar Messages"
+///
+///
+///
+/// \page respondingtoscrollbarmessages Responding To Scroll-bar Messages
+/// When the user moves a scroll bar's thumb or clicks the scroll arrows, Windows
+/// sends a scroll bar notification message to the parent window. If you want your
+/// window to respond to scrolling events, respond to the notification messages.
+/// Scroll bar notification messages are slightly different from other control
+/// notification messages. They're based on the WM_HSCROLL and WM_VSCROLL messages,
+/// rather than WM_COMMAND command messages. Therefore, to respond to scroll bar
+/// notification messages, you need to define EvHScroll or EvVScroll event response
+/// functions, depending on whether the scroll bar is horizontal or vertical, as
+/// shown in the following example:
+/// \code
+/// class TTestWindow : public TFrameWindow {
+///  public:
+///   TTestWindow(TWindow* parent, const char* title);
+///   virtual void SetupWindow();
+///
+///   void EvHScroll(UINT code, UINT pos, HWND wnd);
+///
+/// 
+/// DECLARE_RESPONSE_TABLE(TTestWindow);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE1(TTestWindow, TFrameWindow)
+///  EV_WM_HSCROLL,
+/// END_RESPONSE_TABLE;
+/// \endcode
+/// Usually, you respond to all the scroll bar notification messages by retrieving
+/// the current thumb position and taking appropriate action. In that case, you can
+/// ignore the notification code, as shown in the following example:
+/// \code
+/// void TTestWindow::EvHScroll(UINT code, UINT pos, HWND wnd)
+/// {
+///  TFrameWindow::EvHScroll(); // perform default WM_HSCROLL processing
+///  int newPos = ScrollBar->GetPosition();
+///  // do some processing with newPos
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingscrollbars "Using Scroll Bars"
+/// - \ref constructingscrollbars "Constructing Scroll Bars"
+/// - \ref controllingthescrollbarrange "Controlling the Scroll Bar Range"
+/// - \ref controllingscrollamounts "Controlling Scroll Amounts"
+/// - \ref queryingscrollbars "Querying Scroll Bars"
+/// - \ref modifyingscrollbars "Modifying Scroll Bars"
+///
+///
+///
+/// \page avoidingthumbtrackingmessages Avoiding Thumb Tracking Messages
+/// You might not want to respond to the scroll bar notification messages while the
+/// user is dragging the scroll bar's thumb, because the user is usually dragging
+/// the thumb quickly, generating many notification messages. It is more efficient
+/// to wait until the user has stopped moving the thumb and then respond. To do
+/// this, screen out the notification messages that have the SB_THUMBTRACK code.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingscrollbars "Using Scroll Bars"
+/// - \ref specializingscrollbarbehavior "Specializing Scroll Bar Behavior"
+///
+///
+///
+/// \page specializingscrollbarbehavior Specializing Scroll Bar Behavior
+/// You might want a scroll bar object respond to its own notification messages.
+/// TDialog has built-in support for dispatching scroll bar
+/// notification messages back to the scroll bar.
+///
+/// TWindow::EvHScroll or TWindow::EvVScroll executes the appropriate
+/// TScrollBar member function based on the notification
+/// code. For example:
+/// \code
+/// class TSpecializedScrollBar : public TScrollBar {
+/// public:
+///   virtual void SBTop();
+///   };
+///
+/// void TSpecializedScrollBar::SBTop() {
+///   TScrollBar::SBTop();
+///   ::sndPlaySound("AT-TOP.WAV", SND_ASYNC); // play sound
+///   }
+/// \endcode
+/// Be sure to call the base member functions first. They correctly update the
+/// scroll bar to its new position.
+///
+/// The following table associates notification messages with the corresponding
+/// TScrollBar member function:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Notification message</TD><TD class="owltableheader">TScrollBar member function</TD></TR>
+/// <TR class="owltable"><TD class="owltable">SB_LINEUP</TD><TD class="owltable">TScrollBar::SBLineUp</TD></TR>
+/// <TR class="owltable"><TD class="owltable">SB_LINEDOWN</TD><TD class="owltable">TScrollBar::SBLineDown</TD></TR>
+/// <TR class="owltable"><TD class="owltable">SB_PAGEUP</TD><TD class="owltable">TScrollBar::SBPageUp</TD></TR>
+/// <TR class="owltable"><TD class="owltable">SB_PAGEDOWN</TD><TD class="owltable">TScrollBar::SBPageDown</TD></TR>
+/// <TR class="owltable"><TD class="owltable">SB_THUMBPOSITION</TD><TD class="owltable">TScrollBar::SBThumbPosition</TD></TR>
+/// <TR class="owltable"><TD class="owltable">SB_THUMBTRACK</TD><TD class="owltable">TScrollBar::SBThumbTrack</TD></TR>
+/// <TR class="owltable"><TD class="owltable">SB_TOP</TD><TD class="owltable">TScrollBar::SBTop</TD></TR>
+/// <TR class="owltable"><TD class="owltable">SB_BOTTOM</TD><TD class="owltable">TScrollBar::SBBottom</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref usingscrollbars "Using Scroll Bars"
+/// - \ref avoidingthumbtrackingmessages "Avoiding Thumb Tracking Messages"
+/// - TScrollBar::EvHScroll
+/// - TScrollBar::EvVScroll
+///
+///
+///
+/// \page usingeditcontrols Using Edit Controls
+/// Edit controls are interactive static controls. They are rectangular areas that
+/// can be filled with text, modified, and cleared by the user or application. Edit
+/// controls are very useful as fields for data entry screens. They support the
+/// following operations:
+/// - User text input
+/// - Dynamic display of text (by the application)
+/// - Cutting, copying, and pasting to the Clipboard
+/// - Multiline editing (good for text editors)
+///
+/// See EXAMPLES\\OWL\\OWLAPI\\VALIDATE for an edit controls example.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage constructingeditcontrols "Constructing Edit Controls"
+/// - \subpage usingtheclipboardandtheeditmenu "Using the Clipboard and the Edit Menu"
+/// - \subpage queryingeditcontrols "Querying Edit Controls"
+/// - \subpage modifyingeditcontrols "Modifying Edit Controls"
+///
+///
+///
+/// \page constructingeditcontrols Constructing Edit Controls
+/// One of TEdit's constructors takes parameters for an initial
+/// text string, maximum string length (including the terminating NULL), and a bool
+/// flag specifying whether or not it Is a multiline edit control (in addition to
+/// the parent window, resource identifier, and placement coordinates). This TEdit
+/// constructor is declared as follows:
+/// \code
+/// TEdit(TWindow *parent, int resourceId, const
+/// char far *text, int x, int y, int w, int h, UINT textLen = 0, bool multiline =
+/// false, TModule *module = 0);
+/// \endcode
+/// By default, the edit control has the styles ES_LEFT (for left-aligned text),
+/// ES_AUTOHSCROLL (for automatic horizontal scrolling), and WS_BORDER (for a
+/// visible border surrounding the edit control). Multiline edit controls get the
+/// additional styles ES_MULTILINE (specifies a multiline edit control),
+/// ES_AUTOVSCROLL (automatic vertical scrolling), WS_VSCROLL (vertical scroll bar),
+/// and WS_HSCROLL (horizontal scroll bar).
+///
+/// The following are typical edit control constructor calls, one for a single-line
+/// control, the other multiline:
+/// \code
+/// Edit1 = new TEdit(this, ID_EDIT1, "Default Text", 20, 50, 150, 30, MAX_TEXTLEN, false);
+///
+/// Edit2 = new TEdit(this, ID_EDIT2, "", 260, 50, 150, 30, MAX_TEXTLEN, true);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingeditcontrols "Using Edit Controls"
+/// - \ref usingtheclipboardandtheeditmenu "Using the Clipboard and the Edit Menu"
+/// - \ref queryingeditcontrols "Querying Edit Controls"
+/// - \ref modifyingeditcontrols "Modifying Edit Controls"
+///
+///
+///
+/// \page usingtheclipboardandtheeditmenu Using the Clipboard and the Edit Menu
+/// You can directly transfer text between an edit control object and the Windows
+/// Clipboard using TEdit member functions. You probably want
+/// to give users access to these member functions by giving your window an Edit
+/// menu.
+///
+/// Edit control objects have built-in responses to menu items like Edit|Copy and
+/// Edit|Undo. TEdit has command response member functions, such as CmEditCopy and
+/// CmEditUndo, which ObjectWindows invokes in response to users choosing items from
+/// the parent window's Edit menu.
+///
+/// The following table shows the Clipboard and editing member functions and the
+/// menu commands that invoke them:
+///
+/// TEdit member functions and Edit menu commands
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member function</TD><TD class="owltableheader">Menu command</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::Copy</TD><TD class="owltable">CM_EDITCOPY</TD><TD class="owltable">Copy text to Clipboard.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::Cut</TD><TD class="owltable">CM_EDITCUT</TD><TD class="owltable">Cut text to Clipboard.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::Undo</TD><TD class="owltable">CM_EDITUNDO</TD><TD class="owltable">Undo last edit.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::Paste</TD><TD class="owltable">CM_EDITPASTE</TD><TD class="owltable">Paste text from Clipboard.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::DeleteSelection</TD><TD class="owltable">CM_EDITDELETE</TD><TD class="owltable">Delete selected text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::Clear</TD><TD class="owltable">CM_EDITCLEAR</TD><TD class="owltable">Clear entire edit control.</TD></TR>
+/// </TABLE>
+///
+/// To add an editing menu to a window that contains edit control objects, define a
+/// menu resource for the window using the menu commands listed above. You do not
+/// need to write any new member functions.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingeditcontrols "Using Edit Controls"
+/// - \ref constructingeditcontrols "Constructing Edit Controls"
+/// - \ref queryingeditcontrols "Querying Edit Controls"
+/// - \ref modifyingeditcontrols "Modifying Edit Controls"
+///
+///
+///
+/// \page queryingeditcontrols Querying Edit Controls
+/// Often, you want to query an edit control to store the entry for later use.
+/// TEdit has a number of querying member functions. Many of the
+/// edit control query and modification member functions return, or require you to
+/// specify, a line number or a character's position in a line. All of these indexes
+/// start at zero. In other words, the first line is line zero and the first
+/// character of a line is character zero.
+///
+/// The following table summarizes TEdit's query member functions.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member function</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::IsModified</TD><TD class="owltable">Find out if text has changed.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetText</TD><TD class="owltable">Retrieve all text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetLine</TD><TD class="owltable">Retrieve a line.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetNumLines</TD><TD class="owltable">Get number of lines.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetLineLength</TD><TD class="owltable">Get length of a given line.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetSelection</TD><TD class="owltable">Get index of selected text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetSubText</TD><TD class="owltable">Get a range of characters.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetLineIndex</TD><TD class="owltable">Count characters before a line.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetLineFromPos</TD><TD class="owltable">Find the line containing an index.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetRect</TD><TD class="owltable">Get formatting rectangle.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetHandle</TD><TD class="owltable">Get memory handle.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetFirstVisibleLine</TD><TD class="owltable">Get index of first visible line.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetPasswordChar</TD><TD class="owltable">Get character used in passwords.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::GetWordBreakProc</TD><TD class="owltable">Get word-breaking procedure.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::CanUndo</TD><TD class="owltable">Find out if edit can be undone.</TD></TR>
+/// </TABLE>
+///
+/// Text that spans lines in a multiline edit control contains two extra characters
+/// for each line break: a carriage return ('\\r') and a line feed ('\\n'). TEdit's
+/// member functions retain the text's formatting when they return text from a
+/// multiline edit control. When you insert this text back into an edit control,
+/// paste it from the Clipboard, write it to a file, or print it to a printer, the
+/// line breaks appear as they did in the edit control. When you use query member
+/// functions to get a specified number of characters, be sure to account for the
+/// two extra characters in a line break.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingeditcontrols "Using Edit Controls"
+/// - \ref constructingeditcontrols "Constructing Edit Controls"
+/// - \ref usingtheclipboardandtheeditmenu "Using the Clipboard and the Edit Menu"
+/// - \ref modifyingeditcontrols "Modifying Edit Controls"
+///
+///
+///
+/// \page modifyingeditcontrols Modifying Edit Controls
+/// Many uses of edit controls require that your application explicitly substitute,
+/// insert, clear, or select text. TEdit supports those
+/// operations, plus the ability to force the edit control to scroll.
+///
+/// TEdit member functions for modifying edit controls
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member function</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::Clear</TD><TD class="owltable">Delete all text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::DeleteSelection</TD><TD class="owltable">Delete selected text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::DeleteSubText</TD><TD class="owltable">Delete a range of characters.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::DeleteLine</TD><TD class="owltable">Delete a line of text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::Insert</TD><TD class="owltable">Insert text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::Paste</TD><TD class="owltable">Paste text from Clipboard.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::SetText</TD><TD class="owltable">Replace all text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::SetSelection</TD><TD class="owltable">Select a range of text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::Scroll</TD><TD class="owltable">Scroll text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::ClearModify</TD><TD class="owltable">Clear the modified flag.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::Search</TD><TD class="owltable">Search for text.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::SetRect or TEdit::SetRectNP</TD><TD class="owltable">Set formatting rectangle.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::FormatLines</TD><TD class="owltable">Turn on or off soft line breaks.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::SetTabStops</TD><TD class="owltable">Set tab stops.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::SetHandle</TD><TD class="owltable">Set local memory handle.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::SetPasswordChar</TD><TD class="owltable">Set password character.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::SetReadOnly</TD><TD class="owltable">Make the edit control read-only.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::SetWordBreakProc</TD><TD class="owltable">Set word-breaking procedure.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TEdit::EmptyUndoBuffer</TD><TD class="owltable">Empty undo buffer.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref usingeditcontrols "Using Edit Controls"
+/// - \ref constructingeditcontrols "Constructing Edit Controls"
+/// - \ref usingtheclipboardandtheeditmenu "Using the Clipboard and the Edit Menu"
+/// - \ref queryingeditcontrols "Querying Edit Controls"
+///
+///
+///
+/// \page usingcomboboxes Using Combo Boxes
+/// A combo box control is a combination of two other controls: a list box and an
+/// editor static control. It serves the same purpose as a list box -- it lets the
+/// user choose one text item from a scrollable list of text items by clicking the
+/// item with the mouse. The edit control, grafted to the top of the list box,
+/// provides another selection mechanism, allowing users to type the text of the
+/// desired item. If the list box area of the combo box is displayed, the desired
+/// item is automatically selected. TComboBox is derived
+/// from TListBox and inherits its member functions for
+/// modifying, querying, and selecting list items. In addition, TComboBox provides
+/// member functions for manipulating the list part of the combo box, which, in some
+/// types of combo boxes, can drop down on request.
+///
+/// See EXAMPLES\\OWL\\OWLAPPS\\OWLCMD for a combo box control example.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage varietiesofcomboboxes "Varieties Of Combo Boxes"
+/// - \subpage choosingcomboboxtypes "Choosing Combo Box Types"
+/// - \subpage constructingcomboboxes "Constructing Combo Boxes"
+/// - \subpage modifyingcomboboxes "Modifying Combo Boxes"
+/// - \subpage queryingcomboboxes "Querying Combo Boxes"
+///
+///
+///
+/// \page varietiesofcomboboxes Varieties Of Combo Boxes
+/// There are three types of combo boxes: simple, drop down, and drop down list. All
+/// combo boxes show their edit area at all times, but some can show and hide their
+/// list box areas. The following table summarizes the properties of each type of
+/// combo box.
+///
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Style</TD><TD class="owltableheader">Can hide list?</TD><TD class="owltableheader">Text must match list?</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Simple</TD><TD class="owltable">No</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Drop down</TD><TD class="owltable">Yes</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Drop down list</TD><TD class="owltable">Yes</TD><TD class="owltable">Yes</TD></TR>
+/// </TABLE>
+///
+/// From a user's perspective, these are the distinctions between the different
+/// styles of combo boxes:
+/// - A simple combo box cannot hide its list box area. Its edit area behaves just
+/// like an edit control; the user can enter and edit text, and the text does not
+/// need to match one of the items in the list. If the text does match, the
+/// corresponding list item is selected.
+/// - A drop down combo box behaves like a simple combo box, with one exception. In
+/// its initial state, its list area is not displayed. It appears when the user
+/// clicks on the icon to the right of the edit area. When drop down combo boxes are
+/// not being used, they take up less space than a simple combo box or a list
+/// box.
+/// - The list area of a drop down list combo box behaves like the list area of a drop
+/// down combo box--it appears only when needed. The two combo box types differ in
+/// the behavior of their edit areas. Whereas drop down edit areas behave like
+/// regular edit controls, drop down list edit areas are limited to displaying only
+/// the text from one of their list items. When the edit text matches the item text,
+/// no more characters can be entered.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingcomboboxes "Using Combo Boxes"
+/// - \ref choosingcomboboxtypes "Choosing Combo Box Types"
+/// - \ref constructingcomboboxes "Constructing Combo Boxes"
+/// - \ref modifyingcomboboxes "Modifying Combo Boxes"
+/// - \ref queryingcomboboxes "Querying Combo Boxes"
+///
+///
+///
+/// \page choosingcomboboxtypes Choosing Combo Box Types
+/// Drop down list combo boxes are useful in cases where no other selection is
+/// acceptable besides those listed in the list area. For example, when choosing a
+/// printer, you can only choose a printer accessible from your system.
+///
+/// On the other hand, drop down combo boxes can accept entries other than those
+/// found in the list. A typical use of drop down combo boxes is selecting disk
+/// files for opening or saving. The user can either search through directories to
+/// find the appropriate file in the list, or type the full path name and file name
+/// in the edit area, regardless of whether the file name appears in the list area.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingcomboboxes "Using Combo Boxes"
+/// - \ref varietiesofcomboboxes "Varieties Of Combo Boxes"
+/// - \ref constructingcomboboxes "Constructing Combo Boxes"
+/// - \ref modifyingcomboboxes "Modifying Combo Boxes"
+/// - \ref queryingcomboboxes "Querying Combo Boxes"
+///
+///
+///
+/// \page constructingcomboboxes Constructing Combo Boxes
+/// TComboBox has two constructors. The first takes the
+/// seven parameters commonly found in a control object constructor (a parent
+/// window, a resource identifier, the control's x, y, h, and w dimensions, and an
+/// optional module pointer), and also style and maximum text length parameters.
+/// This constructor is declared like this:
+/// \code
+/// TComboBox(TWindow *parent, int id, int x, int
+/// y, int w, int h, uint32 style, uint16 textLen, TModule *module = 0);
+/// \endcode
+///
+/// All combo boxes have the styles WS_CHILD, WS_VISIBLE, WS_GROUP, WS_TABSTOP,
+/// CBS_SORT (to sort the list items), CBS_AUTOHSCROLL (to let the user enter more
+/// text than fits in the visible edit area), and WS_VSCROLL (vertical scroll
+/// bar). The style parameter you supply is one of the Windows combo box styles
+/// CBS_SIMPLE, CBS_DROPDOWN, or CBS_DROPDOWNLIST. The text length specifies the
+/// maximum number of characters allowed in the edit area.
+///
+/// The second TComboBox constructor lets you create an ObjectWindows object that
+/// serves as an alias for an existing combo box. This constructor looks like
+/// this:
+/// \code
+/// TComboBox(TWindow* parent,
+///   int resourceId,
+///   UINT textLen = 0,
+///   TModule* module = 0);
+/// \endcode
+/// The following lines show a typical combo box constructor call, constructing a
+/// drop down list combo box with an unsorted list:
+/// \code
+/// Combo1 = new TComboBox(this, ID_COMBO1, 190, 30, 150, 100,
+///       CBS_SIMPLE, 20);
+/// Combo1->Attr.Style &= ~CBS_SORT;
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref usingcomboboxes "Using Combo Boxes"
+/// - \ref varietiesofcomboboxes "Varieties Of Combo Boxes"
+/// - \ref choosingcomboboxtypes "Choosing Combo Box Types"
+/// - \ref modifyingcomboboxes "Modifying Combo Boxes"
+/// - \ref queryingcomboboxes "Querying Combo Boxes"
+///
+///
+///
+/// \page modifyingcomboboxes Modifying Combo Boxes
+/// TComboBox defines several member functions for
+/// modifying a combo box's list and edit areas. Because TComboBox is derived from
+/// TListBox, you can also use TListBox member functions to
+/// manipulate a combo box's list area.
+///
+/// The following table summarizes these TComboBox member functions:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member function</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::SetText</TD><TD class="owltable">Replace all text in the edit area.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::SetEditSel</TD><TD class="owltable">Select text in the edit area.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::Clear</TD><TD class="owltable">Delete all text in the edit area.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::ShowList or TComboBox::ShowList(true)</TD><TD class="owltable">Show the list area.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::HideList or TComboBox::ShowList(false)</TD><TD class="owltable">Hide the list area.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::SetExtendedUI</TD><TD class="owltable">Set the extended combo box UI.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref usingcomboboxes "Using Combo Boxes"
+/// - \ref varietiesofcomboboxes "Varieties Of Combo Boxes"
+/// - \ref choosingcomboboxtypes "Choosing Combo Box Types"
+/// - \ref constructingcomboboxes "Constructing Combo Boxes"
+/// - \ref queryingcomboboxes "Querying Combo Boxes"
+///
+///
+///
+/// \page queryingcomboboxes Querying Combo Boxes
+/// TComboBox adds several member functions to those
+/// inherited from TListBox for querying the contents of a
+/// combo box's edit and list areas. The following table summarizes these member
+/// functions.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member function</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::GetTextLen</TD><TD class="owltable">Get length of text in edit area.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::GetText</TD><TD class="owltable">Retrieve all text in edit area.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::GetEditSel</TD><TD class="owltable">Get indexes of selected text in edit area.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::GetDroppedControlRect</TD><TD class="owltable">Get rectangle of dropped-down list.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::GetDroppedState</TD><TD class="owltable">Determine if list area is visible.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBox::GetExtendedUI</TD><TD class="owltable">Determine if combo box has extended UI.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref usingcomboboxes "Using Combo Boxes"
+/// - \ref varietiesofcomboboxes "Varieties Of Combo Boxes"
+/// - \ref choosingcomboboxtypes "Choosing Combo Box Types"
+/// - \ref constructingcomboboxes "Constructing Combo Boxes"
+/// - \ref modifyingcomboboxes "Modifying Combo Boxes"
+///
+///
+///
+/// \page abouttheanimatecontrol About the Animate Control
+/// The TAnimateCtrl class encapsulates the Animation
+/// Control (a window that silently displays an AVI (Audio Video Interleaved)
+/// clip.
+/// \note The animation control can only play silent clips from an uncompressed .AVI
+/// file or from an .AVI file that was compressed using run-length encoding
+/// (RLE).
+///
+/// \section creatinganewcontrol Creating a New Control
+/// To create a new control, use the TAnimateCtrl(parent, id, x, y, w, h, module)
+/// constructor. For example, you could use the following code within the
+/// constructor of a parent window:
+/// \code
+/// TClientWindow::TClientWindow(TWindow* parent)
+/// : TWindow(parent)
+/// {
+///  AnimateCtrl = new TAnimateCtrl(this, 0x100, 5, 10, 50, 60);
+/// };
+/// \endcode
+/// This creates an animation control with the ID of 0x100, at location (5,10), 50
+/// pixels wide and 60 pixels high within the client area of the TClientWindow
+/// window.
+///
+/// \section aliasingacontrol Aliasing a Control
+/// To alias an animation control which is part of a dialog resource, use the
+/// TAnimateCtrl(parent, resourceId, module) constructor.
+/// The following resource definition creates a dialog containing an animation
+/// control:
+/// \code
+/// IDD_ANIMATE DIALOG 45, 56, 176, 99
+/// STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+/// CAPTION "Animation Dialog"
+/// {
+/// CONTROL "Sample_Avi", IDC_ANIMATE, "SysAnimate32", ACS_CENTER | ACS_TRANSPARENT | WS_CHILD | WS_VISIBLE | WS_BORDER, 16, 10, 145, 61
+/// }
+/// \endcode
+/// The following code shows how to alias an animation control within the
+/// constructor of a Tdialog-derived class:
+/// \code
+/// TAnimDialog::TAnimDialog(TWindow* parent, TResId res)
+///  : TDialog(parent, res)
+/// {
+///   AnimCtrl = new TAnimateCtrl(this, IDC_ANIMATE);
+/// }
+/// \endcode
+///
+/// \section additionalinformation Additional Information
+/// The specified caption of the control may contain the name of an .AVI resource to
+/// be opened automatically by the control.
+///
+/// Passing -1 as the third argument to the Play method instructs the control to
+/// replay the clip indefinitely.
+///
+///
+///
+/// \section usingtheanimatecontrol Using the Animate Control
+/// -# Create the control.
+/// -# Invoke the Open method to open an .AVI clip and load it into memory:
+/// \code
+///   AnimateCtrl->Open(MAKEINTRESOURCE(SAMPLE_ONE));
+/// \endcode
+/// \note The parameter to the Open method can contain the path to an .AVI file or
+/// the name of an AVI resource.
+/// -# Use the Play method to play the current AVI clip in the animation window. The
+/// control plays the clip in the background while the thread continues
+/// executing.
+/// -# Use the Seek method to seek to a particular frame of the current AVI
+/// clip.
+/// -# Use the Stop method to stop playing an AVI clip.
+///
+///
+///
+/// \page aboutthecolumnheadercontrol About the Column Header Control
+/// The TColumnHeader class creates a horizontal window
+/// that is used above columns of text or numbers, containing titles for each
+/// column. The right panel of the Windows 95 Explorer, for example, uses this type
+/// of window for file name, size, and type. Column Header windows are generally
+/// used over a List Window window.
+///
+/// A header window contains parts called header items. The user can adjust the
+/// width of each item. Items can also behave like push buttons: clicking on the
+/// Size item in the Windows 95 Explorer, for example, sorts the files by size. Each
+/// item can have a string, a bit-mapped image, and a 32-bit application-defined
+/// value associated with it.
+///
+/// The native control for Windows 95 is the Header Window common control.
+///
+/// \image html bm67.bmp
+///
+/// \section creatingacolumnheadercontrol Creating a Column Header Control
+/// To create a Column Header Control, simply create a TColumnHeader object within
+/// the constructor of the parent object specifying the parent and the id of the
+/// control. For example,
+/// \code
+///  TMyWindow::TMyWindow() {
+///  // ...
+///  TColumnHeader* hdrCtl = new TColumnHeader(this, ID_XX);
+///  }
+/// \endcode
+/// When constructed within the constructor of the parent object, it is not
+/// necessary to invoke the Create method of the TColumnHeader object. The
+/// AutoCreate feature of ObjectWindows will ensure that the control is created once
+/// the parent object is created. However, if you are constructing the TColumnHeader
+/// object after its parent has been created, you will also need to invoke it's
+/// Create method.
+/// \note Although you can specify the screen coordinates of the control, these
+/// parameters are typically left out in favour of the Layout capabilities of the
+/// TColumnHeader object; as described in Sizing and Positioning a Column Header
+/// Control.
+///
+/// \section addingitemstoacolumnheadercontrol Adding items to a Column Header Control
+/// Once the control has been created, you can add items using the Add or Insert
+/// methods of the TColumnHeader class.
+///
+/// The THdrItem class holds information about an item of a Column Header Control.
+/// To add/insert an item you must first construct a THdrItem instance. After
+/// initializing the THdrItem instance, you can invoke the Add or Insert method of
+/// the TColumnHeader object.
+///
+/// For example:
+/// \code
+///  THdrItem item("&Name of Employee");
+///  hdrCtl->Add(item);
+/// \endcode
+/// \section respondingtocolumnheadercontrolnotificationmessages Responding to Column Header Control Notification Messages
+/// The Column Header Control sends notification messages to its parent window
+/// whenever the user manipulates the Column Header Control. For example, if the
+/// user clicks an item, the control sends a HDN_ITEMCLICK notification message.
+/// ObjectWindows provides several macros which can be used in the definition of a
+/// Message Response Table, allowing a member function to be invoked when particular
+/// notification messages are received by the parent. The following list shows the
+/// macros pertinent to the Column Header Control:
+/// \code
+/// EV_HDN_BEGINTRACK(id, method)    // User starts dragging divider
+/// EV_HDN_DIVIDERDBLCLICK(id, method) // User double clicked divider
+/// EV_HDN_ENDTRACK(id, method)     // User ends drag operation
+/// EV_HDN_ITEMCHANGED(id,method)    // Attribute of an item changed
+/// EV_HDN_ITEMCHANGING(id,method)   // Attribute about to change
+/// EV_HDN_ITEMCLICK(id, method)    // User clicked on item
+/// EV_HDN_TRACK(id, method)      // User dragged a divider
+/// \endcode
+///
+/// \section sizingandpositioningacolumnheadercontrol Sizing and Positioning a Column Header Control
+/// A Column Header Control is typically docked to the upper side of its parent's
+/// client area. The control provides an API which allows the control to specify a
+/// desired size and position within the boundary of a specified rectangle. The bool
+/// Layout(TRect& boundingRect, WINDOWPOS& winPos) method can be used to
+/// retrieve the appropriate size and position values in a WINDOWPOS structure.
+/// The overloaded bool Layout(uint swpFlags = 0) method provides an higher
+/// abstraction of this API: the desired size of the control is retrieved by
+/// specifying the client area of its parent as the bounding rectangle and the
+/// control is then repositioned accordingly. The swpFlags are used when the call
+/// SetWindowPos is used to reposition the control.
+///
+///
+///
+///
+/// \page aboutthedraglistcontrol About the Drag List Control
+/// The TDragList class creates an augmented list box that
+/// lets the user rearrange items with a mouse. It is best used for displaying a
+/// list of items that the user can reorder.
+///
+/// A major advantage this control has over the listbox is the support for multiple
+/// columns. The right pane of the Windows 95 Explorer uses this type of window.
+/// The native control for Windows 95 is the Drag List Box common control.
+///
+///
+///
+/// \section usingthedraglistcontrol Using the Drag List Control
+/// -# \#include <owl/draglist.h> for declarations of TDragList and
+/// TDragListEventHandler classes.
+/// -# Derive a class from TDragList and override any of the following virtual
+/// functions:
+/// \code
+/// virtual bool BeginDrag(int item, const TPoint& point);
+/// virtual TCursorType Dragging(int item, const TPoint& point);
+/// virtual void Dropped(int item, const TPoint& point);
+/// virtual void CancelDrag(int item, const TPoint& point);
+/// \endcode
+/// -# Construct the control.
+/// \code
+/// DragList = new TExampleDragList(this, DragListId, x, y, x + 200, y + 100);
+/// \endcode
+/// -# In the parent window class that uses the drag list as a child, mix-in the
+/// TDragListEventHandler class and add it as a base for the response table.
+/// \code
+/// DEFINE_RESPONSE_TABLE2(TDragListParentWindow, TWindow, TDragListEventHandler)
+/// END_RESPONSE_TABLE;
+/// \endcode
+/// -# As you would any listbox, add items to the drag list box after
+/// \code
+/// TDragList::SetupWindow() has been called.
+/// DragList->AddString("Soyeun");
+/// DragList->AddString("Valerie");
+/// \endcode
+/// -# The virtual functions will be called at the proper time whenever the user
+/// does something. For example:
+/// \code
+/// BeginDrag() 
+/// \endcode
+/// will be called when the user clicks the left mouse button on an
+/// item to begin the drag transaction. When the user moves the mouse, the Dragging
+/// function will be called. The return type for dragging is an enum that specifies
+/// what cursor should be displayed. The Dropped function will be called when the
+/// user finishes a drag transaction by releasing the left mouse button. Each of the
+/// virtual functions is passed the item index the user wants to drag.
+///
+///
+///
+/// \page abouttheglyphbuttoncontrol About the Glyph Button Control
+/// The TGlyphButton class creates a button with a bitmap in addition to text.
+///
+/// \image html bm68.bmp
+///
+/// \section usingstandardglyphs Using standard OWLNext glyphs
+/// To use standard OWLNext glyph buttons: 
+/// -# When linking to static OWLNext libraries, it is needed to include <owl/glyphbtn.rc> in the application resource file.
+/// -# When linking to dynamic OWLNext libraries, <owl/glyphbtn.rc> is not needed, as it is already included in OWLNext dlls
+///
+/// This code can handle both cases: 
+/// \code
+/// #if !defined(_OWLDLL)
+/// #include <owl/glyphbtn.rc>
+/// #endif
+/// \endcode
+///
+/// \section usingcustomglyphs Using custom glyphs
+/// To use custom glyphs for the buttons:
+/// -# Add <owl/glyphbtn.rh> to the application resource file.
+/// -# Add the glyphs in the resource file: 
+/// \code
+/// IDB_BORBTNII_OK BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_ok.bmp"
+/// IDB_BORBTNII_CANCEL BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_canc.bmp"
+/// IDB_BORBTNII_NO BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_no.bmp"
+/// IDB_BORBTNII_HELP BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_hlp.bmp"
+/// IDB_BORBTNII_ADD BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_plus.bmp"
+/// IDB_BORBTNII_DEL BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_min.bmp"
+/// IDB_BORBTNII_EDIT BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_edit.bmp"
+/// IDB_BORBTNII_KEY BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_key.bmp"
+/// IDB_BORBTNII_APPLY BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_appl.bmp"
+/// IDB_BORBTNII_REVERT BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_rev.bmp"
+/// IDB_BORBTNII_SETUP BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_setp.bmp"
+/// IDB_BORBTNII_BROWSE BITMAP PRELOAD MOVEABLE DISCARDABLE "res/btn_brws.bmp"
+/// \endcode
+///
+/// \page aboutgauges About Gauges
+/// Gauges are controls that display duration or other information about an ongoing
+/// process. Class TGauge implements gauges, and is derived
+/// from class TControl. Horizontal gauges are
+/// usually used to display process information, and vertical gauges are usually
+/// used to display analog information.
+///
+/// Generally, a broken bar gauge is recommended for processes lasting less than 10
+/// seconds. A solid bar (with text) is recommended for longer processes.
+/// The internal implementation can create a solid bar with text, and it can also
+/// have a vertical orientation. This implementation is used for the upper gauge in
+/// the illustration below.
+///
+/// The native control for Windows 95 is the Progress Bar common control. This is
+/// used for the bottom gauge in the illustration below.
+///
+///
+/// \image html bm69.bmp
+///
+///
+///
+/// \section usingthegaugecontrol Using the Gauge Control
+/// -# Construct the control.
+///  - Use the general constructor to construct a solid bar, a bar with text, or a
+/// vertical bar:
+/// \code
+/// SolidGauge = new TGauge(this, "%d%%",
+/// IDC_SOLIDGAUGE, 20, 20, 240, 34, true);
+/// \endcode
+///  - Use the common control constructor to construct a horizontal LED bar:
+/// \code
+/// LedGauge = new TGauge(this, IDC_LEDGAUGE, 20, 60, 240, 40);
+/// \endcode
+/// -# Set the options:
+/// \code
+/// SolidGauge->SetRange(0, 100);
+/// LedGauge->SetRange(0, 100);
+/// LedGauge->SetLed(4, 80);
+/// LedGauge->SetStep(8);
+/// \endcode
+/// -# Periodically update the gauge, using the control properties:
+/// \code
+/// SolidGauge->SetValue(Setting);
+/// LedGauge->SetValue(Setting);
+/// \endcode
+///
+///
+///
+///
+/// \page aboutthehotkeycontrol About the Hot Key Control
+/// The THotKey class encapsulates the hot-key control from
+/// the Common Control Library. A hot key is a key combination that the user can
+/// press to perform an action quickly. The key combination can consist of a
+/// modifier key, such as CTRL, ALT or SHIFT, and an accompanying key, such as a
+/// character key, an arrow key or a function key.
+///
+/// THotKey has two constructors: one for creating a new hot key object and one for
+/// aliasing a hot-key control which was defined in a dialog resource.
+/// \section creatingahotkeyobject Creating a HotKey Object
+/// To create a new control, use the THotKey(TWindow* parent, int id, int x, int y,
+/// int w, int h, TModule* module = 0) constructor.
+///
+/// The following code fragement shows how to create a new hot-key control within a
+/// window represented by the class TMyWindow.
+/// \code
+/// TMyWindow::TMyWindow(TWindow* parent) :
+/// TWindow(parent)
+/// {
+///  HotKey = new THotKey(this, ID_HOTKEY, 10, 10, 40, 40);
+/// }
+/// \endcode
+/// \note Since the control is newed within the constructor of it's parent object,
+/// you need not explictly invoke its Create method. ObjectWindows' autocreate
+/// feature will ensure that the control is created after the creation of the parent
+/// window.
+///
+/// \section aliasingahotkeyobject Aliasing a HotKey Object
+/// To alias a hot-key control from a dialog resource, use the THotKey(TWindow*
+/// parent, int resourceId, TModule* module = 0) constructor.
+///
+/// The following code fragment illustrates this:
+/// \code
+/// TMyDialog::TMyDialog(TWindow* parent, TResId resId):TDialog(parent, resId)
+/// {
+///  HotKey = new THotKey(this, IDC_HOTKEY);
+/// }
+/// \endcode
+/// \section settingandretrievingthekeycombination Setting and Retrieving the Key Combination
+/// The SetHotKey and GetHotKey methods of THotKey allow you to set and retrieve the
+/// virtual key code and modifier flags of a hot-key from a hot-key control.
+///
+/// The value returned from the GetHotKey method can be used with the WM_SETHOTKEY
+/// message to associate a window with a hot-key. When user presses the hot-key, the
+/// system activates the window.
+///
+/// \section additionalinformation Additional Information
+/// The value retrieved from the hot-key control is not usable with the
+/// RegisterHotKey API.
+///
+/// You can customize a hot-key control by specifying invalid key combinations and
+/// providing the default modifier. See the SetRules method for more information.
+///
+///
+///
+///
+///
+/// \page aboutthelistwindowcontrol About the List View Control
+/// The TListViewCtrl class creates a list view that
+/// displays items in four ways: large (regular) icons, small icons, as a list, or
+/// as a report. In-place editing of item names is supported. The right pane of the
+/// Windows 95 Explorer uses this type of window.
+///
+/// The native control for Windows 95 is the List View common control.
+///
+///
+///
+/// \section usingthelistwindowcontrol Using the List View Control
+/// -# \#include <owl/listviewctrl.h> for declarations of TListViewCtrl,
+/// TListWindItem, and TListWindColumn classes.
+/// -# Create the control.
+/// \code
+/// ListWind = new TListViewCtrl(this, ListWindId, 40, 40, 400, 200);
+/// \endcode
+/// -# Set the style for the control.
+/// \code
+/// ListWind->Attr.Style |= LVS_SHAREIMAGELISTS | LVS_REPORT;
+/// \endcode
+/// -# Optionally associate an image list with the control. If you are using an
+/// image list, do not forget to \#include <owl/imagelst.h>.
+/// \code
+/// ListWind->SetImageList(*ImageList, TListViewCtrl::State);
+/// \endcode
+/// -# Depending on the style of the control, add the appropriate columns.
+/// \code
+/// TListWindColumn column("Column", 100);
+/// ListWind->InsertColumn(0, column);
+/// \endcode
+/// -# Add the items into the control.
+/// \code
+/// for (int i = 0; i < ImageList->GetImageCount(); i++) {
+///  sprintf(Buffer, "Item %d", i);
+///  TListWindItem item(Buffer);
+///  item.SetStateImage(i);
+///  ListWind->InsertItem(item);
+/// }
+/// \endcode
+/// -# The parent window of the control may respond to events sent by the control.
+///
+///
+///
+/// \page aboutthepropertysheetcontrol About the Property Sheet Control
+/// The TPropertySheet class creates a property sheet,
+/// which may be thought of as a kind of loose-leaf binder, containing a number of
+/// pages. Each page is indexed by a \ref aboutthetabcontrol "tab control". When a tab
+/// is selected, the corresponding page is brought to the front of the window.
+/// The native control for Windows 95 is the Property Sheet common control.
+///
+///
+/// \page aboutthericheditcontrol About the Rich Edit Control
+/// The TRichEdit class creates a full-featured rich text
+/// format (RTF) editor. The Windows 95 WordPad editor is essentially a frame around
+/// this control.
+///
+/// The native control for Windows 95 is the Rich Edit common control.
+///
+///
+///
+///
+/// \page aboutsliders About Sliders
+/// An abstract base class derived from TScrollBar,
+/// TSlider defines the basic behavior of sliders (controls that
+/// are used for providing nonscrolling, position information). Like scroll bars,
+/// sliders have minimum and maximum positions as well as line and page magnitude.
+/// Sliders can be moved using either the mouse or the keyboard. If you use a mouse
+/// to move the slider, you can drag the thumb position, click on the slot on either
+/// side of the thumb position to move the thumb by a specified amount
+/// (PageMagnitude), or click on the ruler to position the thumb at a specific spot
+/// on the slider. The keyboard's Home and End keys move the thumb position to the
+/// minimum (Min) and maximum (Max) positions on the slider.
+///
+/// You can use TSlider 's member functions to cause the thumb positions to
+/// automatically align with the nearest tick positions. (This is referred to as
+/// snapping.) You can also specify the tick gaps (the space between the lines that
+/// separate the major divisions of the X- or Y-axis).
+///
+/// THSlider" (horizontal slider) and TVSlider (vertical slider) are derived from Tslider.
+///
+/// The native control for Windows95 is the Trackbar common control. 
+///
+/// \image html bm70.bmp
+///
+///
+///
+/// \section usingsliders Using Sliders
+/// -# \#include <owl/slider.h> in the .cpp files for declarations of THSlider
+/// and TVSlider.
+/// -# \#include <owl/slider.rc> as a resource in the .rc file. This file
+/// contains the bitmaps used to draw the slider.
+/// -# Construct the control. Use THSlider for a horizontal slider. Use TVSlider for
+/// a vertical slider.
+/// \code
+/// Thermostat = new THSlider(this, IDC_THERMOSTAT, 70, 130, 240, 40);
+/// OutsideTemp = new TVSlider(this, IDC_OUTSIDETEMP, 330, 30, 32, 160);
+/// \endcode
+/// -# Set the properties after THSlider::SetupWindow or TVSlider::SetupWindow has
+/// been called.
+/// \code
+/// Thermostat->SetRange(40, 120);
+/// Thermostat->SetRuler(5, false);
+/// Thermostat->SetPosition(75);
+/// \endcode
+///
+/// \section seealso See Also
+/// - \ref usingscrollbars "Using Scroll Bars"
+///
+///
+///
+/// \page aboutthetabcontrol About the Tab Control
+/// The TTabControl class creates tabs that switch
+/// between the pages in a \ref aboutthepropertysheetcontrol "property sheet". When a tab is
+/// selected, the corresponding property sheet page is brought to the front of the
+/// window.
+///
+/// The native control for Windows 95 is the Tab Control common control.
+///
+/// \image html bm71.bmp
+///
+///
+///
+///
+///
+///
+/// \page aboutthetooltipcontrol About the Tool Tip Control
+/// The TTooltip encapsulates a tooltip control: a small
+/// pop-up window that displays a single line of descriptive text giving the purpose
+/// of a tool in an application. The tool is either a window, such as a child window
+/// or control, or an application-defined rectangular area within a window's client
+/// area.
+///
+/// The tooltip control appears only when the user puts the cursor on a tool and
+/// leaves it there for approximately one-half second. It appears near the cursor
+/// and disappears when the user clicks a mouse button or moves the cursor away from
+/// the tool.
+///
+/// The TTooltip class offers two constructors: one for creating a new control and
+/// one for aliasing an existing control.
+///
+/// \section creatingatooltipobject Creating a ToolTip Object
+/// The following code fragment shows how to create a tooltip control.
+/// \code
+/// void TMyWindow::SetupWindow()
+/// {
+///  TWindow::SetupWindow();
+///  tooltip = new TTooltip(this);
+///  tooltip->Create();
+/// }
+/// \endcode
+///
+/// \section specifyingtoolstothetooltipcontrol Specifying Tools to the Tooltip Control
+/// Once you have created a tooltip control, you must specify the tools that it will
+/// work with. You do this by creating a TToolInfo for each tool. For example, the
+/// following code designates a rectangular area of a window as a tool:
+/// \code
+/// void TMyWindow::AddTopLeftTool()
+/// {
+///  uint toolId = ID_TOPLEFT_TOOL;   // Tool ID
+///  TRect rect(0, 0, 20, 20);      // Tool Rectangle
+///  TToolInfo ti(this, rect, ID_TOPLEFT_TOOL);
+///  tooltip->AddTool(ti);
+/// }
+/// \endcode
+///
+/// \section providingthetooltiptext Providing the Tooltip Text
+/// When adding a tool, you may provide the text to be used when describing the tool
+/// as the last parameter to the constructor of the TToolInfo structure. For
+/// example, the following code specifies "Top Left" as the tool tip text:
+/// \code
+/// TToolInfo ti(this, rect, ID_TOPLEFT_TOOL, "Top Left");
+/// tooltip->AddTool(ti);
+/// \endcode
+/// However, you may opt to provide the text on demand. This allows you to customize
+/// the message display to the user. The EV_TTN_NEEDTEXT macro allows you to specify
+/// a member function which can provide the text at runtime. The following code
+/// fragement illustrates:
+/// \code
+/// class TMyWindow : public TWindow {
+/// // Additional definitions ommitted for clarity
+/// protected:
+/// void HandleTooltipText(TTooltipText& tiTxt);
+/// };
+///
+/// DEFINE_RESPONSE_TABLE1(TMyWindow, TWindow)
+///  EV_TTN_NEEDTEXT(ID_TOPLEFT_TOOL, HandleTooltipText),
+/// END_RESPONSE_TABLE;
+///
+/// void
+/// TMyWindow::HandleTooltipText(TTooltipText& tiTxt)
+/// {
+/// tiTxt.CopyText("Top Left square");
+/// }
+/// \endcode
+///
+/// \section additionalinformation Additional Information
+/// The notification handler of the ObjectWindows TDecoratedFrame class enhances the
+/// mechanism for specifying the tooltip text by sending a TTooltipEnabler up the
+/// command chain. This allows the context window to provide the text even if it did
+/// not setup the tool. For example, a grid control in focus can customize the cut,
+/// paste and copy tools to specify the data type being manipulated ("Copy Cell"
+/// instead of just "Copy").
+///
+/// The EvCommandEnable handler of TDecoratedFrame attempts to provide the tooltip
+/// text by looking in two locations:
+/// -# First the window's menu is scanned for a menuitem with an id corresponding to
+/// that of the tool. If found, the menustring is provided.
+/// -# Next, TDecoratedFrame attempts to load a string resource with an id
+/// corresponding to that of the tool. If found, the string is scanned for a
+/// line-feed character. If successful, TDecoratedFrame provides the string
+/// following the line-feed as tooltip text.
+///
+/// \note You should structure your hint text string using the following format:
+/// \code
+/// <string to be displayed on statusbar>\n<tooltip hint text>
+/// \endcode
+///
+///
+///
+///
+/// \page abouttheupdowncontrol About the Up-Down Control
+/// The TUpDown class creates pair of arrows to increment or
+/// decrement the value in an adjacent edit control. Support is provided for
+/// automatic updating of integer edit controls.
+///
+/// The native control for Windows 95 is the Up-Down common control.
+///
+/// \image html bm72.bmp
+///
+///
+///
+///
+/// \page settingandreadingcontrolvalues Setting and Reading Control Values
+/// To manage complex dialog boxes or windows with many child-window controls, you
+/// might create a derived class to store and retrieve the state of the dialog box
+/// or window controls. The state of a control includes the text of an edit control,
+/// the position of a scroll bar, and whether a radio button is checked.
+///
+/// As an alternative to creating a derived class, you can use a structure to
+/// represent the state of the dialog box's or window's controls. This structure is
+/// called a transfer buffer and is described in \subpage usingtransferbuffers "Using Transfer
+/// Buffers."
+///
+///
+///
+/// \page usingtransferbuffers Using Transfer Buffers
+/// As an alternative to creating a derived class to manage complex dialog boxes or
+/// windows with many child-window controls, you can use a structure to represent
+/// the state of the dialog box's or the window's controls. This structure is called
+/// a transfer buffer because control states are transferred to the buffer from the
+/// controls and to the controls from the buffer.
+///
+/// For example, your application can bring up a modal dialog box and, after the
+/// user closes it, extract information from the transfer buffer about the state of
+/// each control. Then, if the user brings up the dialog box again, you can transfer
+/// the control states from the transfer buffer. In addition, you can set the
+/// initial state of each control based on the transfer buffer. You can also
+/// explicitly transfer data in either direction at any time, such as to reset the
+/// states of the controls to their previous values. A window or modeless dialog box
+/// with controls can also use the transfer mechanism to set or retrieve state
+/// information at any time.
+///
+/// The transfer mechanism requires the use of ObjectWindows objects to represent
+/// the controls for which you'd like to transfer data. To use the transfer
+/// mechanism, you have to do three things:
+/// - \subpage definingthetransferbuffer "Define the transfer buffer", with an instance variable for
+/// each control for which you want to transfer data.
+/// - \subpage definingthecorrespondingwindowordialogbox "Define the corresponding window or dialog box."
+/// - \subpage transferringthedata "Transfer the data."
+///
+///
+///
+/// \section seealso See Also
+/// - \ref settingandreadingcontrolvalues "Setting and Reading Control Values"
+///
+///
+///
+/// \page definingthetransferbuffer Defining the Transfer Buffer
+/// The transfer buffer is a structure with one member for each control
+/// participating in the transfer. These members are known as instance variables. A
+/// window or dialog box can also have controls with no states to transfer. For
+/// example, by default, buttons, group boxes, and static controls do not
+/// participate in transfer. The type of the control determines the type of member
+/// needed in the transfer buffer.
+///
+/// To define a transfer buffer, define an instance variable for each participating
+/// control in the dialog box or window. It is not necessary to define an instance
+/// variable for every control, only for those controls you want to transfer values
+/// to and from. The transfer buffer stores one of each type of control, except
+/// buttons, group boxes, and static controls. For example:
+/// \code
+/// struct TSampleTransferStruct
+/// {
+///  char editCtl[sizeOfEditCtl]; // edit control
+///  uint16 checkBox;       // check box
+///  uint16 radioButton;     // radio button
+///  TListBoxData listBox;    // list box
+///  TComboBoxData comboBox;   // combo box
+///  TScrollBarData scrollBar;  // scroll bar
+/// };
+/// \endcode
+///
+/// Each type of control has different information to store. The following table
+/// explains the transfer buffer for each of ObjectWindows' controls.
+///
+/// Transfer buffer members for each type of control
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Control type</TD><TD class="owltableheader">Type</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Static</TD><TD class="owltable">char array</TD><TD class="owltable">A character array up to the maximum length of text allowed,
+/// plus the terminating NULL. By default, static controls do not participate in
+/// transfer, but you can explicitly enable them.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Edit</TD><TD class="owltable">char array</TD><TD class="owltable">A character array up to the maximum length of text allowed, plus
+/// the terminating NULL.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">List box</TD><TD class="owltable">TListBoxData</TD><TD class="owltable">An instance of the TListBoxData class; TListBoxData has
+/// several members for holding the list box strings, item data, and the selected
+/// indexes.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Combo box</TD><TD class="owltable">TComboBoxData</TD><TD class="owltable">An instance of the TComboBoxData class; TComboBoxData
+/// has several members for holding the combo box list area strings, item data, the
+/// selection index, and the contents of the edit area.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Check box or radio button </TD><TD class="owltable">uint16</TD><TD class="owltable">BF_CHECKED, BF_UNCHECKED, or
+/// BF_GRAYED, indicating selection box state.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Scroll bar</TD><TD class="owltable">TScrollBarData</TD><TD class="owltable">An instance of TScrollBarData, which has three int
+/// members:
+/// - LowValue -- minimum range
+/// - HighValue -- maximum range
+/// - Position -- current thumb position.
+/// </TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref usingtransferbuffers "Using Transfer Buffers"
+/// - \subpage listboxtransfer "List Box Transfer"
+/// - \subpage comboboxtransfer "Combo Box Transfer"
+///
+///
+///
+/// \page listboxtransfer List Box Transfer
+/// Because list boxes need to transfer several pieces of information (strings, item
+/// data, and selection indexes), the transfer buffer uses a class called
+/// TListBoxData. TListBoxData has several data members to hold the list box information:
+///
+/// TListBoxData data members
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Data member</TD><TD class="owltableheader">Type</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBoxData::ItemDatas</TD><TD class="owltable">TUint32Array*</TD><TD class="owltable">Contains the item data uint32 for each item in the list
+/// box.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBoxData::SelIndices</TD><TD class="owltable">TIntArray*</TD><TD class="owltable">Contains the indexes of each selected string (in a
+/// multiple-selection list box).</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBoxData::Strings</TD><TD class="owltable">TStringArray*</TD><TD class="owltable">Contains all the strings in the list box.</TD></TR>
+/// </TABLE>
+/// 
+/// TListBoxData also has the following member functions to manipulate the list box
+/// data:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member function</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBoxData::AddItemData</TD><TD class="owltable">Adds item data to the ItemDatas array.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBoxData::AddString</TD><TD class="owltable">Adds a string to the Strings array, and optionally selects it.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBoxData::AddStringItem</TD><TD class="owltable">Adds a string to the Strings array, optionally selects it, and
+/// adds item data to the ItemDatas array.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBoxData::GetSelString</TD><TD class="owltable">Get the selected string at the given index.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBoxData::GetSelStringLength</TD><TD class="owltable">Returns the length of the selected string at the given
+/// index.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBoxData::ResetSelections</TD><TD class="owltable">Removes all selections from the SelIndices array.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBoxData::Select</TD><TD class="owltable">Selects the string at the given index.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TListBoxData::SelectString</TD><TD class="owltable">Selects the given string.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref comboboxtransfer "Combo Box Transfer"
+/// - \ref definingthecorrespondingwindowordialogbox "Defining the Corresponding Window Or Dialog Box"
+/// - \ref usingtransferwithadialogbox "Using Transfer with a Dialog Box"
+/// - \ref transferringthedata "Transferring the Data"
+/// - \ref transferringdatafromadialogbox "Transferring Data From a Dialog Box"
+/// - \ref supportingtransferforcustomizedcontrols "Supporting Transfer For Customized Controls"
+///
+///
+///
+/// \page comboboxtransfer Combo Box Transfer
+/// Combo boxes need to transfer several pieces of information (strings, item data,
+/// selected item, and the index of the selected item). The transfer buffer for
+/// combo boxes is a class called TComboBoxData. TComboBoxData
+/// has the following data members to hold the combo box information:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Data member</TD><TD class="owltableheader">Type</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::ItemDatas</TD><TD class="owltable">TUint32Array*</TD><TD class="owltable">Contains the item data uint32 for each item in the list
+/// box.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::Selection</TD><TD class="owltable">char*</TD><TD class="owltable">Contains the selected string.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::Strings</TD><TD class="owltable">TStringArray*</TD><TD class="owltable">Contains all the strings in the list box.</TD></TR>
+/// </TABLE>
+///
+/// TComboBoxData also uses the following member functions to manipulate the combo
+/// box information:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member function</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::AddString</TD><TD class="owltable">Adds a string to the Strings array, and optionally selects it.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::AddStringItem</TD><TD class="owltable">Adds a string to the Strings array, optionally selects it, and</TD></TR>
+/// adds item data to the ItemDatas array.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::Clear</TD><TD class="owltable">Clears all data.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::GetItemDatas</TD><TD class="owltable">Returns a reference to ItemDatas.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::GetSelCount</TD><TD class="owltable">Returns the number of selected items.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::GetSelection</TD><TD class="owltable">Returns a reference to the current selection.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::GetSelIndex</TD><TD class="owltable">Returns the index of the current selection.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::GetSelString</TD><TD class="owltable">Places a copy of the current selection into a character buffer.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::GetSelStringLength</TD><TD class="owltable">Returns the length of the currently selected string.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::GetStrings</TD><TD class="owltable">Returns a reference to the entire array of strings in the combo
+/// box.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::ResetSelections</TD><TD class="owltable">Sets the current selection to a null string and sets the index
+/// to CB_ERR.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::Select</TD><TD class="owltable">Sets a string in Strings to be the current selection, based on an index
+/// parameter.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TComboBoxData::SelectString</TD><TD class="owltable">Sets a string in Strings to be the current selection, based on
+/// matching a const char far* parameter.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref listboxtransfer "List Box Transfer"
+/// - \ref definingthecorrespondingwindowordialogbox "Defining the Corresponding Window Or Dialog Box"
+/// - \ref usingtransferwithadialogbox "Using Transfer with a Dialog Box"
+/// - \ref transferringthedata "Transferring the Data"
+/// - \ref transferringdatafromadialogbox "Transferring Data From a Dialog Box"
+/// - \ref supportingtransferforcustomizedcontrols "Supporting Transfer For Customized Controls"
+///
+///
+///
+/// \page definingthecorrespondingwindowordialogbox Defining the Corresponding Window Or Dialog Box
+/// A window or dialog box that uses the transfer mechanism must construct its
+/// participating control objects in the exact order in which the corresponding
+/// transfer buffer members are defined. To enable transfer for a window or dialog
+/// box object, call SetTransferBuffer and pass a pointer to the transfer buffer.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage usingtransferwithadialogbox "Using Transfer with a Dialog Box"
+/// - \subpage usingtransferwithawindow "Using Transfer with a Window"
+/// - \ref transferringthedata "Transferring the Data"
+/// - \ref usingtransferbuffers "Using Transfer Buffers"
+/// - \ref listboxtransfer "List Box Transfer"
+/// - \ref comboboxtransfer "Combo Box Transfer"
+/// - \ref transferringdatatoawindow "Transferring Data To a Window"
+/// - \ref transferringdatafromadialogbox "Transferring Data From a Dialog Box"
+/// - \ref transferringdatafromawindow "Transferring Data From a Window"
+/// - \ref supportingtransferforcustomizedcontrols "Supporting Transfer For Customized Controls"
+///
+///
+///
+/// \page usingtransferwithadialogbox Using Transfer with a Dialog Box
+/// Because dialog boxes get their definitions and the definitions of their controls
+/// from resources, you should construct control objects using the constructors that
+/// take resource IDs. For example:
+/// \code
+/// struct TTransferBuffer {
+///  char edit[30];
+///  TListBoxData listBox;
+///  TScrollBarData scrollBar;
+/// }
+///
+///   .
+///   .
+///   .
+/// TTransferDialog::TTransferDialog(TWindow* parent, int resId)
+///  : TDialog(parent, resId), TWindow(parent)
+/// {
+///  new TEdit(this, ID_EDIT, 30);
+///  new TListBox(this, ID_LISTBOX);
+///  new TScrollBar(this, ID_SCROLLBAR);
+///
+/// 
+/// SetTransferBuffer(&TTransferBuffer);
+/// }
+/// \endcode
+///
+/// Control objects you construct like this automatically have transfer enabled
+/// (except for button, group box, and static control objects). To explicitly
+/// exclude a control from the transfer mechanism, call its DisableTransfer member
+/// function after constructing it.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref listboxtransfer "List Box Transfer"
+/// - \ref comboboxtransfer "Combo Box Transfer"
+/// - \ref definingthecorrespondingwindowordialogbox "Defining the Corresponding Window Or Dialog Box"
+/// - \ref transferringthedata "Transferring the Data"
+/// - \ref transferringdatafromadialogbox "Transferring Data From a Dialog Box"
+/// - \ref supportingtransferforcustomizedcontrols "Supporting Transfer For Customized Controls"
+///
+///
+///
+/// \page usingtransferwithawindow Using Transfer with a Window
+/// Controls constructed in a window have transfer disabled by default. To enable
+/// transfer, call the control object's EnableTransfer member function:
+/// \code
+/// ListBox = new TListBox(this, ID_LISTBOX, 20, 20, 340, 100);
+/// ListBox->EnableTransfer();
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref definingthecorrespondingwindowordialogbox "Defining the Corresponding Window Or Dialog Box"
+/// - \ref usingtransferwithawindow "Using Transfer with a Window"
+/// - \ref transferringthedata "Transferring the Data"
+/// - \ref transferringdatatoawindow "Transferring Data To a Window"
+/// - \ref transferringdatafromawindow "Transferring Data From a Window"
+/// - \ref supportingtransferforcustomizedcontrols "Supporting Transfer For Customized Controls"
+///
+///
+///
+/// \page transferringthedata Transferring the Data
+/// In most cases, transferring data to or from a window is automatic, but you can
+/// also explicitly transfer data at any time.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage transferringdatatoawindow "Transferring Data To a Window"
+/// - \subpage transferringdatafromadialogbox "Transferring Data From a Dialog Box"
+/// - \subpage transferringdatafromawindow "Transferring Data From a Window"
+/// - \subpage supportingtransferforcustomizedcontrols "Supporting Transfer For Customized Controls"
+/// - \ref definingthecorrespondingwindowordialogbox "Defining the Corresponding Window Or Dialog Box"
+/// - \ref usingtransferbuffers "Using Transfer Buffers"
+/// - \ref comboboxtransfer "Combo Box Transfer"
+/// - \ref listboxtransfer "List Box Transfer"
+/// - \ref usingtransferwithadialogbox "Using Transfer with a Dialog Box"
+/// - \ref usingtransferwithawindow "Using Transfer with a Window"
+///
+///
+///
+/// \page transferringdatatoawindow Transferring Data To a Window
+/// Transfer to a window happens automatically when you construct a window object.
+/// The constructor calls SetupWindow to create an interface element to represent
+/// the window object; it then calls TransferData to load any data from the transfer
+/// buffer. The window object's SetupWindow calls SetupWindow for each of its child
+/// windows as well, so each of the child windows has a chance to transfer its data.
+/// Because the parent window sets up its child windows in the order it constructed
+/// them, the data in the transfer buffer must appear in that same order.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref transferringdatafromadialogbox "Transferring Data From a Dialog Box"
+/// - \ref transferringdatafromawindow "Transferring Data From a Window"
+/// - \ref supportingtransferforcustomizedcontrols "Supporting Transfer For Customized Controls"
+/// - \ref transferringthedata "Transferring the Data"
+/// - \ref definingthecorrespondingwindowordialogbox "Defining the Corresponding Window Or Dialog Box"
+/// - \ref comboboxtransfer "Combo Box Transfer"
+/// - \ref listboxtransfer "List Box Transfer"
+/// - \ref usingtransferwithadialogbox "Using Transfer with a Dialog Box"
+/// - \ref usingtransferwithawindow "Using Transfer with a Window"
+///
+///
+///
+/// \page transferringdatafromadialogbox Transferring Data From a Dialog Box
+/// When a modal dialog box receives a command message with a control ID of IDOK, it
+/// automatically transfers data from the controls into the transfer buffer. Usually
+/// this message indicates that the user chose OK to close the dialog box, so the
+/// dialog box automatically updates its transfer buffer. Then, if you execute the
+/// dialog box again, it transfers from the transfer buffer to the controls.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref transferringdatafromawindow "Transferring Data From a Window"
+/// - \ref transferringdatatoawindow "Transferring Data to a Window"
+/// - \ref supportingtransferforcustomizedcontrols "Supporting Transfer For Customized Controls"
+/// - \ref transferringthedata "Transferring the Data"
+/// - \ref definingthecorrespondingwindowordialogbox "Defining the Corresponding Window Or Dialog Box"
+/// - \ref comboboxtransfer "Combo Box Transfer"
+/// - \ref listboxtransfer "List Box Transfer"
+/// - \ref definingthecorrespondingwindowordialogbox "Defining the Corresponding Window Or Dialog Box"
+/// - \ref usingtransferwithadialogbox "Using Transfer with a Dialog Box"
+///
+///
+///
+/// \page transferringdatafromawindow Transferring Data From a Window
+/// You can explicitly transfer data in either direction at any time. For example,
+/// you might want to transfer data out of controls in a window or modeless dialog
+/// box. Or you might want to reset the state of the controls using the data in the
+/// transfer buffer in response to the user clicking a Reset or Revert button.
+///
+/// Use the TransferData member function in either case, passing the tdSetData
+/// enumeration to transfer from the transfer buffer to the controls or tdGetData to
+/// transfer from the controls to the transfer buffer. For example, you might want
+/// to call TransferData in the CloseWindow member function of a window object as
+/// follows:
+/// \code
+/// void TMyWindow::CloseWindow()
+/// {
+///  TransferData(tdGetData);
+///  TWindow::CloseWindow();
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref transferringdatafromadialogbox "Transferring Data From a Dialog Box"
+/// - \ref transferringdatafromawindow "Transferring Data From a Window"
+/// - \ref transferringdatatoawindow "Transferring Data to a Window"
+/// - \ref supportingtransferforcustomizedcontrols "Supporting Transfer For Customized Controls"
+/// - \ref transferringthedata "Transferring the Data"
+/// - \ref definingthecorrespondingwindowordialogbox "Defining the Corresponding Window Or Dialog Box"
+/// - \ref usingtransferwithawindow "Using Transfer with a Window"
+///
+///
+///
+/// \page supportingtransferforcustomizedcontrols Supporting Transfer For Customized Controls
+/// You can modify the way a particular control transfers its data or include a new
+/// control you define in the transfer mechanism. In either case, all you need to do
+/// is to write a Transfer member function for your control object. See the
+/// following table to interpret the meaning of the transfer flag parameter.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Transfer flag parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">tdGetData</TD><TD class="owltable">Copy data from the control to the location specified by the supplied
+/// pointer. Return the number of bytes transferred.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">tdSetData</TD><TD class="owltable">Copy the data from the transfer buffer at the supplied pointer to the
+/// control. Return the number of bytes transferred.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">tdSizeData</TD><TD class="owltable">Return the number of bytes that would be transferred.</TD></TR>
+/// </TABLE>
+///
+///
+/// \section seealso See Also
+/// - \ref transferringdatafromadialogbox "Transferring Data From a Dialog Box"
+/// - \ref transferringdatafromawindow "Transferring Data From a Window"
+/// - \ref transferringdatatoawindow "Transferring Data to a Window"
+/// - \ref transferringthedata "Transferring the Data"
+/// - \ref comboboxtransfer "Combo Box Transfer"
+/// - \ref definingthecorrespondingwindowordialogbox "Defining the Corresponding Window Or Dialog Box"
+/// - \ref listboxtransfer "List Box Transfer"
+/// - \ref usingtransferwithadialogbox "Using Transfer with a Dialog Box"
+/// - \ref usingtransferwithawindow "Using Transfer with a Window"
+///

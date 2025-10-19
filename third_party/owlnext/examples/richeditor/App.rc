@@ -1,0 +1,169 @@
+#include "App.rh"
+#include <owl/editfile.rh>
+#include <owl/mdi.rh>
+#include <owl/prevwin.rh>
+#include <owl/winres.rh>
+
+//
+// Main window menu
+//
+IDM_MDI MENU
+BEGIN
+  POPUP "&File"
+  BEGIN
+    MENUITEM "&New", CM_FILENEW
+    MENUITEM "&Open...", CM_FILEOPEN
+    MENUITEM "&Close", CM_FILECLOSE
+    MENUITEM SEPARATOR
+    MENUITEM "&Save", CM_FILESAVE, GRAYED
+    MENUITEM "Save &As...", CM_FILESAVEAS, GRAYED
+    MENUITEM SEPARATOR
+    MENUITEM "Print Pre&view...", CM_FILEPRINTPREVIEW, GRAYED
+    MENUITEM "&Print...", CM_FILEPRINT, GRAYED
+    MENUITEM "P&rint Setup...", CM_FILEPRINTERSETUP, GRAYED
+    MENUITEM SEPARATOR
+    MENUITEM "Sen&d...", CM_FILESEND, GRAYED
+    MENUITEM SEPARATOR
+    MENUITEM "E&xit\tAlt+F4", CM_EXIT
+  END
+
+  MENUITEM SEPARATOR
+
+  POPUP "&Edit"
+  BEGIN
+    MENUITEM "&Undo\tAlt+BkSp", CM_EDITUNDO, GRAYED
+    MENUITEM SEPARATOR
+    MENUITEM "Cu&t\tShift+Del", CM_EDITCUT, GRAYED
+    MENUITEM "&Copy\tCtrl+Ins", CM_EDITCOPY, GRAYED
+    MENUITEM "&Paste\tShift+Ins", CM_EDITPASTE, GRAYED
+    MENUITEM SEPARATOR
+    MENUITEM "Clear &All\tCtrl+Del", CM_EDITCLEAR, GRAYED
+    MENUITEM "&Delete\tDel", CM_EDITDELETE, GRAYED
+  END
+
+  POPUP "&Search"
+  BEGIN
+    MENUITEM "&Find...", CM_EDITFIND, GRAYED
+    MENUITEM "&Replace...", CM_EDITREPLACE, GRAYED
+    MENUITEM "&Next\aF3", CM_EDITFINDNEXT, GRAYED
+  END
+
+  MENUITEM SEPARATOR
+
+  MENUITEM SEPARATOR
+
+  MENUITEM SEPARATOR
+
+  POPUP "&Window"
+  BEGIN
+    MENUITEM "&Cascade", CM_CASCADECHILDREN
+    MENUITEM "&Tile", CM_TILECHILDREN
+    MENUITEM "Arrange &Icons", CM_ARRANGEICONS
+    MENUITEM "C&lose All", CM_CLOSECHILDREN
+  END
+
+  MENUITEM SEPARATOR
+
+  POPUP "&Help"
+  BEGIN
+    MENUITEM "&About...", CM_HELPABOUT
+  END
+
+END
+
+//
+// Accelerator table for Print Preview window
+//
+IDM_PRINTPREVIEW ACCELERATORS
+BEGIN
+  VK_ESCAPE, IDB_DONE, VIRTKEY
+  "c",       IDB_DONE, ALT
+END
+
+//
+// Table of help hints displayed in the status bar.
+// Hints not defined here are defined in the OWLNext resources.
+//
+STRINGTABLE
+BEGIN
+  CM_FILECLOSE,         "Closes the active document"
+  CM_FILEPRINTPREVIEW,  "Display the active document as a printout"
+  CM_FILEPRINT,         "Prints the active document"
+  CM_FILEPRINTERSETUP,  "Sets print characteristics for the active document"
+  CM_FILESEND,          "Sends the active document using electronic mail"
+  CM_EDITFIND-1,        "Search and replace operations"
+  CM_EDITFIND,          "Finds the specified text"
+  CM_HELPABOUT-1,       "Access About"
+  CM_HELPABOUT,         "About the RichEditor application"
+END
+
+//
+// Bitmaps used by the speedbar
+//
+CM_FILEPRINTPREVIEW  BITMAP "Resources/preview.bmp"
+CM_FILEPRINT BITMAP "Resources/print.bmp"
+
+//
+// Icons
+//
+IDI_DOC ICON "Resources/mdichild.ico"
+IDI_MDIAPPLICATION ICON "Resources/appldocv.ico"
+
+//
+// About box.
+//
+IDD_ABOUT DIALOGEX 12, 17, 204, 65
+STYLE DS_SHELLFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About RichEditor"
+FONT 8, "MS Shell Dlg"
+BEGIN
+  CTEXT "Version", IDC_VERSION, 2, 14, 200, 8, SS_NOPREFIX
+  CTEXT "", IDC_COPYRIGHT, 2, 27, 200, 17, SS_NOPREFIX
+  RTEXT "", IDC_DEBUG, 136, 55, 66, 8, SS_NOPREFIX
+  ICON IDI_MDIAPPLICATION, -1, 2, 2, 34, 34
+  DEFPUSHBUTTON "OK", IDOK, 82, 48, 40, 14
+END
+
+//
+// Version info
+//
+#if defined(_DEBUG)
+#define OUR_FILEFLAGS VS_FF_DEBUG
+#else
+#define OUR_FILEFLAGS 0
+#endif
+1 VERSIONINFO LOADONCALL MOVEABLE
+FILEVERSION 7, 0, 0, 0
+PRODUCTVERSION 7, 0, 0, 0
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEFLAGS OUR_FILEFLAGS
+FILEOS VOS__WINDOWS32
+FILETYPE VFT_APP
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4" // Matches "VarFileInfo/Translation" hex value.
+    BEGIN
+      VALUE "CompanyName", "OWLNext Community\000"
+      VALUE "FileDescription", "RichEditor Executable\000"
+      VALUE "FileVersion", "7.0.0\000"
+      VALUE "InternalName", "RichEditor\000"
+      VALUE "LegalCopyright", "Copyright (c) 1996-2019 OWLNext Community.\000"
+      VALUE "OriginalFilename", "RichEditor.exe\000"
+      VALUE "ProductName", "RichEditor Example\000"
+      VALUE "ProductVersion", "7.0\000"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 0x04e4 // U.S. English(0x0409) & Windows Multilingual(0x04e4) 1252
+  END
+END
+
+//
+// Unless we link with the OWLNext DLL we must explicitly include the OWL resources.
+//
+#if !defined(_OWLDLL)
+#include <owl/all.rc>
+#endif

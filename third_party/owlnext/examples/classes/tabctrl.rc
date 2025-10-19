@@ -1,0 +1,116 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "tabctrl.rh"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE  
+BEGIN
+    "tabctrl.rh\0"
+END
+
+2 TEXTINCLUDE  
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE  
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+#define OWL_NOTETAB "OWL_Notetab"
+
+IDM_APPMENU MENU
+{
+  POPUP "&Tab Control"
+{
+  MENUITEM "&Add Item...", CM_ADDITEM
+    MENUITEM "&Remove Item...", CM_REMOVEITEM
+    MENUITEM "&Change Item...", CM_CHANGEITEM
+    MENUITEM SEPARATOR
+    MENUITEM "&Info", CM_INFO
+    MENUITEM "&Delete All" CM_DELETEALL
+    MENUITEM SEPARATOR
+    MENUITEM "&New Tab...", CM_NEWTAB
+    MENUITEM SEPARATOR
+    MENUITEM "Veto TCN_SELCHANGING", CM_VETOSELCHANGING
+  }
+}
+
+IDD_NEWTAB DIALOGEX 28, 70, 140, 108
+STYLE DS_MODALFRAME | DS_SHELLFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "New Tab"
+FONT 8, "MS Shell Dlg"
+{
+  CONTROL "S&tyle", IDC_GROUPBOX1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE | WS_GROUP, 8, 4, 66, 46
+    CONTROL "&Button Tabs", IDC_RADIOBUTTON1, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 16, 16, 50, 12
+    CONTROL "&Default Tabs", IDC_RADIOBUTTON2, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 16, 30, 52, 12
+    CONTROL "&Rows", IDC_GROUPBOX2, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE | WS_GROUP, 8, 54, 66, 46
+    CONTROL "&Single Line", IDC_RADIOBUTTON3, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 16, 66, 50, 12
+    CONTROL "&MultiLine", IDC_RADIOBUTTON4, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 16, 80, 50, 12
+    CONTROL "OK", IDOK, "BUTTON", BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP, 82, 8, 50, 14
+    CONTROL "Cancel", IDCANCEL, "BUTTON", BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE, 82, 24, 50, 14
+}
+
+IDD_NOTETAB1 DIALOGEX 41, 97, 230, 100
+STYLE DS_MODALFRAME | DS_SHELLFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ObjectWindows Notetab"
+FONT 8, "MS Shell Dlg"
+{
+  CONTROL "", IDC_NOTETAB, OWL_NOTETAB, 0 | WS_CHILD | WS_VISIBLE, 8, 78, 214, 18
+    CONTROL "Order Info", IDC_GROUPBOX3, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 8, 4, 156, 68
+
+    CONTROL "The &Birds of Mauritius", IDC_RADIOBUTTON1, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 16, 16, 100, 12
+    CONTROL "&Hiking in Reunion Island", IDC_RADIOBUTTON2, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 16, 30, 100, 12
+    CONTROL "&Visiting Port-Louis", IDC_RADIOBUTTON3, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 16, 44, 100, 12
+
+    CONTROL "&Name", IDC_STATIC1, "STATIC", SS_LEFT | WS_CHILD | WS_GROUP | NOT WS_VISIBLE, 16, 16, 50, 8
+    CONTROL "", IDC_EDITNAME, "EDIT", WS_BORDER | WS_TABSTOP | NOT WS_VISIBLE, 16, 26, 140, 12
+    CONTROL "A&ddress", IDC_STATIC2, "STATIC", SS_LEFT | WS_CHILD | WS_GROUP | NOT WS_VISIBLE, 16, 40, 50, 8
+    CONTROL "", IDC_EDITADDR, "EDIT", WS_BORDER | WS_TABSTOP | NOT WS_VISIBLE, 16, 50, 140, 12
+
+    CONTROL "&Order Notes", IDC_STATIC3, "STATIC", SS_LEFT | WS_CHILD | WS_GROUP | NOT WS_VISIBLE, 16, 16, 50, 8
+    CONTROL "", IDC_EDITNOTES, "EDIT", WS_BORDER | WS_TABSTOP | NOT WS_VISIBLE, 16, 26, 140, 38
+
+    CONTROL "OK", IDOK, "BUTTON", BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 172, 8, 50, 14
+    CONTROL "&Cancel", IDCANCEL, "BUTTON", BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 172, 24, 50, 14
+}
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED

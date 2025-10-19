@@ -1,0 +1,65 @@
+//
+// OWLNext Persistent Streams Example - Resource Definition File
+// Copyright (c) 1993 Borland International
+// Copyright (c) 2015 Vidar Hasfjord 
+//
+// For usage rights, see the OWLNext License (http://sourceforge.net/projects/owlnext).
+
+#include "streams.rh"
+#include <owl/winres.rh>
+
+ELLIPSE_CURSOR CURSOR "ellipse.cur"
+LINE_CURSOR CURSOR "line.cur"
+RECT_CURSOR CURSOR "rect.cur"
+
+IDM_MAIN MENU LOADONCALL MOVEABLE PURE DISCARDABLE
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New", CM_FILENEW
+        MENUITEM "&Open...", CM_FILEOPEN
+        MENUITEM "&Save", CM_FILESAVE
+        MENUITEM "Save &as...", CM_FILESAVEAS
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit", CM_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Line", CM_EDITLINE
+        MENUITEM "&Rectangle", CM_EDITRECTANGLE
+        MENUITEM "&Ellipse", CM_EDITELLIPSE
+
+#if VERSION >= 2
+
+        MENUITEM SEPARATOR
+        MENUITEM "&Filled", CM_EDITFILLED
+
+#endif
+
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About...", CM_HELPABOUT
+    END
+END
+
+#if VERSION >= 2
+
+#define VERSION_STRING "Version 2"
+
+#else
+
+#define VERSION_STRING "Version 1"
+
+#endif
+
+IDD_ABOUT DIALOG 82, 84, 194, 79
+STYLE DS_SHELLFONT | DS_MODALFRAME | DS_CENTERMOUSE | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CTEXT "Persistent Streams Example", IDC_STATIC, 15, 10, 165, 18
+    CTEXT VERSION_STRING, IDC_STATIC, 15, 24, 165, 11
+    CTEXT "Copyright (c) 2015 OWLNext Project", IDC_STATIC, 15, 38, 165, 11
+    DEFPUSHBUTTON "OK", IDOK, 74, 53, 50, 14
+END

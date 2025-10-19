@@ -1,0 +1,160 @@
+
+// Microsoft Visual C++ generated resource script.
+//
+#include "transfer.rh"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include <owl/winres.rh>
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "transfer.rh\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include <owl/winres.rh>\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_TRANSFERDEMODIALOG DIALOGEX 0, 0, 505, 211
+STYLE DS_SHELLFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Transfer Dialog"
+FONT 8, "MS Shell Dlg", 400, 0
+BEGIN
+    LTEXT           "Static:",IDC_STATIC,12,12,22,8
+    LTEXT           "",IDC_STATIC1,75,12,89,10,0,WS_EX_STATICEDGE
+    LTEXT           "Edit:",IDC_STATIC,12,27,16,8
+    EDITTEXT        IDC_EDIT,75,27,89,14,ES_AUTOHSCROLL
+    LTEXT           "ListBox:",IDC_STATIC,12,46,26,8
+    LISTBOX         IDC_LISTBOX,75,46,89,29,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "CheckList:",IDC_STATIC,12,81,34,8
+    LISTBOX         IDC_CHECKLIST,75,81,89,32,LBS_OWNERDRAWFIXED | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "ComboBox:",IDC_STATIC,12,120,38,8
+    COMBOBOX        IDC_COMBOBOX,75,120,89,53,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "ComboBoxEx:",IDC_STATIC,12,138,46,8
+    CONTROL         "",IDC_COMBOBOXEX,"ComboBoxEx32",CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP,75,138,89,52
+    LTEXT           "MemComboBox:",IDC_STATIC,12,157,52,8
+    COMBOBOX        IDC_MEMCOMBOBOX,75,157,89,53,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "CheckBox:",IDC_STATIC,180,12,35,8
+    CONTROL         "Toggle",IDC_CHECKBOX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,234,12,67,10
+    LTEXT           "RadioButton:",IDC_STATIC,180,27,43,8
+    CONTROL         "Option 1",IDC_RADIOBUTTON,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,234,27,55,10
+    CONTROL         "Option 2",IDC_RADIOBUTTON2,"Button",BS_AUTORADIOBUTTON,234,41,53,10
+    CONTROL         "Option 3",IDC_RADIOBUTTON3,"Button",BS_AUTORADIOBUTTON,234,55,43,10
+    LTEXT           "ScrollBar:",IDC_STATIC,180,83,31,8
+    SCROLLBAR       IDC_SCROLLBAR,234,83,90,11,WS_TABSTOP
+    LTEXT           "Slider:",IDC_STATIC,180,105,21,8
+    CONTROL         "",IDC_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,234,105,90,15
+    LTEXT           "HotKey:",IDC_STATIC,180,137,27,8
+    CONTROL         "",IDC_HOTKEY,"msctls_hotkey32",WS_BORDER | WS_TABSTOP,235,137,90,14
+    LTEXT           "IPAddress:",IDC_STATIC,180,157,36,8
+    CONTROL         "",IDC_IPADDRESS,"SysIPAddress32",WS_TABSTOP,235,157,90,13
+    LTEXT           "DateTimePicker:",IDC_STATIC,342,12,52,8
+    CONTROL         "",IDC_DATETIMEPICKER,"SysDateTimePick32",WS_TABSTOP,342,24,150,15
+    LTEXT           "MonthCalendar:",IDC_STATIC,342,57,52,8
+    CONTROL         "",IDC_MONTHCALENDAR,"SysMonthCal32",WS_TABSTOP,342,71,150,99
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,181,491,1
+    PUSHBUTTON      "Set controls",IDC_SETCONTROLS,7,190,71,14
+    PUSHBUTTON      "Clear controls",IDC_CLEARCONTROLS,83,190,71,14
+    DEFPUSHBUTTON   "OK",IDOK,391,190,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,448,190,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_TRANSFERDEMODIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 498
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 204
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDA_TRANSFER ACCELERATORS 
+BEGIN
+    VK_F1,          CM_TRANSFERDIALOG1,     VIRTKEY, NOINVERT
+    VK_F2,          CM_TRANSFERDIALOG2,     VIRTKEY, NOINVERT
+    VK_F3,          CM_TRANSFERDIALOG3,     VIRTKEY, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_TRANSFER MENU 
+BEGIN
+    POPUP "&Test"
+    BEGIN
+        MENUITEM "Transfer Dialog 1 (using overloads for control instances)...\tF1", CM_TRANSFERDIALOG1
+        MENUITEM "Transfer Dialog 2 (using overloads for child identifiers)...\tF2", CM_TRANSFERDIALOG2
+        MENUITEM "Transfer Dialog 3 (using DDX-like functions)...\tF3", CM_TRANSFERDIALOG3
+    END
+END
+
+#endif    // English (U.K.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

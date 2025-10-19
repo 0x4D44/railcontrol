@@ -1,0 +1,580 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+/// \page aboutvisualbasiccontrolobjects About Visual Basic control objects
+/// ObjectWindows lets you use Visual Basic (VBX) 3.0-compatible controls in your
+/// Windows applications as easily as you use standard Windows or ObjectWindows
+/// controls.
+///
+/// VBX controls offer a wide range of functionality that is not provided in
+/// standard Windows controls. There are numerous public domain and commercial
+/// packages of VBX controls that can be used to provide a more polished and useful
+/// user interface.
+///
+/// To take advantage of VBX controls, use the two ObjectWindows classes
+/// TVbxControl and TVbxEventHandler.
+///
+/// \section usingvbxcontrols Using VBX Controls
+/// To use VBX controls in your ObjectWindows application, follow this process:
+/// -# In your OwlMain function, call the function VBXInit before you call the Run
+/// function of your application object. Call the function VBXTerm after you call
+/// the Run function of your application object. VBXInit takes the application
+/// instance as a parameter. VBXTerm takes no parameters. These functions initialize
+/// and close each instance's host environment necessary for using VBX controls.
+/// Your OwlMain function might look something like this:
+/// \code
+/// int OwlMain(int argc, char* argv[])
+/// {
+///  VBXInit(_hInstance, "THUNDER");
+///  int result = TApplication("Wow!").Run();
+///  VBXTerm();
+///  return result
+/// }
+/// \endcode
+/// 2. Derive a class that mixes your base interface class with
+/// TVbxEventHandler. Your base interface class is
+/// whatever class you want to display the control in. If you are using the control
+/// in a dialog box, you need to mix in TDialog. The code
+/// would look something like this:
+/// \code
+/// class MyVbxDialog : public TDialog, public TVbxEventHandler
+/// {
+///  public:
+///   MyVbxDialog(TWindow *parent, char *name)
+///    :
+/// TDialog(parent, name),
+/// TWindow(parent, name) {}
+/// 
+/// DECLARE_RESPONSE_TABLE(MyVbxDialog);
+/// };
+/// \endcode
+/// -# Build a \ref eventresponsetable "response table" for the parent, including all
+/// relevant events from your control. Use the EV_VBXEVENTNAME macro to set up the
+/// response for each control event.
+/// -# Create the control's parent. You can either construct the control when you
+/// create the parent or allow the parent to construct the control itself, depending
+/// on how the control is being used.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage tvbxcontrolclass "TVbxControl class"
+/// - \subpage handlingvbxcontrolmessages "Handling VBX control messages"
+/// - \subpage accessingavbxcontrol "Accessing a VBX control"
+///
+///
+///
+/// \page tvbxcontrolclass TVbxControl class
+/// TVbxControl provides the actual interface to the control by letting you:
+/// - Construct a VBX control object
+/// - Get and change control properties
+/// - Find the number of control properties and convert property names to and from
+/// property indexes
+/// - Find the number of control events and convert event names to and from event
+/// indexes
+/// - Call the Visual Basic 3.0 standard control methods AddItem, Move, Refresh,
+/// and RemoveItem
+/// - Get the handle to the control element using the TVbxControl member function
+/// TVbxControl::GetHCTL
+///
+/// TVbxControl is derived from the class TControl, which is derived from
+/// TWindow. Thus, TVbxControl acts much the same as any other
+/// interface element based on TWindow.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage implicitandexplicitconstruction "Implicit and explicit construction"
+/// - \subpage tvbxcontrolconstructors "TVbxControl constructors"
+/// - \subpage tvbxeventhandlerclass "TVbxEventHandler class"
+///
+///
+///
+/// \page tvbxcontrolconstructors TVbxControl constructors
+/// \ref tvbxcontrolclass "TVbxControl" has two constructors.
+/// Dynamically constructing a VBX control
+/// The first constructor lets you dynamically construct a VBX control by specifying
+/// a VBX control file name (for example, SWITCH.VBX), control ID, control class,
+/// control title, location, and size:
+/// \code
+/// TVbxControl(TWindow *parent,
+///    int id, const char far *FileName, const char far *ClassName, const char far *title,
+///    int x, int y,
+///    int w, int h, TModule *module);
+/// \endcode
+/// The parameters are described in the following table:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">parent</TD><TD class="owltable">A pointer to the control's parent.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">id</TD><TD class="owltable">The control's ID, used when defining the parent's response table. It usually
+/// looks like a resource ID.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">FileName</TD><TD class="owltable">The name of the file that contains the VBX control, including a
+/// path name if necessary.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">ClassName</TD><TD class="owltable">The class name of the control. A given VBX control file might
+/// contain a number of separate controls, each of which is identified by a unique
+/// class name (usually found in the control reference guide of third-party VBX
+/// control libraries).</TD></TR>
+/// <TR class="owltable"><TD class="owltable">title</TD><TD class="owltable">The control's title or caption.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">x and y</TD><TD class="owltable">The coordinates within the parent object at which you want the
+/// control placed.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">w and h</TD><TD class="owltable">The control's width and the height.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">module</TD><TD class="owltable">Passed to the TControl
+/// base constructor as the TModule parameter for that constructor; defaults to 0.</TD></TR>
+/// </TABLE>
+///
+/// Using a VBX control in the application's resource file
+/// The second constructor lets you set a TVbxControl
+/// object using a VBX control that has been defined in the application's resource
+/// file:
+/// \code
+/// TVbxControl(TWindow *parent,
+///    int resId, TModule *module);
+/// \endcode
+/// This constructor's parameters are
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">parent</TD><TD class="owltable">A pointer to the control's parent.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">resid</TD><TD class="owltable">The resource ID of the VBX control in the resource file.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">module</TD><TD class="owltable">Passed to the TControl base constructor as the
+/// TModule parameter for that constructor; defaults to 0.</TD></TR>
+/// </TABLE>
+///
+///
+///
+/// \section seealso See Also
+/// - \ref implicitandexplicitconstruction "Implicit and explicit construction"
+///
+///
+///
+/// \page implicitandexplicitconstruction Implicit and explicit construction
+/// You can construct VBX controls either explicitly or implicitly. You explicitly
+/// construct an object when you call one of the constructors. You implicitly
+/// construct an object when you do not call one of the constructors and allow the
+/// control to be instantiated and created by its parent.
+///
+/// \section explicitconstruction Explicit construction
+/// Explicit construction involves calling either constructor of a VBX control
+/// object. This is normally done in the parent's constructor so that the VBX
+/// control is constructed and ready when the parent window is created. You can also
+/// wait to construct the control until it is needed. (You could do this if you had
+/// room for only one control.) In this latter case, you could let the user choose a
+/// menu choice or press a button. Then, depending what the user does, you would
+/// instantiate an object and display it in an existing interface element.
+///
+/// The following code demonstrates explicit construction using both of the
+/// TVbxControl constructors in the constructor of a dialog box object:
+/// \code
+/// class TTestDialog : public TDialog, public TVbxEventHandler
+/// {
+///  public:
+///   TTestDialog(TWindow *parent, char *name)
+///    : TDialog(parent, name), TWindow(parent, name)
+///   {
+///    new TVbxControl(this, IDCONTROL1);
+///    new TVbxControl(this, IDCONTROL2, "SWITCH.VBX", "BiSwitch", "&Program VBX Control", 16, 70, 200, 50);
+///   }
+/// 
+/// DECLARE_RESPONSE_TABLE(TTestDialog);
+/// };
+/// \endcode
+///
+/// \section implicitconstruction Implicit construction
+/// Implicit construction takes place when you design your interface element outside
+/// your application source code, such as in Resource Workshop. You can use Resource
+/// Workshop to add VBX controls to dialog boxes and other interface elements. Then
+/// when you instantiate the parent object, the children, such as edit boxes, list
+/// boxes, buttons, and VBX controls, are automatically created along with the
+/// parent.
+///
+/// The following code demonstrates how the code for this might look. It is
+/// important to note, however, that what you don't see in the following code is a
+/// VBX control. Instead, the VBX control is included in the dialog resource
+/// DIALOG_1. When DIALOG_1 is loaded and created, the VBX control is automatically
+/// created.
+/// \code
+/// class TTestDialog : public TDialog, public TVbxEventHandler
+/// {
+///  public:
+///   TTestDialog(TWindow *parent, char *name)
+///    : TDialog(parent, name), TWindow(parent, name) {}
+/// 
+///    DECLARE_RESPONSE_TABLE(TTestDialog);
+///  };
+///
+/// void TTestWindow::CmAbout() {
+///  TTestDialog(this, "DIALOG_1").Execute();
+///  }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref tvbxcontrolconstructors "TVbxControl constructors"
+///
+///
+///
+/// \page tvbxeventhandlerclass TVbxEventHandler class
+/// The TVbxEventHandler class is quite small and, for the most part, of little
+/// interest to most programmers. What it does is very important, though. Without
+/// the functionality contained in this class, you could not communicate with your
+/// VBX controls. The event-handling programming model is described in greater
+/// detail in \ref handlingvbxcontrolmessages "Handling VBX Control Messages;" this topic
+/// explains only the part that TVbxEventHandler plays in the process.
+///
+/// TVbxEventHandler consists of a single function and a one-message response table.
+/// The function, called TVbxEventHandler::EvVbxDispatch, is
+/// the event-handling routine for a message called WM_VBXFIREEVENT. EvVbxDispatch
+/// receives the WM_VBXFIREEVENT message, converts the uncracked message to a
+/// VBXEVENT structure, and dispatches a new message, which is handled by the
+/// control's parent. Because the parent object is necessarily derived from
+/// TVbxEventHandler, the parent calls back to itself with a different message. The
+/// new message is much easier to handle and understand. This is the message that is
+/// handled by the \ref eventresponsetable "EV_VBXEVENTNAME" macro.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref tvbxcontrolclass "TVbxControl class"
+///
+///
+///
+/// \page handlingvbxcontrolmessages Handling VBX control messages
+/// You must handle VBX control messages through the control's parent object. For
+/// the parent object to be able to handle these messages, it must be derived from
+/// the class \ref tvbxeventhandlerclass "TVbxEventHandler." To accomplish this, you can
+/// mix whatever interface object class you want to use to contain the VBX control
+/// (for example, TDialog, TFrameWindow, or classes you might have derived from
+/// ObjectWindows interface classes) with the TVbxEventHandler class.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage eventresponsetable "Event response table"
+/// - \subpage interpretingacontrolevent "Interpreting a control event"
+/// - \subpage findingeventinformation "Finding event information"
+///
+///
+///
+/// \page eventresponsetable Event response table
+/// After you have derived your new class, you need to build a response table for
+/// it. The response table for this class looks like a normal response table; you
+/// still need to handle all the regular command messages and events you normally
+/// do. The only addition is the EV_VBXEVENTNAME macro to handle the new class of
+/// messages from your VBX controls.
+///
+/// The EV_VBXEVENTNAME macro is defined as follows:
+/// \code
+/// EV_VBXEVENTNAME(ID, Event, EvHandler)
+/// \endcode
+/// The three parameters are
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">ID</TD><TD class="owltable">The control ID. You can find this ID either as the second parameter to
+/// both constructors or as the resource ID in the resource file.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Event</TD><TD class="owltable">A string identifying the event name. This name is dependent on the
+/// control and can be one of the standard VBX event names or a custom event name.
+/// If the control is from a third-party VBX control library, you can find this
+/// event name by looking in the control reference guide.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvHandler</TD><TD class="owltable">The handler function for this event and control. The EvHandler
+/// function has the following signature:
+/// \code
+/// void EvHandler(VBXEVENT FAR *event);
+/// \endcode
+/// </TD></TR>
+/// </TABLE>
+///
+/// When a message is received from a VBX control by its parent, the parent
+/// dispatches the message to the handler function that corresponds to the correct
+/// control and event. When it calls the function, the parent passes it a pointer to
+/// a VBXEVENT structure.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref findingeventinformation "Finding event information"
+/// - \ref interpretingacontrolevent "Interpreting a control event"
+///
+///
+///
+/// \page interpretingacontrolevent Interpreting a control event
+/// After a VBX control event has taken place and the event-handling function has
+/// been called, the function must deal with the VBXEVENT structure received as a
+/// parameter. This structure looks like this:
+/// \code
+/// struct VBXEVENT {
+///  HCTL  hCtl;
+///  HWND  hWnd;
+///  int   nID;
+///  int   iEvent;
+///  LPCSTR lpszEvent;
+///  int cParams;
+///  LPVOID lpParams;
+///  };
+/// \endcode
+/// The members are
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Member</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">hCtl</TD><TD class="owltable">The handle of the sending VBX control (not a window handle)</TD></TR>
+/// <TR class="owltable"><TD class="owltable">hWnd</TD><TD class="owltable">The handle of the control window</TD></TR>
+/// <TR class="owltable"><TD class="owltable">nID</TD><TD class="owltable">The ID of the VBX control</TD></TR>
+/// <TR class="owltable"><TD class="owltable">iEvent</TD><TD class="owltable">The event index</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lpszEvent</TD><TD class="owltable">The event name</TD></TR>
+/// <TR class="owltable"><TD class="owltable">cParams</TD><TD class="owltable">The number of parameters for this event</TD></TR>
+/// <TR class="owltable"><TD class="owltable">lpParams</TD><TD class="owltable">A pointer to an array containing pointers to the parameter values
+/// for this event</TD></TR>
+/// </TABLE>
+///
+/// To understand the VBXEVENT structure, you need to understand how a VBX control
+/// event works. The first three members are straightforward: They let you identify
+/// the sending control. The next two members are also fairly simple: Each event
+/// that a VBX control can send has both an event index, represented by iEvent, and
+/// an event name, represented by lpszEvent.
+///
+/// The next two members, which store the parameters passed with the event, are more
+/// complex. cParams contains the total number of parameters available for this
+/// event. lpParams is an array of pointers to the event's parameters (like any
+/// other array, lpParam is indexed from 0 to cParams - 1).
+///
+/// These two members are more complicated than the previous members because there
+/// is no inherent indication of the type or meaning of each parameter. If the
+/// control is from a third-party VBX control library, you can look in the control
+/// reference guide to find this information. Otherwise, you need to get the
+/// information from the designer of the control (or to have designed the control
+/// yourself).
+///
+///
+///
+/// \section seealso See Also
+/// - \ref eventresponsetable "Event response table"
+/// - \ref findingeventinformation "Finding event information"
+///
+///
+///
+/// \page findingeventinformation Finding event information
+/// The standard way to interpret the information returned by an event is to refer
+/// to the documentation for the VBX control. Failing that,
+/// \ref tvbxcontrolclass "TVbxControl" provides a number of methods for obtaining
+/// information about an event.
+///
+/// You can find the total number of events that a control can send by using the
+/// TVbxControl member function
+/// TVbxControl ::GetNumEvents, which returns an int that gives the total
+/// number of events. These events are indexed from 0 to the return value of
+/// GetNumEvents - 1.
+///
+/// You can find the name of any event in this range by calling the TVbxControl
+/// member function GetEventName, which takes one parameter, an int
+/// index number, and returns a string containing the name of the event.
+/// Conversely, you can find the index of an event by calling the TVbxControl member
+/// function TVbxControl::GetEventIndex, which takes one
+/// parameter, a string containing the event name, and returns the corresponding int
+/// event index.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref eventresponsetable "Event response table"
+/// - \ref interpretingacontrolevent "Interpreting a control event"
+///
+///
+///
+/// \page accessingavbxcontrol Accessing a VBX control
+/// There are two ways you can directly access a VBX control.
+/// - One way is to \subpage vbxcontrolproperties "get and set the properties of the control." 
+/// A control has a fixed number of properties you can set to affect
+/// the look or behavior of the control.
+/// - The other way is to \subpage vbxcontrolmethods "call the control's methods." A
+/// control's methods are similar to member functions in a class and are actually
+/// accessed through member functions in the \ref tvbxcontrolclass "TVbxControl"
+/// class. You can use these methods to call into the object and cause an action to
+/// take place.
+///
+///
+///
+/// \page vbxcontrolproperties VBX control properties
+/// Every VBX control has a number of properties. Control properties affect the look
+/// and behavior of the control; for example, the colors used in various parts of
+/// the control, the size and location of the control, the control's caption, and so
+/// on. Changing these properties is usually your main way to manipulate a VBX
+/// control.
+///
+/// Each control's properties should be fully documented in the control reference
+/// guide of third-party VBX control libraries. If the control is not a third-party
+/// control or part of a commercial control package, then you need to consult the
+/// control's designer for any limits or special meanings to the control's
+/// properties.
+///
+/// Many properties often function only as an index to a property. An example of
+/// this might be background patterns: 0 could mean plain, 1 could mean
+/// cross-hatched, 2 could mean black, and so on. Without the proper documentation
+/// or information, it can be difficult to use a control's properties.
+///
+///
+///
+/// \section seealso See Also
+/// - \subpage findingpropertyinformation "Finding property information"
+/// - \subpage gettingcontrolproperties "Getting control properties"
+/// - \subpage settingcontrolproperties "Setting control properties"
+/// - \ref vbxcontrolmethods "VBX control methods"
+///
+///
+///
+/// \page findingpropertyinformation Finding property information
+/// The standard way to get information about a control's properties is to refer to
+/// the documentation for the VBX control. Failing that,
+/// \ref tvbxcontrolclass "TVbxControl" provides a number of methods for obtaining
+/// information about a control's properties.
+///
+/// You can find the total number of properties for a control by calling the
+/// TVbxControl member function TVbxControl::GetNumProps,
+/// which returns an int that gives the total number of properties. These properties
+/// are indexed from 0 to the return value of GetNumProps - 1.
+///
+/// You can find the name of any property in this range by calling the TVbxControl
+/// member function TVbxControl::GetPropName, which takes
+/// one parameter, an int index number, and returns a string containing the name of
+/// the property.
+///
+/// Conversely, you can find the index of an property by calling the TVbxControl
+/// member function TVbxControl::GetPropIndex, which takes
+/// one parameter, a string containing the property name, and returns the
+/// corresponding int property index.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref gettingcontrolproperties "Getting control properties"
+/// - \ref settingcontrolproperties "Setting control properties"
+///
+///
+///
+/// \page gettingcontrolproperties Getting control properties
+/// You can get the value of a control property using either its name or its index
+/// number. Although using the index is more efficient (because there is no string
+/// lookup), using the property name is usually more intuitive. You can use either
+/// method, depending on your preference.
+///
+/// TVbxControl provides the function TVbxControl::GetProp" to get
+/// the properties of a control. GetProp is overloaded to allow use of either the
+/// index or the name of the property. Each of these versions is further overloaded
+/// to allow you to obtain different types of properties:
+/// \code
+/// // get properties by index
+/// bool GetProp(int propIndex, int& value, int arrayIndex = -1);
+/// bool GetProp(int propIndex, long& value, int arrayIndex = -1);
+/// bool GetProp(int propIndex, HPIC& value, int arrayIndex = -1);
+/// bool GetProp(int propIndex, float& value, int arrayIndex = -1);
+/// bool GetProp(int propIndex, string& value, int arrayIndex = -1);
+///
+/// // get properties by name
+/// bool GetProp(const char far* name, int& value, int arrayIndex = -1);
+/// bool GetProp(const char far* name, long& value, int arrayIndex = -1);
+/// bool GetProp(const char far* name, HPIC& value, int arrayIndex = -1);
+/// bool GetProp(const char far* name, float& value, int arrayIndex = -1);
+/// bool GetProp(const char far* name, string& value, int arrayIndex = -1);
+/// \endcode
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Explanation</TD></TR>
+/// <TR class="owltable"><TD class="owltable">first parameter</TD><TD class="owltable">In versions where the first parameter is an int, specify the
+/// property by passing in the property index. In versions where the first parameter
+/// is a char *, specify the property by passing in the property name.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">second parameter</TD><TD class="owltable">A reference to an object with the same data type as the
+/// property. It is used by GetProp to return the property value. Create an object
+/// of the same type as the property and pass a reference to the object in value.
+/// When GetProp returns, the object contains the current value of the property.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">third parameter</TD><TD class="owltable">The index of an array property that you supply if the control
+/// requires it. Consult the documentation for your VBX control to discover if you
+/// need to supply this parameter and, if so, what the required values are. The
+/// function ignores this parameter if it is -1.</TD></TR>
+/// </TABLE>
+///
+///
+///
+/// \section seealso See Also
+/// - \ref findingpropertyinformation "Finding property information"
+/// - \ref settingcontrolproperties "Setting control properties"
+///
+///
+///
+/// \page settingcontrolproperties Setting control properties
+/// As you do when you \ref gettingcontrolproperties "get control properties," you set the
+/// value of a control property by using either its name or its index number.
+/// Although using the index is more efficient (because there is no string lookup),
+/// using the property name is usually more intuitive. You can use either method,
+/// depending on your preference.
+///
+/// TVbxControl provides the function TVbxControl::SetProp to set
+/// the properties of a control. SetProp is overloaded to allow you to set
+/// properties with either the index or name of the property. Each of these versions
+/// is further overloaded to allow you to set a number of different types of
+/// properties.
+/// \code
+/// // set properties by index
+/// bool SetProp(int propIndex, int value, int arrayIndex = -1);
+/// bool SetProp(int propIndex, long value, int arrayIndex = -1);
+/// bool SetProp(int propIndex, HPIC value, int arrayIndex = -1);
+/// bool SetProp(int propIndex, float value, int arrayIndex = -1);
+/// bool SetProp(int propIndex, const string& value, int arrayIndex = -1);
+/// bool SetProp(int propIndex, const char far* value, int arrayIndex = -1);
+///
+/// // set properties by name
+/// bool SetProp(const char far* name, int value, int arrayIndex = -1);
+/// bool SetProp(const char far* name, long value, int arrayIndex = -1);
+/// bool SetProp(const char far* name, HPIC value, int arrayIndex = -1);
+/// bool SetProp(const char far* name, float value, int arrayIndex = -1);
+/// bool SetProp(const char far* name, const string& value, int arrayIndex = -1);
+/// bool SetProp(const char far* name, const char far* value, int arrayIndex = -1);
+/// \endcode
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Parameter</TD><TD class="owltableheader">Explanation</TD></TR>
+/// <TR class="owltable"><TD class="owltable">first parameter</TD><TD class="owltable">In the versions where the first parameter is an int, you specify
+/// the property by passing the property index. In the versions where the first
+/// parameter is a char *, you specify the property by passing the property
+/// name.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">second parameter</TD><TD class="owltable">The second parameter is the value the property should be set
+/// to.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">third parameter</TD><TD class="owltable">The third parameter is the index of an array property that you
+/// supply if the control requires it. Consult the documentation for your VBX
+/// control to discover if you need to supply this parameter and, if so, what the
+/// required values are. The function ignores this parameter if it is -1.</TD></TR>
+/// </TABLE>
+///
+/// Although there are five different data types you can pass to
+/// TVbxControl::GetProp, SetProp provides for six different
+/// data types. The last two versions of each type of call use a char * and the ANSI
+/// string class to represent a string. These versions allow flexibility when
+/// passing a character string into a control.
+///
+/// GetProp uses casting to allow a char * to function effectively as a string
+/// object.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref findingpropertyinformation "Finding property information"
+/// - \ref gettingcontrolproperties "Getting control properties"
+///
+///
+///
+/// \page vbxcontrolmethods VBX control methods
+/// Methods are functions contained in each VBX control that you can use to call
+/// into the control and cause an action to take place.
+/// TVbxControl provides compatibility with the following
+/// methods contained in Visual Basic 3.0-compatible controls:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Function</TD><TD class="owltableheader">Explanation</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TVbxControl::Move(int x, int y, int w, int h)</TD><TD class="owltable">Moves the control to the coordinates x and y
+/// and resizes the control to w pixels wide by h pixels high.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TVbxControl::Refresh()</TD><TD class="owltable">Refreshes the control's display area.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TVbxControl::AddItem(int index, const char far *item)</TD><TD class="owltable">Adds the item item to the control's
+/// list of items and gives the new item the index number index.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TVbxControl::RemoveItem(int index)</TD><TD class="owltable">Removes the item with the index number index.</TD></TR>
+/// </TABLE>
+///
+///
+///
+/// \section seealso See Also
+/// - \ref vbxcontrolproperties "VBX control properties"
+///

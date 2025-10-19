@@ -1,0 +1,2881 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+///
+/// \page graphicsobjectsoverview Graphics Objects Overview
+/// ObjectWindows encapsulates the Windows Graphics Device Interface (GDI) and makes
+/// it easier to use GDI graphics objects and functions by simplifying how you
+/// create and manipulate GDI objects. From simple objects such as pens and brushes
+/// to more complex objects such as fonts and bitmaps, the GDI encapsulation of the
+/// ObjectWindows library provides a simple, consistent model for graphical
+/// programming in Windows.
+///
+/// See the following topics for more information on working with ObjectWindows GDI
+/// objects:
+/// - \subpage gdiclassorganization "GDI Class Organization"
+/// - \subpage changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \subpage workingwithdevicecontexts "Working with Device Contexts"
+/// - \subpage tpenclass "TPen Class"
+/// - \subpage tbrushclass "TBrush Class"
+/// - \subpage tfontclass "TFont Class"
+/// - \subpage tpaletteclass "TPalette Class"
+/// - \subpage tbitmapclass "TBitmap Class"
+/// - \subpage tregionclass "TRegion Class"
+/// - \subpage ticonclass "TIcon Class"
+/// - \subpage tcursorclass "TCursor Class"
+/// - \subpage tdibclass "TDib Class"
+///
+///
+///
+/// \page gdiclassorganization GDI Class Organization
+/// There are a number of ObjectWindows classes used to encapsulate GDI
+/// functionality. Most are derived from the TGdiObject
+/// class. TGdiObject provides the common functionality for all ObjectWindows GDI
+/// classes.
+///
+/// TGdiObject is the abstract base class for ObjectWindows GDI objects. It provides
+/// a base destructor, an HGDIOBJ conversion operator, and the base GetObject
+/// function. It also provides orphan control for true GDI objects (that is, objects
+/// derived from TGdiObject; other GDI objects, such as TRegion, TIcon, and
+/// TDib, which are derived from TGdiBase, are known as pseudo-GDI
+/// objects).
+///
+/// The other classes in the ObjectWindows GDI encapsulation are:
+/// - TDC is the root class for encapsulating ObjectWindows GDI
+/// device contexts. You can create a TDC object directly or--for more specialized
+/// behavior--you can use derived classes.
+/// - TPen contains the functionality of Windows pen objects.
+/// You can construct a pen object from scratch or from an existing pen handle, pen
+/// object, or logical pen (LOGPEN) structure.
+/// - TBrush contains the functionality of Windows brush
+/// objects. You can construct a custom brush, creating a solid, styled, or
+/// patterned brush, or you can use an existing brush handle, brush object, or
+/// logical brush (LOGBRUSH) structure.
+/// - TFont lets you easily use Windows fonts. You can
+/// construct a font with custom specifications, or from an existing font handle,
+/// font object, or logical font (LOGFONT) structure.
+/// - TPalette encapsulates a GDI palette. You can
+/// construct a new palette or use existing palettes from various color table types
+/// that are used by DIBs.
+/// - TBitmap contains Windows bitmaps. You can construct a
+/// bitmap from many sources, including files, bitmap handles, application
+/// resources, and more.
+/// - TRegion defines a region in a window. You can
+/// construct a region in numerous shapes, including rectangles, ellipses, and
+/// polygons. TRegion is a pseudo-GDI object; it is not derived from TGdiObject.
+/// - TIcon encapsulates Windows icons. You can construct an
+/// icon from a resource or explicit information. TIcon is a pseudo-GDI object.
+/// - TCursor encapsulates the Windows cursor. You can
+/// construct a cursor from a resource or explicit information.
+/// - TDib encapsulates the device-independent bitmap (DIB)
+/// class. DIBs have no Windows handle; instead they are just a structure containing
+/// format and palette information and a collection of bits (pixels). This class
+/// provides a convenient way to work with DIBs like any other GDI object. A DIB is
+/// what is really inside a .BMP file, in bitmap resources, and what is put on the
+/// Clipboard as a DIB. TDib is a pseudo-GDI object.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page changestoencapsulatedgdifunctions Changes To Encapsulated GDI Functions
+/// Many of the functions in the ObjectWindows GDI classes might look familiar to
+/// you; this is because many of them have the same names and very nearly, if not
+/// exactly, the same function signature as regular Windows API functions. Because
+/// the ObjectWindows GDI classes replicate the functionality of so many Windows
+/// objects, there was no need to alter the existing terminology. Therefore,
+/// function names and signatures have been deliberately kept as close as possible
+/// to what you are used to in the standard Windows GDI functions.
+///
+/// Some improvements, however, have been made to the functions. These improvements
+/// include such things as cracking packed return values and using ObjectWindows
+/// objects in place of Windows-defined structures.
+///
+/// None of these changes are hard and fast rules; just because a function can
+/// somehow be converted does not mean it necessarily has been. But if you see an
+/// ObjectWindows function with the same name as a Windows API function that looks a
+/// little different, one of the following reasons should explain the change to
+/// you:
+///
+/// \section dummy11_1 API functions that take an object handle as a parameter often omit the handle in the ObjectWindows version.
+///
+/// The TGdiObject base object maintains a handle to each
+/// object. The ObjectWindows version then uses that handle when passing the call on
+/// to Windows. For example, when selecting an object in a device context, you would
+/// normally use the SelectObject API function, as shown here:
+/// \code
+/// void SelectPen(HDC& hdc, HPEN& hpen)
+/// {
+///  HPEN hpenOld;
+///  hpenOld = SelectObject(hdc, hpen);
+///  // Do something with the new pen.
+///  .
+///  .
+///  .
+///  // Now select the old pen again.
+///  SelectObject(hdc, hpenOld);
+/// }
+/// \endcode
+/// The ObjectWindows version of this function is encapsulated in the TDC class, which is
+/// derived from TGdiObject. The following example shows how the previous function
+/// would appear in a member function of a TDC-derived class. Notice the difference
+/// between the two calls to SelectObject:
+/// \code
+/// void SelectPen(TDC& dc, TPEN& pen)
+/// {
+///  dc.SelectObject(pen);
+///
+///  // Do something with the new pen.
+///
+///  .
+///  .
+///  .
+///
+///  // Now select the old pen again.
+///  dc.RestorePen();
+///  }
+/// \endcode
+///
+/// \section dummy11_2 ObjectWindows GDI functions usually substitute an ObjectWindows type in place of a Windows type.
+/// - Windows API functions use individual parameters to specify x and y coordinate
+/// values; ObjectWindows GDI functions use TPoint objects.
+/// - Windows API functions use RECT structures to specify a rectangular area;
+/// ObjectWindows GDI functions use TRect objects.
+/// - Windows API functions use RGN structures to specify a region; ObjectWindows
+/// GDI functions use TRegion objects.
+/// - Windows API functions take HLOCAL or HGLOBAL parameters to pass an object
+/// that does not have a predefined Windows structure; ObjectWindows GDI functions
+/// use references to ObjectWindows objects.
+///
+/// \section dummy11_3 Some Windows functions return a uint32 with data encoded in it.
+/// The uint32 must then must be cracked to get the data from it. The ObjectWindows
+/// versions of these functions take a reference to some appropriate object as a
+/// parameter. The function then places the data into the object, relieving the
+/// programmer from the responsibility of cracking the value. These functions
+/// usually return a bool, indicating whether the function call was successful.
+///
+/// For example, the Windows version of SetViewportOrg returns a uint32, with the
+/// old value for the viewport origin contained in it. The ObjectWindows version of
+/// SetViewportOrg takes a TPoint reference in place of the two ints the Windows
+/// version takes as parameters. It also takes a second parameter, a TPoint *, in
+/// which the old viewport origins are placed.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page workingwithdevicecontexts Working with Device Contexts
+/// When working with the Windows GDI, you use a device context to access all
+/// devices, from windows to printers to plotters. The device context is a structure
+/// maintained by GDI that contains essential information about the device with
+/// which you are working, such as the default foreground and background colors,
+/// font, palette, and so on. ObjectWindows encapsulates device-context information
+/// in a number of DC classes, all of which are based on the TDC
+/// class.
+///
+/// TDC contains most of the device-context functionality you might require. The
+/// other DC-related classes are derived from TDC or TDC-derived classes. These
+/// derived classes only specialize the functionality of the TDC class and apply it
+/// to a discrete set of operations. Here is a description of each of the
+/// device-context classes:
+/// - \subpage tdcclass "TDC" is the root class for all GDI device contexts for ObjectWindows; it can
+/// be instantiated itself or specialized subclasses can be used to get specific
+/// behavior.
+/// - TWindowDC provides access to the entire area owned
+/// by a window; this is the base for any DC class that releases its handle when
+/// done.
+/// - TScreenDC provides direct access to the screen
+/// bitmap using a device context for window handle 0, which is for the whole screen
+/// with no clipping.
+/// - TDesktopDC provides access to the desktop window's
+/// client area, which is the screen behind all other windows.
+/// - TClientDC provides access to the client area owned
+/// by a window.
+/// - TPaintDC wraps BeginPaint and EndPaint calls for use
+/// in an WM_PAINT response function.
+/// - TMetaFileDC provides a device context with a
+/// metafile loaded for use.
+/// - TCreatedDC lets you create a device context for a
+/// specified device.
+/// - TIC lets you create an information context for a specified
+/// device.
+/// - TMemoryDC provides access to a memory device
+/// context.
+/// - TDibDC provides access to DIBs using the DIB.DRV
+/// driver.
+/// - TPrintDC provides access to a printer device
+/// context.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+///
+///
+///
+/// \page tdcclass TDC Class
+/// Although the specialized device-context classes provide extra functionality
+/// tailored to each class' specific purpose, the TDC class
+/// provides most of each class' functionality.
+///
+/// Many of the TDC functions look much like Windows API functions and are therefore
+/// described only briefly.
+///
+/// To learn more about TDC class, review the following topics:
+/// - \subpage constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \subpage devicecontextoperators "Device-context operators"
+/// - \subpage devicecontextfunctions "Device-context functions"
+/// - \subpage selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \subpage drawingtoolfunctions "Drawing Tool Functions"
+/// - \subpage colorandpalettefunctions "Color and Palette Functions"
+/// - \subpage drawingattributefunctions "Drawing Attribute Functions"
+/// - \subpage viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+/// - \subpage clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \subpage metafilefunctions "MetaFile Functions"
+/// - \subpage currentpositionfunctions "Current Position Functions"
+/// - \subpage fontfunctions "Font Functions"
+/// - \subpage pathfunctions "Path Functions"
+/// - \subpage outputfunctions "Output Functions"
+/// - \subpage coordinatefunctions "Coordinate Functions"
+/// - \subpage objectdatamembersandfunctions "Object Data Members and Functions"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page constructinganddestroyingtdc Constructing and Destroying TDC
+/// TDC provides one public constructor and one public
+/// destructor. The public constructor takes an HDC, a handle to a device context.
+/// Essentially this means that you must have an existing device context before
+/// constructing a TDC object. Usually you do not construct a TDC directly, even
+/// though you can. Instead you usually use a TDC object when passing some device
+/// context as a function parameter or a pointer to a TDC to point to some device
+/// context contained in either a TDC or TDC-derived object.
+///
+/// The destructor ~TDC restores all the default objects in the device context and
+/// discards the objects.
+///
+/// TDC also provides two protected constructors for use by derived classes. The
+/// first is a default constructor so that derived classes do not have to explicitly
+/// call TDC's constructor. The second takes an HDC and a
+/// TDC::TAutoDelete flag. TAutoDelete is an enum that can be NoAutoDelete or AutoDelete. The
+/// TAutoDelete parameter is used to initialize the ShouldDelete member, which is inherited from
+/// TGdiObject (the public TDC constructor initializes this
+/// to NoAutoDelete).
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page devicecontextoperators Device-context Operators
+/// TDC provides one conversion operator, HDC, that lets you
+/// return the handle to the device context of your particular TDC or TDC-derived
+/// object. This operator is most often invoked implicitly. When you use a TDC
+/// object where you would normally use an HDC, such as in a function call or the
+/// like, the compiler tries to find a way to cast the object to the required type.
+/// Thus it uses the HDC conversion operator even though it is not explicitly
+/// called.
+///
+/// For example, suppose you want to create a device context in memory that is
+/// compatible with the device associated with a TDC object. You can use the
+/// CreateCompatibleDC Windows API function to create the new DC from your existing
+/// TDC object:
+/// \code
+/// HDC GetCompatDC(TDC& dc, TWindow& window)
+/// {
+///  HDC compatDC;
+///
+///  if(!(compatDC = CreateCompatibleDC(dc)))
+///  {
+///   window.MessageBox("Couldn't create compatible device context!",
+///      "Failure",
+///      MB_OK | MB_ICONEXCLAMATION);
+///   return NULL;
+///  }
+///  else return compatDC;
+/// }
+/// \endcode
+/// Notice that CreateCompatibleDC takes a single parameter, an HDC. Thus the
+/// function parameter dc is implicitly cast to an HDC in the CreateCompatibleDC
+/// call.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page devicecontextfunctions Device-context functions
+/// The device-context functions are used to access information about the device
+/// context (DC) itself. They are equivalent to the Windows API functions of the
+/// same names.
+///
+/// You can save and restore a device context much as you would with the Windows API
+/// by using the functions TDC::SaveDC and
+/// TDC::RestoreDC. The following code sample shows how these
+/// functions might be used. Notice that RestoreDC's single parameter uses a default
+/// value instead of specifying the int parameter:
+/// \code
+/// void TMyDC::SomeFunc(TDC& dc, int x1, int y1, int x2, int y2)
+/// {
+///  dc.SaveDC();
+///  dc.SetMapMode(MM_LOENGLISH);
+///  .
+///  .
+///  .
+///  dc.Rectangle(x1, -y1, x2, -y2);
+///  dc.RestoreDC();
+/// }
+/// \endcode
+/// You can also reset a device context to the settings contained in a DEVMODE
+/// structure using the TDC::ResetDC function. The only parameter
+/// ResetDC takes is a reference to a DEVMODE structure.
+///
+/// You can use the TDC::GetDeviceCaps function to
+/// retrieve device-specific information about a given display device. This function
+/// takes one parameter, an int index to the type of information to retrieve from
+/// the device context. The possible values for this parameter are the same as for
+/// the Windows API function.
+///
+/// You can use the TDC::GetDCOrg function to locate the
+/// current device context's logical coordinates within the display device's
+/// absolute physical coordinates. This function takes a reference to a
+/// TPoint structure and returns a bool. The bool indicates
+/// whether the function call was successful, and the TPoint object contains the
+/// coordinates of the device context's translation origin.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page selectingandrestoringgdiobjects Selecting and Restoring GDI Objects
+/// You can use the TDC::SelectObject function to place a
+/// GDI object into a device context. There are four versions of the SelectObject
+/// function; all of them return void, but each takes different parameters. The
+/// version you should use depends on the type of object you are selecting into the
+/// device context. The different versions are:
+/// \code
+/// SelectObject(const TBrush& brush);
+/// SelectObject(const TPen& pen);
+/// SelectObject(const TFont& font);
+/// SelectObject(const TPalette& palette, bool forceBG=false);
+/// \endcode
+/// In addition, TMemoryDC lets you select a bitmap.
+//
+/// Graphics objects that you can select into a device context normally exist as
+/// logical objects, which contain the information required for the creation of the
+/// object. The graphics objects are connected to the logical objects through a
+/// Windows handle. When the graphics object is selected into the device context, a
+/// physical tool (created using the attributes contained in the logical pen) is
+/// created inside the device context.
+///
+/// You can also select a stock object using the function
+/// TDC::SelectStockObject. SelectStockObject takes one
+/// parameter, an int that is equivalent to the parameter used to call the API
+/// function GetStockObject. Essentially the SelectStockObject function takes the
+/// place of two calls: a call to GetStockObject to actually get a stock object,
+/// then a call to SelectObject to place the stock object into the device
+/// context.
+///
+/// TDC provides functions to restore original objects in a
+/// device context. There are normally four versions of this function,
+/// TDC::RestoreBrush, TDC::RestorePen, TDC::RestoreFont, and TDC::RestorePalette. A fifth,
+/// TDC::RestoreTextBrush, exists only for 32-bit
+/// applications. The TDC::RestoreObjects function
+/// calls all four functions (or five, under 32 bits), and restores all original
+/// objects in the device context. All of these functions return void and take no
+/// parameters.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page drawingtoolfunctions Drawing Tool Functions
+/// TDC::GetBrushOrg takes one parameter, a reference to a
+/// TPoint object. It places the coordinates of the brush origin
+/// into the TPoint object. GetBrushOrg returns true if the operation was
+/// successful.
+///
+/// TDC::SetBrushOrg takes two parameters, a reference to a TPoint
+/// object and a TPoint *, and sets the device context's brush origin to the x and y
+/// values in the first TPoint object. If you do not specify a value for the second
+/// parameter, it defaults to 0. If you do pass a pointer to a TPoint object as the
+/// second parameter, SetBrushOrg places the old values for the brush origin into
+/// the x and y members of the object. The return value indicates whether the
+/// operation was successful.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page colorandpalettefunctions Color and Palette Functions
+/// TDC provides a number of functions you can use to manipulate
+/// the colors and palette of a device context.
+/// - TDC::RealizePalette
+/// - TDC::GetNearestColor
+/// - TDC::SetSystemPaletteUse
+/// - TDC::GetSystemPaletteEntries
+/// - TDC::UpdateColors
+/// - TDC::GetSystemPaletteUse
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page drawingattributefunctions Drawing Attribute Functions
+/// Use drawing attribute functions to set the device context's drawing mode. All
+/// these functions are analogous to the API functions of the same names, except
+/// that the HDC parameter is omitted in each.
+/// - TDC::SetBkColor
+/// - TDC::GetBkColor
+/// - TDC::SetBkMode
+/// - TDC::GetBkMode
+/// - TDC::SetPolyFillMode
+/// - TDC::GetPolyFillMode
+/// - TDC::SetROP2
+/// - TDC::GetROP2
+/// - TDC::SetStretchBltMode
+/// - TDC::GetStretchBltMode
+/// - TDC::SetTextColor
+/// - TDC::GetTextColor
+///
+/// Another function, TDC::SetMiterLimit, is available
+/// only for 32-bit applications.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page viewportandwindowmappingfunctions Viewport and Window Mapping Functions
+/// Use these functions to set the viewport and window mapping modes:
+/// - TDC::GetMapMode
+/// - TDC::GetViewportExt
+/// - TDC::GetViewportOrg
+/// - TDC::GetWindowExt
+/// - TDC::GetWindowOrg
+/// - TDC::OffsetViewportOrg
+/// - TDC::OffsetWindowOrg
+/// - TDC::ScaleViewportExt
+/// - TDC::ScaleWindowExt
+/// - TDC::SetMapMode
+/// - TDC::SetViewportExt
+/// - TDC::SetViewportOrg
+/// - TDC::SetWindowExt
+/// - TDC::SetWindowOrg
+///
+/// The following viewport and window mapping functions are available only for
+/// 32-bit applications:
+/// - TDC::ModifyWorldTransform
+/// - TDC::SetWorldTransform
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+///
+///
+///
+/// \page coordinatefunctions Coordinate Functions
+/// Coordinate functions convert logical coordinates to physical coordinates and
+/// vice versa:
+/// - TDC::LPtoDP
+/// - TDC::DPtoLP
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page clipandupdaterectangleandregionfunctions Clip and Update Rectangle and Region Functions
+/// Use clip and update rectangle and region functions to set up and retrieve simple
+/// or complex areas in a device context's clipping region:
+/// - TDC::OffsetClipRgn
+/// - TDC::ExcludeClipRect
+/// - TDC::PtVisible
+/// - TDC::ExcludeUpdateRgn
+/// - TDC::RectVisible
+/// - TDC::GetBoundsRect
+/// - TDC::SelectClipRgn
+/// - TDC::GetClipBox
+/// - TDC::SetBoundsRect
+/// - TDC::GetClipRgn
+/// - TDC::IntersectClipRect
+///
+///
+///
+/// \section seealso See Also
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page metafilefunctions MetaFile Functions
+/// Use the metafile functions to access metafiles:
+/// - TDC::PlayMetaFileRecord
+/// - TDC::EnumMetaFile
+/// - TDC::PlayMetaFile
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page currentpositionfunctions Current Position Functions
+/// GetCurrentPosition takes a reference to a
+/// TPoint object. It places the coordinates of the current
+/// position into the TPoint object and returns true if the function call was
+/// successful.
+///
+/// Use the TDC::MoveTo functions to move to the current point
+/// in the device context. Three versions of MoveTo are provided:
+/// - MoveTo(int x, int y) moves the pen to the
+/// point x, y.
+/// - MoveTo(TPoint &point) moves the pen to
+/// the point point.x, point.y.
+/// - MoveTo(TPoint &point, TPoint &oldPoint) moves the pen to the point point.x, point.y and places the old
+/// location of the pen into oldPoint.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page fontfunctions Font Functions
+/// Use TDC's font functions to access and manipulate fonts:
+/// - TDC::GetCharWidth
+/// - TDC::EnumFontFamilies
+/// - TDC::GetFontData
+/// - TDC::EnumFonts
+/// - TDC::SetMapperFlags
+/// - TDC::GetAspectRatioFilter
+/// - TDC::GetCharABCWidths
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page pathfunctions Path Functions
+/// Path functions are available only to 32-bit applications. The
+/// TDC path functions are the same as the Win32 versions, with the
+/// exception that the TDC versions do not take a HDC parameter.
+/// - TDC::PathToRegion
+/// - TDC::BeginPath
+/// - TDC::SelectClipPath
+/// - TDC::CloseFigure
+/// - TDC::StrokeAndFillPath
+/// - TDC::EndPath
+/// - TDC::StrokePath
+/// - TDC::FillPath
+/// - TDC::WidenPath
+/// - TDC::FlattenPath
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref outputfunctions "Output Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page outputfunctions Output Functions
+/// TDC provides a
+/// great variety of output functions for all different kinds of objects that a
+/// standard device context can handle, including:
+/// - Icons
+/// - Bitmaps
+/// - Rectangles
+/// - Text
+/// - Regions
+/// - Shapes
+///
+/// Nearly all these functions provide a number of versions: one version that
+/// provides functionality nearly identical to that of the corresponding API
+/// function (with the exception of omitting the HDC parameter) and alternate
+/// versions that use TPoint, TRect,
+/// TRegion, and other ObjectWindows data encapsulations to make
+/// the calls more concise and easier to understand.
+/// - Current position
+///  - TDC::MoveTo
+///  - TDC::GetCurrentPosition
+/// - Icons
+///  - TDC::DrawIcon
+/// - Rectangles
+///  - TDC::InvertRect
+///  - TDC::DrawFocusRect
+///  - TDC::TextRect
+///  - TDC::FillRect
+///  - TDC::FrameRect
+/// - Regions
+///  - TDC::InvertRgn
+///  - TDC::FillRgn
+///  - TDC::PaintRgn
+///  - TDC::FrameRgn
+/// - Shapes
+///  - TDC::Arc
+///  - TDC::Chord
+///  - TDC::Ellipse
+///  - TDC::Pie
+///  - TDC::LineTo
+///  - TDC::Polygon
+///  - TDC::Polyline
+///  - TDC::PolyPolygon
+///  - TDC::Rectangle
+///  - TDC::RoundRect
+/// - Bitmaps and blitting
+///  - TDC::BitBlt
+///  - TDC::ExtFloodFill
+///  - TDC::FloodFill
+///  - TDC::GetDIBits
+///  - TDC::GetPixel
+///  - TDC::PatBlt
+///  - TDC::ScrollDC
+///  - TDC::SetDIBits
+///  - TDC::SetDIBitsToDevice
+///  - TDC::SetPixel
+///  - TDC::StretchBlt
+///  - TDC::StretchDIBits
+/// - Text
+///  - TDC::DrawText
+///  - TDC::ExtTextOut
+///  - TDC::GrayString
+///  - TDC::TabbedTextOut
+///  - TDC::TextOut
+///
+/// The following functions are available for 32-bit applications only:
+/// - Shapes
+///  - TDC::AngleArc
+///  - TDC::PolyBezier
+///  - TDC::PolyBezierTo
+///  - TDC::PolyDraw
+///  - TDC::PolylineTo
+///  - TDC::PolyPolyline
+/// - Bitmaps and blitting
+///  - TDC::MaskBlt
+///  - TDC::PlgBlt
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+///
+///
+///
+/// \page objectdatamembersandfunctions Object Data Members and Functions
+/// These data members and functions are used to administer the device context
+/// object itself. They are protected and can be accessed only by a
+/// TDC-derived class.
+/// - TDC::ShouldDelete indicates whether the object should
+/// delete its handle to the device context when the destructor is invoked.
+/// - TDC::Handle contains the actual handle of the device
+/// context.
+/// - TDC::OrgBrush, TDC::OrgPen, TDC::OrgFont, and TDC::OrgPalette
+/// are the handles to the original objects when the device context was created.
+/// - TDC::OrgTextBrush is also present in 32-bit
+/// applications.
+/// - TDC::CheckValid throws an exception if the device
+/// context object is not valid.
+/// - TDC::Init sets OrgBrush, OrgPen, OrgFont, and OrgPalette
+/// when the object is created. If you're creating a TDC-derived class without
+/// explicitly calling a TDC constructor, you should call TDC::Init first in your
+/// constructor.
+/// - TDC::GetHDC returns an HDC using Handle.
+/// - TDC::GetAttributeHDC, like GetHDC, returns an
+/// HDC using Handle. If you're creating an object with more than one device
+/// context, you should override this function and not GetHDC to provide the proper
+/// return.
+/// - TDC::OWLFastWindowFrame draws a frame that
+/// is often used for window borders. This function uses the undocumented Windows
+/// API function FastWindowFrame if available, or TDC::PatBlt
+/// if not.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipandupdaterectangleandregionfunctions "Clip and Update Rectangle and Region Functions"
+/// - \ref colorandpalettefunctions "Color and Palette Functions"
+/// - \ref constructinganddestroyingtdc "Constructing and Destroying TDC"
+/// - \ref coordinatefunctions "Coordinate Functions"
+/// - \ref currentpositionfunctions "Current Position Functions"
+/// - \ref devicecontextfunctions "Device-context functions"
+/// - \ref devicecontextoperators "Device-context operators"
+/// - \ref drawingattributefunctions "Drawing Attribute Functions"
+/// - \ref drawingtoolfunctions "Drawing Tool Functions"
+/// - \ref fontfunctions "Font Functions"
+/// - \ref metafilefunctions "MetaFile Functions"
+/// - \ref pathfunctions "Path Functions"
+/// - \ref selectingandrestoringgdiobjects "Selecting and Restoring GDI Objects"
+/// - \ref viewportandwindowmappingfunctions "Viewport and Window Mapping Functions"
+/// - \ref tdcclass "TDC Class"
+///
+///
+///
+/// \page tpenclass TPen Class
+/// The TPen class encapsulates a logical pen. It contains a
+/// color for the pen's "ink", a pen width, and the pen style.
+/// To learn more about TPen class, review the following topics:
+/// - \subpage constructingtpen "Constructing TPen"
+/// - \subpage accessingtpen "Accessing TPen"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page constructingtpen Constructing TPen
+/// You can construct a TPen either directly, by specifying the
+/// color, width, and style of the pen, or indirectly, by specifying a TPen & or
+/// pointer to a LOGPEN structure. Directly constructing a pen creates a new object
+/// with the specified attributes. Here is the constructor for directly constructing
+/// a pen:
+/// \code
+/// TPen(TColor color, int width=1, int style=PS_SOLID);
+/// \endcode
+/// The style parameter can be one of the following values: PS_SOLID, PS_DASH,
+/// PS_DOT, PS_DASHDOT, PS_DASHDOTDOT, PS_NULL, or PS_INSIDEFRAME.
+///
+/// Indirectly creating a pen creates a new object, but copies the attributes of the
+/// object passed to it into the new pen object. Here are the constructors for
+/// indirectly creating a pen:
+/// \code
+/// TPen(const LOGPEN far* logPen);
+/// TPen(const TPen&);
+/// \endcode
+/// You can also create a new TPen object from an existing HPEN handle:
+/// \code
+/// TPen(HPEN handle, TAutoDelete autoDelete = NoAutoDelete);
+/// \endcode
+/// This constructor is used to obtain an ObjectWindows object as an alias to a
+/// regular Windows handle received in a message.
+///
+/// Two other constructors are available only for 32-bit applications. You can use
+/// these constructors to create cosmetic or geometric pens:
+/// \code
+/// TPen(uint32 penStyle,
+///    uint32 width,
+///    const TBrush& brush,
+///    uint32 styleCount,
+///    LPDWORD style);
+///
+/// TPen(uint32 penStyle,
+///    uint32 width,
+///    const LOGBRUSH& logBrush,
+///    uint32 styleCount,
+///    LPDWORD style);
+/// \endcode
+/// where:
+/// - penStyle is a combination of type, style, end cap, and join of the pen,
+/// where:
+///  - Type is either PS_GEOMETRIC or PS_COSMETIC.
+///  - Style can be any one of the following values:
+///   - PS_ALTERNATE
+///   - PS_DASH
+///   - PS_DASHDOT
+///   - PS_DASHDOTDOT
+///   - PS_DOT
+///   - PS_INSIDEFRAME
+///   - PS_NULL
+///   - PS_SOLID
+///   - PS_USERSTYLE
+///  - End cap is specified only for geometric pens, and can be
+/// one of the following values:
+///   - PS_ENDCAP_FLAT
+///   - PS_ENDCAP_ROUND
+///   - PS_ENDCAP_SQUARE
+///  - Join is specified only for geometric pens, and can be
+/// one of the following values:
+///   - PS_JOIN_BEVEL
+///   - PS_JOIN_MITER
+///   - PS_JOIN_ROUND
+/// - width is the pen width.
+/// - brush or logBrush is a reference to an existing TBrush
+/// or LOGBRUSH object.
+/// - styleCount is the size (in uint32s) of the style array and should be 0 unless
+/// the pen style is PS_USERSTYLE.
+/// - style is a pointer to an array of uint32s that specifies the pattern of the
+/// pen and should be NULL unless the pen style is PS_USERSTYLE.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtpen "Accessing TPen"
+/// - \ref tpenclass "TPen Class"
+///
+///
+///
+/// \page accessingtpen Accessing TPen
+/// You can access TPen through an HPEN or as a LOGPEN
+/// structure. To get an HPEN from a TPen object, use the HPEN() operator with the
+/// TPen object as the parameter. The HPEN() operator is almost never explicitly
+/// invoked.
+/// \code
+/// HPEN GetHPen(TPen& pen)
+/// {
+///  return pen;
+/// }
+/// \endcode
+/// This code automatically invokes the HPEN() conversion operator to cast the TPen
+/// object to the correct type.
+///
+/// To convert a TPen object to a LOGPEN structure, use the
+/// TPen::GetObject function:
+/// \code
+/// bool GetLogPen(LOGPEN far& logPen)
+/// {
+///  TPen pen(TColor::LtMagenta, 10);
+///  return pen.GetObject(logPen);
+/// }
+/// \endcode
+/// The following example shows how to use a pen with a TDC to
+/// draw a line:
+/// void
+/// \code
+/// TPenDemo::DrawLine(TDC& dc, const TPoint& point, TColor& color)
+/// {
+///  TPen BrushPen(color, PenSize);
+///  dc.SelectObject(BrushPen);
+///  dc.LineTo(point);
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingtpen "Constructing TPen"
+/// - \ref tpenclass "TPen Class"
+///
+///
+///
+/// \page tbrushclass TBrush Class
+/// The TBrush class encapsulates a logical brush. It contains
+/// a color for the brush's ink, a brush width, and, depending on how the brush is
+/// constructed, the brush style, pattern, or bitmap.
+/// To learn more about TBrush, review the following topics:
+/// - \subpage constructingtbrush "Constructing TBrush"
+/// - \subpage accessingtbrush "Accessing TBrush"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page constructingtbrush Constructing TBrush
+/// You can construct a TBrush either directly, by specifying
+/// the color, width, and style of the brush, or indirectly, by specifying a TBrush
+/// & or a pointer to a LOGBRUSH structure. Directly constructing a brush
+/// creates a new object with the specified attributes. Here are the constructors
+/// for directly constructing a brush:
+/// \code
+/// TBrush(TColor color);
+/// TBrush(TColor color, int style);
+/// TBrush(const TBitmap& pattern);
+/// TBrush(const TDib& pattern);
+/// \endcode
+/// The first constructor creates a solid brush with the color contained in
+/// color.
+///
+/// The second constructor creates a hatched brush with the color contained in color
+/// and the hatch style contained in style. style can be one of the following
+/// values:
+/// - HS_BDIAGONAL
+/// - HS_CROSS
+/// - HS_DIAGCROSS
+/// - HS_FDIAGONAL
+/// - HS_HORIZONTAL
+/// - HS_VERTICAL
+///
+/// The third and fourth constructors create a brush from the bitmap or DIB passed
+/// as a parameter. The width of the brush depends on the size of the bitmap or
+/// DIB.
+///
+/// Indirectly creating a brush also creates a new object, but copies the attributes
+/// of the object passed to it into the new brush object. Here are the constructors
+/// for indirectly creating a brush:
+/// \code
+/// TBrush(const LOGBRUSH far* logBrush);
+/// TBrush(const TBrush& src);
+/// \endcode
+/// You can also create a new TBrush object from an existing HBRUSH handle:
+/// \code
+/// TBrush(HBRUSH handle, TAutoDelete autoDelete = NoAutoDelete);
+/// \endcode
+/// This constructor is used to obtain an ObjectWindows object as an alias to a
+/// regular Windows handle received in a message.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtbrush "Accessing TBrush"
+/// - \ref tbrushclass "TBrush Class"
+///
+///
+///
+/// \page accessingtbrush Accessing TBrush
+/// You can access TBrush through an HBRUSH or as a LOGBRUSH
+/// structure. To get an HBRUSH from a TBrush object, use the HBRUSH() operator with
+/// the TBrush object as the parameter. The HBRUSH() operator, listed below, is
+/// almost never explicitly invoked:
+/// \code
+/// HBRUSH GetHBrush(TBrush& brush)
+/// {
+///  return brush;
+/// }
+/// \endcode
+/// This code automatically invokes the HBRUSH() conversion operator to cast the
+/// TBrush object to the correct type.
+///
+/// To convert a TBrush object to a LOGBRUSH structure, use the
+/// TBrush::GetObject function:
+/// \code
+/// bool GetLogBrush(LOGBRUSH far& logBrush)
+/// {
+///  TBrush brush(TColor::LtCyan, HS_DIAGCROSS);
+///  return brush.GetObject(logBrush);
+/// }
+/// \endcode
+/// To reset the origin of a brush object, use the
+/// TBrush::UnrealizeObject function, which resets the
+/// brush's origin and returns a nonzero value if successful.
+///
+/// The following code shows how to use a brush to paint a rectangle in a
+/// window:
+/// \code
+/// void
+/// TMyWindow::PaintRect(TDC& dc, TPoint& p, TSize& size)
+/// {
+///  TBrush brush(TColor(5,5,5));
+///  dc.SelectObject(brush);
+///  dc.Rectangle(p, size);
+///  dc.RestoreBrush();
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingtbrush "Constructing TBrush"
+///
+///
+///
+/// \page tfontclass TFont Class
+/// The TFont class lets you easily create and use Windows
+/// fonts in your applications. It encapsulates all attributes of a logical
+/// font.
+///
+/// To learn more about TFont, review the following topics:
+/// - \subpage constructingtfont "Constructing TFont"
+/// - \subpage accessingtfont "Accessing TFont"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page constructingtfont Constructing TFont
+/// You can construct a TFont either directly, by specifying
+/// all the attributes of the font in the constructor, or indirectly, by specifying
+/// a TFont & or a pointer to a LOGFONT structure. Directly constructing a pen
+/// creates a new object with the specified attributes. Here are the constructors
+/// for directly constructing a font:
+/// \code
+/// TFont(const char far* facename=0,
+///    int height=0, int width=0, int escapement=0,
+///    int orientation=0, int weight=FW_NORMAL,
+///    uint8 pitchAndFamily=DEFAULT_PITCH|FF_DONTCARE,
+///    uint8 italic=false, uint8 underline=false,
+///    uint8 strikeout=false,
+///    uint8 charSet=1,
+///    uint8 outputPrecision=OUT_DEFAULT_PRECIS,
+///    uint8 clipPrecision=CLIP_DEFAULT_PRECIS,
+///    uint8 quality=DEFAULT_QUALITY);
+///
+/// TFont(int height, int width, int escapement=0,
+///    int orientation=0,
+///    int weight=FW_NORMAL,
+///    uint8 italic=false, uint8 underline=false,
+///    uint8 strikeout=false,
+///    uint8 charSet=1,
+///    uint8 outputPrecision=OUT_DEFAULT_PRECIS,
+///    uint8 clipPrecision=CLIP_DEFAULT_PRECIS,
+///    uint8 quality=DEFAULT_QUALITY,
+///    uint8 pitchAndFamily=DEFAULT_PITCH|FF_DONTCARE,
+///    const char far* facename=0);
+/// \endcode
+/// The first constructor lets you conveniently plug in the most commonly used
+/// attributes for a font (such as name, height, width, and so on) and let the other
+/// attributes (which generally have the same value time after time) take their
+/// default values. The second constructor has the parameters in the same order as
+/// the CreateFont Windows API call so you can easily cut and paste from existing
+/// Windows code.
+///
+/// Indirectly creating a font also creates a new object, but it copies the
+/// attributes of the object passed to it into the new font object. Here are the
+/// constructors for indirectly creating a font:
+/// \code
+/// TFont(const LOGFONT far* logFont);
+/// TFont(const TFont&);
+/// \endcode
+/// You can also create a new TFont object from an existing HFONT handle:
+/// \code
+/// TFont(HFONT handle, TAutoDelete autoDelete = NoAutoDelete);
+/// \endcode
+/// This constructor is used to obtain an ObjectWindows object as an alias to a
+/// regular Windows handle received in a message.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtfont "Accessing TFont"
+/// - \ref tfontclass "TFont Class"
+///
+///
+///
+/// \page accessingtfont Accessing TFont
+/// You can access TFont through an HFONT or as a LOGFONT
+/// structure. To get an HFONT from a TFont object, use the HFONT() operator with
+/// the TFont object as the parameter. The HFONT() operator is almost never
+/// explicitly invoked:
+/// \code
+/// HFONT GetHFont(TFont& font)
+/// {
+///  return font;
+/// }
+/// \endcode
+/// This code automatically invokes the HFONT() conversion operator to cast the
+/// TFont object to the correct type.
+///
+/// To convert a TFont object to a LOGFONT structure, use the
+/// TFont::GetObject function:
+/// \code
+/// bool GetLogFont(LOGFONT far& logFont)
+/// {
+///  TFont font("Times Roman", 20, 8);
+///  return font.GetObject(logFont);
+/// }
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingtfont "Constructing TFont"
+/// - \ref tfontclass "TFont Class"
+///
+///
+///
+/// \page tpaletteclass TPalette Class
+/// The TPalette class encapsulates a Windows color palette
+/// that can be used with bitmaps and DIBs. TPalette lets you adjust the color
+/// table, match individual colors, move a palette to the Clipboard, and more.
+///
+/// To learn more about TPalette class, review the following topics:
+/// - \subpage constructingtpalette "Constructing TPalette"
+/// - \subpage accessingtpalette "Accessing TPalette"
+/// - \subpage extendingtpalette "Extending TPalette"
+/// - \subpage tpalettememberfunctions "TPalette Member Functions"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page constructingtpalette Constructing TPalette
+/// You can construct a TPalette object either directly,
+/// passing an array of color values to the constructor, or indirectly, by
+/// specifying a TPalette &, a pointer to a LOGPALETTE structure, a pointer to a
+/// bitmap header, and so on. Directly constructing a palette creates a new object
+/// with the specified attributes. Here is the constructor for directly constructing
+/// a palette:
+/// \code
+/// TPalette(const PALETTEENTRY far* entries, int count);
+/// \endcode
+/// entries is an array of PALETTEENTRY objects. Each PALETTEENTRY object contains a
+/// color value specified by three separate values, one each of red, green, and
+/// blue, plus a flags variable for the entry. count specifies the number of values
+/// contained in the entries array.
+///
+/// Indirectly creating a palette also creates a new object, but it copies the
+/// attributes of the object passed to it into the new palette object. Here are the
+/// constructors for indirectly creating a palette:
+/// \code
+/// TPalette(const TClipboard&);
+/// TPalette(const TPalette& palette);
+/// TPalette(const LOGPALETTE far* logPalette);
+/// TPalette(const BITMAPINFO far* info, uint flags=0);
+/// TPalette(const BITMAPCOREINFO far* core, uint flags=0);
+/// TPalette(const TDib& dib, uint flags=0);
+/// \endcode
+/// Each of these constructors copies into the new object the color values contained
+/// in the object passed into the constructor. The objects passed to the constructor
+/// are not necessarily palettes themselves; many of them are objects that use
+/// palettes and contain a palette themselves. In these cases, the TPalette
+/// constructor extracts the palette from the object and copies it into the new
+/// palette object.
+///
+/// You can also create a new TPalette object from an existing HPALETTE handle, as
+/// follows:
+/// \code
+/// TPalette(HPALETTE handle, TAutoDelete autoDelete = NoAutoDelete);
+/// \endcode
+/// This constructor is used to obtain an ObjectWindows object as an alias to a
+/// regular Windows handle received in a message.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtpalette "Accessing TPalette"
+/// - \ref extendingtpalette "Extending TPalette"
+/// - \ref tpalettememberfunctions "TPalette Member Functions"
+/// - \ref tpaletteclass "TPalette Class"
+///
+///
+///
+/// \page accessingtpalette Accessing TPalette
+/// You can access TPalette through an HPALETTE or as a
+/// LOGPALETTE structure. To get an HPALETTE from a TPalette object, use the
+/// HPALETTE() operator with the TPalette object as the parameter. The HPALETTE()
+/// operator is almost never explicitly invoked:
+/// \code
+/// HPALETTE GetHPalette(TPalette& palette)
+/// {
+///  return palette;
+/// }
+/// \endcode
+/// This code automatically invokes the HPALETTE() conversion operator to cast the
+/// TPalette object to the correct type.
+///
+/// The TPalette::GetObject function for TPalette functions
+/// the same way the Windows API call GetObject does when passed a handle to a
+/// palette: It places the number of entries in the color table into the uint16
+/// reference passed to it as a parameter. TPalette::GetObject returns true if
+/// successful.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingtpalette "Constructing TPalette"
+/// - \ref extendingtpalette "Extending TPalette"
+/// - \ref tpalettememberfunctions "TPalette Member Functions"
+/// - \ref tpaletteclass "TPalette Class"
+///
+///
+///
+/// \page tpalettememberfunctions TPalette Member Functions
+/// TPalette encapsulates a number of standard API calls for
+/// manipulating palettes:
+/// - You can match a color with an entry in a palette using the
+/// - TPalette::GetNearestPaletteIndex function.
+/// This function takes a single parameter (a Tcolor object) and
+/// returns the index number of the closest match in the palette's color table.
+/// - TPalette::GetNumEntries takes no parameters and
+/// returns the number of entries in the palette's color table.
+/// - You can get the values for a range of entries in the palette's color table
+/// using the TPalette::GetPaletteEntries function.
+/// TPalette::GetPaletteEntries functions just like the Windows API call
+/// GetPaletteEntries, except that TPalette::GetPaletteEntries omits the HPALETTE
+/// parameter.
+/// - You can set the values for a range of entries in the palette's color table
+/// using the TPalette::SetPaletteEntries function.
+/// TPalette::SetPaletteEntries functions just like the Windows API call
+/// SetPaletteEntries, except that TPalette::SetPaletteEntries omits the HPALETTE
+/// parameter.
+/// - The TPalette::GetPaletteEntry and
+/// TPalette::SetPaletteEntry functions work much like
+/// GetPaletteEntries and SetPaletteEntries, except that they work on a single
+/// palette entry at a time. Both functions take two parameters, the index number of
+/// a palette entry and a reference to a PALETTEENTRY object. GetPaletteEntry places
+/// the color value of the desired palette entry into the PALETTEENTRY object.
+/// SetPaletteEntry sets the palette entry indicated by the index to the value of
+/// the PALETTEENTRY object.
+/// - You can use the TPalette::ResizePalette function
+/// to resize a palette. ResizePalette takes a uint parameter, which specifies the
+/// number of entries in the resized palette. ResizePalette functions exactly like
+/// the Windows API ResizePalette call.
+/// - The TPalette::AnimatePalette function lets you
+/// replace entries in the palette's color table. AnimatePalette takes three
+/// parameters, two uints and a pointer to an array of PALETTEENTRY objects. The
+/// first uint specifies the first entry in the palette to be replaced. The second
+/// uint specifies the number of entries to be replaced. The entries indicated by
+/// these two uints are replaced by the values contained in the array of
+/// PALETTEENTRYs.
+/// - You can also use the TPalette::UnrealizeObject
+/// function for your palette objects. UnrealizeObject matches the palette to the
+/// current system palette. UnrealizeObject takes no parameters and functions just
+/// like the Windows API call.
+/// - You can move a palette to the Clipboard using the
+/// TPalette::ToClipboard function. ToClipboard takes a
+/// reference to a TClipboard object as a parameter. Because the ToClipboard
+/// function actually removes the object from your application, you should usually
+/// use a TPalette constructor to create a temporary object as follows:
+/// \code
+/// TClipboard clipBoard;
+/// TPalette (tmpPalette).ToClipboard(clipBoard);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtpalette "Accessing TPalette"
+/// - \ref constructingtpalette "Constructing TPalette"
+/// - \ref extendingtpalette "Extending TPalette"
+/// - \ref tpaletteclass "TPalette Class"
+///
+///
+///
+/// \page extendingtpalette Extending TPalette
+/// TPalette contains two protected-access functions, both
+/// called TPalette::Create. The two functions differ in that
+/// one takes BITMAPINFO * as its first parameter and the other takes a
+/// BITMAPCOREINFO * as its first parameter. These functions are called from the
+/// TPalette constructors that take a BITMAPINFO *, a BITMAPCOREINFO *, or a
+/// TDib &. The BITMAPINFO * and BITMAPCOREINFO * constructors
+/// call the corresponding Create functions. The TDib & constructor extracts a
+/// BITMAPCOREINFO * or a BITMAPINFO * from its TDib object and calls the
+/// appropriate Create function.
+///
+/// Both Create functions take a uint for their second parameter. This parameter is
+/// equivalent to the peFlags member of the PALETTEENTRY structure and should be
+/// passed either as a 0 or with values compatible with peFlags: PC_EXPLICIT,
+/// PC_NOCOLLAPSE, and PC_RESERVED. A palette entry must have the PC_RESERVED flag
+/// set to use that entry with the AnimatePalette function.
+///
+/// The Create functions create a LOGPALETTE using the color table from the bitmap
+/// header passed as its parameter. You can use Create for 2-, 16-, and 256-color
+/// bitmaps. It fails for all other types, including 24-bit DIBs. It then uses the
+/// LOGPALETTE to create the HPALETTE.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtpalette "Accessing TPalette"
+/// - \ref constructingtpalette "Constructing TPalette"
+/// - \ref tpalettememberfunctions "TPalette Member Functions"
+/// - \ref tpaletteclass "TPalette Class"
+///
+///
+///
+/// \page tbitmapclass TBitmap Class
+/// The TBitmap class encapsulates a Windows device-dependent
+/// bitmap, providing a number of different constructors, plus member functions to
+/// manipulate and access the bitmap.
+///
+/// To learn more about TBitmap, review the following topics:
+/// - \subpage constructingtbitmap "Constructing TBitmap"
+/// - \subpage accessingtbitmap "Accessing TBitmap"
+/// - \subpage extendingtbitmap "Extending TBitmap"
+/// - \subpage tbitmapmemberfunctions "TBitmap Member Functions"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page constructingtbitmap Constructing TBitmap
+/// You can construct a TBitmap object either directly or
+/// indirectly. Using direct construction, you can specify the bitmap's width,
+/// height, and so on. Using indirect construction, you can specify an existing
+/// bitmap object, a pointer to a BITMAP structure, a metafile, a
+/// TDC device context, and more.
+///
+/// Here is the constructor for directly constructing a bitmap object:
+/// \code
+/// TBitmap(int width, int height, uint8 planes=1, uint8 count=1, void* bits=0);
+/// \endcode
+/// width and height specify the width and height in pixels of the bitmap. planes
+/// specifies the number of color planes in the bitmap. count specifies the number
+/// of bits per pixel. Either plane or count must be 1. bits is an array containing
+/// the bits to be copied into the bitmap. It can be 0, in which case the bitmap is
+/// left uninitialized.
+///
+/// You can create bitmap objects from existing bitmaps, either encapsulated in a
+/// \code
+/// TBitmap object or contained in a BITMAP structure.
+/// TBitmap(const TBitmap& bitmap);
+/// TBitmap(const BITMAP far* bitmap);
+/// \endcode
+/// TBitmap provides two constructors you can use to create bitmap objects that are
+/// compatible with a given device context. The first constructor follows:
+/// \code
+/// TBitmap(const TDC& Dc, int width, int height, bool discardable = false);
+/// \endcode
+/// It creates an uninitialized bitmap of the size height by width. Specifying true
+/// for the discardable parameter makes the bitmap discardable. A bitmap should
+/// never be discarded if it is the currently selected object in a device
+/// context.
+///
+/// The second constructor follows:
+/// \code
+/// TBitmap(const TDC& Dc, const TDib& dib, uint32 usage);
+/// \endcode
+/// It creates a bitmap compatible with the device represented by the device context
+/// from a DIB. The usage parameter should be CBM_INIT for 16-bit applications.
+/// CBM_INIT indicates that the bitmap should be initialized with the bits contained
+/// in the DIB object. If you do not specify CBM_INIT, the bitmap is created, but is
+/// left empty. CBM_INIT is the default.
+///
+/// 32-bit applications can also specify CBM_CREATEDIB in the usage parameter. The
+/// CBM_CREATEDIB flag indicates that the color format of the new bitmap should be
+/// compatible with the color format contained in the DIB's BITMAPINFO structure. If
+/// the CBM_CREATEDIB flag is not specified, the bitmap is assumed to be compatible
+/// with the given device context.
+///
+/// You can also create bitmaps from the Windows Clipboard, from a metafile, or from
+/// a DIB object. To create a bitmap from the Clipboard, you only need to pass a
+/// reference to a TClipboard object to the constructor. The
+/// constructor gets the handle of the bitmap in the Clipboard and constructs a
+/// bitmap object from the handle, as follows:
+/// \code
+/// TBitmap(const TClipboard& clipboard);
+/// \endcode
+/// To create a bitmap from a metafile, you need to pass a TMetaFilePict &, a
+/// TPalette &, and a TSize &. The constructor initializes a
+/// device-compatible bitmap (based on the palette) and plays the metafile into the
+/// bitmap:
+/// \code
+/// TBitmap(const TMetaFilePict& metaFile, TPalette& palette, const TSize& size);
+/// \endcode
+/// To create a bitmap from a device-independent bitmap, you need to pass a TDib
+/// & to the constructor. You can also specify an optional palette. The
+/// constructor creates a device context and renders the DIB into a
+/// device-compatible bitmap:
+/// \code
+/// TBitmap(const TDib& dib, const TPalette* palette = 0);
+/// \endcode
+/// You can create a bitmap object by loading it from a module. This constructor
+/// takes two parameters, first the HINSTANCE of the module containing the bitmap
+/// and second the resource ID of the bitmap you want to load, as follows:
+/// \code
+/// TBitmap(HINSTANCE, TResId);
+/// \endcode
+/// You can also create a new TBitmap object from an existing HBITMAP handle, as
+/// follows:
+/// \code
+/// TBitmap(HBITMAP handle, TAutoDelete autoDelete = NoAutoDelete);
+/// \endcode
+/// This constructor is used to obtain an ObjectWindows object as an alias to a
+/// regular Windows handle received in a message.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtbitmap "Accessing TBitmap"
+/// - \ref extendingtbitmap "Extending TBitmap"
+/// - \ref tbitmapmemberfunctions "TBitmap Member Functions"
+/// - \ref tbitmapclass "TBitmap Class"
+///
+///
+///
+/// \page accessingtbitmap Accessing TBitmap
+/// You can access TBitmap through an HBITMAP or as a BITMAP
+/// structure. To get an HBITMAP from a TBitmap object, use the HBITMAP() operator
+/// with the TBitmap object as the parameter. The HBITMAP() operator, listed below,
+/// is almost never explicitly invoked:
+/// \code
+/// HBITMAP GetHBitmap(TBitmap &bitmap)
+/// {
+///  return bitmap;
+/// }
+/// \endcode
+/// This code automatically invokes the HBITMAP() conversion operator to cast the
+/// TBitmap object to the correct type.
+/// To convert a TBitmap object to a BITMAP structure, use the
+/// TBitmap::GetObject function:
+/// \code
+/// bool GetBitmap(BITMAP far& dest)
+/// {
+///  TBitmap bitmap(200, 100);
+///  return bitmap.GetObject(dest);
+/// }
+/// \endcode
+/// The GetObject function fills out only the width, height, and color format
+/// information of the BITMAP structure. You can get the actual bitmap bits with the
+/// TBitmap::GetBitmapBits function.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingtbitmap "Constructing TBitmap"
+/// - \ref extendingtbitmap "Extending TBitmap"
+/// - \ref tbitmapmemberfunctions "TBitmap Member Functions"
+/// - \ref tbitmapclass "TBitmap Class"
+///
+///
+///
+/// \page tbitmapmemberfunctions TBitmap Member Functions
+/// TBitmap also encapsulates a number of standard API calls
+/// for manipulating palettes.
+/// - You can get the same information as you get from GetObject, except one item
+/// at a time, using the following functions. Each function returns a characteristic
+/// of the bitmap object:
+/// \code
+/// uint8 Planes();
+/// int Width();
+/// uint8 BitsPixel();
+/// int Height();
+/// \endcode
+/// - The TBitmap::GetBitmapDimension andTBitmap::SetBitmapDimension functions let you find
+/// out and change the dimensions of the bitmap. GetBitmapDimension, which takes a
+/// reference to a TSize object as its only parameter, places
+/// the size of the bitmap into the TSize object. SetBitmapDimension can take two
+/// parameters, the first a reference to a TSize object containing the new size for
+/// the bitmap, and the second a pointer to a TSize, in which the function places
+/// the old size of the bitmap. You do not have to pass the second parameter to
+/// SetBitmapDimension. Both functions return true if the operation was
+/// successful.
+///
+/// GetBitmapDimension and SetBitmapDimension do not actually affect the size of
+/// the bitmap in pixels. Instead they modify only the physical size of the bitmap,
+/// which is often used by programs when printing or displaying bitmaps. Using these
+/// functions lets you adjust the size of the bitmap depending on the size of the
+/// physical screen.
+/// - The TBitmap::GetBitmapBits and TBitmap::SetBitmapBits functions let you query and
+/// change the bits in a bitmap. Both functions take two parameters: a uint32 and a
+/// void *. The uint32 specifies the size of the array in bytes, and the void *
+/// points to an array. GetBitmapBits fills the array with bits from the bitmap, up
+/// to the number of bytes specified by the uint32 parameter. SetBitmapBits copies
+/// the array into the bitmap, copying over the number of bytes specified in the
+/// uint32 parameter.
+/// - You can move a bitmap to the Clipboard using the
+/// TBitmap::ToClipboard function. ToClipboard takes a
+/// reference to a TClipboard object as a parameter. Because
+/// ToClipboard actually removes the object from your application, you should
+/// usually use a TBitmap constructor to create a temporary object, as follows:
+/// \code
+/// TClipboard clipBoard;
+/// TBitmap (tmpBitmap).ToClipboard(clipBoard);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtbitmap "Accessing TBitmap"
+/// - \ref constructingtbitmap "Constructing TBitmap"
+/// - \ref extendingtbitmap "Extending TBitmap"
+///
+///
+///
+/// \page extendingtbitmap Extending TBitmap
+/// TBitmap has three functions that have protected access: a
+/// TBitmap::TBitmap constructor and two functions called
+/// TBitmap::Create.
+///
+/// The constructor is a default constructor. You can use it when constructing a
+/// derived class to prevent having to explicitly call the base class constructor.
+/// If you use the default constructor, you need to initialize the bitmap properly
+/// in your own constructor.
+///
+/// The first Create function takes a reference to a TBitmap object as a parameter.
+/// Essentially, this function copies the passed TBitmap object over to itself.
+/// The second Create function takes references to a TDib object
+/// and to a TPalette object. Create creates a device
+/// context compatible with the TPalette and renders the DIB into a
+/// device-compatible bitmap.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtbitmap "Accessing TBitmap"
+/// - \ref constructingtbitmap "Constructing TBitmap"
+///
+///
+///
+/// \page tregionclass TRegion Class
+/// Use the TRegion class to define a region in a device
+/// context. You can perform a number of operations on a device context, such as
+/// painting, filling, inverting, and so on, using the region as a stencil. You can
+/// also use the TRegion class to define a region for your own custom
+/// operations.
+///
+/// To learn more about TRegion, review the following topics:
+/// - \subpage constructinganddestroyingtregion "Constructing and Destroying TRegion"
+/// - \subpage accessingtregion "Accessing TRegion"
+/// - \subpage tregionmemberfunctions "TRegion Member Functions"
+/// - \subpage tregionoperators "TRegion Operators"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page constructinganddestroyingtregion Constructing and Destroying TRegion
+/// Regions come in many shapes and sizes, from simple rectangles and rectangles
+/// with rounded corners to elaborate polygonal shapes. You can determine the shape
+/// of your region by using a particular constructor. You can also indirectly
+/// construct a region from a handle to a region or from an existing TRegion
+/// object.
+///
+/// TRegion provides a default constructor that produces an empty rectangular
+/// region. You can use the function TRegion::SetRectRgn to
+/// initialize an empty TRegion object. For example, suppose you derive a class from
+/// TRegion. In the constructor for your derived class, call SetRectRgn to
+/// initialize the region. This prevents you from having to call TRegion's
+/// constructor explicitly:
+/// \code
+/// class TMyRegion : public TRegion
+/// {
+/// public:
+///  TMyRegion(TRect& rect);
+///  .
+///  .
+///  .
+/// };
+///
+/// TMyRegion::TMyRegion(TRect& rect)
+/// {
+///  // Initialize the TRegion base with rect.
+///  SetRectRgn(rect);
+/// }
+/// \endcode
+/// You can directly create a TRegion from a number of different sources. To create
+/// a simple rectangular region, use the following constructor:
+/// \code
+/// TRegion(const TRect& rect);
+/// \endcode
+/// This constructor creates a rectangular region from the logical coordinates in
+/// the TRect object.
+/// To create a rectangular region with rounded corners, use the following
+/// constructor:
+/// \code
+/// TRegion(const TRect& rect, const TSize& corner);
+/// \endcode
+/// This constructor creates a rectangular region from the logical coordinates in
+/// the TRect object, then rounds the corners into an ellipse. The height and width
+/// of the ellipse used is defined by the values in the
+/// TSize object.
+///
+/// To create an elliptical region, use the following constructor:
+/// \code
+/// TRegion(const TRect& e, TEllipse);
+/// \endcode
+/// This constructor creates an elliptical region bounded by the logical coordinates
+/// contained in the TRect structure. TEllipse is an enumerated value with only one
+/// possible value, Ellipse. A call to this constructor looks something like
+/// this:
+/// \code
+/// TRect rect(20, 20, 80, 60);
+/// TRegion rgn(rect, TRegion::Ellipse);
+/// \endcode
+/// To create regions with an irregular polygonal shape, use the following
+/// constructor:
+/// \code
+/// TRegion(const TPoint* points, int count, int fillMode);
+/// \endcode
+/// points is an array of TPoint objects. Each TPoint contains the logical coordinates
+/// of a vertex of the polygon. count indicates the number of points in the points
+/// array. fillMode indicates how the region should be filled, either ALTERNATE or
+/// WINDING.
+///
+/// There is another constructor that you can use to create regions consisting of
+/// multiple irregular polygonal shapes:
+/// \code
+/// TRegion(const TPoint* points, const int* polyCounts,
+///     int count, int fillMode);
+/// \endcode
+/// As in the other polygonal region constructor, points is an array of TPoint
+/// objects. But for this constructor, points contains the vertex points of a number
+/// of polygons. polyCounts indicates the number of points in the points array for
+/// each polygon. count indicates the total number of polygons in the region and the
+/// number of members in the polyCount array. fillMode indicates how the region
+/// should be filled, either ALTERNATE or WINDING.
+///
+/// For example, suppose you are constructing a region that encompasses two
+/// triangular areas. Each triangle would consist of three points. Therefore points
+/// would have six members, three for each triangle. polyPoints would have two
+/// members, one for each triangle. Each member of polyPoints would have the value
+/// 3, indicating the number of points in the points array that belongs to each
+/// polygon. count would have the value 2, indicating that the region consists of
+/// two polygons.
+///
+/// You can create a TRegion from an existing HRGN, as follows:
+/// \code
+/// TRegion(HRGN handle, TAutoDelete autoDelete = NoAutoDelete);
+/// \endcode
+/// This constructor is used to obtain an ObjectWindows object as an alias to a
+/// regular Windows handle received in a message.
+///
+/// You can also create a new TRegion object from an existing TRegion object:
+/// \code
+/// TRegion(const TRegion& region);
+/// \endcode
+/// The destructor ~TRegion deletes the region and its storage space.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtregion "Accessing TRegion"
+/// - \ref tregionmemberfunctions "TRegion Member Functions"
+/// - \ref tregionoperators "TRegion Operators"
+///
+///
+///
+/// \page accessingtregion Accessing TRegion
+/// You can access and modify TRegion objects directly
+/// through an HRGN handle or through a number of member functions and operators. To
+/// get an HRGN from a TRegion object, use the HRGN() operator with the TRegion
+/// object as the parameter. The HRGN() operator is almost never explicitly
+/// invoked:
+/// \code
+/// HRGN TMyBitmap::GetHRgn()
+/// {
+///  return *this;
+/// }
+/// \endcode
+/// This code automatically invokes the HRGN() conversion operator to cast the
+/// TRegion object to the correct type.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructinganddestroyingtregion "Constructing and Destroying TRegion"
+/// - \ref tregionmemberfunctions "TRegion Member Functions"
+/// - \ref tregionoperators "TRegion Operators"
+///
+///
+///
+/// \page tregionmemberfunctions TRegion Member Functions
+/// TRegion provides a number of member functions to get
+/// information from the TRegion object, including whether a point is contained in
+/// or touches the region.
+/// - You can use the TRegion::SetRectRgn function to reset the object's region to
+/// a rectangular region:
+/// \code
+/// void SetRectRgn(const TRect& rect);
+/// \endcode
+/// This function sets the TRegion's area to the logical coordinates contained in
+/// the TRect object passed as a parameter to SetRectRgn. The region is set to a rectangular
+/// region regardless of the shape that it previously had.
+/// - You can use the TRegion::Contains function to find out whether a point is contained in a
+/// region:
+/// \code
+/// bool Contains(const TPoint& point);
+/// \endcode
+/// point contains the coordinates of the point in question. Contains returns true
+/// if point is within the region and false if not.
+/// - You can use the TRegion::Touches function to find out whether any part of a rectangle
+/// is contained in a region:
+/// \code
+/// bool Touches(const TRect& rect);
+/// \endcode
+/// rect contains the coordinates of the rectangle in question. Touches returns
+/// true if any part of rect is within the region and false if not.
+/// - You can use the TRegion::GetRgnBox functions to get the coordinates of the bounding
+/// rectangle of a region:
+/// \code
+/// int GetRgnBox(TRect& box);
+/// TRect GetRgnBox();
+/// \endcode
+/// The bounding rectangle is the smallest possible rectangle that encloses all the
+/// area contained in the region. The first version of this function takes a
+/// reference to a TRect object as a parameter. The function places the coordinates of the
+/// bounding rectangle in the TRect object. The return value indicates the
+/// complexity of the region, and can be one of the following: SIMPLEREGION (region
+/// has no overlapping borders), COMPLEXREGION (region has overlapping borders), or
+/// NULLREGION (region is empty). If the function fails, the return value is
+/// ERROR.
+/// The second version of GetRgnBox takes no parameters and returns a TRect that
+/// contains the coordinates of the bounding rectangle. The second version of this
+/// function does not indicate the complexity of the region.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtregion "Accessing TRegion"
+/// - \ref constructinganddestroyingtregion "Constructing and Destroying TRegion"
+/// - \ref tregionoperators "TRegion Operators"
+///
+///
+///
+/// \page tregionoperators TRegion Operators
+/// TRegion has a large number of operators. These operators
+/// can be used to query and modify the values of a region. They are not necessarily
+/// restricted to working with other regions; many of them let you add and subtract
+/// rectangles and other units to and from the region.
+///
+/// TRegion provides two Boolean test operators, == and !=. These operators work to
+/// compare two regions. If two regions are equivalent, the == operator returns
+/// true, and the != operator returns false. If two regions are not equivalent, the
+/// == operator returns false, and the != operator returns true. You can use these
+/// operators much as you do their equivalents for ints, chars, and so on.
+/// For example, suppose you want to test whether two regions are identical, and, if
+/// they are not, perform an operation on them. The code would look something like
+/// this:
+/// \code
+/// TRegion rgn1;
+/// TRegion rgn2;
+///
+/// // Initialize regions...
+///
+/// if(rgn1 != rgn2) {
+///  // Perform your operations here
+///  .
+///  .
+///  .
+/// }
+/// \endcode
+/// TRegion also provides a number of assignment operators that you can use to
+/// change the region:
+/// - The = operator lets you assign one region to another. For example, the
+/// statement rgn1 = rgn2 sets the contents of
+/// rgn1 to the contents of rgn2, regardless of the contexts of rgn1 prior to the
+/// assignment.
+/// - The += operator lets you move a region by an offset contained in a TSize object. This
+/// operation is analogous to numerical addition: just add the offset to each point
+/// in the region. The region retains all its properties, except that the
+/// coordinates defining the region are shifted by the values contained in the cx
+/// and cy members of the TSize object:
+///  - If cx is positive, the region is shifted cx pixels to
+/// the right.
+///  - If cx is negative, the region is shifted cx pixels to
+/// the left.
+///  - If cy is positive, the region is shifted cy pixels
+/// down.
+///  - If cy is negative, the region is shifted cy pixels
+/// up.
+///
+/// For example, suppose you want to move a region to the right 50 pixels and up 20
+/// pixels. The code would look something like this:
+/// \code
+/// TRegion rgn;
+///
+/// // Initialize region...
+///
+/// TSize size(50, -20);
+/// rgn += size;
+///
+/// // Continue working with new region.
+///
+///  .
+///  .
+///  .
+/// \endcode
+/// - The -= operator, when used with a TSize object, does essentially the opposite
+/// of the += operator; that is, it subtracts the offset from each point in the
+/// region. For example, suppose you have the same code as in the previous example,
+/// except that instead of using the += operator, it uses the -= operator. This code
+/// would offset the region in exactly the opposite way from the += operator, 50
+/// pixels to the left and down 20 pixels.
+/// - The -= operator, when used with a TRegion object, behaves differently from
+/// when it is used with a TSize object. To demonstrate how the -= operator works
+/// when used with TRegion, consider the following code:
+/// \code
+/// TRegion rgn1, rgn2;
+///
+/// rgn1 -= rgn2;
+/// \endcode
+/// After execution of this code, rgn1 contains all the area it contained
+/// originally, minus any parts of that area shared by rgn2. Thus any point that is
+/// contained in rgn2 is not contained in rgn1 after this code has executed. This is
+/// analogous to subtraction: subtract the area defined by rgn2 from rgn1.
+/// - The &= operator can be used with both TRegion objects and
+/// TRect objects
+/// (before any operations are performed, the TRect is converted to a TRegion using
+/// the constructor TRegion::TRegion(TRect &)). The following code
+/// demonstrates how the &= operator works:
+/// \code
+/// TRegion rgn1, rgn2;
+///
+/// rgn1 &= rgn2;
+/// \endcode
+/// After execution of this code, rgn1 contains all the area it originally shared
+/// with rgn2; that is, areas that were common to both regions before the execution
+/// of the &= statement. This is a logical AND operation: only the areas that
+/// are part of both rgn1 AND rgn2 become part of the new region.
+/// - The |= operator can be used with both TRegion objects and TRect objects
+/// (before any operations are performed, the TRect is converted to a TRegion using
+/// the constructor TRegion::TRegion(TRect &)). The following code demonstrates
+/// how the |= operator works:
+/// \code
+/// TRegion rgn1, rgn2;
+///
+/// rgn1 |= rgn2;
+/// \endcode
+/// After execution of this code, rgn1 contains all the area it originally
+/// contained, plus all the area contained in rgn2; that is, it contains all of both
+/// regions. This is a logical OR operation: Areas that are part of either rgn1 OR
+/// rgn2 become part of the new region.
+/// - The ^= operator can be used with both TRegion objects and TRect objects
+/// (before any operations are performed, the TRect is converted to a TRegion using
+/// the constructor TRegion::TRegion(TRect &)). The following code demonstrates
+/// how the ^= operator works:
+/// \code
+/// TRegion rgn1, rgn2;
+///
+/// rgn1 ^= rgn2;
+/// \endcode
+/// After execution of this code, rgn1 contains only that area it originally
+/// contained but did not share with rgn2, plus all the area originally contained in
+/// rgn2 that was not shared with rgn1. This operator combines both areas and
+/// removes the overlapping sections. This is a logical XOR (exclusive OR)
+/// operation: Areas that are part of either rgn1 OR rgn2 but not of both become
+/// part of the new region.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructinganddestroyingtregion "Constructing and Destroying TRegion"
+/// - \ref accessingtregion "Accessing TRegion"
+/// - \ref tregionmemberfunctions "TRegion Member Functions"
+///
+///
+///
+/// \page ticonclass TIcon Class
+/// The TIcon class encapsulates an icon handle and
+/// constructors for instantiating the TIcon object. You can use the TIcon class to
+/// construct an icon from a resource or explicit info.
+///
+/// To learn more about TIcon, review the following topics:
+/// - \subpage constructingticon "Constructing TIcon"
+/// - \subpage accessingticon "Accessing TIcon"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page constructingticon Constructing TIcon
+/// You can construct a TIcon
+/// in a number of ways: from an existing TIcon object, from a resource in
+/// the current application, from a resource in another module, or explicitly from
+/// size and data information.
+///
+/// You can create icon objects from an existing icon encapsulated in a TIcon
+/// object:
+/// \code
+/// TIcon(HINSTANCE instance, const TIcon& icon);
+/// \endcode
+/// instance can be any module instance. For example, you could get the instance of
+/// a DLL and get an icon from that instance:
+/// \code
+/// TModule iconLib("MYICONS.DLL");
+/// TIcon icon(iconLib, "MYICON");
+/// \endcode
+/// Note the implicit conversion of the TModule iconLib into an HINSTANCE in the call to
+/// the TIcon constructor.
+///
+/// You can create a TIcon object from an icon resource in any module:
+/// \code
+/// TIcon(HINSTANCE instance, TResId resId);
+/// \endcode
+/// In this case, instance should be the HINSTANCE of the module from which you want
+/// to get the icon, and resId is the resource ID of the particular icon you want to
+/// get. Passing in 0 for instance gives you access to built-in Windows icons.
+/// You can also load an icon from a file:
+/// \code
+/// TIcon(HINSTANCE instance, char far* filename, int index);
+/// \endcode
+/// In this case, instance should be the instance of the current module, filename is
+/// the name of the file containing the icon, and index is the index of the icon to
+/// be retrieved.
+///
+/// You can also create a new icon:
+/// \code
+/// TIcon(HINSTANCE instance, TSize& size, int
+/// planes, int bitsPixel,
+///    void far* andBits, void far* xorBits);
+/// \endcode
+/// In this case, instance should be the instance of the current module, size
+/// indicates the size of the icon, planes indicates the number of color planes,
+/// bitsPixel indicates the number of bits per pixel, andBits points to an array
+/// containing the AND mask of the icon, and xorBits points to an array containing
+/// the XOR mask of the icon. The andBits array must specify a monochrome mask. The
+/// xorBits array can be a monochrome or device-dependent color bitmap.
+///
+/// You can also create a new TIcon object from an existing HICON handle:
+/// \code
+/// TIcon(HICON handle, TAutoDelete autoDelete = NoAutoDelete);
+/// \endcode
+/// This constructor is used to obtain an ObjectWindows object as an alias to a
+/// regular Windows handle received in a message.
+///
+/// There are two other constructors that are available only for 32-bit
+/// applications:
+/// \code
+/// TIcon(const void* resBits, uint32 resSize);
+/// TIcon(const ICONINFO* iconInfo);
+/// \endcode
+/// The first constructor takes two parameters: resBits is a pointer to a buffer
+/// containing the icon data bits (usually obtained from a call to
+/// LookupIconIdFromDirectory or LoadResource functions) and resSize indicates the
+/// number of bits in the resBits buffer.
+///
+/// The second constructor takes a single parameter, an ICONINFO structure. The
+/// constructor creates an icon from the information in the ICONINFO structure. The
+/// fIcon member of the ICONINFO structure must be true, indicating that the
+/// ICONINFO structure contains an icon.
+///
+/// The destructor ~TIcon deletes the icon and its storage space.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingticon "Accessing TIcon"
+///
+///
+///
+/// \page accessingticon Accessing TIcon
+/// You can access TIcon through an HICON. To get an HICON from a TIcon object, use the HICON()
+/// operator with the TIcon object as the parameter. The HICON() operator is almost
+/// never explicitly invoked:
+/// \code
+/// HICON TMyIcon::GetHIcon()
+/// {
+///  return *this;
+/// }
+/// \endcode
+/// This code automatically invokes the HICON() conversion operator to cast the
+/// TIcon object to the correct type.
+///
+/// The other access function in TIcon, called TIcon::GetIconInfo, is available for 32-bit applications
+/// only. GetIconInfo takes as its only parameter a pointer to a ICONINFO structure.
+/// The function fills out the ICONINFO structure and returns true if the operation
+/// was successful. For example, suppose you create an icon object, then want to
+/// extract the icon data into an ICONINFO structure. The code would look something
+/// like this:
+/// \code
+/// ICONINFO iconInfo;
+///
+/// // Load stock icon - Exclamation
+/// TIcon icon(0, IDI_EXCLAMATION);
+///
+/// icon.GetIconInfo(&iconInfo);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingticon "Constructing TIcon"
+///
+///
+///
+/// \page tcursorclass TCursor Class
+/// The TCursor class encapsulates a cursor handle and
+/// constructors for instantiating the TCursor object. You can use the TCursor class
+/// to construct a cursor from a resource or explicit information.
+///
+/// To learn more about TCursor, review the following topics:
+/// - \subpage constructingtcursor "Constructing TCursor"
+/// - \subpage accessingtcursor "Accessing TCursor"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page constructingtcursor Constructing TCursor
+/// You can construct a TCursor in a number of ways: from an
+/// existing TCursor object, from a resource in the current application, from a
+/// resource in another application, or explicitly from size and data
+/// information.
+///
+/// You can create cursor objects from an existing cursor encapsulated in a TCursor
+/// object:
+/// \code
+/// TCursor(HINSTANCE instance, const TCursor& cursor);
+/// \endcode
+/// instance in this case should be the instance of the current application. TCursor
+/// does not encapsulate the application instance because TCursor objects know
+/// nothing about application objects. It is usually easiest to access the current
+/// application instance in a window or other interface object.
+/// \code
+/// TCursor(HINSTANCE instance, TResId resId);
+/// TCursor(HINSTANCE instance, const TPoint& hotSpot, TSize& size, void far* andBits, void far* xorBits);
+/// \endcode
+/// You can also create a new TCursor object from an existing HCURSOR handle:
+/// \code
+/// TCursor(HCURSOR handle, TAutoDelete autoDelete = NoAutoDelete);
+/// \endcode
+/// This constructor is used to obtain an ObjectWindows object as an alias to a
+/// regular Windows handle received in a message.
+///
+/// There are two other constructors that are available only for 32-bit
+/// applications:
+/// \code
+/// TCursor(const void* resBits, uint32 resSize);
+/// TCursor(const ICONINFO* iconInfo);
+/// \endcode
+/// The first constructor takes two parameters: resBits is a pointer to a buffer
+/// containing the cursor data bits (usually obtained from a call to
+/// LookupIconIdFromDirectory or LoadResource functions) and resSize indicates the
+/// number of bits in the resBits buffer.
+///
+/// The second constructor takes a single parameter, an ICONINFO structure. The
+/// constructor creates an icon from the information in the ICONINFO structure. The
+/// fIcon member of the ICONINFO structure must be false, indicating that the
+/// ICONINFO structure contains a cursor.
+///
+/// The destructor ~TCursor deletes the cursor. If the deletion fails, the
+/// destructor throws an exception.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtcursor "Accessing TCursor"
+///
+///
+///
+/// \page accessingtcursor Accessing TCursor
+/// You can access TCursor through an HCURSOR. To get an
+/// HCURSOR from a TCursor object, use the HCURSOR() operator with the TCursor
+/// object as the parameter. The HCURSOR() operator, listed below, is almost never
+/// explicitly invoked:
+/// \code
+/// HCURSOR
+/// TMyCursor::GetHCursor()
+/// {
+///  return *this;
+/// }
+/// \endcode
+/// This code automatically invokes the HCURSOR() conversion operator to cast the
+/// TCursor object to the correct type.
+///
+/// The other access function in TCursor, called TCursor::GetIconInfo, is available for 32-bit
+/// applications only. GetIconInfo takes as its only parameter a pointer to a
+/// ICONINFO structure. The function fills out the ICONINFO structure and returns
+/// true if the operation was successful. For example, suppose you create an cursor
+/// object, then want to extract the cursor data into an ICONINFO structure. The
+/// code would look something like this:
+/// \code
+/// ICONINFO cursorInfo;
+///
+/// // Load stock cursor - slashed circle
+/// TCursor cursor(NULL, IDC_NO);
+///
+/// cursor.GetIconInfo(&cursorInfo);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructingtcursor "Constructing TCursor"
+///
+///
+///
+/// \page tdibclass TDib Class
+/// A device-independent bitmap (DIB) has no GDI handle like a regular bitmap,
+/// although it does have a global handle. Instead, it is just a structure
+/// containing format and palette information and a collection of bits (pixels). The
+/// TDib class provides a convenient way to work with DIBs like any other GDI object. The
+/// memory for the DIB is in one chunk allocated with the Windows GlobalAlloc
+/// functions, so that it can be passed to the Clipboard, an OLE server or client,
+/// and others outside of its instantiating application.
+///
+/// To learn more about TDib, review the following topics:
+/// - \subpage constructinganddestroyingtdib "Constructing and Destroying TDib"
+/// - \subpage accessingtdib "Accessing TDib"
+/// - \subpage accessinginternalstructures "Accessing Internal Structures"
+/// - \subpage extendingtdib "Extending TDib"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref changestoencapsulatedgdifunctions "Changes To Encapsulated GDI Functions"
+/// - \ref gdiclassorganization "GDI Class Organization"
+/// - \ref graphicsobjectsoverview "Graphics Objects Overview"
+/// - \ref tbitmapclass "TBitmap Class"
+/// - \ref tbrushclass "TBrush Class"
+/// - \ref tcursorclass "TCursor Class"
+/// - \ref tdibclass "TDib Class"
+/// - \ref tfontclass "TFont Class"
+/// - \ref ticonclass "TIcon Class"
+/// - \ref tpaletteclass "TPalette Class"
+/// - \ref tpenclass "TPen Class"
+/// - \ref tregionclass "TRegion Class"
+/// - \ref workingwithdevicecontexts "Working with Device Contexts"
+///
+///
+///
+/// \page constructinganddestroyingtdib Constructing and Destroying TDib
+/// You can construct a TDib
+///  object either directly or indirectly. Using direct construction, you
+/// can specify the bitmap's width, height, and so on. Using indirect construction,
+/// you can specify an existing bitmap object, pointer to a BITMAP structure, a
+/// metafile, a TDC device context, and more.
+///
+/// Here is the constructor for directly constructing a TDib object:
+/// \code
+/// TDib(int width, int height, int nColors, uint16 mode=DIB_RGB_COLORS);
+/// \endcode
+/// width and height specify the width and height in pixels of the DIB. nColors
+/// specifies the number of colors actually used in the DIB. mode can be either
+/// DIB_RGB_COLORS or DIB_PAL_COLORS. DIB_RGB_COLORS indicates that the color table
+/// consists of literal RGB values. DIB_PAL_COLORS indicates that the color table
+/// consists of an array of 16-bit indexes into the currently realized logical
+/// palette.
+///
+/// You can create a TDib object by loading it from an executable application
+/// module. This constructor takes two parameters: the first is the HINSTANCE of the
+/// module containing the bitmap and the second is the resource ID of the bitmap you
+/// want to load:
+/// \code
+/// TDib(HINSTANCE instance, TResId resId);
+/// \endcode
+/// To create a TDib object from the Clipboard, pass a reference to a TClipboard
+/// object to the constructor. The constructor gets the handle of the bitmap in the
+/// Clipboard and constructs a bitmap object from the handle.
+/// \code
+/// TDib(const TClipboard& clipboard);
+/// \endcode
+/// You can load a DIB from a file (typically a .BMP file) into a TDib object by
+/// specifying the name as the only parameter of the constructor:
+/// \code
+/// TDib(const char* name);
+/// \endcode
+/// You can also construct a TDib object given a TBitmap object and a TPalette
+/// object. If no palette is given, this constructor uses the focus window's
+/// currently realized palette.
+/// \code
+/// TDib(const TBitmap& bitmap, const TPalette* pal = 0);
+/// \endcode
+/// You can create a DIB object from an existing DIB object:
+/// \code
+/// TDib(const TDib& dib);
+/// You can also create a new TDib object from an existing HGLOBAL handle:
+/// \code
+/// TDib(HGLOBAL handle, TAutoDelete autoDelete = NoAutoDelete);
+/// \endcode
+/// This constructor is used to obtain an ObjectWindows object as an alias to a
+/// regular Windows handle received in a message. Because an HGLOBAL handle can
+/// point to many different kinds of objects, you must ensure that the HGLOBAL you
+/// use in this constructor is actually the handle to a device-independent bitmap.
+/// If you pass a handle to another type of object, the constructor throws an
+/// exception.
+///
+/// If ShouldDelete is true, the destructor ~TDib frees the resource and unlocks and
+/// frees the chunk of global memory as needed.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtdib "Accessing TDib"
+/// - \ref extendingtdib "Extending TDib"
+///
+///
+///
+/// \page accessingtdib Accessing TDib
+/// TDib provides a number of different types of functions for accessing the
+/// encapsulated DIB.
+///
+/// To find out more about accessing the encapsulated DIB, review the following
+/// topics:
+/// - \subpage typeconversions "Type Conversions"
+/// - \subpage accessinginternalstructures "Accessing Internal Structures"
+/// - \subpage clipboard "Clipboard"
+/// - \subpage dibinformation "DIB Information"
+/// - \subpage workinginpalorrgbmode "Working in PAL Or RGB Mode"
+/// - \subpage matchinginterfacecolorstosystemcolors "Matching Interface Colors To System Colors"
+///
+///
+///
+/// \section seealso See Also
+/// - \ref constructinganddestroyingtdib "Constructing and Destroying TDib"
+/// - \ref extendingtdib "Extending TDib"
+///
+///
+///
+/// \page typeconversions Type Conversions
+/// The type conversion functions for TDib let you access TDib in the most convenient manner for
+/// the operation you want to perform.
+///
+/// You can use the HANDLE conversion operator to access TDib through
+/// a HANDLE. To get a HANDLE from a TDib object, use the HANDLE operator with the
+/// TDib object as the parameter. The HANDLE operator is almost never explicitly
+/// invoked:
+/// \code
+/// HANDLE TMyDib::GetHandle()
+/// {
+///  return *this;
+/// }
+/// \endcode
+/// This code automatically invokes the HANDLE conversion operator to cast the TDib
+/// object to the correct type.
+///
+/// You can also convert a TDib object to three other bitmap types. You can use the
+/// following operators to convert a TDib to any one of three types: BITMAPINFO *,
+/// BITMAPINFOHEADER *, or TRgbQuad *. You can use the result wherever that type is
+/// normally used:
+/// \code
+/// operator BITMAPINFO far*();
+/// operator BITMAPINFOHEADER far*();
+/// operator TRgbQuad far*();
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessinginternalstructures "Accessing Internal Structures"
+/// - \ref clipboard "Clipboard"
+/// - \ref dibinformation "DIB Information"
+/// - \ref matchinginterfacecolorstosystemcolors "Matching Interface Colors To System Colors"
+/// - \ref workinginpalorrgbmode "Working in PAL Or RGB Mode"
+///
+///
+///
+/// \page accessinginternalstructures Accessing Internal Structures
+/// These TDib functions give you access to a device-independent
+/// bitmap's (DIB's) internal data structures. They return the DIB's equivalent
+/// bitmap types as pointers to BITMAPINFO, BITMAPINFOHEADER, and TRgbQuad
+/// objects:
+/// \code
+/// BITMAPINFO far* GetInfo();
+/// BITMAPINFOHEADER far* GetInfoHeader();
+/// TRgbQuad far* GetColors();
+/// \endcode
+/// The following function returns a pointer to an array of WORDs containing the
+/// color indexes for the DIB:
+/// \code
+/// uint16 far* GetIndices();
+/// \endcode
+/// This function returns a pointer to an array containing the bits that make up the
+/// actual DIB image:
+/// \code
+/// void HUGE* GetBits();
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref clipboard "Clipboard"
+/// - \ref dibinformation "DIB Information"
+/// - \ref matchinginterfacecolorstosystemcolors "Matching Interface Colors To System Colors"
+/// - \ref typeconversions "Type Conversions"
+/// - \ref workinginpalorrgbmode "Working in PAL Or RGB Mode"
+///
+///
+///
+/// \page clipboard Clipboard
+/// You can move a DIB to the Clipboard using the ToClipboard function, which takes
+/// a reference to a TClipboard object as a parameter. Because ToClipboard actually
+/// removes the object from your application, you should usually use a
+/// TDib constructor to create a temporary object, as follows:
+/// \code
+/// TClipboard clipBoard;
+/// TDib(ID_BITMAP).ToClipboard(clipBoard);
+/// \endcode
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessinginternalstructures "Accessing Internal Structures"
+/// - \ref dibinformation "DIB Information"
+/// - \ref matchinginterfacecolorstosystemcolors "Matching Interface Colors To System Colors"
+/// - \ref typeconversions "Type Conversions"
+/// - \ref workinginpalorrgbmode "Working in PAL Or RGB Mode"
+///
+///
+///
+/// \page dibinformation DIB Information
+/// The TDib class
+/// provides a number of accessor functions that you can use to query a TDib object
+/// and get information about the DIB contained in the object:
+/// - To find out whether the object is valid, call the TDib::IsOK function.
+/// IsOK takes no parameters. It returns true if the object is valid and false if
+/// not.
+/// - The TDib::IsPM function takes no parameters. This function returns true when the DIB is a
+/// Presentation Manager-compatible bitmap.
+/// - The TDib::Width and TDib::Height functions return the bitmap's width and height
+/// respectively, in pixel units.
+/// - The TDib::Size function returns the bitmap's width and height in pixel units, but contained in
+/// a TSize object.
+/// - The TDib::NumColors function returns the number of colors used in the bitmap.
+/// - TDib::StartScan is provided for compatibility with older code. This function always
+/// returns 0.
+/// - TDib::NumScans is provided for compatibility with older code. This functions returns
+/// the height of the DIB in pixels.
+/// - The TDib::Usage function indicates what mode the DIB is in. This value is either
+/// DIB_RGB_COLORS or DIB_PAL_COLORS.
+/// - The TDib::WriteFile function writes the DIB object to disk. This function takes a single
+/// parameter, a const char*, which should point to the name of the file in which
+/// you want to save the bitmap.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessinginternalstructures "Accessing Internal Structures"
+/// - \ref clipboard "Clipboard"
+/// - \ref matchinginterfacecolorstosystemcolors "Matching Interface Colors To System Colors"
+/// - \ref typeconversions "Type Conversions"
+/// - \ref workinginpalorrgbmode "Working in PAL Or RGB Mode"
+///
+///
+///
+/// \page workinginpalorrgbmode Working in PAL Or RGB Mode
+/// A device-independent bitmap (DIB) can hold color values in two ways. In palette
+/// mode, the DIB's color table contains indexes into a palette. The color values do
+/// not indicate any particular color themselves. The indexes must be
+/// cross-referenced to the corresponding palette entry in the currently realized
+/// palette. In RGB mode, each entry in the DIB's color table represents an actual
+/// RGB color value.
+///
+/// You can switch from RGB to palette mode by using these
+/// TDib functions:
+/// \code
+/// bool ChangeModeToPal(const TPalette& pal);
+/// bool ChangeModeToRGB(const TPalette& pal);
+/// \endcode
+/// When you switch to palette mode using
+/// TDib::ChangeModetoPal, the TPalette & parameter
+/// is used as the DIB's palette. Each color used in the DIB is mapped to the
+/// palette and converted to a palette index. When you switch to RGB mode using
+/// TDib::ChangeModetoRGB, the TPalette & parameter
+/// is used to convert the current palette indexes to their RGB equivalents
+/// contained in the palette.
+///
+/// \section workinginrgbmode Working In RGB Mode
+/// If you're working in RGB mode, you can use the following functions to access and
+/// modify the DIB's color table:
+/// - Retrieve any entry in the DIB's color table using theTDib::GetColor
+/// function. This function takes a single parameter, an int indicating the index of
+/// the color table entry. GetColor returns a TColor object.
+/// - Change any entry in the DIB's color table using theTDib::SetColor
+/// function. This function takes two parameters, an int indicating the index of the
+/// color table entry you want to change and a TColor
+/// containing the value to which you want to change the entry.
+/// - Match a TColor object to a color table entry by using
+/// the TDib::FindColor function. FindColor takes a single parameter, a
+/// TColor object, and searches through the DIB's color table
+/// until it finds an exact match for the TColor object. If it
+/// fails to find a match, FindColor returns -1.
+/// - Substitute one color for a color that currently exists in the DIB's color
+/// table using the TDib::MapColor function. This function takes three parameters, a
+/// TColor object containing the color to be replaced, a
+/// TColor object containing the new color to be placed in the
+/// color table, and a bool that indicates whether all occurrences of the second
+/// color should be replaced. If the third parameter is true, all color table
+/// entries that are equal to the first parameter are replaced by the second. If the
+/// third parameter is false, only the first color table entry that is equal to the
+/// first parameter is replaced. By default, the third parameter is false. The
+/// return value of this function indicates the total number of palette entries that
+/// were replaced.
+///
+/// For example, suppose you wanted to replace all occurrences of white in your DIB
+/// with light gray. The code would look something like this:
+/// \code
+/// myDib->MapColor(TColor::LtGray, TColor::White, true);
+/// \endcode
+///
+/// \section workinginpalettemode Working In Palette Mode
+/// If you're working in palette mode, you can use the following functions to access
+/// and modify the DIB's color table:
+/// - Retrieve the palette index of any color table entry using the TDib::GetIndex
+/// function. This function takes a single parameter, an int indicating the index of
+/// the color table entry. GetIndex returns a uint16 containing the palette
+/// index.
+/// - Change any entry in the DIB's color table using the TDib::SetIndex
+/// function. This function takes two parameters, an int indicating the index of the
+/// color table entry you want to change and a uint16 containing the palette index
+/// to which you want to change the entry.
+/// - Match a palette index to a color table entry by using the TDib::FindIndex
+/// function. FindIndex takes a single parameter, a uint16 and searches through the
+/// DIB's color table until it finds a match for the uint16. If it fails to find a
+/// match, FindIndex returns -1.
+/// - Substitute one color for a color that currently exists in the DIB's color
+/// table using the TDib::MapIndex function. This function takes three parameters, a
+/// uint16 indicating the index to be replaced, a uint16 indicating the new palette
+/// index to be placed in the color table, and a bool that indicates whether all
+/// occurrences of the second color should be replaced. If the third parameter is
+/// true, all color table entries that are equal to the first parameter are replaced
+/// by the second. If the third parameter is false, only the first color table entry
+/// that is equal to the first parameter is replaced. By default, the third
+/// parameter is false. The return value of this function indicates the total number
+/// of palette entries that were replaced.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessinginternalstructures "Accessing Internal Structures"
+/// - \ref clipboard "Clipboard"
+/// - \ref dibinformation "DIB Information"
+/// - \ref matchinginterfacecolorstosystemcolors "Matching Interface Colors To System Colors"
+/// - \ref typeconversions "Type Conversions"
+///
+///
+///
+/// \page matchinginterfacecolorstosystemcolors Matching Interface Colors To System Colors
+/// Device-independent bitmaps (DIBs) are often used to enhance and decorate a user
+/// interface. To make your interface consistent with your application user's
+/// system, you should use TDib::MapUIColors function, which replaces standard
+/// interface colors with the user's own system colors. Here is the syntax for
+/// MapUIColors:
+/// \code
+/// void MapUIColors(uint mapColors, TColor * bkColor = 0);
+/// \endcode
+/// The mapColors parameter should be an OR'ed combination of five flags:
+/// TDib::MapFace, TDib::MapText, TDib::MapShadow, TDib::MapHighlight, and
+/// TDib::MapFrame. Each of these values causes a different color substitution to
+/// take place, as shown in the following table:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">This flag</TD><TD class="owltableheader">Replaces...</TD><TD class="owltableheader">With...</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::MapText</TD><TD class="owltable">TColor::Black</TD><TD class="owltable">COLOR_BTNTEXT</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::MapFace</TD><TD class="owltable">TColor::LtGray</TD><TD class="owltable">COLOR_BTNFACE</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::MapFace</TD><TD class="owltable">TColor::Gray</TD><TD class="owltable">COLOR_BTNSHADOW</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::MapFace</TD><TD class="owltable">TColor::White</TD><TD class="owltable">COLOR_BTNHIGHLIGHT</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::MapFrame</TD><TD class="owltable">TColor::LtMagenta</TD><TD class="owltable">COLOR_WINDOWFRAME</TD></TR>
+/// </TABLE>
+///
+/// The bkColor parameter, if specified, causes the color TColor::LtYellow to be
+/// replaced by the color bkColor.
+///
+/// Because MapUIColors searches for and replaces TColor
+/// table entries, this function is useful only with a DIB
+/// in RGB mode. Furthermore, because it replaces particular colors, you must design
+/// your interface using the standard system colors. For example, your button text
+/// should be black (TColor::Black), button faces should be light gray
+/// (TColor::LtGray), and so on. This should be fairly simple, since these objects
+/// are specifically designed so that they are equivalent to the standard default
+/// colors for each interface element.
+///
+/// You should also call the MapUIColors function before you modify any of the
+/// colors modified by MapUIColors. If you do not do this, MapUIColors will not be
+/// able to find the attribute color for which it is searching, and that part of the
+/// interface will not match the system colors.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessinginternalstructures "Accessing Internal Structures"
+/// - \ref clipboard "Clipboard"
+/// - \ref dibinformation "DIB Information"
+/// - \ref typeconversions "Type Conversions"
+/// - \ref workinginpalorrgbmode "Working in PAL Or RGB Mode"
+///
+///
+///
+/// \page extendingtdib Extending TDib
+/// TDib provides a
+/// number of protected functions that are accessible only from within TDib and
+/// TDib-derived classes. You can also access TDib's control data, described in the
+/// following table:
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Data item</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::Info</TD><TD class="owltable">A pointer to a BITMAPINFO or BITMAPCOREINFO structure that contains the
+/// attributes, color table, and other information about the DIB</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::Bits</TD><TD class="owltable">A void pointer that points to an area of memory containing the actual
+/// graphical data for the DIB</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::NumClrs</TD><TD class="owltable">A long containing the actual number of colors used in the DIB (not the
+/// number of colors possible, but the number actually used)</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::W</TD><TD class="owltable">An int indicating the width of the DIB in pixels</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::H</TD><TD class="owltable">An int indicating the height of the DIB in pixels</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::Mode</TD><TD class="owltable">A uint16 indicating whether the DIB is in RGB mode (DIB_RGB_COLORS) or
+/// palette mode (DIB_PAL_COLORS)</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::IsCore</TD><TD class="owltable">A bool that is true if the Info pointer points to a BITMAPCOREINFO
+/// structure and false if it does not</TD></TR>
+/// <TR class="owltable"><TD class="owltable">TDib::IsResHandle</TD><TD class="owltable">Indicates whether the DIB was loaded as a resource and therefore
+/// whether Handle is a resource handle</TD></TR>
+/// </TABLE>
+///
+/// You can use the TDib::InfoFromHandle function to fill out the structure
+/// pointed to by Info. InfoFromHandle extracts information from Handle and fills
+/// out the attributes of the Info structure. InfoFromHandle takes no parameters and
+/// has no return value.
+///
+/// The TDib::Read function reads a Windows 3.0-compatible or Presentation Manager-compatible DIB
+/// from a file referenced by a TFile object. When loading, Read checks the DIB's header,
+/// attributes, palette, and bitmap. Presentation Manager-compatible DIBs are
+/// converted to Windows DIBs on the fly. This function returns true if the DIB was
+/// read in correctly.
+///
+/// You can use the TDib::LoadResource function to load a DIB from an application or DLL
+/// module. This function takes two parameters, an HINSTANCE indicating the
+/// application or DLL module from which you want to load the DIB and a TResId
+/// indicating the particular resource within that module you want to retrieve.
+/// LoadResource returns true if the operation was successful.
+///
+/// You can use the TDib::LoadFile function to load a DIB from a file. This function
+/// takes one parameter, a char * that points to a string containing the name of the
+/// file containing the DIB. LoadFile returns true if the operation was
+/// successful.
+///
+///
+///
+/// \section seealso See Also
+/// - \ref accessingtdib "Accessing TDib"
+/// - \ref constructinganddestroyingtdib "Constructing and Destroying TDib"
+///
+///
+///

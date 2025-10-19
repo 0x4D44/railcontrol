@@ -1,0 +1,40 @@
+//----------------------------------------------------------------------------
+//  Project RichEditor
+//  Borland International
+//  Copyright (c) 1996. All Rights Reserved.
+//
+//  SUBSYSTEM:    RichEditor Application
+//  FILE:         apxmddva.h
+//  AUTHOR:       
+//
+//  OVERVIEW
+//  ~~~~~~~~
+//  Constant definitions for all resources defined in apxmddva.rc.
+//
+//----------------------------------------------------------------------------
+
+#ifndef APP_RH
+#define APP_RH
+
+//
+// Application specific definitions:
+//
+#define IDI_MDIAPPLICATION      1001            // Application icon
+#define IDI_DOC                 1002            // MDI child window icon
+
+#define IDM_MDI                 100             // Menu resource ID and Accelerator IDs
+
+#define IDM_PRINTPREVIEW        200             // Accelerator ID for Print Preview window.
+
+#define CM_FILESEND             24345
+#define CM_HELPABOUT            2009
+
+//
+// About Dialogs
+//
+#define IDD_ABOUT               22000
+#define IDC_VERSION             22001
+#define IDC_COPYRIGHT           22002
+#define IDC_DEBUG               22003
+
+#endif

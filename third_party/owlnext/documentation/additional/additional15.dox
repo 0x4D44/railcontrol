@@ -1,0 +1,2027 @@
+//----------------------------------------------------------------------------
+// Additional documentation source for Doxygen
+//----------------------------------------------------------------------------
+
+/// \page oleclasses OLE Classes
+/// - \subpage creatinganolecontainerwithdocview "Turning an application into an OCX container and OLE container using OWL and Doc/View"
+/// - \subpage creatinganolecontainerwithowl "Turning an application into an OCX container and OLE container using OWL"
+/// - \subpage creatinganoleserverwithdocview "Turning an application into an OLE server using OWL and Doc/View"
+/// - \subpage creatinganoleserverwithowl "Creating an OLE server with OWL"
+/// - \subpage creatingadlloleserver "Creating a DLL OLE Server."
+///
+///
+/// \page creatinganolecontainerwithdocview Turning an application into an OCX container and OLE container using OWL and Doc/View
+/// Follow these steps to turn an application into an OCX container and OLE container using OWL and Doc/View:
+///
+/// -# \subpage stepincludingowlheaderfiles1 "Including OWL header files."
+/// -# \subpage stepderivingtheapplicationclassfromtocmodule1 "Derive the application class from TOcModule."
+/// -# \subpage stepinheritingfromoleclasses1 "Inherit from OLE Classes."
+/// -# \subpage stepcreatinganapplicationdictionary1 "Create an application dictionary."
+/// -# \subpage stepcreatingregistrationtables1 "Create registration tables."
+/// -# \subpage stepcreatingaregistrarobject1 "Create a registrar object."
+/// -# \subpage settinguptheeditmenuandthetoolbar1 "Set up the Edit menu and the toolbar."
+/// -# \subpage loadingandsavingcompounddocuments1 "Load and save compound documents."
+/// -# \subpage stepcompilingandlinkingtheapplication1 "Compile and link the application."
+///
+/// ObjectComponents provides default behavior for all these common OLE features.
+/// Should you want to modify the default behavior, you can additionally choose to
+/// override the default event handlers for messages that ObjectComponents sends.
+/// The code examples in this section are based on the STEP14.CPP and STEP14DV.CPP
+/// sample programs in EXAMPLES/OWL/TUTORIAL. Look there for a complete working
+/// program that incorporates all the prescribed steps.
+///
+///
+///
+/// \page stepincludingowlheaderfiles1 Step 1: Including OWL header files
+/// An OCX container must include the following OWL header files:
+/// \code
+/// #include <ocf/oledoc.h>   // replaces DOCVIEW.H
+/// #include <ocf/oleview.h>   // replaces DOCVIEW.H
+/// #include <ocf/olemdifr.h>  // replaces MDI.H
+/// \endcode
+/// An SDI application includes oleframe.h instead of olemdifr.h.
+///
+///
+///
+/// \page stepderivingtheapplicationclassfromtocmodule1 Step 2: Deriving the application class from TOcModule
+/// The application object of an ObjectComponents program needs to derive from
+/// TOcModule as well as owl::TApplication. TOcModule coordinates some basic
+/// housekeeping chores related to registration and memory management. It also
+/// connects your application to OLE. More specifically, TOcModule manages the
+/// connector object that implements COM interfaces on behalf of an application.
+/// If the declaration of your application object looks like this:
+/// \code
+/// class TMyApp : public TApplication {
+///  public:
+///   TMyApp() :
+/// TApplication(){};
+///  .
+///  .
+///  .
+/// };
+/// \endcode
+/// Then change it to look like this:
+/// \code
+/// class TMyApp : public TApplication, public TOcModule {
+///  public:
+///   TMyApp():
+/// TApplication(::AppReg["appname"], ::Module, &::AppDictionary){};
+///  .
+///  .
+///  .
+/// };
+/// \endcode
+/// The constructor for the revised TMyApp class takes three parameters.
+/// <TABLE BORDER="0" CELLSPACING="0">
+/// <TR><TD>A string naming the application</TD><TD>
+/// AppReg is the application's registration table. The expression
+/// ::AppReg["appname"] extracts a string that was registered to describe the
+/// application.</TD></TR>
+/// <TR><TD>A pointer to the application module.</TD><TD>
+/// Module is a global variable of type TModule* defined by ObjectWindows.</TD></TR>
+/// <TR><TD>The address of the application dictionary.</TD><TD>
+/// AppDictionary is the application dictionary object.</TD></TR>
+/// </TABLE>
+///
+///
+///
+/// \page stepinheritingfromoleclasses1 Step 3: Inheriting from OLE classes
+/// ObjectWindows includes classes that let windows, documents, and views interact
+/// with the ObjectComponents classes. The ObjectWindows OLE classes include default
+/// implementations for most normal OLE operations. To adapt an existing
+/// ObjectWindows program to OLE, change its derived classes so they inherit from
+/// the OLE classes. The following table shows which OLE class replaces each of the
+/// non-OLE classes.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Non-OLE class</TD><TD class="owltableheader">OLE class</TD></TR>
+/// <TR class="owltable"><TD class="owltable">owl::TFrameWindow</TD><TD class="owltable">TOleFrame</TD></TR>
+/// <TR class="owltable"><TD class="owltable">owl::TMDIFrame</TD><TD class="owltable">TOleMDIFrame</TD></TR>
+/// <TR class="owltable"><TD class="owltable">owl::TDecoratedFrame</TD><TD class="owltable">TOleFrame</TD></TR>
+/// <TR class="owltable"><TD class="owltable">owl::TDecoratedMDIFrame</TD><TD class="owltable">TOleMDIFrame</TD></TR>
+/// <TR class="owltable"><TD class="owltable">owl::TWindow</TD><TD class="owltable">TOleWindow</TD></TR>
+/// <TR class="owltable"><TD class="owltable">owl::TDocument</TD><TD class="owltable">TOleDocument</TD></TR>
+/// <TR class="owltable"><TD class="owltable">owl::TView</TD><TD class="owltable">TOleView</TD></TR>
+/// <TR class="owltable"><TD class="owltable">owl::TFileDocument</TD><TD class="owltable">TOleDocument</TD></TR>
+/// <TR class="owltable"><TD class="owltable">owl::TDialog</TD><TD class="owltable">TOleDialog</TD></TR>
+/// </TABLE>
+/// The TOleFrame and TOleMDIFrame classes both derive from decorated window
+/// classes. The OLE 2 user interface requires containers to handle tool bars and
+/// status bars. Even if the container has no decorations, servers might need to
+/// display their own in the container's window. The OLE window classes handle those
+/// negotiations for you.
+///
+/// Wherever your existing OWL program uses a non-OLE class, replace it with an OLE
+/// class, as shown here. 
+///
+/// Before
+/// \code
+/// // pre-OLE declaration of a window class
+/// class TMyFrame: public owl::TFrameWindow
+/// { /* declarations */ );
+/// \endcode
+///
+/// After
+/// \code
+/// // new declaration of the same window class
+/// class TMyFrame: public TOleFrame   { /* declarations */ );
+/// \endcode
+/// \note If the implementation of your class makes direct calls to its base class,
+/// be sure to change the base class calls, as well. Response tables also refer to
+/// the base class and need to be updated.
+///
+///
+///
+/// \page stepcreatinganapplicationdictionary1 Step 4: Creating an application dictionary
+/// An application dictionary tracks information for the currently active process.
+/// It is particularly useful for DLLs. When several processes use a DLL
+/// concurrently, the DLL must maintain multiple copies of the global, static, and
+/// dynamic variables that represent its current state in each process. For example,
+/// the DLL version of ObjectWindows maintains a dictionary that allows it to
+/// retrieve the TApplication corresponding to the currently active client process.
+///
+/// If you convert an executable server to a DLL server, your application too must
+/// maintain a dictionary of the TApplication objects representing each of its
+/// container clients. If your DLL uses the DLL version of ObjectWindows, then your
+/// DLL needs its own dictionary and cannot use the one in ObjectWindows.
+///
+/// The DEFINE_APP_DICTIONARY macro provides a simple and unified way to create the
+/// application object for any application, whether it is a container or a server, a
+/// DLL or an EXE. Insert this statement with your other static variables:
+/// \code
+/// DEFINE_APP_DICTIONARY(AppDictionary);
+/// \endcode
+/// For any application linked to the static version of the DLL, the macro simply
+/// creates a reference to the application dictionary in ObjectWindows. for DLL
+/// servers using the DLL version of ObjectWindows, however, it creates an instance
+/// of the TAppDictionary class.
+/// \note Name your dictionary object AppDictionary to take advantage of the factory
+/// templates such as TOleDocViewFactory.
+///
+///
+///
+/// \page stepcreatingregistrationtables1 Step 5: Creating registration tables
+/// OLE requires programs to identify themselves by registering unique identifiers
+/// and names. OLE also needs to know what Clipboard formats a program supports.
+/// Doc/View applications also register their document file extensions and document
+/// flags. To accommodate the many new items an application might need to register,
+/// in ObjectWindows 2.5 you use macros to build structures to hold the items. Then
+/// you can pass the structure to the object that needs the information. The
+/// advantage of this method lies in the structure's flexibility. It can hold as
+/// many or as few items as you need.
+/// \note Previous versions of ObjectWindows passed some of the same information in
+/// parameters. Old code still works unchanged, but passing information in
+/// registration structures is the recommended method for all new applications.
+///
+/// A Doc/View OLE container fills one registration structure with information about
+/// the application and then creates another to describe each of its Doc/View pairs.
+/// The structure with application information is passed to the
+/// TOcRegistrar constructor. Document registration structures are passed
+/// to the document template constructor.
+///
+/// Here are the commands to register a typical container:
+/// \code
+/// BEGIN_REGISTRATION(AppReg) // information for the TOcRegistrar constructor
+/// 
+/// REGDATA(clsid, "{383882A1-8ABC-101B-A23B-CE4E85D07ED2}")
+///  REGDATA(appname, "DrawPad Container")
+/// END_REGISTRATION
+///
+/// BEGIN_REGISTRATION(DocReg)    // information for the document template
+///  REGDATA(progid, "DrawPad.Document.14")
+///  REGDATA(description,"Drawing Pad (Step14--Container)")
+///  REGDATA(extension, "p14")
+///  REGDATA(docfilter, "*.p14")
+///  REGDOCFLAGS(dtAutoOpen | dtAutoDelete | dtUpdateDir | dtCreatePrompt | dtRegisterExt)
+///  REGFORMAT(0, ocrEmbedSource, ocrContent, ocrIStorage, ocrGet)
+///  REGFORMAT(1, ocrMetafilePict, ocrContent, ocrMfPict|ocrStaticMed, ocrGet)
+///  REGFORMAT(2, ocrBitmap, ocrContent, ocrGDI|ocrStaticMed, ocrGet)
+///  REGFORMAT(3, ocrDib, ocrContent, ocrHGlobal|ocrStaticMed, ocrGet)
+///  REGFORMAT(4, ocrLinkSource, ocrContent, ocrIStream, ocrGet)
+/// END_REGISTRATION
+/// \endcode
+/// The registration macros build structures of type TRegList. Each entry in a
+/// registration structure contains a key, such as clsid or progid, and a value
+/// assigned to the key. Internally ObjectComponents finds the values by searching
+/// for the keys. The order in which the keys appear does not matter.
+///
+/// Insert the registration macros after your declaration of the application
+/// dictionary. Since the value of the clsid key must be a unique number identifying
+/// your application, it is recommended that you generated a new value using the
+/// GUIDGEN.EXE utility. (the ObjectWindows Reference Guide entry for clsid explains
+/// other ways to generate an identifer.) of course, modify the value of the
+/// description key to describe your container.
+///
+/// The example builds two structures, one named AppReg and one named DocReg. AppReg
+/// is an application registration structure and DocReg is a document registration
+/// structure. Both structures are built alike, but each contains a different set of
+/// keys and values. The keys in an application registration structure describe
+/// attributes of the application. A document registration structure describes the
+/// type of document an application can create. A document's attributes include the
+/// data formats that it can exchange with the clipboard, its file extensions, and
+/// its document type name.
+///
+/// The set of keys you place in a structure depends on what OLE capabilities you
+/// intend to support. The macros in the example show the minimum amount of
+/// information a container should provide.
+///
+///
+///
+/// \page stepcreatingaregistrarobject1 Step 6: Creating a registrar object
+/// Every ObjectComponents application needs a registrar object to manage its
+/// registration tasks. In a linking and embedding application, the registrar is an
+/// object of type TOcRegistrar. Insert the following line after the \#include
+/// statements in your main .CPP file.
+/// \code
+/// TPointer<TRegistrar> Registrar;
+/// \endcode
+/// The TPointer template ensures that the Registrar object is destructed when the
+/// program ends.
+///
+/// \note It is important to name the variable Registrar, since OCF depends on
+/// this. Also note that, unlike previous versions of OCF, Registrar should not be 
+/// declared `static`, and the pointer type should be `TPointer<TRegistrar>`, not 
+/// `TPointer<TOcRegistrar>`. However, note that Registrar must still point to a
+/// TOcRegistrar object.
+///
+/// The next step is to modify your OwlMain function to allocate a new TOcRegistrar
+/// object and initialize the global pointer Registrar. The TOcRegistrar constructor
+/// expects three parameters: the application's registration structure, the
+/// component's factory callback and the command line string that invoked that
+/// application.
+/// - The registration structure you create with the registration macros.
+/// - The factory callback you create with a template class. For a linking and
+///   embedding ObjectWindows application that uses Doc/View, the template class is
+///   called TOleDocViewFactory.
+/// - The command line string can come from the GetCmdLine method of TApplication.
+///
+/// After initializing the Registrar pointer, your OLE container application must
+/// invoke the Run method of the registrar instead of TApplication::Run. For OLE
+/// containers, the registrar's Run simply invokes the application object's Run to
+/// create the application's windows and process messages. However, using the
+/// registrar method makes your application OLE server-ready. The following code
+/// shows an example of OwlMain after the addition of a registrar object.
+///
+/// \code
+/// int
+/// OwlMain(int /*argc*/, char* /*argv*/[])
+/// {
+///   ::Registrar = new TOcRegistrar(::AppReg,
+///     TOleDocViewFactory<TMyApp>(),
+///     TApplication::GetCmdLine());
+///   return ::Registrar->Run();
+/// }
+/// \endcode
+///
+/// The last parameter of the TOcRegistrar constructor is the command line string
+/// that invokes the application. The registrar object processes the command line by
+/// searching for switches, such as /Embedding or /Automation, that OLE may have
+/// placed there. ObjectComponents takes whatever action the switches call for and
+/// then removes them. If for some reason you need to test the OLE switches, be sure
+/// to do it before constructing the registrar. If you have no use for the OLE
+/// switches, wait until after constructing the registrar before parsing the command
+/// line.
+///
+///
+///
+/// \page settinguptheeditmenuandthetoolbar1 Step 7: Setting up the Edit menu and the toolbar
+/// An OLE container places OLE commands on its Edit menu. The following table
+/// describes the standard OLE commands. It's not necessary to use all of them, but
+/// every container should support at least Insert Object, to let the user add new
+/// objects to the current document, and Edit Object, to let the user activate the
+/// currently selected object. The TOleView class has default implementations for
+/// all the commands. It invokes standard dialog boxes where necessary and processes
+/// the user's response. All you have to do is add the commands to the Edit menu for
+/// each view you derive from TOleView.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Menu command</TD><TD class="owltableheader">Predefined identifier</TD><TD class="owltableheader">Command description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Paste Special</TD><TD class="owltable">CM_EDITPASTESPECIAL</TD><TD class="owltable">Lets the user choose from available formats
+/// for pasting an object from the Clipboard.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Paste Link</TD><TD class="owltable">CM_EDITPASTELINK</TD><TD class="owltable">Creates a link in the current document to the object
+/// on the Clipboard.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Insert Object</TD><TD class="owltable">CM_EDITINSERTOBJECT</TD><TD class="owltable">Lets the user create a new object by choosing
+/// from a list of available types.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Edit Links</TD><TD class="owltable">CM_EDITLINKS</TD><TD class="owltable">Lets the user manually update the list of linked items
+/// in the current document.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Convert</TD><TD class="owltable">CM_EDITCONVERT</TD><TD class="owltable">Lets the user convert objects from one type to
+/// another.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">Object</TD><TD class="owltable">CM_EDITOBJECT</TD><TD class="owltable">Reserves a space on the menu for the server's verbs
+/// (actions the server can take with the container's object).</TD></TR>
+/// </TABLE>
+///
+/// If your OLE container has a tool bar, assign it the predefined identifier
+/// IDW_TOOLBAR. ObjectComponents must be able to find the container's tool bar if a
+/// server asks to display its own tool bar in the container's window. If
+/// ObjectComponents can identify the old tool bar, it temporarily replaces it with
+/// a new one taken from the server. For ObjectComponents to identify the
+/// container's tool bar, the container must use the IDW_TOOLBAR as its window ID,
+/// as shown here.
+/// \code
+/// TControlBar *cb = new TControlBar(parent);
+/// cb->Attr.Id = IDW_TOOLBAR;     // use this identifier
+/// \endcode
+/// The TOleFrame::EvAppBorderSpaceSet method uses the IDW_TOOLBAR for its default
+/// implementation. A container can provide its own implementation to handle more
+/// complex situations, such as merging with multiple tool bars.
+///
+///
+///
+/// \page loadingandsavingcompounddocuments1 Step 8: Loading and saving compound documents
+/// When the user pastes or drops an OLE object into a container, the object becomes
+/// data in the container's document. The container must store and load the object
+/// along with the rest of the document whenever the user chooses Save or Open from
+/// the File menu. The new Commit and Open methods of TOleDocument perform this
+/// chore for you. All you have to do is add calls to the base class in your own
+/// implementation of Open and Commit. The code that reads and writes your
+/// document's native data remains unchanged.
+///
+/// Because TOleDocument is derived from TStorageDocument rather than TFileDocument,
+/// it always creates compound files. Compound files are a feature of OLE 2 used to
+/// organize the contents of a disk file into separate compartments . You can ask to
+/// read or write from any compartment in the file without worrying about where on
+/// the disk the compartment begins or ends. OLE calls the compartments storages.
+/// The storages in a file can be ordered hierarchically, just like directories and
+/// subdirectories. Any storage compartment can contain other sub-storages.
+///
+/// Compound files are good for storing compound documents. When you call Open or
+/// Commit, ObjectComponents automatically creates storages in your file to hold
+/// whatever objects the document contains. All the document's native data is saved
+/// in the file's root storage. Your existing file data structure remains intact,
+/// isolated in a separate compartment. The following code shows how load compound
+/// documents.
+/// // document class declaration derived from TOleDocument
+/// class _DOCVIEWCLASS TMyDocument : public TOleDocument {
+///  // declarations
+/// }
+///
+/// // document class implementation
+/// \code
+/// bool
+/// TDrawDocument::Open(int mode, const char far* path) {
+///  TOleDocument::Open(mode, path);  // load any embedded objects
+///
+///  // code to load other document data
+///
+/// }
+/// \endcode
+/// The TOleDocument::Open command does not actually copy the data for all the
+/// objects into memory. ObjectComponents is smart enough to load the data for
+/// particular objects only when the user activates them.
+/// The next code shows how to save compound documents.
+/// \code
+/// bool
+/// TMyDocument::Commit(bool force) {
+/// 
+///   TOleDocument::Commit(force);   // save the embedded objects
+///        
+///   // code to save other document data
+/// 
+///   TOleDocument::CommitTransactedStorage();  // commit if in transacted mode
+/// }
+/// \endcode
+/// By default, TOleDocument opens compound files in transacted mode. Transacted
+/// mode saves changes in a temporary buffer and merges them with the file only
+/// after an explicit command. A revert command discards any uncommitted changes.
+/// Commit buffers a new transaction. CommitTransactedStorage merges all pending
+/// transactions.
+///
+/// The opposite of transacted mode is direct mode. Direct mode eliminates buffers
+/// and makes each change take effect immediately. To alter the default mode,
+/// override TOleDocument::PreOpen. Omit the ofTransacted flag to specify direct
+/// mode.
+/// \note In order for compound file I/O to work correctly, you need to include the
+/// dtAutoOpen flag when you register docflags in the document registration
+/// table.
+///
+///
+///
+/// \page stepcompilingandlinkingtheapplication1 Step 9: Compiling and linking the application
+/// Containers that use ObjectComponents and ObjectWindows require the large memory
+/// model. Link them with the OLE and ObjectComponents libraries.
+///
+/// The integrated development environment (IDE) chooses the right build options
+/// when you ask for OLE support. To build any ObjectComponents program from the
+/// command line, create a short makefile that includes the OWLOCFMK.GEN file found
+/// in the EXAMPLES subdirectory. Here, for example, is the makefile that builds the
+/// AutoCalc sample program:
+/// \code
+/// EXERES = MYPROGRAM
+/// OBJEXE = winmain.obj autocalc.obj
+/// HLP = MYPROGRAM
+/// !include $(BCEXAMPLEDIR)\owlocfmk.gen
+/// \endcode
+/// EXERES and OBJEXE hold the name of the file to build and the names of the object
+/// files to build it from. HLP is an optional online Help file. Finally, your
+/// makefile should include the OWLOCFMK.GEN file.
+///
+/// Name your file MAKEFILE and type this at the command line prompt:
+/// \code
+/// make MODEL=l
+/// \endcode
+/// Make, using instructions in OWLOCFMK.GEN, builds a new makefile tailored to your
+/// project. The new makefile is called WIN16Lxx.MAK. The final two digits of the
+/// name tell whether the makefile builds diagnostic or debugging versions of the
+/// libraries. 01 indicates a debugging version, 10 a diagnostic version, and 11
+/// means both kinds of information are included. The same command then runs the new
+/// makefile and builds the program. If you change the command to define MODEL as d,
+/// the new makefile is WIN16Dxx.MAK and it builds the program as a DLL.
+///
+/// For more information about how to use OWLOCFMK.GEN, read the instructions at the
+/// beginning of MAKEFILE.GEN, found in the EXAMPLES directory.
+///
+/// The following table shows the libraries an ObjectComponents program links
+/// with.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Large model libraries</TD><TD class="owltableheader">DLL import libraries</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">OCFWL.LIB</TD><TD class="owltable">OCFWI.LIB</TD><TD class="owltable">ObjectComponents</TD></TR>
+/// <TR class="owltable"><TD class="owltable">OWLWL.LIB</TD><TD class="owltable">OWLWI.LIB</TD><TD class="owltable">ObjectWindows</TD></TR>
+/// <TR class="owltable"><TD class="owltable">BIDSL.LIB</TD><TD class="owltable">BIDSI.LIB</TD><TD class="owltable">Class libraries</TD></TR>
+/// <TR class="owltable"><TD class="owltable">OLE2W16.LIB</TD><TD class="owltable">OLE2W16.LIB</TD><TD class="owltable">OLE system DLLs</TD></TR>
+/// <TR class="owltable"><TD class="owltable">IMPORT.LIB</TD><TD class="owltable">IMPORT.LIB</TD><TD class="owltable">Windows system DLLs</TD></TR>
+/// <TR class="owltable"><TD class="owltable">MATHWL.LIB</TD><TD class="owltable"></TD><TD class="owltable">Math support</TD></TR>
+/// <TR class="owltable"><TD class="owltable">CWL.LIB</TD><TD class="owltable">CRTLDLL.LIB</TD><TD class="owltable">C run-time libraries</TD></TR>
+/// </TABLE>
+///
+/// The ObjectComponents library must be linked first, before the ObjectWindows
+/// library. Also, ObjectComponents requires RTTI and exception handling. Do not use
+/// compiler command line options that disable these features.
+///
+///
+///
+/// \page creatinganolecontainerwithowl Turning an application into an OCX container and OLE container using OWL
+/// Follow these steps to turn an application into an OCX container and
+/// OLE container using OWL:
+///
+/// -# \subpage stepincludingowlheaderfiles2 "Including OWL header files."
+/// -# \subpage stepcreatinganapplicationdictionary2 "Create an application dictionary."
+/// -# \subpage stepderivingtheapplicationobjectfromtocmodule2 "Derive the application class from TOcModule."
+/// -# \subpage stepcreatingregistrationtables2 "Create registration tables."
+/// -# \subpage stepcreatingaregistrarobject2 "Create a registrar object."
+/// -# \subpage settinguptheclientwindow2 "Set up the client window."
+/// -# \subpage programmingtheuserinterface2 "Program the user interface."
+/// -# \subpage stepcompilingandlinkingtheapplication2 "Compile and link the application."
+///
+/// Code excerpts are from the OWLOCF0.CPP sample in the EXAMPLES/OWL/TUTORIAL/OLE
+/// directory. The OWLOCF0.CPP sample is based on the STEP10.CPP sample used in the
+/// ObjectWindows Tutorial. It does not support OLE. OWLOCF1.CPP modifies the first
+/// program to create an OLE container.
+///
+///
+///
+/// \page stepincludingowlheaderfiles2 Step 1: Including OWL header files
+/// An OCX container must include the following OWL header files:
+/// \code
+/// #include <ocf/oleframe.h>
+/// #include <ocf/olewindo.h>
+/// #include <ocf/ocstorag.h>
+/// \endcode
+/// An MDI application includes olemdifr.h instead of oleframe.h.
+///
+///
+///
+/// \page stepcreatinganapplicationdictionary2 Step 2: Creating an application dictionary
+/// When a DLL is used by more than one application or process, it must maintain
+/// multiple copies of the global, static, and dynamic variables that represent its
+/// current state in each process. For example, the DLL version of ObjectWindows
+/// maintains a dictionary that allows it to retrieve the owl::TApplication object which
+/// corresponds to the current active process. If you turn your application into a
+/// DLL server, the application must also maintain a dictionary of the owl::TApplication
+/// objects created as each new client attaches to the DLL. The
+/// DEFINE_APP_DICTIONARY macro provides a simple and unified method for creating an
+/// application dictionary object. Insert the following statement with your other
+/// static variable declarations.
+/// \code
+/// DEFINE_APP_DICTIONARY(AppDictionary);
+/// \endcode
+/// The DEFINE_APP_DICTIONARY macro correctly defines the AppDictionary variable
+/// regardless of how the application is built. in applications using the static
+/// version of ObjectWindows, it simply creates a reference to the existing
+/// ObjectWindows application dictionary. for DLL-servers using the DLL version of
+/// ObjectWindows, however, the macro declares a instance of the TAppDictionary
+/// class. It is important to use the name AppDictionary when creating your
+/// application dictionary object. This allows you to take advantage of the factory
+/// template classes for implementing a factory callback function.
+///
+///
+///
+/// \page stepderivingtheapplicationobjectfromtocmodule2 Step 3: Deriving the application object from TOcModule
+/// ObjectWindows provides the mix-in class TOcModule for applications that support
+/// linking and embedding. Change your application object so it derives from both
+/// TApplication and TOcModule as shown in the following example:
+/// \code
+/// // Non-OLE application
+/// class TScribbleApp : public TApplication { /* declarations */ };
+///
+/// // New declaration of same class
+/// class TScribbleApp : public TApplication, public TOcModule { /* declarations */ };
+/// \endcode
+/// The TOcModule object coordinates basic housekeeping chores related to
+/// registration and memory management. It also connects your application object to
+/// OLE.
+///
+/// Your TApplication-derived class must provide a CreateOleObject method with the
+/// following signature:
+/// \code
+/// TUnknown* CreateOleObject(uint32 options, TDocTemplate* tpl);
+/// \endcode
+/// The method is used by the factory template class. Because containers don't
+/// create OLE objects, a container can implement CreateOleObject by simply
+/// returning 0. Servers have more work to do to implement CreateOleObject.
+/// \code
+/// //
+/// // non-OLE application class
+/// //
+/// class TScribbleApp : public TApplication
+/// {
+///  public:
+///   TScribbleApp() :
+/// TApplication("Scribble Pad") {}
+///
+///  protected:
+///   InitMainWindow();
+///
+/// };
+///
+/// //
+/// // New declaration of same class
+/// //
+/// class TScribbleApp : public TApplication,
+/// public TOcModule {
+///  public:
+///   TScribbleApp() : TApplication(::AppReg["description"]){}
+///   TUnknown* CreateOleObject(uint32, TDocTemplate*){ return 0; }
+///
+///  protected:
+///   InitMainWindow();
+/// \endcode
+///
+///
+///
+/// \page stepcreatingregistrationtables2 Step 4: Creating registration tables
+/// OLE requires programs to identify themselves by registering unique identifiers
+/// and names. ObjectWindows offers macros that let you build a structure to hold
+/// registration information. The structure can then be used when creating the
+/// application's instance of TOcRegistrar.
+///
+/// Here are the commands to create a simple container registration structure:
+/// \code
+/// REGISTRATION_FORMAT_BUFFER(100)  // create buffer for expanding macros
+///
+/// BEGIN_REGISTRATION(AppReg)
+///  REGDATA(clsid, "{9B0BBE60-B6BD-101B-B3FF-86C8A0834EDE}")
+///  REGDATA(description, "Scribble Pad Container")
+/// END_REGISTRATION
+/// \endcode
+/// The first macro, REGISTRATION_FORMAT_BUFFER, sets the size of a buffer needed
+/// temporarily as the macros that are expanded. The REGDATA macro places items in
+/// the registration structure, AppReg. Each item in AppReg is a smaller structure
+/// that contains a key, such as clsid or progid, and a value assigned to the key.
+/// The values you assign are case-sensitive strings. The order of keys within the
+/// registration table does not matter.
+///
+/// Insert the registration macros after your declaration of the application
+/// dictionary. Since the value of the clsid key must be a unique number identifying
+/// your application, it is recommended that you generated a new value using the
+/// GUIDGEN.EXE utility. (The ObjectWindows Reference Guide entry for clsid explains
+/// other ways to generate an identifer.) Of course, modify the value of the
+/// description key to describe your container.
+///
+/// The AppReg structure built in the sample code is an application registration
+/// structure. A container may also build one or more document registration
+/// structures. Both structures are built alike, but each contains a different set
+/// of keys and values. The keys in an application registration structure describe
+/// attributes of the application. A document registration structure describes the
+/// type of document an application can create. A document's attributes include the
+/// data formats that it can exchange with the clipboard, its file extensions,
+/// and its document type name. The OWLOCF1 sample application does not create any
+/// document registration structures.
+///
+///
+///
+/// \page stepcreatingaregistrarobject2 Step 5: Creating a registrar object
+/// Every ObjectComponents application needs to create a registrar object to manage
+/// all of its registration tasks. Insert the following line after the \#include
+/// statements in your main .CPP file.
+/// \code
+/// TPointer<TRegistrar> Registrar;
+/// \endcode
+/// The Registrar object is created in your OwlMain function.
+/// The TPointer template ensures that the Registrar object is destructed when the
+/// program ends.
+///
+/// \note It is important to name the variable Registrar, since OCF depends on
+/// this. Also note that, unlike previous versions of OCF, Registrar should not be 
+/// declared `static`, and the pointer type should be `TPointer<TRegistrar>`, not 
+/// `TPointer<TOcRegistrar>`. However, note that Registrar must still point to a
+/// TOcRegistrar object.
+///
+/// The next step is to modify your OwlMain function to allocate a new TOcRegistrar
+/// object to initialize the global pointer Registrar. The TOcRegistrar constructor
+/// requires three parameters: the application's registration structure, the
+/// component's factory callback and the command line string that invoked that
+/// application.
+/// - The registration structure you create with the
+/// registration macros.
+/// - The factory callback you create with an ObjectWindows
+/// factory template.
+///
+/// You can write your own callback function from scratch if you prefer, but the
+/// templates are much easier to use. For a linking and embedding ObjectWindows
+/// application that doesn't use Doc/View, the template class is called TOleFactory.
+/// The code in the factory template assumes you have defined an application
+/// dictionary called AppDictionary and a pointer to TRegistrar called Registrar.
+/// - The command line string comes from the GetCmdLine method
+/// of TApplication.
+///
+/// Factories are explained in more detail in the ObjectWindows Reference Guide.
+/// After initializing the Registrar pointer, your OLE container application must
+/// invoke TOcRegistrar::Run instead of TApplication::Run. For OLE containers, the
+/// registrar's Run simply invokes the application object's Run to create the
+/// application's windows and process messages. In a server, however,
+/// TOcRegistrar::Run does more. Using the registrar's Run method in a container
+/// makes it easier to modify the application later if you decide to turn it into a
+/// server.
+///
+/// Here is an example of OwlMain after adding the registrar object:
+///
+/// \code
+/// int
+/// OwlMain(int /*argc*/, char* /*argv*/[])
+/// {
+///   ::Registrar = new TOcRegistrar(::AppReg,
+///     TOleFactory<TScribbleApp>(),
+///     TApplication::GetCmdLine());
+///   return ::Registrar->Run();
+/// }
+/// \endcode
+///
+/// \page settinguptheclientwindow2 Step 6: Setting up the client window
+/// An ObjectWindows SDI application can use a frame window that does not contain a
+/// client window. Similarly, an ObjectWindows MDI application can use MDI child
+/// windows that do not contain a client window. Omitting the client window makes it
+/// harder to convert the application from one kind of frame to another-SDI, MDI, or
+/// decorated frame. It is also awkward when building OLE 2 applications.
+///
+/// For example, it is easier for a container's main window to make room for a
+/// server's tool bar if the container owns a client window. To take full advantage
+/// of the ObjectWindows OLE classes, your application must use a client window. For
+/// more information about using client windows, see the ObjectWindows
+/// Tutorial.
+///
+/// The following topics discuss setting up the Client Window.
+/// - Inheriting from OLE Classes
+/// - Delaying the Creation of the Client Window in SDI
+/// Applications
+/// - Creating ObjectComponents View and Document Objects
+///
+/// \section inheritingfromoleclasses Inheriting from OLE Classes
+/// ObjectWindows provide several classes that include default implementations for
+/// many OLE operations. To adapt an existing ObjectWindows program to OLE, change
+/// its derived classes to inherit from the OLE classes.
+///
+/// The TOleFrame and TOleMDIFrame classes both derive from decorated window
+/// classes. The OLE 2 user interface requires that containers be prepared to handle
+/// tool bars and status bars. Even if a container has no such decorations, servers
+/// might need to display their own in the container's window. The OLE window
+/// classes handle those negotiations for you. The following code shows how to
+/// change the declaration for a client window. Boldface type highlights the
+/// changes.
+///
+/// Before:
+/// \code
+/// // Pre-OLE declaration of a client window
+/// class TScribbleWindow : public TWindow {
+///   // declarations
+/// };
+/// DEFINE_RESPONSE_TABLE1(TScribbleWindow, TWindow);
+/// \endcode
+///
+/// After changing the declaration to derive from an OLE-enabled class:
+/// \code
+/// // New declaration of the same window class
+/// class TScribbleWindow : public TOleWindow
+/// {
+///   // declarations
+/// };
+/// DEFINE_RESPONSE_TABLE1(TScribbleWindow, TOleWindow);
+/// \endcode
+///
+/// \section delayingthecreationoftheclientwindowinsdiapplications Delaying the Creation of the Client Window in SDI Applications
+/// ObjectWindows applications create their main window in the InitMainWindow method
+/// of the TApplication-derived class. Typically, SDI applications also create their
+/// initial client window in the InitMainWindow function. The following code shows
+/// the typical sequence.
+/// \code
+/// void
+/// TDrawApp::InitMainWindow()
+/// {
+///  // Construct the decorated frame window
+///  TDecoratedFrame* frame = new TDecoratedFrame(0, "Drawing Pad",
+///     new TDrawWindow(0), true);
+///   // more declarations to init and set the main window
+/// }
+/// \endcode
+/// When used in the OLE frame and client classes, however, that sequence presents a
+/// timing problem for OLE. The OLE client window must be created after the OLE
+/// frame has initialized its variables pointing to ObjectComponents classes. To
+/// meet this requirement, an SDI OLE application should create only the frame
+/// window in the InitMainWindow function. Create the client window in the
+/// InitInstance method of your application class. Boldface type highlights the
+/// changes.
+/// \code
+/// void
+/// TDrawApp::InitMainWindow()
+/// {
+///  // construct the decorated frame window
+///  TOleFrame* frame = new TOleFrame("Drawing Pad", 0, true);
+///
+///   // more declarations to init and set the main window
+/// }
+///
+///
+/// void
+/// TDrawApp::InitInstance()
+/// {
+///  TApplication::InitInstance();
+///
+///  // create and set client window
+///  GetMainWindow()->SetClientWindow(new TDrawWindow(0));
+/// }
+/// \endcode
+///
+/// \section creatingobjectcomponentsviewanddocumentobjects Creating ObjectComponents View and Document Objects
+/// For every client window capable of having linked or embedded objects, you must
+/// create a TOcDocument object to manage the embedded OLE objects, and a
+/// OCF.HLPTOcView" object to manage the presentation of the OLE objects. The
+/// CreateOcView method from the TOleWindow class creates both the container
+/// document and the container view. Add a call to CreateOcView in the constructor
+/// of your TOleWindow-derived class.
+/// \code
+/// // Pre-OLE declaration of a client window constructor
+/// TScribbleWindow::TScribbleWindow(TWindow* parent, char far* filename)
+/// : TWindow(parent, 0, 0)
+/// {
+///
+/// }
+///
+/// // New declaration of client window constructor
+/// TScribbleWindow::TScribbleWindow(TWindow* parent, char far* filename)
+/// : TOleWindow(parent, 0)
+/// {
+///
+///
+///  // Create TOcDocument object to hold OLE parts
+///  // and TOcView object to provide OLE services.
+///  CreateOcView(0, false, 0);
+/// }
+/// \endcode
+/// Notice that unlike the TWindow constructor, the TOleWindow constructor does not
+/// require a title parameter. It is unnecessary because TOleWindow is always the
+/// client of a frame. TWindow, on the other hand, can be used as a non-client
+/// window-a pop-up, for example.
+///
+///
+///
+/// \page programmingtheuserinterface2 Step 7: Programming the user interface
+/// The next set of adaptations provide standard OLE user interface features such as
+/// menu merging and drag and drop. The following topics discuss programming the
+/// user interface.
+///
+/// The following topics discuss programming the user interface.
+/// - Handling OLE-Related Messages and Events
+/// - Supporting Menu Merging
+/// - Updating the Edit Menu
+/// - Assigning a Tool Bar ID
+///
+/// \section handlingolerelatedmessagesandevents Handling OLE-Related Messages and Events
+/// ObjectComponents notifies your application's windows of OLE-related events by
+/// sending the WM_OCEVENT message. The ObjectWindows OLE classes provide default
+/// handlers for the various WM_OCEVENT event notifications. Furthermore, the
+/// ObjectWindows classes also process a few standard Windows messages to add
+/// additional features of the standard OLE user interface. For example, if a user
+/// double-clicks within the client area of your container window, a handler in
+/// TOleWindow checks whether the click occurred over an embedded object and, if so,
+/// activates the object. Similarly, the TOleWindow::EvPaint method causes each
+/// embedded object to draw itself. The following table lists the methods
+/// implemented by the client window (TOleWindow) and frame window(TOleFrame,
+/// TOleMDIFrame) classes. If you override these handlers in your derived class you
+/// must invoke the base class version.
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Method</TD><TD class="owltableheader">Message</TD><TD class="owltableheader">Class</TD><TD class="owltableheader">Description</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvSize</TD><TD class="owltable">WM_SIZE</TD><TD class="owltable">Frame</TD><TD class="owltable">Notifies embedded servers of the size change.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvTimer</TD><TD class="owltable">WM_TIMER</TD><TD class="owltable">Frame</TD><TD class="owltable">Invokes IdleAction so that DLL servers can carry out
+/// command enabling.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvActivateApp</TD><TD class="owltable">WM_ACTIVATEAPP</TD><TD class="owltable">Frame</TD><TD class="owltable">Notifies embedded servers about being
+/// activated.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvLButtonDown</TD><TD class="owltable">WM_LBUTTONDOWN</TD><TD class="owltable">Client</TD><TD class="owltable">Deactivates any in-place active object.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvRButtonDown</TD><TD class="owltable">WM_RBUTTONDOWN</TD><TD class="owltable">Client</TD><TD class="owltable">Displays pop-up verb menu if cursor is on an
+/// embedded object.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvLButtonDblClk</TD><TD class="owltable">WM_LBUTTONDBLCLK</TD><TD class="owltable">Client</TD><TD class="owltable">Activates any embedded object under the
+/// cursor.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvMouseMove</TD><TD class="owltable">WM_MOUSEMOVE</TD><TD class="owltable">Client</TD><TD class="owltable">Allows user to move or resize an embedded
+/// object.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvLButtonUp</TD><TD class="owltable">WM_LBUTTONUP</TD><TD class="owltable">Client</TD><TD class="owltable">Informs the selected object of position or size
+/// changes.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvSize</TD><TD class="owltable">WM_SIZE</TD><TD class="owltable">Client</TD><TD class="owltable">Informs TOcView object that window has changed size.
+/// <TR class="owltable"><TD class="owltable">EvMdiActivate</TD><TD class="owltable">WM_MDIACTIVATE</TD><TD class="owltable">Client</TD><TD class="owltable">Informs TOcView object that window has
+/// changed size.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvMouseActivate</TD><TD class="owltable">WM_MOUSEACTIVATE</TD><TD class="owltable">Client</TD><TD class="owltable">Forwards the message to the top-level
+/// parent window and returns the code to activate the client window.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvSetFocus</TD><TD class="owltable">WM_SETFOCUS</TD><TD class="owltable">Client</TD><TD class="owltable">Notifies any in-place server of focus change.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvSetCursor</TD><TD class="owltable">WM_SETCURSOR</TD><TD class="owltable">Client</TD><TD class="owltable">Changes cursor shape if within an embedded
+/// object.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvDropFiles</TD><TD class="owltable">WM_DROPFILES</TD><TD class="owltable">Client</TD><TD class="owltable">Embeds dropped file(s).</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvPaint</TD><TD class="owltable">WM_PAINT</TD><TD class="owltable">Client</TD><TD class="owltable">Causes embedded objects to paint.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvCommand</TD><TD class="owltable">WM_COMMAND</TD><TD class="owltable">Client</TD><TD class="owltable">Processes command IDs of verbs.</TD></TR>
+/// <TR class="owltable"><TD class="owltable">EvCommandEnable</TD><TD class="owltable">WM_COMMANDENABLE</TD><TD class="owltable">Client</TD><TD class="owltable">Processes command IDs of verbs.</TD></TR>
+/// </TABLE>
+///
+/// In some cases, you might need to know what action the base class handler took
+/// before you decide what to do in your overriding handler. This is particularly
+/// true for mouse-related messages. If the base class handled a double-click
+/// action, for example, the user intended the action to activate an object and you
+/// probably don't want your code to reinterpret the double-click as a different
+/// command. The code that follows shows how to coordinate with a base class
+/// handler. These three procedures let the user draw on the surface of the client
+/// window with the mouse.
+/// \code
+/// void
+/// TMyClient::EvLButtonDown(uint modKeys, TPoint& pt)
+/// {
+///  if (!Drawing) {
+///   SetCapture()
+///   Drawing = true;
+///   // additional GDI calls to display drawing
+///  }
+/// }
+///
+/// void
+/// TMyClient::EvMouseMove(uint modKeys, TPoint& pt)
+/// {
+///  if (Drawing) {
+///   // additional GDI calls to display drawing
+///  }
+/// }
+///
+/// void
+/// TMyClient::EvLButtonUp(uint modKeys, TPoint& pt)
+/// {
+///  if (Drawing) {
+///   Drawing = false;
+///   ReleaseCapture();
+///  }
+/// }
+/// \endcode
+/// As an OLE container, however, the client window may contain embedded objects.
+/// Mouse events performed on these objects should not result in any drawing
+/// operation. This code shows the handlers updated to allow and check for OLE
+/// related processing. Boldface type highlights the changes.
+/// \code
+/// void
+/// TMyClient::EvLButtonDown(uint modKeys, TPoint& pt)
+/// {
+///  TOleWindow::EvLButtonDown(modKeys, pt);
+///
+///  if (!Drawing && !SelectEmbedded()) {
+///   SetCapture()
+///   Drawing = true;
+///   // additional GDI calls to display drawing
+///  }
+/// }
+///
+/// void
+/// TMyClient::EvMouseMove(uint modKeys,
+/// TPoint& pt)
+/// {
+///  TOleWindow::EvMouseMove(modKeys, pt);
+///
+///  if (Drawing && !SelectEmbedded()) {
+///   // additional GDI calls to display drawing
+///  }
+/// }
+///
+/// void
+/// TMyClient::EvLButtonUp(uint modKeys, TPoint& pt)
+/// {
+///  if (Drawing && !SelectEmbedded()) {
+///   Drawing = false;
+///   ReleaseCapture();
+///  }
+///
+///  TOleWindow::EvLButtonUp(modKeys, pt);
+/// }
+/// \endcode
+/// The SelectEmbedded method is inherited from TOleWindow. It returns true if an
+/// embedded object is currently being moved. The client window calls it to
+/// determine whether a mouse message has already been processed by the OLE base
+/// class.
+///
+/// Typically, your derived class must call the base class handlers before
+/// processing any event or message. The EvLButtonUp handler, however, calls the
+/// base class last. Doing so allows the handler to rely on SelectEmbedded which is
+/// likely to be reset after TOleWindow processes the mouse-up message.
+///
+/// \section supportingmenumerging Supporting Menu Merging
+/// The menu bar of an OLE container with an active object is composed of individual
+/// pieces from the normal menus of both the container and server. The container
+/// contributes pop-up menus dealing with the application frame or with documents.
+/// The server, on the other hand, provides the Edit menu, the Help menu, and any
+/// menus that let the user manipulate the activated object.
+///
+/// OLE divides the top-level menus of a menu bar into six groups. Each group is a
+/// set of contiguous top-level drop-down menus. Each group is made up of zero or
+/// more pop-up menus. The menu groups are named File, Edit, Container, Object,
+/// Window, and Help. The group names are for convenience only. They suggest a
+/// common organization of related commands, but you can group the commands any way
+/// you like.
+///
+/// When operating on its own, a container or server provides the menus for all of
+/// the six groups. During an in-place edit session, however, the container retains
+/// control of the File, Container and Window groups while the server is responsible
+/// for the Edit, Object, and Help groups.
+///
+/// The TMenuDescr class automatically handles all menu negotiations between the
+/// server and the container. You simply identify the various menu groups within
+/// your menu resource, and ObjectWindows displays the right ones at the right
+/// times.
+///
+/// To indicate where groups begin and end in your menu resource, insert SEPARATOR
+/// menu items between them. Remember to mark all six groups even if some of them
+/// are empty. The TMenuDescr class scans for the separators when loading a menu
+/// from a resource. It removes the separators found between top-level entries and
+/// builds a structure which stores the number of pop-up menus assigned to each menu
+/// group. This information allows ObjectWindows to merge the server's menu into
+/// your container's menu bar.
+///
+/// The following menu resource script, taken from the ObjectWindows Tutorial,
+/// illustrates defining a simple application menu before it is divided into
+/// groups.
+/// \code
+/// COMMANDS MENU
+/// {
+///  pop-up "&File"
+///  {
+///   MENUITEM "&New",   CM_FILENEW
+///   MENUITEM "&Open",  CM_FILEOPEN
+///   MENUITEM "&Save",  CM_FILESAVE
+///   MENUITEM "Save &As", CM_FILESAVEAS
+///  }
+///
+///  pop-up "&Tools"
+///  {
+///   MENUITEM "Pen &Size", CM_PENSIZE
+///   MENUITEM "Pen &Color", CM_PENCOLOR
+///  }
+///
+///  pop-up "&Help"
+///  {
+///   MENUITEM "&About",   CM_ABOUT
+///  }
+/// }
+/// \endcode
+/// The File menu entry belongs to the OLE File menu group. The Tools menu allows
+/// the user to edit the application's document, so it belongs to the Edit group.
+/// This application does not contain any menus belonging to the Object, Container,
+/// or Window group. And finally, the Help menu belongs to the Help group.
+/// The following code is a modified version of the same menu resource with
+/// SEPARATOR dividers inserted to indicate where one group stops and the next
+/// begins. 
+/// \code
+/// COMMANDS MENU
+/// {
+///  pop-up "&File"
+///  {
+///   MENUITEM "&New",   CM_FILENEW
+///   MENUITEM "&Open",  CM_FILEOPEN
+///   MENUITEM "&Save",  CM_FILESAVE
+///   MENUITEM "Save &As", CM_FILESAVEAS
+///  }
+///
+///  MENUITEM SEPARATOR     // end of File group, beginning of Edit group
+///
+///  pop-up "&Tools"
+///  {
+///   MENUITEM "Pen &Size", CM_PENSIZE
+///   MENUITEM "Pen &Color", CM_PENCOLOR
+///  }
+///
+///  MENUITEM SEPARATOR     // end of Edit group, beginning of Container group
+///  MENUITEM SEPARATOR     // end of Container group, beginning of Object group
+///  MENUITEM SEPARATOR     // end of Object group, beginning of Window group
+///  MENUITEM SEPARATOR     // end of Window group, beginning of Help group
+///
+///  pop-up "&Help"
+///  {
+///   MENUITEM "&About",   CM_ABOUT
+///  }
+/// }
+/// \endcode
+/// Insert separators in your application's menu to indicate the various menu
+/// groups. Then modify your code to use the SetMenuDescr method when assigning your
+/// frame window's menu. This example shows the menu assignment before and after
+/// adding menu merging. 
+///
+/// Before:
+/// \code
+/// // original menu assignment
+/// void
+/// TScribbleApp::InitMainWindow()
+/// {
+///  TDecoratedFrame* frame;
+///   // Initialize frame and decorations etc. etc.
+///
+///  // Assign frame's menu
+///  frame->AssignMenu("COMMANDS");
+/// }
+/// \endcode
+/// After including group indicators in the menu:
+/// \code
+/// void
+/// TScribbleApp::InitMainWindow()
+/// {
+///  TOleFrame* frame;
+///   // Initialize frame and decorations etc. etc.
+///
+///  // Assign frame's menu
+/// 
+/// frame->SetMenuDescr(TMenuDescr("COMMANDS"));
+/// }
+/// \endcode
+/// Instead of using separators to show which drop-down menus belong to each group,
+/// you can use the TMenuDescr constructor whose parameters accept a count for each
+/// group. For more details, see the description of the TMenuDescr constructors in
+/// the ObjectWindows Reference Guide.
+///
+/// \section updatingtheeditmenu Updating the Edit menu
+/// An OLE container places OLE commands on its Edit menu. The TOleWindow class has
+/// default implementations for all of them. It invokes standard dialogs boxes where
+/// necessary and processes the user's response. All you have to do is add the
+/// commands to the Edit menu of your frame window. It's not necessary to support
+/// all six commands, but every container should support at least
+/// CM_EDITINSERTOBJECT, to let the user add new objects to the current document,
+/// and CM_EDITOBJECT, to let the user choose verbs for the currently selected
+/// object.
+///
+/// ObjectWindows defines standard identifiers for the OLE Edit menu commands in
+/// ocf/oleview.rh. Update your resource file to include the header file and use
+/// the standard identifiers to put OLE commands on the Edit menu.
+/// \code
+/// #include <owl/oleview.rh>
+/// #include <owl/edit.rh>
+///
+/// COMMANDS MENU
+/// {
+///   // File menu goes here
+///
+///  MENUITEM SEPARATOR
+///  pop-up "&Edit"
+///  {
+///   MENUITEM "&Undo\aCtrl+Z",     CM_EDITUNDO
+///   MENUITEM Separator
+///   MENUITEM "&Cut\aCtrl+X", CM_EDITCUT
+///   MENUITEM "C&opy\aCtrl+C",     CM_EDITCOPY
+///   MENUITEM "&Paste\aCtrl+V", CM_EDITPASTE
+///   MENUITEM "Paste &Special...",    CM_EDITPASTESPECIAL
+///   MENUITEM "Paste &Link", CM_EDITPASTELINK
+///   MENUITEM "&Delete\aDel", CM_EDITDELETE
+///   MENUITEM SEPARATOR
+///   MENUITEM "&Insert Object...",   CM_EDITINSERTOBJECT
+///   MENUITEM "&Links...", CM_EDITLINKS
+///   MENUITEM "&Object",      CM_EDITOBJECT
+///   MENUITEM SEPARATOR
+///   MENUITEM "&Show Objects",     CM_EDITSHOWOBJECTS
+///  }
+///   // other menus go here
+/// }
+/// \endcode
+///
+/// \section assigningatoolbarid Assigning a toolbar ID
+/// If your OLE container has a tool bar, assign it the predefined identifier
+/// IDW_TOOLBAR. ObjectWindows must be able to find the container's tool bar if a
+/// server needs to display its own tool bar in the container's window. If
+/// ObjectWindows can identify the old tool bar, it temporarily replaces it with the
+/// new one taken from the server. For ObjectWindows to identify the container's
+/// tool bar, the container must use the IDW_TOOLBAR as its window ID.
+/// \code
+///  TControlBar* cb = new TControlBar(parent);
+///  cb->Attr.Id = IDW_TOOLBAR;
+/// \endcode
+/// The TOleFrame::EvAppBorderSpaceSet method uses the IDW_TOOLBAR for its default
+/// implementation. A container can provide its own implementation to handle more
+/// complex situations, such as merging with multiple tool bars.
+///
+///
+///
+/// \page stepcompilingandlinkingtheapplication2 Step 8: Compiling and linking the application
+/// ObjectWindows containers and servers must be compiled with the large memory
+/// model. They must be linked with the OLE, ObjectComponents, and ObjectWindows
+/// libraries.
+///
+///
+///
+/// \page creatinganoleserverwithdocview Turning an application into an OLE server using OWL and Doc/View
+/// Follow these steps to turn an application into an OLE server using
+/// OWL and Doc/View:
+///
+/// -# \subpage stepincludingowlheaderfiles3 "Including OWL header files."
+/// -# \subpage stepcreatinganapplicationdictionary3 "Create an application dictionary."
+/// -# \subpage stepderivingtheaplicationclassfromtocmodule3 "Derive the application class from TOcModule."
+/// -# \subpage stepinheritingfromoleclasses3 "Inherit from OLE classes."
+/// -# \subpage stepbuildingregistrationtables3 "Build registration tables."
+/// -# \subpage stepcreatingaregistrarobject3 "Create a registrar object."
+/// -# \subpage processingthecommandline3 "Process the command line."
+/// -# \subpage tellingclientswhenanobjectchanges3 "Tell clients when an object changes."
+/// -# \subpage loadingandsavingtheserversdocuments3 "Load and save the server's documents."
+/// -# \subpage stepcompilingandlinkingtheapplication3 "Compile and link the application."
+///
+///
+///
+/// \page stepincludingowlheaderfiles3 Step 1: Including OWL header files
+/// An OLE server must include the following OWL header files:
+/// \code
+/// #include <ocf/oledoc.h>   // replaces DOCVIEW.H
+/// #include <ocf/oleview.h>  // replaces DOCVIEW.H
+/// #include <ocf/olemdifr.h>  // replaces MDI.H
+/// \endcode
+/// An SDI application includes OLEFRAME.H instead of OLEMDIFR.H.
+///
+///
+///
+/// \page stepcreatinganapplicationdictionary3 Step 2: Creating an application dictionary
+/// An application dictionary tracks information for the currently active process.
+/// It is particularly useful for DLLs. When several processes use a DLL
+/// concurrently, the DLL must maintain multiple copies of the global, static, and
+/// dynamic variables that represent its current state in each process. For example,
+/// the DLL version of ObjectWindows maintains a dictionary that allows it to
+/// retrieve the TApplication corresponding to the currently active client process.
+/// If you convert an executable server to a DLL server, it must also maintain a
+/// dictionary of the TApplication objects representing each of its container
+/// clients.
+///
+/// The DEFINE_APP_DICTIONARY macro provides a simple and unified way to create the
+/// dictionary object for any type of application, whether it is a container, a
+/// server, a DLL, or an EXE. Insert this statement with your other static
+/// variables:
+/// \code
+/// DEFINE_APP_DICTIONARY(AppDictionary);
+/// \endcode
+/// For any application linked to the static version of the DLL library, the macro
+/// simply creates a reference to the application dictionary in ObjectWindows. For
+/// DLL servers using the DLL version of ObjectWindows, however, it creates an
+/// instance of the TAppDictionary class.
+/// \note Name your dictionary object AppDictionary to take advantage of the factory
+/// templates such as TOleDocViewFactory (as explained later in "Creating a
+/// registrar object").
+///
+///
+///
+/// \page stepderivingtheaplicationclassfromtocmodule3 Step 3: Deriving the aplication class from TOcModule
+/// The application object of an ObjectComponents program needs to derive from
+/// TOcModule as well as TApplication. TOcModule coordinates some basic
+/// housekeeping chores related to registration and memory management. It also
+/// connects your application to OLE. More specifically, TOcModule manages the
+/// connector object that implements COM interfaces on behalf of an application.
+/// If the declaration of your application object looks like this:
+/// \code
+/// class TMyApp : public TApplication {
+///  public:
+///   TMyApp() : TApplication(){};
+///  .
+///  .
+///  .
+/// };
+/// \endcode
+/// Then change it to look like this:
+/// \code
+/// class TMyApp : public TApplication, public TOcModule {
+///  public:
+///   TMyApp():
+/// TApplication(::AppReg["description"], ::Module, &::AppDictionary){};
+///  .
+///  .
+///  .
+/// };
+/// \endcode
+/// The constructor for the revised TMyApp class takes three parameters.
+/// - A string naming the application
+///
+/// AppReg is the application's registration table. The expression
+/// ::AppReg["description"] extracts a string that was registered to describe the
+/// application.
+/// - A pointer to the application module
+///
+/// Module is a global variable of type TModule* defined by ObjectWindows
+/// - the address of the application dictionary
+///
+/// AppDictionary is the application dictionary object.
+///
+///
+///
+/// \page stepinheritingfromoleclasses3 Step 4: Inheriting from OLE classes
+/// A server makes the same changes to its OLE classes that a container makes.
+/// ObjectWindows wraps a great deal of power in its new window, document, and view
+/// classes. To give an ObjectWindows program OLE capabilities, change its derived
+/// classes to inherit from OLE classes.
+/// Here are some examples:
+/// \code
+/// // old declarations (without OLE)
+/// class TMyDocument: public TDocument  { /* declarations */ };
+/// class TMyView: public TView      { /*
+/// declarations */ };
+/// class TMyFrame: public TFrameWindow<FONT FACE="Courier New"
+///   { /* declarations */ );
+///
+/// // new declarations (with OLE)
+/// class TMyDocument: public TOleDocument { /* declarations */ };
+/// class TMyView: public TOleView     { /* declarations */ };
+/// class TMyFrame: public TOleFrame    { /* declarations */ );
+/// \endcode
+/// When you change to OLE classes, be sure that those methods in your classes which
+/// refer to their direct base classes now use the OLE class names.
+/// \code
+/// void TMyView::Paint(TDC& dc, BOOL erase, TRect& rect)
+/// {
+///  TOleView::Paint(dc, erase, rect);
+///  // paint the view here
+/// }
+/// \endcode
+/// It is generally safer to allow the OLE classes to handle Windows events and
+/// Doc/View notifications. This is particularly true for the Paint method and mouse
+/// message handlers in classes derived from TOleView. TOleView::Paint knows how to
+/// paint the objects embedded in your document. (Servers are often containers as
+/// well, and a server's object might have other objects embedded in it.) Similarly,
+/// the mouse handlers of TOleView let the user select, move, resize, and activate
+/// an OLE object embedded or linked in your document.
+///
+///
+///
+/// \page stepbuildingregistrationtables3 Step 5: Building registration tables
+/// Servers implement OLE objects that any container can use. Different
+/// servers implement different types of objects. Every type of object a server
+/// creates must have a globally unique identifier (GUID) and a unique string
+/// identifier. Every server must record this information, along with other
+/// descriptive information, in the registration database of the system where it
+/// runs. OLE reads the registry to determine which objects are available, what
+/// their capabilities are, and how to invoke the application that creates objects
+/// of each type.
+///
+/// ObjectComponents simplifies the task of registration. You call macros to build a
+/// table of keys with associated values. ObjectComponents receives the table and
+/// automatically performs all registration tasks.
+///
+/// Servers and containers use the same macros for registration, but servers must
+/// provide more information than containers. Here are the commands to build the
+/// registration tables for a typical server. This example comes from the STEP15.CPP
+/// and STEP15DV.CPP file in the EXAMPLES\\OWL\\TUTORIAL directory of your compiler
+/// installation.
+/// \code
+/// REGISTRATION_FORMAT_BUFFER(100)    // allow space for expanding macros
+///
+/// BEGIN_REGISTRATION(AppReg)
+/// 
+/// REGDATA(clsid,   "{5E4BD320-8ABC-101B-A23B-CE4E85D07ED2}")
+///  REGDATA(description,"Drawing Pad Server")
+/// END_REGISTRATION
+///
+/// BEGIN_REGISTRATION(DocReg)
+///  REGDATA(progid, "DrawPad.Document.15")
+///  REGDATA(description,"Drawing Pad (Step15--Server)")
+///  REGDATA(menuname,  "Drawing Pad 15")
+///  REGDATA(extension, "p15")
+///  REGDATA(docfilter, "*.p15")
+///  REGDOCFLAGS(dtAutoOpen | dtAutoDelete | dtUpdateDir | dtCreatePrompt | dtRegisterExt)
+///  REGDATA(insertable, "")
+/// 
+/// REGDATA(verb0,   "&Edit")
+/// 
+/// REGDATA(verb1,   "&Open")
+///  REGFORMAT(0, ocrEmbedSource,
+/// ocrContent, ocrIStorage, ocrGet)
+///  REGFORMAT(1, ocrMetafilePict,
+/// ocrContent, ocrMfPict|ocrStaticMed, ocrGet)
+///  REGFORMAT(2, ocrBitmap,    ocrContent,
+/// ocrGDI|ocrStaticMed, ocrGet)
+///  REGFORMAT(3, ocrDib,     ocrContent,
+/// ocrHGlobal|ocrStaticMed, ocrGet)
+///  REGFORMAT(4, ocrLinkSource, ocrContent, ocrIStream, ocrGet)
+/// END_REGISTRATION
+/// \endcode
+/// The macros in the example build two structures. The first structure is named
+/// AppReg and the second is DocReg. ObjectComponents uses lowercase strings such as
+/// progid and clsid to name the standard keys to which you assign values. The
+/// values you assign are strings, and they are sensitive to case. The order of keys
+/// within the registration table doesn't matter. For information on the the full
+/// set of registration macros, see the ObjectWindows Help.
+///
+/// The set of keys you place in a structure depends on what OLE capabilities you
+/// intend to support and whether the structure holds application information or
+/// document information. The macros in the example show the minimum amount of
+/// information a server with one type of document should provide.
+///
+/// A server registers program and class ID strings (progid and clsid) for itself
+/// and for every type of document it creates. The IDs must be absolutely unique so
+/// that OLE can distinguish one application from another. The description strings
+/// appear on the Insert Object dialog box where the user sees a list of objects
+/// available in the system.
+///
+/// Place your registration structures in the source code files where you construct
+/// document templates and implement your TApplication-derived class. A server
+/// always creates only one application registration table (called AppReg in the
+/// example). The server might create several document registration tables, however,
+/// if it creates several different kinds of documents (for example, text objects
+/// and chart objects). Each registration table needs a unique progid value.
+/// After creating registration tables, you must pass them to the appropriate object
+/// constructors. The AppReg structure is passed to the TOcRegistrar
+/// constructor. Document registration tables are passed to the document template
+/// constructor.
+/// \code
+/// DEFINE_DOC_TEMPLATE_CLASS(TMyOleDocument, TMyOleView, MyTemplate);
+/// MyTemplate myTpl(::DocReg);
+/// \endcode
+/// Some of the information in the document registration table is used only
+/// by the document template. The document filter and document flags have to do with
+/// documents, not with OLE. Previous versions of OWL passed the same information to
+/// the document template as a series of separate parameters. The old method is
+/// still supported for backward compatibility, but new programs, whether they use
+/// OLE or not, should use the registration macros to supply document template
+/// parameters.
+///
+/// Some of the registration macros expand the values passed to them. The
+/// REGISTRATION_FORMAT_BUFFER macro reserves memory needed temporarily for the
+/// expansion. To determine how much buffer space you need, allow 10 bytes for each
+/// REGFORMAT item plus the size of any string parameters you pass to
+/// the macros REGSTATUS, REGVERBOPT, REGICON, or REGFORMAT. 
+///
+///
+///
+/// \page stepcreatingaregistrarobject3 Step 6: Creating a registrar object
+/// Every ObjectComponents application needs a registrar object to manage all of its
+/// registration tasks. In a linking and embedding application, the registrar is an
+/// object of type TOcRegistrar. Insert the following line after the \#include
+/// statements in your main .CPP file.
+/// \code
+/// TPointer<TRegistrar> Registrar;
+/// \endcode
+/// The TPointer template ensures that the Registrar object is destructed when the
+/// program ends.
+///
+/// \note It is important to name the variable Registrar, since OCF depends on
+/// this. Also note that, unlike previous versions of OCF, Registrar should not be 
+/// declared `static`, and the pointer type should be `TPointer<TRegistrar>`, not 
+/// `TPointer<TOcRegistrar>`. However, note that Registrar must still point to a
+/// TOcRegistrar object.
+///
+/// The next step is to modify your OwlMain function to allocate a new TOcRegistrar
+/// object and initialize the global pointer Registrar. The TOcRegistrar constructor
+/// expects three parameters: the application's registration structure, the
+/// component's factory callback and the command-line string that invoked that
+/// application. The registration structure is created with the registration
+/// macros.
+///
+/// The factory callback is created with a class template. For a linking and
+/// embedding ObjectWindows application that uses Doc/View, the template is called
+/// TOleDocViewFactory. The third parameter, the command-line string, can be
+/// obtained from the GetCmdLine method of TApplication. The code in the factory
+/// template assumes you have defined an application dictionary called AppDictionary
+/// and a pointer to TRegistrar called Registrar.
+///
+/// After initializing the Registrar pointer, your OLE container application must
+/// invoke the Run method of the registrar instead of TApplication::Run.
+/// TRegistrar::Run calls the factory callback procedure (the one the second
+/// parameter points to) and causes the application to create itself. The
+/// application enters its message loop, which is actually in the factory callback.
+/// The following code shows an example of OwlMain after adding a registrar object. 
+///
+/// \code
+/// int
+/// OwlMain(int /*argc*/, char* /*argv*/[])
+/// {
+///   ::Registrar = new TOcRegistrar(::AppReg,
+///     TOleDocViewFactory<TMyApp>(),
+///     TApplication::GetCmdLine());
+///   return ::Registrar->Run();
+/// }
+/// \endcode
+///
+/// The last parameter of the TOcRegistrar constructor is the command line string
+/// that invoked the application.
+///
+///
+///
+/// \page processingthecommandline3 Step 7: Processing the command line
+/// When OLE invokes a server, it places an -Embedding switch on the command line to
+/// tell the application why it has been invoked. The presence of the switch
+/// indicates that the user did not launch the server directly. Usually a server
+/// responds by keeping its main window hidden. The user interacts with the server
+/// through the container. If the -Embedding switch is not present, the user has
+/// invoked the server as a standalone application and the server shows itself in
+/// the normal way.
+///
+/// When you construct a TRegistrar object, it parses the command line for you and
+/// searches for any OLE-related switches. It removes the switches as it processes
+/// them, so if you examine your command line after creating TRegistrar you will
+/// never see them.
+///
+/// If you want to know what switches were found, call IsOptionSet. For example,
+/// this line tests for the presence of a registration switch on the command
+/// line:
+/// \code
+/// if (::Registrar->IsOptionSet(amAnyRegOption))
+///   return 0;
+/// \endcode
+/// This is a common test in OwlMain. If the a command line switch such as
+/// -RegServer was set, the application simply quits. By the time the registrar
+/// object is constructed, any registration action requested on the command line
+/// have already been performed.
+///
+/// The following table lists all the OLE-related command-line switches
+/// <TABLE BORDER="0" CELLSPACING="0" class="owltable">
+/// <TR class="owltable"><TD class="owltableheader">Switch</TD><TD class="owltableheader">What the server should do</TD><TD class="owltableheader">OLE places switch?</TD></TR>
+/// <TR class="owltable"><TD class="owltable">/RegServer</TD><TD class="owltable">Register all its information and quit</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">/UnregServer</TD><TD class="owltable">Remove all its entries from the system and quit</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">/NoRegValidate</TD><TD class="owltable">Run without confirming entries in the system database</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">/Automation</TD><TD class="owltable">Register itself as single-use (one client only). Always accompanied by -Embedding</TD><TD class="owltable">Yes</TD></TR>
+/// <TR class="owltable"><TD class="owltable">/Embedding</TD><TD class="owltable">Consider remaining hidden because it is running for a client, not for itself</TD><TD class="owltable">Yes</TD></TR>
+/// <TR class="owltable"><TD class="owltable">/Language</TD><TD class="owltable">Set the language for registration and type libraries</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">/TypeLib</TD><TD class="owltable">Create and register a type library</TD><TD class="owltable">No</TD></TR>
+/// <TR class="owltable"><TD class="owltable">/Debug</TD><TD class="owltable">Enter a debugging session</TD><TD class="owltable">Yes</TD></TR>
+/// </TABLE>
+/// OLE places some of the switches on the program's command line. Anyone can set
+/// other flags to make ObjectComponents perform specific tasks. An install program,
+/// for example, might invoke the application it installs and pass it the -RegServer
+/// switch to make the server register itself. Switches can begin with either a
+/// hyphen (-) or a slash (/).
+///
+/// Only a few of the switches call for any action from you. If a server or an
+/// automation object sees the -Embedding or -Automation switch, it might decide to
+/// keep its main window hidden. Usually ObjectComponents makes that decision for
+/// you. You can use the -Debug switch as a signal to turn trace messages on and
+/// off, but responding to -Debug is always optional. (OLE uses -Debug switch only
+/// if you register the debugprogid key.)
+///
+/// ObjectComponents handles all the other switches for you. If the user calls a
+/// program with the -UnregServer switch, ObjectComponents examines its registration
+/// tables and erases all its entries from the registration database. If
+/// ObjectComponents finds a series of switches on the command line, it processes
+/// them all. This example makes ObjectComponents generate a type libary in the
+/// default language and then again in Belgian French.
+/// \code
+/// myapp -TypeLib -Language=80C -TypeLib
+/// \endcode
+/// the number passed to -Language must be hexadecimal digits. The Win32 API defines
+/// 80C as the locale ID for the Belgian dialect of the French language. For this
+/// command line to have the desired effect, of course, myapp must supply Belgian
+/// French strings in its XLAT resources.
+///
+/// The -RegServer flag optionally accepts a file name.
+/// \code
+/// myapp -RegServer = MYAPP.REG
+/// \endcode
+/// This causes ObjectComponents to create a registration data file in MYAPP.REG.
+/// The new file contains all the application's registration data. If you distribute
+/// MYAPP.REG with your program, users can merge the file directly into their own
+/// registration database (using RegEdit). Without a file name, -RegServer writes
+/// all data directly to the system's registration database.
+/// \note Only EXE servers have true command lines. OLE can't pass command line
+/// switches to a DLL. ObjectComponents simulates passing a command line to a DLL
+/// server so that you can use the same code either way. The registrar object always
+/// sets the right running mode flags.
+///
+///
+///
+/// \page tellingclientswhenanobjectchanges3 Step 8: Telling clients when an object changes
+/// Whenever the server makes any changes that alter the appearance of an object,
+/// the server must tell OLE. OLE keeps a metafile representation with every linked
+/// or embedded object so that even when the server is not active OLE can still draw
+/// the object for the container. If the object changes, OLE must update the
+/// metafile. The server notifies OLE of the change by calling
+/// TOleView::InvalidatePart. OLE, in turn, asks the server to paint the revised
+/// object into a new metafile. ObjectComponents handles this request by passing the
+/// metafile device context to the server's Paint procedure. You don't need to write
+/// extra code for updating the metafile.
+///
+/// A good place to call InvalidatePart is in the handlers for the messages that
+/// ObjectWindows sends to a view when its data changes:
+/// \code
+/// bool TDrawView::VnRevert(bool /*clear*/)
+/// {
+/// 
+/// Invalidate();       // force full repaint
+/// 
+/// InvalidatePart(invView);  // tell container about the change
+///  return true;
+/// }
+/// \endcode
+/// invView is an enumeration value, defined by ObjectComponents, indicating that
+/// the view is invalid and needs repainting.
+///
+/// Other view notification messages that signal the need for an update include
+/// EV_VN_APPEND, EV_VN_MODIFY, and EV_VN_DELETE.
+///
+///
+///
+/// \page loadingandsavingtheserversdocuments3 Step 9: Loading and saving the server's documents
+/// When a server gives objects to containers, the containers assume the burden of
+/// storing the objects in files and reading them back when necessary. If your
+/// server can also run independently and load and save its own documents, it too
+/// should make use of the compound file capabilities built into TOleDocument.
+/// In its Open method, a server calls TOleDocument::Open. In its Commit method, a
+/// server should call TOleDocument::Commit and
+/// TOleDocument::CommitTransactedStorage.
+/// \code
+/// // document class declaration derived from TOleDocument
+/// class _DOCVIEWCLASS TMyDocument : public TOleDocument {
+///  // declarations
+/// }
+///
+/// // document class implementation
+/// bool TMyDocument::Commit(bool force) {
+/// 
+/// TOleDocument::Commit(force);  // save linked and embedded objects
+///  .
+///  .
+/// 
+///  // code to save other document data
+/// 
+/// TOleDocument::CommitTransactedStorage();  // write to file if transacted mode
+/// }
+///
+/// bool TDrawDocument::Open(int, const char far*
+/// path) {
+///  TOleDocument::Open(); 
+/// // load linked or embedded objects
+///  .
+///  .
+/// 
+///  // code to load other document data
+/// }
+/// \endcode
+/// \note By default, TOleDocument opens compound files in transacted mode.
+/// Transacted mode saves changes in temporary storages until you call
+/// CommitTransactedStorage.
+///
+///
+///
+/// \page stepcompilingandlinkingtheapplication3 Step 10: Compiling and linking the application
+/// Linking and embedding servers that use ObjectComponents and ObjectWindows
+/// require the large memory model. Link them with the OLE and ObjectComponents
+/// libraries.
+///
+/// The integrated development environment (IDE) chooses the right build options
+/// when you ask for OLE support. To build any ObjectComponents program from the
+/// command line, create a short makefile that includes the OWLOCFMK.GEN file found
+/// in the EXAMPLES subdirectory.
+/// \code
+/// EXERES = MYPROGRAM
+/// OBJEXE = winmain.obj myprogram.obj
+/// !include $(BCEXAMPLEDIR)\ocfmake.gen
+/// \endcode
+/// EXERES and OBJEXE hold the name of the file to build and the names of the object
+/// files to build it from. The last line includes the OWLOCFMK.GEN file. Name your
+/// file MAKEFILE and type this at the command-line prompt:
+/// \code
+/// make MODEL=l
+/// \endcode
+/// MAKE, using instructions in OCFMAKE.GEN, will build a new makefile tailored to
+/// your project. The new makefile is called WIN16Lxx.MAK.
+///
+///
+///
+/// \page creatinganoleserverwithowl Creating an OLE server with OWL
+/// Follow these steps to turn an application into an OLE server using OWL:
+///
+/// -# \subpage stepincludingowlheaderfiles4 "Including OWL header files."
+/// -# \subpage stepcreatinganapplicationdictionary4 "Creating an application dictionary."
+/// -# \subpage stepcreatingregistrationtables4 "Creating registration tables."
+/// -# \subpage stepcreatingadocumentlist4 "Creating a document list."
+/// -# \subpage stepcreatingaregistrarobject4 "Creating a registrar object."
+/// -# \subpage creatinghelperobjectsforadocument4 "Creating helper objects for a document."
+/// -# \subpage stepderivingtheapplicationclassfromtocmodule4 "Deriving the application class from TOCModule."
+/// -# \subpage stepcompilingandlinkingtheapplication4 "Compiling and linking the application."
+///
+/// Code excerpts used in the above topics are from the OWLOCF2.CPP sample in the
+/// EXAMPLES/OWL/TUTORIAL/OLE directory. OWLOCF2 converts the OWLOCF1 sample from a
+/// container to a server.
+///
+///
+///
+/// \page stepincludingowlheaderfiles4 Step 1: Including OWL header files
+/// An OCX container must include the following OWL header files:
+/// \code
+/// #include <ocf/oleframe.h>
+/// #include <ocf/olewindo.h>
+/// #include <ocf/ocstorag.h>
+/// \endcode
+/// An MDI application includes olemdifr.h instead of oleframe.h.
+///
+///
+///
+/// \page stepcreatinganapplicationdictionary4 Step 2: Creating an application dictionary
+/// An application dictionary tracks information for the currently active process.
+/// It is particularly useful for DLLs. When several processes use a DLL
+/// concurrently, the DLL must maintain multiple copies of the global, static, and
+/// dynamic variables that represent its current state in each process. For example,
+/// the DLL version of ObjectWindows maintains a dictionary that allows it to
+/// retrieve the TApplication corresponding to the currently active client process.
+/// If you convert an executable server to a DLL server, it must also maintain a
+/// dictionary of the TApplication objects representing each of its container
+/// clients.
+///
+/// The DEFINE_APP_DICTIONARY macro provides a simple and unified way to create the
+/// dictionary object for any type of application, whether it is a container, a
+/// server, a DLL, or an EXE. Insert this statement with your other static
+/// variables:
+/// \code
+/// DEFINE_APP_DICTIONARY(AppDictionary);
+/// \endcode
+/// For any application linked to the static version of the DLL library, the macro
+/// simply creates a reference to the application dictionary in ObjectWindows. For
+/// DLL servers using the DLL version of ObjectWindows, however, it creates an
+/// instance of the TAppDictionary class.
+///
+/// It is important to name your dictionary object AppDictionary to take advantage
+/// of the factory templates such as TOleFactory.
+///
+///
+///
+/// \page stepcreatingregistrationtables4 Step 3: Creating registration tables
+/// Servers implement OLE objects that any container can link or embed in their own
+/// documents. Different servers implement different types of objects. Every type of
+/// object a server can create must have a 16-byte globally unique identifier (GUID)
+/// and a unique string identifier. Every server must record this information, along
+/// with other descriptive information, in the registration database of the system
+/// where it runs. OLE reads the registry to determine what objects are available,
+/// what their capabilities are, and how to invoke the application that creates
+/// objects of each type.
+///
+/// A server provides registration information to ObjectComponents using macros to
+/// build registration tables: one table describing the application itself and one
+/// for each type of OLE object the server creates. Here is the application
+/// registration table from OWLOCF2.
+/// \code
+/// REGISTRATION_FORMAT_BUFFER(100)
+///
+/// // application registration table
+/// BEGIN_REGISTRATION(AppReg)
+/// 
+/// REGDATA(clsid, "{B6B58B70-B9C3-101B-B3FF-86C8A0834EDE}")
+///  REGDATA(description,"Scribble Pad Server")
+/// END_REGISTRATION
+/// \endcode
+/// The registration macros build a structure of items. Each item contains a key,
+/// such as clsid or description, and a value assigned to the key. The order in
+/// which the keys appear does not matter. In the example, AppReg is the name of the
+/// structure that holds the information in this table.
+///
+/// Servers that create several types of objects must build a document registration
+/// table for each type. (What the server creates as a document is presented through
+/// OLE as an object.) If a spreadsheet application, for example, creates
+/// spreadsheet files and graph files, and if both kinds of documents can be linked
+/// or embedded, then the application registers two document types and creates two
+/// document registration tables.
+///
+/// The OWLOCF2 sample program creates one type of object, a scribbling pad, so it
+/// requires one document registration table (shown here) in addition to the
+/// application registration table.
+/// \code
+/// // document registration table
+/// BEGIN_REGISTRATION(DocReg)
+///  REGDATA(progid, "Scribble.Document.3")
+///  REGDATA(description,"Scribble Pad Document")
+///  REGDATA(debugger, "tdw")
+/// 
+/// REGDATA(debugprogid,"Scribble.Document.3.D")
+///  REGDATA(debugdesc, "Scribble Pad Document (debug)")
+///  REGDATA(menuname, "Scribble")
+///  REGDATA(insertable, "")
+///  REGDATA(extension, DocExt)
+///  REGDATA(docfilter, "*."DocExt)
+///  REGDOCFLAGS(dtAutoDelete | dtUpdateDir | dtCreatePrompt | dtRegisterExt)
+/// 
+/// REGDATA(verb0,   "&Edit")
+/// 
+/// REGDATA(verb1,   "&Open")
+///  REGFORMAT(0, ocrEmbedSource, ocrContent, ocrIStorage, ocrGet)
+///  REGFORMAT(1, ocrMetafilePict, ocrContent, ocrMfPict,  ocrGet)
+/// END_REGISTRATION
+/// \endcode
+/// The progid key is an identifier for this document type. The string must be
+/// unique so that OLE can distinguish one object from another. The insertable key
+/// indicates that this type of document should be listed in the Insert Object
+/// dialog box. The description, menuname, and verb keys are all visible to the user
+/// during OLE operations. The description appears in the Insert Object dialog box
+/// where the user sees a list of objects available in the system. The menuname is
+/// used in the container's Edit menu when composing the string that pops up the
+/// verb menu, which is where the verb strings appear. The remaining registration
+/// items are used when the application opens a file or uses the Clipboard.
+/// For more information about particular register keys, see the ObjectWindows
+/// Reference Guide.
+///
+/// Place your registration structures in the source code file where you implement
+/// your TApplication-derived class. If you cut and paste registration tables from
+/// other programs, be sure to modify at least the progid and clsid because these
+/// must identify your application uniquely. (Use the GUIDGEN.EXE utility to
+/// generate new 16-byte clsid identifiers.)
+///
+///
+///
+/// \page stepcreatingadocumentlist4 Step 4: Creating a document list
+/// The registration tables hold information about your application and its
+/// documents, but they are static. They don't do anything with that information. To
+/// register the information with the system, an application must pass the
+/// structures to an object that know how to use them. That object is the registrar,
+/// which records any necessary information in the system registration database.
+/// In a Doc/View application, the registrar examines the list of document templates
+/// to find each document registration structure. A non-Doc/View application doesn't
+/// have document templates, so it uses TRegLink instead to create a linked list of
+/// all its document registration tables.
+/// \code
+/// static TRegLink* RegLinkHead;
+/// TRegLink scribbleLink(::DocReg, RegLinkHead);
+/// \endcode
+/// RegLinkHead points to the first node of the linked list. ScribbleLink is a node
+/// in the linked list. The TRegLink constructor follows RegLinkHead to the end of
+/// the list and appends the new node. Each node contains a pointer to a document
+/// registration structure. In OWLOCF2, the list contains only one node because the
+/// server creates only one type of document. The node points to DocReg.
+///
+/// OWLOCF2 declares RegLinkHead as a static variable because it is used in several
+/// parts of the code, as the following sections explain.
+///
+///
+///
+/// \page stepcreatingaregistrarobject4 Step 5: Creating a registrar object
+/// The registrar object registers and runs the application. Its constructor
+/// receives the application registration structure and a pointer to the list of
+/// document registration structures. In a linking and embedding application, the
+/// registrar is an object of type TOcRegistrar. Insert the following line after the \#include
+/// statements in your main .CPP file.
+/// \code
+/// TPointer<TRegistrar> Registrar;
+/// \endcode
+/// The TPointer template ensures that the Registrar object is destructed when the
+/// program ends.
+///
+/// \note It is important to name the variable Registrar, since OCF depends on
+/// this. Also note that, unlike previous versions of OCF, Registrar should not be 
+/// declared `static`, and the pointer type should be `TPointer<TRegistrar>`, not 
+/// `TPointer<TOcRegistrar>`. However, note that Registrar must still point to a
+/// TOcRegistrar object.
+///
+/// Next, in OwlMain allocate a new TOcRegistrar object and initialize the global
+/// pointer Registrar. The TOcRegistrar constructor has three required parameters:
+/// the application's registration structure, the component's factory callback and
+/// the command-line string that invoked that application.
+///
+/// An optional fourth parameter points to the beginning of the document
+/// registration list. In a Doc/View application, this parameter defaults to the
+/// application's list of document templates. Applications that do not use Doc/View
+/// should pass a TRegLink* pointing to the list of document registration
+/// structures.
+///
+/// \code
+/// int
+/// OwlMain(int /*argc*/, char* /*argv*/ [])
+/// {
+///   ::Registrar = new TOcRegistrar(::AppReg,
+///     TOleFactory<TScribbleApp>(),
+///     TApplication::GetCmdLine(),
+///     ::RegLinkHead);
+///
+///   // Did command line say to register only?
+///   //
+///   if (::Registrar->IsOptionSet(amAnyRegOption))
+///     return 0;
+///
+///   return ::Registrar->Run();
+/// }
+/// \endcode
+///
+/// TOleFactory is a template that creates a class with a factory callback function.
+/// For a linking and embedding ObjectWindows application that does not use
+/// Doc/View, the template is called TOleFactory. The code in the factory template
+/// assumes you have defined an application dictionary called AppDictionary and a
+/// pointer to TRegistrar called Registrar.
+///
+/// When the registrar is created, it compares the information in the registration
+/// tables to the application's entries in the system registration database and
+/// updates the database if necessary. The Run method causes the registrar to call
+/// the factory callback which, among other things, enters the application's message
+/// loop.
+///
+///
+///
+/// \page creatinghelperobjectsforadocument4 Step 6: Creating helper objects for a document
+/// Each new document you open needs two helper objects from ObjectComponents:
+/// TOcDocument and TOcView. Because you create a client
+/// window for each document, the window's constructor is a good place to create the
+/// helpers. The TOleWindow::CreateOcView function creates both at once.
+/// In OWLOCF2, the client window is TScribbleWindow. Here is the declaration for
+/// the class and its constructor:
+/// \code
+/// class TScribbleWindow : public TOleWindow
+/// {
+///  public:
+///   TScribbleWindow(TWindow* parent, TOpenSaveDialog::TData& fileData);
+///   TScribbleWindow(TWindow* parent, TOpenSaveDialog::TData& fileData, TRegLink* link);
+/// \endcode
+/// The second constructor is new. It is useful when ObjectComponents passes you a
+/// pointer to the registration information you provided for one of your document
+/// types and asks you to create a document of that type. Here is the implementation
+/// of the new constructor:
+/// \code
+/// TScribbleWindow::TScribbleWindow(TWindow* parent, TOpenSaveDialog::TData& fileData,   TRegLink* link)
+/// :
+///  TOleWindow(parent, 0), FileData(fileData)
+/// {
+/// .
+/// .
+/// .
+///  // Create a TOcDocument object to hold the OLE parts that we create
+///  // and a TOcRemView to provide OLE services
+///  CreateOcView(link, true, 0);
+/// }
+/// \endcode
+/// The constructor receives a TRegLink pointer and passes it on to CreateOcView.
+/// The pointer points to the document registration information for the type of
+/// document being created. ObjectComponents passes the pointer to this constructor;
+/// you don't have to keep track of it yourself.
+///
+/// Passing true to CreateOcView causes the function to create a
+/// TOcRemView helper instead of a TOcView. The remote view object draws
+/// an OLE object within a container's window. When a server is launched to help a
+/// client with a linked or embedded object, it should create a remote view.
+/// If your application supports more than one document type, you can choose to use
+/// a different TOleWindow-derived class for each one. You must then provide the
+/// additional constructor for each class. Alternatively, you can use a single
+/// TOleWindow-derived class that behaves differently depending on the TRegList
+/// pointer it receives.
+///
+///
+///
+/// \page stepderivingtheapplicationclassfromtocmodule4 Step 7: Deriving the application class from TOcModule
+/// ObjectComponents requires that the class you derive from TApplication must also
+/// inherit from TOcModule. In addition, the application object needs to implement a
+/// CreateOleObject method with the following signature:
+/// \code
+/// TUnknown* CreateOleObject(uint32 options, TRegList* link);
+/// \endcode
+/// The purpose of the function is to create a server document for linking or
+/// embedding. The server must create a client window and return a pointer of type
+/// TOcRemView*. Here is how OWLOCF2 declares this procedure:
+/// \code
+/// class TScribbleApp : public TApplication,
+/// public TOcModule {
+///  public:
+///   TScribbleApp();
+///   TUnknown* CreateOleObject(uint32 options, TRegLink* link);
+/// \endcode
+/// and here is how it implements the procedure:
+/// \code
+/// TUnknown*
+/// TScribbleApp::CreateOleObject(uint32 options, TRegLink* link)
+/// {
+///  if (!link) // factory creating an application only, no view required
+///   link = &scribbleLink;    // need to have a view for this app
+///  TOleFrame* olefr = TYPESAFE_DOWNCAST(GetMainWindow(), TOleFrame);
+///  CHECK(olefr);
+///  FileData.FileName[0] = 0;
+///  TScribbleWindow* client = new TScribbleWindow(
+///    olefr->GetRemViewBucket(), FileData, link);
+///  client->Create();
+///  return client->GetOcRemView();
+/// }
+/// \endcode
+/// ObjectWindows uses the CreateOleObject method to inform your application when
+/// OLE needs the server to create an object. The TRegLink* parameter indicates
+/// which object to create.
+///
+///
+///
+/// \page stepcompilingandlinkingtheapplication4 Step 8: Compiling and linking the application
+/// Linking and embedding servers that use ObjectComponents and ObjectWindows must
+/// be compiled with the large memory model. They must be linked with the OLE and
+/// ObjectComponents libraries.
+///
+///
+///
+/// \page creatingadlloleserver Creating a DLL OLE Server
+/// Converting an ObjectWindows EXE OLE server to a DLL OLE server requires only a
+/// few modifications.
+///
+/// The following topics discuss the tasks involved with building a DLL OLE
+/// server.
+/// -# Update Your Document Registration Table
+/// -# Compile and Link
+///
+/// \section updatingyourdocumentregistration Table Updating Your Document Registration Table
+/// The document registration tables of DLL servers must contain the serverctx key
+/// with the string value "Inproc." This allows ObjectComponents to register your
+/// application as a DLL server with OLE. EXE servers do not need to use the
+/// serverctx key since ObjectComponents defaults to EXE registration.
+///
+/// The following code illustrates the document registration structure of a DLL
+/// server. It comes from the sample Tic Tac Toe program in
+/// EXAMPLES/OWL/OCF/TTT.
+/// \code
+/// BEGIN_REGISTRATION(DocReg)
+///  REGDATA(progid,  "TicTacToeDll")
+///  REGDATA(description,"TicTacToe DLL")
+///  REGDATA(serverctx, "Inproc")
+///  REGDATA(menuname,  "TicTacToe Game")
+///  REGDATA(insertable, "")
+///  REGDATA(extension, "TTT")
+///  REGDATA(docfilter, "*.ttt")
+///  REGDOCFLAGS(dtAutoDelete | dtUpdateDir | dtCreatePrompt | dtRegisterExt)
+///  REGDATA(verb0, "&Play")
+///  REGFORMAT(0, ocrEmbedSource, ocrContent, ocrIStorage, ocrGet)
+///  REGFORMAT(1, ocrMetafilePict, ocrContent, ocrMfPict,  ocrGet)
+/// END_REGISTRATION
+/// \endcode
+/// You do not need to modify your application registration structure to convert
+/// your EXE server to a DLL server. It's a good idea, however, to use different
+/// clsid and progid values, especially if you intend to switch frequently from one
+/// type to the other. You can test for the BI_APP_DLL macro to declare a
+/// registration structure that works for both DLL and EXE servers; the macro is
+/// only defined when you are building a DLL. The following code shows a sample
+/// document registration which supplies two sets of progid and clsid
+/// values.
+/// \code
+/// REGISTRATION_FORMAT_BUFFER(100)
+///
+/// // Application registration structure
+/// BEGIN_REGISTRATION(AppReg)
+/// #if defined(BI_APP_DLL)
+///  REGDATA(clsid, "{029442B1-8BB5-101B-B3FF-04021C009402}")  // DLL clsid
+///  REGDATA(progid,  "TicTacToe.DllServer")      // DLL progid
+/// #else
+///  REGDATA(clsid, "{029442C1-8BB5-101B-B3FF-04021C009402}")  // EXE clsid
+///  REGDATA(progid, "TicTacToe.Application")      // EXE progid
+/// #endif
+///  REGDATA(description,"TicTacToe Application")       // Description
+/// END_REGISTRATION
+///
+/// // Document registration structure
+/// BEGIN_REGISTRATION(DocReg)
+/// #if defined(BI_APP_DLL)
+///  REGDATA(progid,  "TicTacToeDll")
+///  REGDATA(description,"TicTacToe DLL")
+///  REGDATA(serverctx, "Inproc")
+/// #else
+///  REGDATA(progid, "TicTacToe.Game.1")
+///  REGDATA(description,"TicTacToe Game")
+///  REGDATA(debugger,  "tdw")
+///  REGDATA(debugprogid,"TicTacToe.Game.1.D")
+///  REGDATA(debugdesc, "TicTacToe Game (debug)")
+/// #endif
+///  REGDATA(menuname,  "TicTacToe Game")
+///  REGDATA(insertable, "")
+///  REGDATA(extension, "TTT")
+///  REGDATA(docfilter, "*.ttt")
+///  REGDOCFLAGS(dtAutoDelete | dtUpdateDir | dtCreatePrompt | dtRegisterExt)
+///  REGDATA(verb0, "&Play")
+///  REGFORMAT(0, ocrEmbedSource, ocrContent, ocrIStorage, ocrGet)
+///  REGFORMAT(1, ocrMetafilePict, ocrContent, ocrMfPict,  ocrGet)
+/// END_REGISTRATION
+/// \endcode
+/// Notice that the debugger keys (debugger, debugprogid, and debugdesc) are not
+/// used when building a DLL server. They are relevant only when your server is an
+/// executable that a debugger can load.
+///
+/// \section compilingandlinkingadlloleserver Compiling and linking a DLL OLE server
+/// ObjectWindows DLL servers must be compiled with the large memory model. They
+/// must be linked with the OLE, ObjectComponents, and ObjectWindows libraries.
+/// The integrated development environment (IDE) chooses the right build options for
+/// you when you select Dynamic Library for Target Type and request OWL and OCF
+/// support from the list of standard libraries. You may choose to link with the
+/// static or dynamic versions of the standard libraries.
+///
+/// To build an ObjectWindows DLL server from the command line, create a short
+/// makefile that includes the OWLOCFMK.GEN file found in the EXAMPLES subdirectory.
+/// Here, for example, is the makefile that builds the sample program Tic Tac
+/// Toe:
+/// \code
+/// MODELS=ld
+/// SYSTEM = WIN16
+///
+/// DLLRES = ttt
+/// OBJDLL = ttt.obj
+///
+/// !include $(BCEXAMPLEDIR)\owlocfmk.gen
+/// \endcode
+/// DLLRES holds the base name of your resource file and the final DLL name. OBJDLL
+/// holds the names of the object files from which to build the sample. Finally,
+/// your makefile should include the OWLOCFMK.GEN file.
+///
+/// Name your file MAKEFILE and type this at the command-line prompt:
+/// \code
+/// make MODEL=l
+/// \endcode
+/// Make, using instructions in OWLOCFMK.GEN, builds a new makefile tailored to your
+/// project. The command also runs the new makefile to build the program. If you
+/// change the command to define MODEL as d, the above command will create a new
+/// makefile and then build your DLL using the DLL version of the libraries instead
+/// of the large model static libraries.
+///
+/// For more information about how to use OWLOCFMK.GEN, read the instructions at the
+/// beginning of MAKEFILE.GEN, found in the examples directory.
+///
