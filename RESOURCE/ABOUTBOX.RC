@@ -7,8 +7,8 @@ BEGIN
         LTEXT "Copyright \251 MD 1993 - 2008", 550, 135, 25, 110, 9, WS_CHILD | WS_VISIBLE | WS_GROUP
         LTEXT "Version 2.3", -1, 135, 35, 76, 9, WS_CHILD | WS_VISIBLE | WS_GROUP
         LTEXT "Released: 31/01/08", -1, 135, 45, 81, 8, WS_CHILD | WS_VISIBLE | WS_GROUP
-        ICON "AMAIN", 1, 103, 14, 18, 20, WS_CHILD | WS_VISIBLE
-        ICON "md", 1, 103, 34, 18, 20
+        ICON "AMAIN", -1, 103, 14, 18, 20, WS_CHILD | WS_VISIBLE
+        ICON "md", -1, 103, 34, 18, 20
         CONTROL "", -1, "button", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 101, 1, 151, 62
         DEFPUSHBUTTON "OK", 1, 150, 72, 55, 16, WS_CHILD | WS_VISIBLE | WS_TABSTOP
 END

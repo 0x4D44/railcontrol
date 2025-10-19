@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8BC6E2A5-8FA9-41D5-9B09-1AA0A0E9C043}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>RailControl</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)Debug\</OutDir>
+    <IntDir>$(ProjectDir)intermediate\Debug\</IntDir>
+    <TargetName>railc_msvc</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)Release\</OutDir>
+    <IntDir>$(ProjectDir)intermediate\Release\</IntDir>
+    <TargetName>railc_msvc</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;NOMINMAX;_CRT_SECURE_NO_WARNINGS;__DEBUG=0;_ITERATOR_DEBUG_LEVEL=0;_HAS_ITERATOR_DEBUGGING=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..;$(ProjectDir)..\..\third_party\owlnext\include;$(ProjectDir)..\..\third_party\owlnext\include\owlext;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..;$(ProjectDir)..\..\RESOURCE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\third_party\owlnext\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>owl-7.0-v1930-x86-5t.lib;owlext-7.0-v1930-x86-5t.lib;ocf-7.0-v1930-x86-5t.lib;coolprj-7.0-v1930-x86-5t.lib;comctl32.lib;comdlg32.lib;winmm.lib;ole32.lib;oleaut32.lib;shell32.lib;gdi32.lib;user32.lib;advapi32.lib;imm32.lib;msimg32.lib;uuid.lib;vfw32.lib;kernel32.lib;winspool.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;STRICT;NOMINMAX;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..;$(ProjectDir)..\..\third_party\owlnext\include;$(ProjectDir)..\..\third_party\owlnext\include\owlext;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..;$(ProjectDir)..\..\RESOURCE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\third_party\owlnext\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>owl-7.0-v1930-x86-5t.lib;owlext-7.0-v1930-x86-5t.lib;ocf-7.0-v1930-x86-5t.lib;coolprj-7.0-v1930-x86-5t.lib;comctl32.lib;comdlg32.lib;winmm.lib;ole32.lib;oleaut32.lib;shell32.lib;gdi32.lib;user32.lib;advapi32.lib;imm32.lib;msimg32.lib;uuid.lib;vfw32.lib;kernel32.lib;winspool.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\\..\\ABOUT.CPP" />
+    <ClCompile Include="..\\..\\ARRIVALS.CPP" />
+    <ClCompile Include="..\\..\\CONFIGUR.CPP" />
+    <ClCompile Include="..\\..\\DEPARTUR.CPP" />
+    <ClCompile Include="..\\..\\FINISH.CPP" />
+    <ClCompile Include="..\\..\\LAYOUT.CPP" />
+    <ClCompile Include="..\\..\\LOCOS.CPP" />
+    <ClCompile Include="..\\..\\LOCOYARD.CPP" />
+    <ClCompile Include="..\\..\\OVLPDATA.CPP" />
+    <ClCompile Include="..\\..\\PLATDATA.CPP" />
+    <ClCompile Include="..\\..\\PLATFORM.CPP" />
+    <ClCompile Include="..\\..\\RAILC.CPP">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Disabled</Optimization>
+    </ClCompile>
+    <ClCompile Include="..\\..\\ROUTES.CPP" />
+    <ClCompile Include="..\\..\\SECTION.CPP" />
+    <ClCompile Include="..\\..\\SELECTOR.CPP" />
+    <ClCompile Include="..\\..\\START.CPP" />
+    <ClCompile Include="..\\..\\STARTUP.CPP" />
+    <ClCompile Include="..\\..\\STATBAR.CPP" />
+    <ClCompile Include="..\\..\\TIMETABL.CPP" />
+    <ClCompile Include="..\\..\\TOOLBAR.CPP" />
+    <ClCompile Include="..\\..\\TOOLBUTT.CPP" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\\..\\ABOUT.H" />
+    <ClInclude Include="..\\..\\ARRIVALS.H" />
+    <ClInclude Include="..\\..\\CLASSDEF.H" />
+    <ClInclude Include="..\\..\\CONFIGUR.H" />
+    <ClInclude Include="..\\..\\DEPARTUR.H" />
+    <ClInclude Include="..\\..\\FINISH.H" />
+    <ClInclude Include="..\\..\\GENERAL.H" />
+    <ClInclude Include="..\\..\\LAYOUT.H" />
+    <ClInclude Include="..\\..\\LOCOS.H" />
+    <ClInclude Include="..\\..\\LOCOYARD.H" />
+    <ClInclude Include="..\\..\\OVLPDATA.H" />
+    <ClInclude Include="..\\..\\PLATDATA.H" />
+    <ClInclude Include="..\\..\\PLATFORM.H" />
+    <ClInclude Include="..\\..\\RAILC.H" />
+    <ClInclude Include="..\\..\\ROUTES.H" />
+    <ClInclude Include="..\\..\\SECTION.H" />
+    <ClInclude Include="..\\..\\SELECTOR.H" />
+    <ClInclude Include="..\\..\\START.H" />
+    <ClInclude Include="..\\..\\STARTUP.H" />
+    <ClInclude Include="..\\..\\STATBAR.H" />
+    <ClInclude Include="..\\..\\TIMETABL.H" />
+    <ClInclude Include="..\\..\\TOOLBAR.H" />
+    <ClInclude Include="..\\..\\TOOLBUTT.H" />
+    <ClInclude Include="ctl3d.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\\..\\RESOURCE\\RAILC.RC" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>
+
+

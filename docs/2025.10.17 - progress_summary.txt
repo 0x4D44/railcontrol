@@ -1,0 +1,48 @@
+Rail Control MSVC Modernization - Progress Summary (as of 2025-10-17)
+====================================================================
+
+Completed Work
+--------------
+- Event handler alignment across OWLNext windows; CheckSignature passes cleanly under MSVC.
+- RNG and selector refactors now use guarded ::rand() plus RoundToInt-based geometry for core layout drawing.
+- Layout parser migrated to std::ifstream/std::istringstream, _stricmp, and scopes for reopen/error messaging.
+- Resource pipeline externalised (ICO/BMP assets, <winresrc.h>, unique control IDs) and builds under both toolchains.
+- Profile persistence hardened via _itoa_s helpers and shared conversions inside WriteProfileInt.
+- Scaling warnings resolved in PLATDATA.CPP and SECTION.CPP with std::lround conversions.
+- std::snprintf adopted in ARRIVALS/FINISH/PLATFORM; average delay maths guarded for divide-by-zero.
+- RAILC.DEF trimmed to stack/heap directives to silence linker noise.
+
+Latest Updates (17 Oct 2025 PM)
+-------------------------------
+- Replaced all remaining wsprintf/sprintf usage in LAYOUT.CPP, RAILC.CPP, and the MDDEBUG trace macros with size-bounded helpers (FormatBuffer, std::snprintf).
+- Updated debug tracing to include buffer-size awareness; overlong traces are forcibly null-terminated before logging.
+- Audited toolbar/status/locoyard drawing paths-no floating-point scaling present, so existing integer math remains valid.
+- Converted the embedded beep into a WAVE resource and now drive PlaySound via SND_RESOURCE, with MessageBeep fallback if playback fails.
+- Hoisted the FormatBuffer helper into general.h, added a project-wide include guard, and migrated ARRIVALS/FINISH/PLATFORM to the shared wrapper to keep formatting consistent.
+- Introduced CopyString/AppendString helpers and replaced the last strcpy/strcat hotspots in ARRIVALS/DEPARTUR.
+- Extended the helpers across layout/platform/statbar/toolbutton/menu code; legacy string writes now flow through shared wrappers.
+- Re-validated local Debug/Release builds (build_msvc.bat Debug/Release on 17 Oct 2025) with zero warnings/errors.
+- Authored docs/2025.10.17 - manual_smoke_test_checklist.md covering Debug/Release launch, layout loading, selector interaction, WinHelp, and audio playback.
+- Hardened .github/workflows/msvc.yml so both Debug/Release builds run without continue-on-error.
+
+Build Status
+------------
+- Debug (build_msvc.bat): 0 warnings, outputs build/msvc/Debug/railc_msvc.exe.
+- Release (build_msvc.bat Release): 0 warnings, outputs build/msvc/Release/railc_msvc.exe.
+
+Next Steps
+----------
+1. Monitor the updated MSVC workflow (Debug/Release) for stability and capture follow-up issues after the next CI run.
+2. Execute the refreshed smoke-test checklist for both Debug/Release builds and log outcomes for each sample layout (use docs/2025.10.17 - smoke_test_log_template.md).
+3. Promote the MSVC GitHub Actions job to required branch protection once smoke logs stay clean.
+4. Audit any remaining pointer-based string helpers (e.g., timetable getters) to see if buffer sizes can be threaded through for additional safety.
+
+
+
+
+
+
+
+
+
+
