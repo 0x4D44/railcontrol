@@ -281,7 +281,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
               TRC_NRM((TB, "PLT ST_INPLAT"));
 
               // Train has just arrived and loco is still connected
-              frame->DisplayHan->PTimetableInfo[a]->GetArrDesc(TrainName);
+              frame->DisplayHan->PTimetableInfo[a]->GetArrDesc(TrainName, sizeof(TrainName));
               AppendString(TrainName, " + ");
 
               for (lii = 0; lii < 2; lii++)
@@ -330,7 +330,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
                 CopyString(TrainName, "");
               }
 
-              frame->DisplayHan->PTimetableInfo[a]->GetDepDesc(LocoName);
+              frame->DisplayHan->PTimetableInfo[a]->GetDepDesc(LocoName, sizeof(LocoName));
               AppendString(TrainName, LocoName);
 
               TRC_NRM((TB, "PLT CHOICE"));

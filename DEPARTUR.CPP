@@ -441,7 +441,7 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
     if (a == SC_TWIN170) TextOut(TheDC, 55, YPos, "T170", 4);
 
     // Departure description
-    frame->DisplayHan->PTimetableInfo[TabVal]->GetDepDesc(TextString);
+    frame->DisplayHan->PTimetableInfo[TabVal]->GetDepDesc(TextString, sizeof(TextString));
     TextOut(TheDC, 130, YPos, TextString, strlen(TextString));
   }
 }

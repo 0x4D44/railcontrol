@@ -33,6 +33,7 @@
 #include <crtdbg.h>
 #include <tchar.h>
 #include <algorithm>
+#include <strsafe.h>
 
 #include "stackwalker.h"
 
@@ -2024,7 +2025,8 @@ static void ShowStackRM( HANDLE hThread, CONTEXT& c, FILE *fLogFile, PREAD_PROCE
             strcpy( ty, "DIA" );
             break;*/
           default:
-            _snprintf( ty, sizeof ty, "symtype=%ld", (long) Module.SymType );
+            if (FAILED(::StringCchPrintfA(ty, sizeof ty, "symtype=%ld", (long)Module.SymType)))
+              ty[sizeof ty - 1] = '\0';
             break;
           }
 

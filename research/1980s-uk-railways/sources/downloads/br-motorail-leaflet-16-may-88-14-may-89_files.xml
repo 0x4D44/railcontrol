@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files>
+  <file name="__ia_thumb.jpg" source="original">
+    <mtime>1672412346</mtime>
+    <size>14769</size>
+    <md5>13ec0ef1050abede30a94ce164f60b8f</md5>
+    <crc32>7cd66ee8</crc32>
+    <sha1>4abf02ac09f9e3f0c7d1e0431121ce0e136fe995</sha1>
+    <format>Item Tile</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="br-motorail-leaflet-16-may-88-14-may-89_archive.torrent" source="metadata">
+    <btih>25783c908487098fc438bbcf5f8f0a261fd9e8a2</btih>
+    <mtime>1672412594</mtime>
+    <size>6489</size>
+    <md5>502cc98ea8b49bff6db85ff0d42a9838</md5>
+    <crc32>c9dc6a60</crc32>
+    <sha1>2a978b26fcefb6a22d36dea2815a7d2903ec9e8f</sha1>
+    <format>Archive BitTorrent</format>
+  </file>
+  <file name="br-motorail-leaflet-16-may-88-14-may-89_files.xml" source="original">
+    <format>Metadata</format>
+    <md5>01b441bc86a562e715ba216580a875c6</md5>
+    <summation>md5</summation>
+  </file>
+  <file name="br-motorail-leaflet-16-may-88-14-may-89_meta.sqlite" source="original">
+    <mtime>1672412550</mtime>
+    <size>65536</size>
+    <md5>887d5ea2ed96995e94493f04e99d01a8</md5>
+    <crc32>a518ad2e</crc32>
+    <sha1>4aa3e0d55541876fa583bfde98f47639c4b528e2</sha1>
+    <format>Metadata</format>
+  </file>
+  <file name="br-motorail-leaflet-16-may-88-14-may-89_meta.xml" source="original">
+    <mtime>1672412335</mtime>
+    <size>903</size>
+    <md5>36a3484dbc23c6675724abcbd4488135</md5>
+    <crc32>b4546bb4</crc32>
+    <sha1>fa4eb5bcf5c82482c7983f763a609825c5159a5b</sha1>
+    <format>Metadata</format>
+  </file>
+  <file name="cover.jpg" source="original">
+    <mtime>1672412319</mtime>
+    <size>1286302</size>
+    <md5>551e82ba404a0ce86894990d97da25ed</md5>
+    <crc32>75cdf37f</crc32>
+    <sha1>d69b411950713144f0590a4de2dba0da4c8b3ed1</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="cover_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>cover.jpg</original>
+    <mtime>1672412560</mtime>
+    <size>10356</size>
+    <md5>52bbb35e4bdad8f24db04314d6963804</md5>
+    <crc32>97412d3d</crc32>
+    <sha1>2806abdf64f7d2d0281e5d060e944cf30939cbec</sha1>
+  </file>
+  <file name="page 02.jpg" source="original">
+    <mtime>1672412356</mtime>
+    <size>1456359</size>
+    <md5>d8c80de7728fe02c99799bc99c567e73</md5>
+    <crc32>2f10ce7a</crc32>
+    <sha1>241c5f6b3cc9cdfc556d283b935eccd86d5ad9a8</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="page 02_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>page 02.jpg</original>
+    <mtime>1672412563</mtime>
+    <size>10689</size>
+    <md5>2efd1732fa4de95eef9e1b03f98f82c6</md5>
+    <crc32>61fe874a</crc32>
+    <sha1>823aec6cfabc404e3f1877bf4954ee714b682a3b</sha1>
+  </file>
+  <file name="page 03.jpg" source="original">
+    <mtime>1672412374</mtime>
+    <size>1206235</size>
+    <md5>8d83a7362f77c393b34db2b6cbaa4175</md5>
+    <crc32>a4428795</crc32>
+    <sha1>73d75ad71302fa6d8b4031aed0e5c63f5fee7085</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="page 03_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>page 03.jpg</original>
+    <mtime>1672412566</mtime>
+    <size>10559</size>
+    <md5>a9a2d0334f60a090595c2b7299b8c1c3</md5>
+    <crc32>7aad6bac</crc32>
+    <sha1>c79d2f0be76fd7635a41aacf7ec614f42aac2faa</sha1>
+  </file>
+  <file name="page 04.jpg" source="original">
+    <mtime>1672412398</mtime>
+    <size>1588524</size>
+    <md5>1b9f1b74c1ab24faeb437f4dad097032</md5>
+    <crc32>9ddd8c2b</crc32>
+    <sha1>0f41a0b98ee2252154dd0f6fca215ffc3109f0bb</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="page 04_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>page 04.jpg</original>
+    <mtime>1672412569</mtime>
+    <size>10301</size>
+    <md5>3a4d48b1d720aca76fc849619b2c1f22</md5>
+    <crc32>bc2676e1</crc32>
+    <sha1>272a0ff2cde8ddef8cb4a8b3c3fafdcfcf827b7e</sha1>
+  </file>
+  <file name="page 05.jpg" source="original">
+    <mtime>1672412417</mtime>
+    <size>1270434</size>
+    <md5>09c09270497e573d6f79bd9489ebf88c</md5>
+    <crc32>edb044b5</crc32>
+    <sha1>ce155f8cce0ebf0399504308107ad14671727aa2</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="page 05_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>page 05.jpg</original>
+    <mtime>1672412571</mtime>
+    <size>10538</size>
+    <md5>9e1a3740c6771410fa194779f240953a</md5>
+    <crc32>1b9a1291</crc32>
+    <sha1>68f4f8d38808031b9d2de6d77fc29c6a9cc0c513</sha1>
+  </file>
+  <file name="page 06.jpg" source="original">
+    <mtime>1672412437</mtime>
+    <size>1296413</size>
+    <md5>1dd5e0070ff8c2f01875315299022b31</md5>
+    <crc32>1c7effc5</crc32>
+    <sha1>3006a307174d0e1c7c3677e3709634fa09c0294c</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="page 06_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>page 06.jpg</original>
+    <mtime>1672412574</mtime>
+    <size>10188</size>
+    <md5>fe169497688aa6f70a5d5cc747c6773c</md5>
+    <crc32>8ffe399a</crc32>
+    <sha1>ae59be301956a4d5ffbfe14f260b746d61f7609c</sha1>
+  </file>
+  <file name="page 07.jpg" source="original">
+    <mtime>1672412455</mtime>
+    <size>1222011</size>
+    <md5>ced2995d7b374685c4554ef6daa11fec</md5>
+    <crc32>7fedf48c</crc32>
+    <sha1>30ca0b1b3925fbdeeea61d2930888760200222e8</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="page 07_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>page 07.jpg</original>
+    <mtime>1672412577</mtime>
+    <size>10326</size>
+    <md5>05ff34f0c2e0299ac1f3225e03f9232b</md5>
+    <crc32>cb24a160</crc32>
+    <sha1>f470c17ab81f5eabef2ef0e96cf2a9a85e3a1fba</sha1>
+  </file>
+  <file name="page 08.jpg" source="original">
+    <mtime>1672412477</mtime>
+    <size>1472182</size>
+    <md5>4022c5f2b2c28a00cf9ea7175c8139d5</md5>
+    <crc32>596f9473</crc32>
+    <sha1>ff5706508f3c9905f38c72eef42403e2527090db</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="page 08_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>page 08.jpg</original>
+    <mtime>1672412579</mtime>
+    <size>10332</size>
+    <md5>571dd0caf7a11297cd5968c974de1064</md5>
+    <crc32>a6b7f823</crc32>
+    <sha1>75a187a2cdc04b7f11245b9230918da76dc7b53e</sha1>
+  </file>
+  <file name="page 09.jpg" source="original">
+    <mtime>1672412492</mtime>
+    <size>1182493</size>
+    <md5>492aa209dcd231822888fd1cacb6fb9e</md5>
+    <crc32>ead61bec</crc32>
+    <sha1>3bad295a3ea890d4d9758dea472b41cf9e24b80f</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="page 09_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>page 09.jpg</original>
+    <mtime>1672412582</mtime>
+    <size>10095</size>
+    <md5>a70b638f7746a0aa25dc39f2a3b7a854</md5>
+    <crc32>0baab3dd</crc32>
+    <sha1>15c381467d38377def7a890ea157f2b7ea358178</sha1>
+  </file>
+  <file name="page 10.jpg" source="original">
+    <mtime>1672412513</mtime>
+    <size>1468378</size>
+    <md5>e3daeea8b204c1e91135c53972ff48b0</md5>
+    <crc32>7a4b065f</crc32>
+    <sha1>18e851bc7b82e9a53e2614909fcf625bc9c334a3</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="page 10_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>page 10.jpg</original>
+    <mtime>1672412585</mtime>
+    <size>9990</size>
+    <md5>3ea86b5e7e946e0e874be7faab154c9d</md5>
+    <crc32>2ec33878</crc32>
+    <sha1>bcbf02397f2c42dac9c1e83a728dadd6cecef91a</sha1>
+  </file>
+  <file name="page 11.jpg" source="original">
+    <mtime>1672412533</mtime>
+    <size>1208466</size>
+    <md5>bb38aac8595db46668c4544ab5614e9e</md5>
+    <crc32>ee43e7bc</crc32>
+    <sha1>8c0214a7baa354b502f2ec7d5c150fbdc9a33833</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="page 11_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>page 11.jpg</original>
+    <mtime>1672412587</mtime>
+    <size>10042</size>
+    <md5>e8a552ad3e193a867ac69d86f69a6167</md5>
+    <crc32>e7dfd825</crc32>
+    <sha1>6289e72f8db06d6f066b6b3940d698648342e9e0</sha1>
+  </file>
+  <file name="page 12.jpg" source="original">
+    <mtime>1672412545</mtime>
+    <size>602015</size>
+    <md5>2c7ada64971752d4aeabd21458d9cd3c</md5>
+    <crc32>51424d4e</crc32>
+    <sha1>5df9e9f8db4816c18f01c04acfa1732c69138e34</sha1>
+    <format>JPEG</format>
+    <rotation>0</rotation>
+  </file>
+  <file name="page 12_thumb.jpg" source="derivative">
+    <format>JPEG Thumb</format>
+    <original>page 12.jpg</original>
+    <mtime>1672412589</mtime>
+    <size>9185</size>
+    <md5>823c783eda22aa36631e0ef40e3feb50</md5>
+    <crc32>9661ebd3</crc32>
+    <sha1>c5dc73235b3aade6bcd9f5bed6833f0d7b2c8c01</sha1>
+  </file>
+</files>

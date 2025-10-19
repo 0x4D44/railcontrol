@@ -312,7 +312,7 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
 
    // Arrival description
    ::SetTextColor(TheDC, RGB(255, 255, 255));
-   frame->DisplayHan->PTimetableInfo[TabVal]->GetArrDesc(TextString);
+  frame->DisplayHan->PTimetableInfo[TabVal]->GetArrDesc(TextString, sizeof(TextString));
    TextOut(TheDC, ARR_OFFSET_ARRDESC, YPos, TextString, strlen(TextString));
 
    // Arrival status
@@ -368,7 +368,7 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
     TextOut(TheDC, ARR_OFFSET_DEPTIME, YPos, TextString, strlen(TextString));
 
     // Departure description
-    frame->DisplayHan->PTimetableInfo[TabVal]->GetDepDesc(TextString);
+    frame->DisplayHan->PTimetableInfo[TabVal]->GetDepDesc(TextString, sizeof(TextString));
     TextOut(TheDC, ARR_OFFSET_DEPDESC, YPos, TextString, strlen(TextString));
   }
 }

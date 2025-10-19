@@ -17,7 +17,7 @@
 #include <owl/commctrl.h>
 #include <owl/shellitm.h>
 #include <owl/tooltip.h>
-#include <cstdio>
+
 #if defined(_MSC_VER)
 #include <intrin.h>
 #endif
@@ -2528,26 +2528,66 @@ TWindow::DoExecute()
 //
 /// Ensures that the window is fully set up; then transfers data into the window.
 //
-namespace {
-  void __declspec(noinline) FinalizeWindowSetup(TWindow* window)
-  {
-    window->SetFlag(wfFullyCreated);
-#if !defined(OWL5_COMPAT)
-    window->TransferData(tdSetData);
-#endif
-  }
-}
-
 void
 TWindow::PerformSetupAndTransfer()
 {
-  TWindow* const preservedThis = this;
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
+  char dbgBuffer[512];
+  char className[128] = {0};
+  HWND hwnd = GetHandle();
+  if (hwnd != 0 && ::GetClassNameA(hwnd, className, sizeof(className)) == 0)
+  {
+    className[0] = '\0';
+  }
+  if (className[0] == '\0')
+  {
+    lstrcpynA(className, "<unknown>", static_cast<int>(sizeof(className)));
+  }
+  void* returnAddress = 0;
+#if defined(_MSC_VER)
+  returnAddress = _ReturnAddress();
+#endif
+  HMODULE callerModule = 0;
+  if (returnAddress != 0)
+  {
+    if (!::GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                                GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                              reinterpret_cast<LPCSTR>(returnAddress),
+                              &callerModule))
+    {
+      callerModule = 0;
+    }
+  }
+  char moduleName[MAX_PATH] = {0};
+  if (callerModule != 0)
+  {
+    ::GetModuleFileNameA(callerModule, moduleName, MAX_PATH);
+  }
+  wsprintfA(dbgBuffer,
+            "PerformSetupAndTransfer this=%p hwnd=%p class=%s caller=%p module=%s\n",
+            this,
+            hwnd,
+            className,
+            returnAddress,
+            moduleName[0] ? moduleName : "<unknown>");
+  OutputDebugStringA(dbgBuffer);
+  if (FILE* logFile = fopen("tmp\\perform_setup_trace.log", "a"))
+  {
+    fputs(dbgBuffer, logFile);
+    fclose(logFile);
+  }
 
   SetupWindow();
-#if defined(_M_IX86)
-  __asm mov esi, preservedThis
+  SetFlag(wfFullyCreated);
+
+  // Note that transfer has already happened in SetupWindow if the library is
+  // built in backwards compatibility mode. See SetupWindow for details.
+  //
+#if !defined(OWL5_COMPAT)
+  TransferData(tdSetData);
 #endif
-  FinalizeWindowSetup(preservedThis);
 }
 
 //
@@ -2596,7 +2636,6 @@ TWindow::SetupWindow()
   }
 
   // If this is main Window and GetAplication()->GetTooltip() != 0; create it.
-#if 0
   if (IsFlagSet(wfMainWindow)){
     TTooltip* tooltip = GetApplication()->GetTooltip();
     if(tooltip){
@@ -2609,10 +2648,6 @@ TWindow::SetupWindow()
       }
     }
   }
-#else
-  if (false){
-  }
-#endif
 
   // NOTE: CreateChildren will throw a TXWindow exception if one of the
   //       child objects could not be created.
@@ -2630,7 +2665,6 @@ TWindow::SetupWindow()
 #if defined(OWL5_COMPAT)
   TransferData(tdSetData);
 #endif
-
 }
 
 //

@@ -22,6 +22,8 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
+#include <string>
+#include <strsafe.h>
 
 // Main menu definitions
 #define CM_MNUFILNEW       100
@@ -235,8 +237,14 @@ template <std::size_t BufferSize, typename... Args>
 inline void FormatBuffer(char (&buffer)[BufferSize], const char* format, Args... args)
 {
   static_assert(BufferSize > 0, "FormatBuffer requires a non-empty buffer");
-  const int written = std::snprintf(buffer, BufferSize, format, args...);
-  if (written < 0 || static_cast<std::size_t>(written) >= BufferSize)
+  if (!format)
+  {
+    buffer[0] = '\0';
+    return;
+  }
+
+  HRESULT hr = ::StringCchPrintfA(buffer, BufferSize, format, args...);
+  if (FAILED(hr))
   {
     buffer[BufferSize - 1] = '\0';
   }
@@ -245,7 +253,12 @@ inline void FormatBuffer(char (&buffer)[BufferSize], const char* format, Args...
 template <std::size_t BufferSize>
 inline void CopyString(char (&buffer)[BufferSize], const char* value)
 {
-  FormatBuffer(buffer, "%s", value ? value : "");
+  const char* source = value ? value : "";
+  HRESULT hr = ::StringCchCopyA(buffer, BufferSize, source);
+  if (FAILED(hr))
+  {
+    buffer[BufferSize - 1] = '\0';
+  }
 }
 
 inline void CopyString(char* buffer, std::size_t bufferSize, const char* value)
@@ -256,28 +269,16 @@ inline void CopyString(char* buffer, std::size_t bufferSize, const char* value)
   }
 
   const char* source = value ? value : "";
-  const int written = std::snprintf(buffer, bufferSize, "%s", source);
-  if (written < 0 || static_cast<std::size_t>(written) >= bufferSize)
+  HRESULT hr = ::StringCchCopyA(buffer, bufferSize, source);
+  if (FAILED(hr))
   {
     buffer[bufferSize - 1] = '\0';
   }
 }
 
-inline void CopyString(char* buffer, const char* value)
+inline void CopyString(char* buffer, std::size_t bufferSize, const std::string& value)
 {
-  if (!buffer)
-  {
-    return;
-  }
-
-#if defined(_DEBUG)
-  if (::IsBadWritePtr(buffer, 1))
-  {
-    ::DebugBreak();
-  }
-#endif
-  const char* source = value ? value : "";
-  std::strcpy(buffer, source);
+  CopyString(buffer, bufferSize, value.c_str());
 }
 
 template <std::size_t BufferSize>
@@ -294,11 +295,8 @@ inline void AppendString(char (&buffer)[BufferSize], const char* value)
     return;
   }
 
-  const int written = std::snprintf(buffer + currentLength,
-                                    BufferSize - currentLength,
-                                    "%s",
-                                    value);
-  if (written < 0)
+  HRESULT hr = ::StringCchCatA(buffer, BufferSize, value);
+  if (FAILED(hr))
   {
     buffer[BufferSize - 1] = '\0';
   }
@@ -313,11 +311,11 @@ inline void AppendFormat(char (&buffer)[BufferSize], const char* format, Args...
     return;
   }
 
-  const int written = std::snprintf(buffer + currentLength,
-                                    BufferSize - currentLength,
-                                    format,
-                                    args...);
-  if (written < 0)
+  HRESULT hr = ::StringCchPrintfA(buffer + currentLength,
+                                  BufferSize - currentLength,
+                                  format,
+                                  args...);
+  if (FAILED(hr))
   {
     buffer[BufferSize - 1] = '\0';
   }

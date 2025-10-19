@@ -19,12 +19,91 @@
 #include <cstdio>
 #include <cstring>
 #include <cmath>
+#include <vector>
 
 namespace {
 inline int RoundToInt(double value)
 {
   return static_cast<int>(std::lround(value));
 }
+
+#if defined(DIAG_SETUP_TRACE)
+bool ShouldWriteDiagnosticsLog()
+{
+  static int sLogFlag = -1;
+  if (sLogFlag == -1)
+  {
+    sLogFlag = GetPrivateProfileInt("Debug", "EnableDiagnosticsLog", 0, INIFILENAME);
+  }
+  return sLogFlag != 0;
+}
+
+FILE* OpenDiagnosticsLog()
+{
+  if (!ShouldWriteDiagnosticsLog())
+  {
+    return 0;
+  }
+
+  const char* logPath = GetLogFilePath();
+  if ((logPath == 0) || (logPath[0] == '\0'))
+  {
+    return 0;
+  }
+
+  return fopen(logPath, "a");
+}
+
+void LogLayoutEvent(const char* phase, const TLayout* layout, const char* detail = nullptr)
+{
+  if (!phase)
+  {
+    return;
+  }
+
+  char buffer[512];
+  HWND hwnd = layout ? layout->GetHandle() : HWND(0);
+  const char* notePrefix = (detail && detail[0] != '\0') ? " note=" : "";
+  const char* noteText = detail ? detail : "";
+  FormatBuffer(buffer,
+               "LayoutDiag:%s this=%p hwnd=%p%s%s",
+               phase,
+               layout,
+               hwnd,
+               notePrefix,
+               noteText);
+  OutputDebugStringA(buffer);
+  OutputDebugStringA("\n");
+
+  if (FILE* logFile = OpenDiagnosticsLog())
+  {
+    fputs(buffer, logFile);
+    fputc('\n', logFile);
+    fclose(logFile);
+  }
+}
+
+void LogLayoutCounter(const char* phase,
+                      const TLayout* layout,
+                      const char* label,
+                      int value)
+{
+  if (!phase || !label)
+  {
+    return;
+  }
+
+  char detail[256];
+  FormatBuffer(detail, "%s=%d", label, value);
+  LogLayoutEvent(phase, layout, detail);
+}
+#endif
+#if !defined(DIAG_SETUP_TRACE)
+static FILE* OpenDiagnosticsLog()
+{
+  return 0;
+}
+#endif
 }
 
 /*************************************************************************/
@@ -51,6 +130,7 @@ TLayout::TLayout(owl::TWindow * AParent, int XPos, int YPos, int Width, int Heig
   // Clear all section etc data
   for (i=0; i<1000; i++)  PSectionInfo[i] = 0;
   for (i=0; i<50; i++)    PSelectorInfo[i] = 0;
+  for (i=0; i<50; i++)    POverlapDataInfo[i] = 0;
   for (i=0; i<50; i++)    PPlatDataInfo[i] = 0;
   for (i=0; i<1000; i++)  PRoutesInfo[i] = 0;
   for (i=0; i<500; i++)   PLocosInfo[i] = 0;
@@ -64,74 +144,150 @@ TLayout::TLayout(owl::TWindow * AParent, int XPos, int YPos, int Width, int Heig
 
 TLayout::~TLayout()
 {
+#if defined(DIAG_SETUP_TRACE)
+  LogLayoutEvent("TLayout:dtor:begin", this);
+#endif
   // Clear any loaded data
   ClearData();
 
   // Delete time symbol bitmap
   DeleteObject(HTimeSym);
+#if defined(DIAG_SETUP_TRACE)
+  LogLayoutEvent("TLayout:dtor:end", this);
+#endif
 }
 
 
 void TLayout::ClearData()
 {
   int i;
+#if defined(DIAG_SETUP_TRACE)
+  int deletedSections = 0;
+  int deletedOverlaps = 0;
+  int deletedSelectors = 0;
+  int deletedPlatData = 0;
+  int deletedRoutes = 0;
+  int deletedLocos = 0;
+  int deletedTimetable = 0;
+  int deletedTrackLoco = 0;
+  LogLayoutEvent("TLayout:ClearData:begin", this);
+#endif
 
   // Clear any data that may be currently in the structures
   // Clear section information
   for (i=0; i<1000; i++)
   {
-    if (PSectionInfo[i] != 0)  delete((PSection) PSectionInfo[i]);
+    if (PSectionInfo[i] != 0)
+    {
+      delete((PSection) PSectionInfo[i]);
+#if defined(DIAG_SETUP_TRACE)
+      ++deletedSections;
+#endif
+    }
     PSectionInfo[i] = 0;
   }
 
   // Clear overlapping information
   for (i=0; i<50; i++)
   {
-    if (POverlapDataInfo[i] != 0) delete((POverlapData) POverlapDataInfo[i]);
+    if (POverlapDataInfo[i] != 0)
+    {
+      delete((POverlapData) POverlapDataInfo[i]);
+#if defined(DIAG_SETUP_TRACE)
+      ++deletedOverlaps;
+#endif
+    }
     POverlapDataInfo[i] = 0;
   }
 
   // Clear selector information
   for (i=0; i<50; i++)
   {
-    if (PSelectorInfo[i] != 0)  delete((PSelector) PSelectorInfo[i]);
+    if (PSelectorInfo[i] != 0)
+    {
+      delete((PSelector) PSelectorInfo[i]);
+#if defined(DIAG_SETUP_TRACE)
+      ++deletedSelectors;
+#endif
+    }
     PSelectorInfo[i] = 0;
   }
 
   // Clear platform information
   for (i=0; i<50; i++)
   {
-    if (PPlatDataInfo[i] != 0)  delete((PPlatData) PPlatDataInfo[i]);
+    if (PPlatDataInfo[i] != 0)
+    {
+      delete((PPlatData) PPlatDataInfo[i]);
+#if defined(DIAG_SETUP_TRACE)
+      ++deletedPlatData;
+#endif
+    }
     PPlatDataInfo[i] = 0;
   }
 
   // Clear route information
   for (i=0; i<1000; i++)
   {
-    if (PRoutesInfo[i] != 0)  delete((PRoutes) PRoutesInfo[i]);
+    if (PRoutesInfo[i] != 0)
+    {
+      delete((PRoutes) PRoutesInfo[i]);
+#if defined(DIAG_SETUP_TRACE)
+      ++deletedRoutes;
+#endif
+    }
     PRoutesInfo[i] = 0;
   }
 
   // Clear loco information
   for (i=0; i<500; i++)
   {
-    if (PLocosInfo[i] != 0)  delete((PLocos) PLocosInfo[i]);
+    if (PLocosInfo[i] != 0)
+    {
+      delete((PLocos) PLocosInfo[i]);
+#if defined(DIAG_SETUP_TRACE)
+      ++deletedLocos;
+#endif
+    }
     PLocosInfo[i] = 0;
   }
 
   // Clear timetable information
   for (i=0; i<MAX_TIMETABLE; i++)
   {
-    if (PTimetableInfo[i] != 0)  delete((PTimetable) PTimetableInfo[i]);
+    if (PTimetableInfo[i] != 0)
+    {
+      delete((PTimetable) PTimetableInfo[i]);
+#if defined(DIAG_SETUP_TRACE)
+      ++deletedTimetable;
+#endif
+    }
     PTimetableInfo[i] = 0;
   }
 
   // Clear track loco information
   for (i=0; i<10; i++)
   {
-    if (PTrackLoco[i] != 0)  delete((PTimetable) PTrackLoco[i]);
+    if (PTrackLoco[i] != 0)
+    {
+      delete((PTimetable) PTrackLoco[i]);
+#if defined(DIAG_SETUP_TRACE)
+      ++deletedTrackLoco;
+#endif
+    }
     PTrackLoco[i] = 0;
   }
+#if defined(DIAG_SETUP_TRACE)
+  LogLayoutCounter("TLayout:ClearData:sections", this, "deleted", deletedSections);
+  LogLayoutCounter("TLayout:ClearData:overlaps", this, "deleted", deletedOverlaps);
+  LogLayoutCounter("TLayout:ClearData:selectors", this, "deleted", deletedSelectors);
+  LogLayoutCounter("TLayout:ClearData:platforms", this, "deleted", deletedPlatData);
+  LogLayoutCounter("TLayout:ClearData:routes", this, "deleted", deletedRoutes);
+  LogLayoutCounter("TLayout:ClearData:locos", this, "deleted", deletedLocos);
+  LogLayoutCounter("TLayout:ClearData:timetable", this, "deleted", deletedTimetable);
+  LogLayoutCounter("TLayout:ClearData:trackloco", this, "deleted", deletedTrackLoco);
+  LogLayoutEvent("TLayout:ClearData:end", this);
+#endif
 }
 
 
@@ -424,12 +580,15 @@ BOOL TLayout::StartNew()
   int  i, TempArray[9];
 
   // Start a new game thing
+#if defined(DIAG_SETUP_TRACE)
+  LogLayoutEvent("TLayout:StartNew:begin", this);
+#endif
   TSelector::Reset();
   ClearData();
   IniVariables();
   
   // DIAGNOSTIC: Log startup
-  FILE* logFile = fopen("c:\\language\\railcontrol\\ptrack_debug.log", "a");
+  FILE* logFile = OpenDiagnosticsLog();
   if (logFile != NULL)
   {
     fprintf(logFile, "=== RAILCONTROL STARTUP ===\n");
@@ -446,6 +605,9 @@ BOOL TLayout::StartNew()
 
   if (!ReadDataFile())
   {
+#if defined(DIAG_SETUP_TRACE)
+    LogLayoutEvent("TLayout:StartNew:ReadDataFile:fail", this);
+#endif
     ::MessageBox(HWindow,
         "The datafile is either incomplete or inconsistent.\n\nEnsure that all the necessary data sections are\nincluded. Refer to the online help for more\ninformation.",
         APPNAME,
@@ -454,6 +616,9 @@ BOOL TLayout::StartNew()
   }
 
   // Pass control over to the main running routine
+#if defined(DIAG_SETUP_TRACE)
+  LogLayoutEvent("TLayout:StartNew:end", this);
+#endif
   return TRUE;
 }
 
@@ -466,7 +631,7 @@ void TLayout::HandleTimeChange()
   if (WorkTime % 10 == 0)
   {
     int UsedCount = 0;
-    FILE* logFile = fopen("c:\\language\\railcontrol\\ptrack_debug.log", "a");
+    FILE* logFile = OpenDiagnosticsLog();
     if (logFile != NULL)
     {
       fprintf(logFile, "=== TIME %d: PTrackLoco Array State ===\n", WorkTime);
@@ -976,7 +1141,13 @@ void TLayout::DrawSection(HDC xiDC, int xiSectNum)
     /************************************************************************/
     /* Draw the section number.  First step is to create a new font.        */
     /************************************************************************/
-    PSectionInfo[1]->GetSection(lTmpPoint);
+    TSection* lLabelSection = PSectionInfo[1];
+    if (lLabelSection == 0)
+    {
+      TRC_ALT((TB, "DrawSection missing base geometry; using section %d as fallback", xiSectNum));
+      lLabelSection = PSectionInfo[xiSectNum];
+    }
+    lLabelSection->GetSection(lTmpPoint);
     lFont = CreateFont((2 * (lTmpPoint[3].y - lTmpPoint[0].y)),
                        0, 0, 0, 
                        FW_NORMAL, 
@@ -2972,7 +3143,7 @@ BOOL TLayout::ReadDataFile()
         /* Check for "Becomes" comment - if it's present then verify that   */
         /* it refers to the same train as the linked timetable index.       */
         /********************************************************************/
-        PTimetableInfo[i]->GetComment(szComment);
+        PTimetableInfo[i]->GetComment(szComment, sizeof(szComment));
         if (szComment[0] != 0)
         {
           lpstr = strstr(szComment, "Becomes");
@@ -2992,7 +3163,7 @@ BOOL TLayout::ReadDataFile()
 
           if (lNextPos != 0)
           {
-            PTimetableInfo[lNextPos]->GetArrDesc(szArrDesc);
+            PTimetableInfo[lNextPos]->GetArrDesc(szArrDesc, sizeof(szArrDesc));
           }
           else
           {
@@ -3030,41 +3201,33 @@ BOOL TLayout::ReadDataFile()
 
 void TLayout::AssignYardLoco(int LocoFlag, int RefuelTime)
 {
-  int  FreeLocos[500];
-  int  a, b, i;
-  BOOL Found, NotFound;
+  std::vector<int> freeLocos;
+  int  i;
+  BOOL NotFound;
 
   // This routine assigns locos to the locoyard
 
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
 
-  a = 0;
-  Found = FALSE;
-  for (i=1; i<500; i++)
+  freeLocos.reserve(32);
+  for (i = 1; i < 500; i++)
   {
     if (PLocosInfo[i] != 0)
     {
       if ((PLocosInfo[i]->GetType() == LocoFlag) && (PLocosInfo[i]->GetFlag() == LF_UNASSIGN))
       {
-        FreeLocos[a] = i;
-        if (a < 100) a++;
-        Found = TRUE;
+        freeLocos.push_back(i);
       }
     }
   }
 
   // We have found at least one locomotive
-  if (Found)
+  if (!freeLocos.empty())
   {
     // Select one of the locos
-    if (a == 0)
-    {
-      return;
-    }
-
-    const int randomIndex = ::rand() % a;
-    b = FreeLocos[randomIndex];
+    const size_t randomIndex = static_cast<size_t>(::rand() % freeLocos.size());
+    const int b = freeLocos[randomIndex];
 
     // Is the loco refueling and is refueling enabled?
     if (frame->LocoRefuel)
@@ -3113,16 +3276,13 @@ void TLayout::AssignYardLoco(int LocoFlag, int RefuelTime)
 
 BOOL TLayout::AssignLoco(int TimetabPos)
 {
-#ifdef MDDEBUG
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
-  char Str1[100], Str2[100];
-#endif
 
   // This routine is responsible for assigning locomotives to trains
-  int  FreeLoco[100];
+  std::vector<int> freeLocos;
   int  GivenType;
-  int  a, z;
+  int  z;
   int  lii;
   int  lToAssign;
 
@@ -3151,37 +3311,42 @@ BOOL TLayout::AssignLoco(int TimetabPos)
   if (GivenType == SC_TWIN158)    GivenType = SC_DMU158;
   if (GivenType == SC_TWIN170)    GivenType = SC_DMU170;
 
+  freeLocos.reserve(100);
+
   for (lii = 0; lii < lToAssign; lii++)
   {
     // Work out which locos of the appropriate type are free.
-    a = 0;
+    freeLocos.clear();
     for (z = 1; z < 500; z++)
     {
       if (PLocosInfo[z] != 0)
       {
         if ((PLocosInfo[z]->GetType() == GivenType) && (PLocosInfo[z]->GetFlag() == LF_UNASSIGN))
         {
-          FreeLoco[a] = z;
-          if (a < 100) a++;
+          freeLocos.push_back(z);
         }
       }
     }
 
     // Select a loco from the array
-    if (a > 0)
+    if (!freeLocos.empty())
     {
-      const int randomIndex = ::rand() % a;
-      PTimetableInfo[TimetabPos]->SetLoco(lii, FreeLoco[randomIndex]);
+      const size_t randomIndex = static_cast<size_t>(::rand() % freeLocos.size());
+      const int selectedLoco = freeLocos[randomIndex];
+      PTimetableInfo[TimetabPos]->SetLoco(lii, selectedLoco);
 
       // Update the fact that the loco is now assigned
-      PLocosInfo[PTimetableInfo[TimetabPos]->GetLoco()]->SetFlag(LF_ASSIGNED);
+      if (PLocosInfo[selectedLoco] != 0)
+      {
+        PLocosInfo[selectedLoco]->SetFlag(LF_ASSIGNED);
+      }
     }
-#ifdef MDDEBUG
     else
     {
       /**********************************************************************/
       /* Trace current loco allocations.                                    */
       /**********************************************************************/
+      TRC_ALT((TB, "AssignLoco failure timetab:%d type:%d iteration:%d", TimetabPos, GivenType, lii));
       for (z = 1; z < 500; z++)
       {
         if (PLocosInfo[z] != 0)
@@ -3202,9 +3367,14 @@ BOOL TLayout::AssignLoco(int TimetabPos)
       }
 
       // Stop
-      ::SendMessage(frame->HWindow, WM_COMMAND, CM_MNUFISTOP, 0);
+      if (frame != 0)
+      {
+        ::SendMessage(frame->HWindow, WM_COMMAND, CM_MNUFISTOP, 0);
+      }
 
       // ...display error box...
+      char Str1[200];
+      char Str2[32];
       CopyString(Str1, "An error has occurred: Rail Control was unable to\nassign a loco to a train. The loco type required is: ");
       FormatBuffer(Str2, "%d", GivenType);
       AppendString(Str1, Str2);
@@ -3213,7 +3383,6 @@ BOOL TLayout::AssignLoco(int TimetabPos)
 
       return FALSE;
     }
-#endif
   }
 
   return TRUE;
@@ -3948,7 +4117,7 @@ void TLayout::HandleTracking()
           }
 
           // DIAGNOSTIC: Log when releasing PTrackLoco entry
-          FILE* logFile = fopen("c:\\language\\railcontrol\\ptrack_debug.log", "a");
+          FILE* logFile = OpenDiagnosticsLog();
           if (logFile != NULL)
           {
             fprintf(logFile, "Releasing PTrackLoco[%d]: Loco=%d, Status=%d\n", 
@@ -4227,7 +4396,7 @@ void TLayout::LightLoco(int LocoNum, int ArrPnt, int Route, int Status)
   }
   
   // DIAGNOSTIC: Log current array state to file
-  FILE* logFile = fopen("c:\\language\\railcontrol\\ptrack_debug.log", "a");
+  FILE* logFile = OpenDiagnosticsLog();
   if (logFile != NULL)
   {
     fprintf(logFile, "LightLoco called: Loco=%d, ArrPnt=%d, Route=%d, Status=%d, Usage=%d/10 slots\n", 
@@ -4250,7 +4419,7 @@ void TLayout::LightLoco(int LocoNum, int ArrPnt, int Route, int Status)
   if (NotFound)
   {
     // DIAGNOSTIC: Log error to file
-    FILE* logFile = fopen("c:\\language\\railcontrol\\ptrack_debug.log", "a");
+    FILE* logFile = OpenDiagnosticsLog();
     if (logFile != NULL)
     {
       fprintf(logFile, "ERROR: PTrackLoco overflow! All 5 light loco slots (0-4) occupied. Total usage: %d/10\n", UsedCount);
