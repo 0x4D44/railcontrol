@@ -757,7 +757,7 @@ void TMainWindow::SetupWindow()
 #if defined(DIAG_SETUP_TRACE)
     LogSetupEvent("SetupWindow:AutoCommand:CM_OPTOPTIMI", this);
 #endif
-    ::SendMessage(HWindow, WM_COMMAND, CM_OPTOPTIMI, 0);
+    CMOptOptimi();
   }
 
   // Disable the menu items
