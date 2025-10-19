@@ -587,14 +587,15 @@ BOOL TLayout::StartNew()
   ClearData();
   IniVariables();
   
+#if defined(DIAG_SETUP_TRACE)
   // DIAGNOSTIC: Log startup
-  FILE* logFile = OpenDiagnosticsLog();
-  if (logFile != NULL)
+  if (FILE* logFile = OpenDiagnosticsLog())
   {
     fprintf(logFile, "=== RAILCONTROL STARTUP ===\n");
     fprintf(logFile, "Initializing PTrackLoco array with 10 elements...\n");
     fclose(logFile);
   }
+#endif
   
   for (i=0; i<9; i++)  TempArray[i] = 0;
   for (i=0; i<10; i++)
@@ -603,7 +604,26 @@ BOOL TLayout::StartNew()
     PTrackLoco[i]->SetStatus(ST_STOCKOK);
   }
 
-  if (!ReadDataFile())
+  TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  bool dataLoaded = ReadDataFile();
+  if (!dataLoaded && frame != nullptr && frame->DataFileName[0] == '\0')
+  {
+    char fallbackPath[MAX_PATH] = {0};
+    if (::GetModuleFileNameA(nullptr, fallbackPath, MAX_PATH) != 0)
+    {
+      char* lastSlash = strrchr(fallbackPath, '\\');
+      if (lastSlash != nullptr)
+      {
+        ++lastSlash;
+        *lastSlash = '\0';
+      }
+      lstrcatA(fallbackPath, "FAST.RCD");
+      CopyString(frame->DataFileName, sizeof(frame->DataFileName), fallbackPath);
+      dataLoaded = ReadDataFile();
+    }
+  }
+
+  if (!dataLoaded)
   {
 #if defined(DIAG_SETUP_TRACE)
     LogLayoutEvent("TLayout:StartNew:ReadDataFile:fail", this);
@@ -628,7 +648,8 @@ void TLayout::HandleTimeChange()
   char       TextString[100];
 
   // DIAGNOSTIC: Track PTrackLoco array usage every 10 time units
-  if (WorkTime % 10 == 0)
+#if defined(DIAG_SETUP_TRACE)
+  if ((WorkTime % 10) == 0)
   {
     int UsedCount = 0;
     FILE* logFile = OpenDiagnosticsLog();
@@ -665,6 +686,7 @@ void TLayout::HandleTimeChange()
       fclose(logFile);
     }
   }
+#endif
 
   // This routine is called every time the time changes and is responsible
   // for ensuring that everything that should be done is done.
@@ -4116,14 +4138,15 @@ void TLayout::HandleTracking()
             }
           }
 
+#if defined(DIAG_SETUP_TRACE)
           // DIAGNOSTIC: Log when releasing PTrackLoco entry
-          FILE* logFile = OpenDiagnosticsLog();
-          if (logFile != NULL)
+          if (FILE* logFile = OpenDiagnosticsLog())
           {
             fprintf(logFile, "Releasing PTrackLoco[%d]: Loco=%d, Status=%d\n", 
                     i, PTrackLoco[i]->GetLoco(), PTrackLoco[i]->GetStatus());
             fclose(logFile);
           }
+#endif
 
           // Release the loco
           PTrackLoco[i]->SetInitialLocoPlat(0);
@@ -4387,6 +4410,7 @@ void TLayout::LightLoco(int LocoNum, int ArrPnt, int Route, int Status)
 {
   int   i;
   BOOL  NotFound;
+#if defined(DIAG_SETUP_TRACE)
   int   UsedCount = 0;
   
   // DIAGNOSTIC: Count current usage of PTrackLoco array
@@ -4396,13 +4420,13 @@ void TLayout::LightLoco(int LocoNum, int ArrPnt, int Route, int Status)
   }
   
   // DIAGNOSTIC: Log current array state to file
-  FILE* logFile = OpenDiagnosticsLog();
-  if (logFile != NULL)
+  if (FILE* logFile = OpenDiagnosticsLog())
   {
     fprintf(logFile, "LightLoco called: Loco=%d, ArrPnt=%d, Route=%d, Status=%d, Usage=%d/10 slots\n", 
             LocoNum, ArrPnt, Route, Status, UsedCount);
     fclose(logFile);
   }
+#endif
 
   i = 0;
   NotFound = TRUE;
@@ -4418,13 +4442,14 @@ void TLayout::LightLoco(int LocoNum, int ArrPnt, int Route, int Status)
   // Error message
   if (NotFound)
   {
+#if defined(DIAG_SETUP_TRACE)
     // DIAGNOSTIC: Log error to file
-    FILE* logFile = OpenDiagnosticsLog();
-    if (logFile != NULL)
+    if (FILE* logFile = OpenDiagnosticsLog())
     {
       fprintf(logFile, "ERROR: PTrackLoco overflow! All 5 light loco slots (0-4) occupied. Total usage: %d/10\n", UsedCount);
       fclose(logFile);
     }
+#endif
     ::MessageBox(HWindow,
          "Internal error number ERR005 detected. Please note carefully\n how this error arose and report it to MDSoft.",
          APPNAME,
