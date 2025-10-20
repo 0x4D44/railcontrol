@@ -411,32 +411,31 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
     return;
   }
 
+  // Draw background rect only when redrawing; always track extents
+  ::GetClientRect(HWindow, &TheRect);
+  lrect.left   = 4;
+  lrect.right  = TheRect.right - 5;
+  lrect.top    = 24;
+  lrect.bottom = TheRect.bottom - 5;
+  TrackContent(lrect.right, lrect.bottom);
   if (Redraw)
   {
     // Draw a bounding box (3D effect)
-    ::GetClientRect(HWindow, &TheRect);
-
     if ((TheRect.right > 3) && (TheRect.bottom > 3))
     {
       DrawRaisedPanel(TheDC, TheRect, 23);
     }
-
-    lrect.left   = 4;
-    lrect.right  = TheRect.right - 5;
-    lrect.top    = 24;
-    lrect.bottom = TheRect.bottom - 5;
     FillRectOpaque(TheDC, lrect, RGB(0, 0, 0));
-    TrackContent(lrect.right, lrect.bottom);
   }
 
   // Set up text attributes
-  if (Redraw)
+  static const HeaderLabel kYardHeaders[] =
   {
-    static const HeaderLabel kYardHeaders[] =
-    {
-      {10, "Available locos:"}
-    };
+    {10, "Available locos:"}
+  };
 
+  // Measure header extents always
+  {
     HFONT oldFont = (HFONT) SelectObject(TheDC, frame->mHeaderFont);
     TEXTMETRIC headerMetrics = {0};
     if (::GetTextMetrics(TheDC, &headerMetrics))
@@ -450,7 +449,10 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
       }
     }
     SelectObject(TheDC, oldFont);
+  }
 
+  if (Redraw)
+  {
     DrawHeaderLabels(TheDC,
                      frame->mHeaderFont,
                      GetSysColor(COLOR_WINDOWTEXT),

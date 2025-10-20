@@ -257,31 +257,31 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
   mClientWidth = TheRect.right;
   mClientHeight = TheRect.bottom;
 
+  // Compute content rect always; draw only on redraw
+  lrect.left   = 4;
+  lrect.right  = TheRect.right - 5;
+  lrect.top    = 24;
+  lrect.bottom = TheRect.bottom - 5;
+  TrackContent(lrect.right, lrect.bottom);
   if (Redraw)
   {
     if ((TheRect.right > 3) && (TheRect.bottom > 3))
     {
       DrawRaisedPanel(TheDC, TheRect, 23);
     }
-
-    lrect.left   = 4;
-    lrect.right  = TheRect.right - 5;
-    lrect.top    = 24;
-    lrect.bottom = TheRect.bottom - 5;
     FillRectOpaque(TheDC, lrect, RGB(0, 0, 0));
-    TrackContent(lrect.right, lrect.bottom);
   }
 
-  if (Redraw)
+  static const HeaderLabel kDepartHeaders[] =
   {
-    static const HeaderLabel kDepartHeaders[] =
-    {
-      {10, "Dep:"},
-      {50, "Type:"},
-      {90, "Plat:"},
-      {130, "Description:"}
-    };
+    {10, "Dep:"},
+    {50, "Type:"},
+    {90, "Plat:"},
+    {130, "Description:"}
+  };
 
+  // Measure header extents always
+  {
     HFONT oldFont = (HFONT) SelectObject(TheDC, frame->mHeaderFont);
     TEXTMETRIC headerMetrics = {0};
     if (::GetTextMetrics(TheDC, &headerMetrics))
@@ -295,7 +295,10 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
       }
     }
     SelectObject(TheDC, oldFont);
+  }
 
+  if (Redraw)
+  {
     DrawHeaderLabels(TheDC,
                      frame->mHeaderFont,
                      GetSysColor(COLOR_WINDOWTEXT),

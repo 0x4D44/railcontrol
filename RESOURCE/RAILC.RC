@@ -109,16 +109,16 @@ LOCOYARD ICON "locoyard.ico"
 PLATFORM ICON "platform.ico"
 LOCO BITMAP "loco.bmp"
 DMU BITMAP "dmu.bmp"
-START DIALOG 18, 35, 162, 64
+START DIALOG 18, 35, 220, 70
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Rail Control"
 FONT 8, "MS Sans Serif"
 BEGIN 
-        PUSHBUTTON "OK", 1, 63, 47, 42, 14, WS_CHILD | WS_VISIBLE | WS_TABSTOP
-        CTEXT "Prepare to start your %d shift as", 1301, 3, 22, 157, 9, WS_CHILD | WS_VISIBLE | WS_GROUP
-        CTEXT "duty controller for %s station.", 1302, 3, 32, 157, 9, WS_CHILD | WS_VISIBLE | WS_GROUP
-        CTEXT "Someday at sometime?", 1300, 3, 4, 157, 8, WS_CHILD | WS_VISIBLE | WS_GROUP
-        CONTROL "", -1, "static", SS_BLACKRECT | WS_CHILD | WS_VISIBLE, 3, 19, 156, 24
+        CONTROL "", -1, "static", SS_BLACKRECT | WS_CHILD | WS_VISIBLE, 6, 16, 208, 36
+        CTEXT "Someday at sometime?", 1300, 6, 4, 208, 10, WS_CHILD | WS_VISIBLE | WS_GROUP
+        CTEXT "Prepare to start your %d shift as", 1301, 6, 22, 208, 10, WS_CHILD | WS_VISIBLE | WS_GROUP
+        CTEXT "duty controller for %s station.", 1302, 6, 34, 208, 10, WS_CHILD | WS_VISIBLE | WS_GROUP
+        PUSHBUTTON "OK", 1, 88, 52, 42, 14, WS_CHILD | WS_VISIBLE | WS_TABSTOP
 END
 
 /////////////////////////////////////////////////////////////////////////////
@@ -127,15 +127,15 @@ END
 //
 
 1 VERSIONINFO
- FILEVERSION 2,3,0,0
- PRODUCTVERSION 2,3,0,0
- FILEFLAGSMASK 0x20L
+ FILEVERSION 3,0,0,0
+ PRODUCTVERSION 3,0,0,0
+ FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
 #else
  FILEFLAGS 0x0L
 #endif
- FILEOS 0x1L
+ FILEOS 0x00040004L
  FILETYPE 0x1L
  FILESUBTYPE 0x0L
 BEGIN
@@ -143,17 +143,19 @@ BEGIN
     BEGIN
         BLOCK "040904E4"
         BEGIN
-            VALUE "CompanyName", "MD Soft\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0"
-            VALUE "FileDescription", "Rail Control\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0"
-            VALUE "FileVersion", "2.3\0","\0","\0","\0","\0","\0"
-            VALUE "InternalName", "RAILC\0","\0","\0","\0","\0","\0","\0","\0","\0"
-            VALUE "LegalCopyright", "Copyright ? Martin G Davidson 1993-2008\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0"
-
-
-            VALUE "OriginalFilename", "RAILC.EXE\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0"
-            VALUE "ProductName", "Rail Control\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0","\0"
-            VALUE "ProductVersion", "2.3\0","\0","\0","\0","\0","\0"
+            VALUE "CompanyName", "MD Soft"
+            VALUE "FileDescription", "Rail Control"
+            VALUE "FileVersion", "3.0"
+            VALUE "InternalName", "RAILC"
+            VALUE "LegalCopyright", "Copyright (C) Martin G Davidson 1993-2025"
+            VALUE "OriginalFilename", "railc.exe"
+            VALUE "ProductName", "Rail Control"
+            VALUE "ProductVersion", "3.0"
         END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1252
     END
 END
  
