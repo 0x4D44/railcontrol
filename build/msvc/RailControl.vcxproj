@@ -96,6 +96,7 @@
     <ClCompile Include="..\\..\\ABOUT.CPP" />
     <ClCompile Include="..\\..\\ARRIVALS.CPP" />
     <ClCompile Include="..\\..\\CONFIGUR.CPP" />
+    <ClCompile Include="..\\..\\DEBUGMEMORYGUARD.CPP" />
     <ClCompile Include="..\\..\\DEPARTUR.CPP" />
     <ClCompile Include="..\\..\\FINISH.CPP" />
     <ClCompile Include="..\\..\\LAYOUT.CPP" />
@@ -122,12 +123,14 @@
     <ClInclude Include="..\\..\\ARRIVALS.H" />
     <ClInclude Include="..\\..\\CLASSDEF.H" />
     <ClInclude Include="..\\..\\CONFIGUR.H" />
+    <ClInclude Include="..\\..\\DEBUGMEMORYGUARD.H" />
     <ClInclude Include="..\\..\\DEPARTUR.H" />
     <ClInclude Include="..\\..\\FINISH.H" />
     <ClInclude Include="..\\..\\GENERAL.H" />
     <ClInclude Include="..\\..\\LAYOUT.H" />
     <ClInclude Include="..\\..\\LOCOS.H" />
     <ClInclude Include="..\\..\\LOCOYARD.H" />
+    <ClInclude Include="..\\..\\OWNERSHIP.H" />
     <ClInclude Include="..\\..\\OVLPDATA.H" />
     <ClInclude Include="..\\..\\PLATDATA.H" />
     <ClInclude Include="..\\..\\PLATFORM.H" />
