@@ -20,8 +20,39 @@
 /*************************************************************************/
 /* Methods of TLocoyard follow...*/
 
+namespace
+{
+  int MeasureStringWidth(HDC dc, const char* text)
+  {
+    if ((dc == 0) || (text == 0))
+    {
+      return 0;
+    }
+
+    int length = lstrlenA(text);
+    if (length <= 0)
+    {
+      return 0;
+    }
+
+    SIZE extent = {0, 0};
+    if (::GetTextExtentPoint32(dc, text, length, &extent))
+    {
+      return extent.cx;
+    }
+
+    return 0;
+  }
+}
+
 TLocoyard::TLocoyard(TWindow * AParent, int XPos, int YPos)
-  : TFrameWindow(AParent, "Loco yard")
+  : TFrameWindow(AParent, "Loco yard"),
+    mRowHeight(16),
+    mRowSpacing(18),
+    mClientWidth(0),
+    mClientHeight(0),
+    mContentRight(0),
+    mContentBottom(0)
 {
   int i;
 
@@ -41,6 +72,76 @@ TLocoyard::TLocoyard(TWindow * AParent, int XPos, int YPos)
 
 TLocoyard::~TLocoyard()
 {
+}
+
+
+void TLocoyard::ResetContentExtents()
+{
+  mContentRight = 0;
+  mContentBottom = 0;
+}
+
+
+void TLocoyard::UpdateMetrics(HDC dc)
+{
+  if (dc == 0)
+  {
+    return;
+  }
+
+  TEXTMETRIC metrics = {0};
+  if (::GetTextMetrics(dc, &metrics))
+  {
+    mRowHeight = metrics.tmHeight;
+    int gap = metrics.tmExternalLeading;
+    if (gap < 2)  gap = 2;
+    mRowSpacing = mRowHeight + gap;
+  }
+}
+
+
+void TLocoyard::TrackContent(int right, int bottom)
+{
+  if (right > mContentRight)  mContentRight = right;
+  if (bottom > mContentBottom)  mContentBottom = bottom;
+}
+
+
+void TLocoyard::EnsureContentFits()
+{
+  RECT client = {0, 0, 0, 0};
+  ::GetClientRect(HWindow, &client);
+  const int currentWidth = client.right - client.left;
+  const int currentHeight = client.bottom - client.top;
+
+  int desiredWidth = mContentRight + 5;
+  int desiredHeight = mContentBottom + 5;
+  if (desiredWidth < 0)  desiredWidth = 0;
+  if (desiredHeight < 0)  desiredHeight = 0;
+
+  if ((desiredWidth <= currentWidth) && (desiredHeight <= currentHeight))
+  {
+    return;
+  }
+
+  const int targetWidth = (desiredWidth > currentWidth) ? desiredWidth : currentWidth;
+  const int targetHeight = (desiredHeight > currentHeight) ? desiredHeight : currentHeight;
+  RECT windowRect = {0, 0, targetWidth, targetHeight};
+
+  DWORD style = ::GetWindowLong(HWindow, GWL_STYLE);
+  DWORD exStyle = ::GetWindowLong(HWindow, GWL_EXSTYLE);
+  BOOL hasMenu = (::GetMenu(HWindow) != 0) ? TRUE : FALSE;
+  if (!::AdjustWindowRectEx(&windowRect, style, hasMenu, exStyle))
+  {
+    return;
+  }
+
+  const int windowWidth = windowRect.right - windowRect.left;
+  const int windowHeight = windowRect.bottom - windowRect.top;
+  ::SetWindowPos(HWindow, 0, 0, 0, windowWidth, windowHeight,
+                 SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+  Attr.W = windowWidth;
+  Attr.H = windowHeight;
 }
 
 
@@ -292,6 +393,14 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
   RECT     lrect;
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
 
+  SelectObject(TheDC, frame->mTextFont);
+  UpdateMetrics(TheDC);
+  ResetContentExtents();
+
+  ::GetClientRect(HWindow, &TheRect);
+  mClientWidth = TheRect.right;
+  mClientHeight = TheRect.bottom;
+
   if (TheDC == 0)
   {
     dcGuard.Attach(HWindow, GetDC(HWindow));
@@ -317,6 +426,7 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
     lrect.top    = 24;
     lrect.bottom = TheRect.bottom - 5;
     FillRectOpaque(TheDC, lrect, RGB(0, 0, 0));
+    TrackContent(lrect.right, lrect.bottom);
   }
 
   // Set up text attributes
@@ -327,6 +437,20 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
       {10, "Available locos:"}
     };
 
+    HFONT oldFont = (HFONT) SelectObject(TheDC, frame->mHeaderFont);
+    TEXTMETRIC headerMetrics = {0};
+    if (::GetTextMetrics(TheDC, &headerMetrics))
+    {
+      const int headerBottom = 5 + headerMetrics.tmHeight;
+      for (size_t idx = 0; idx < sizeof(kYardHeaders) / sizeof(kYardHeaders[0]); ++idx)
+      {
+        const HeaderLabel& label = kYardHeaders[idx];
+        int width = MeasureStringWidth(TheDC, label.text);
+        TrackContent(label.x + width, headerBottom);
+      }
+    }
+    SelectObject(TheDC, oldFont);
+
     DrawHeaderLabels(TheDC,
                      frame->mHeaderFont,
                      GetSysColor(COLOR_WINDOWTEXT),
@@ -334,6 +458,7 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
                      5,
                      kYardHeaders,
                      sizeof(kYardHeaders) / sizeof(kYardHeaders[0]));
+    SelectObject(TheDC, frame->mTextFont);
   }
 
   ::SetTextColor(TheDC, RGB(255, 255, 255));
@@ -352,8 +477,12 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
     if (Update || Redraw)
     {
       a = 0;
-      XPos = 10;
-      YPos = 25;
+      const int baseX = 10;
+      const int baseY = 25;
+      const int columnStep = 45;
+      const int maxColumnX = (mClientWidth > columnStep) ? (mClientWidth - columnStep) : 180;
+      XPos = baseX;
+      YPos = baseY;
       for (i=0; i<16; i++)
       {
         a = frame->DisplayHan->LocoyardLoco[i];
@@ -373,13 +502,15 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
           SelectObject(TheDC, frame->mTextFont);
           TextOut(TheDC, XPos, YPos, TextString, strlen(TextString));
+          int textWidth = MeasureStringWidth(TheDC, TextString);
+          TrackContent(XPos + textWidth, YPos + mRowHeight);
 
           // Update XPos and YPos
-          XPos += 45;
-          if (XPos > 180)
+          XPos += columnStep;
+          if (XPos > maxColumnX)
           {
-            XPos = 10;
-            YPos += 17;
+            XPos = baseX;
+            YPos += mRowSpacing;
           }
         }
       }
@@ -388,6 +519,8 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
     // Get current <LocoyardLoco> for the next time
     for (i=0; i<16; i++)  OldYardLoco[i] = frame->DisplayHan->LocoyardLoco[i];
   }
+
+  EnsureContentFits();
 
   // Tidy up
   (void)dcGuard;

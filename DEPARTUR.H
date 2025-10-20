@@ -26,6 +26,17 @@ class TDepartur : public TFrameWindow
 {
 private:
   int        OldStatus[DISP_NUM_DEPART];    // Old status values
+  int        mRowHeight;
+  int        mRowSpacing;
+  int        mClientWidth;
+  int        mClientHeight;
+  int        mContentRight;
+  int        mContentBottom;
+
+  void ResetContentExtents();
+  void UpdateMetrics(HDC dc);
+  void TrackContent(int right, int bottom);
+  void EnsureContentFits();
 
 public:
   TDepartur(TWindow * AParent, int XPos, int YPos);

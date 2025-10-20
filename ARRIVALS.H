@@ -49,6 +49,19 @@ public:
   virtual void TimeTabInfo(HDC TheDC, int TabVal, int YPos);
   virtual void ConvertTime(int TimeVal, char *TimeStr);
 
+private:
+  int  mRowHeight;
+  int  mRowSpacing;
+  int  mClientWidth;
+  int  mClientHeight;
+  int  mContentRight;
+  int  mContentBottom;
+
+  void ResetContentExtents();
+  void UpdateMetrics(HDC dc);
+  void TrackContent(int right, int bottom);
+  void EnsureContentFits();
+
   // Friend classes
 DECLARE_RESPONSE_TABLE( TArrivals );
 };

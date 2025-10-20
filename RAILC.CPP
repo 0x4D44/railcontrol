@@ -89,14 +89,41 @@ namespace
       lLen = ::GetEnvironmentVariableA("APPDATA", xoPath, DWORD(xiSize));
     }
     if ((lLen == 0) || (lLen >= xiSize))
+  {
+    if (::GetWindowsDirectoryA(xoPath, UINT(xiSize)) == 0)
     {
-      if (::GetWindowsDirectoryA(xoPath, UINT(xiSize)) == 0)
-      {
-        lstrcpynA(xoPath, ".", int(xiSize));
-      }
+      lstrcpynA(xoPath, ".", int(xiSize));
+    }
+  }
+
+  return true;
+}
+
+  void ClampWindowPosition(int& ioX, int& ioY, int width, int height)
+  {
+    if (width <= 0)  width = 1;
+    if (height <= 0) height = 1;
+
+    int virtualLeft = ::GetSystemMetrics(SM_XVIRTUALSCREEN);
+    int virtualTop = ::GetSystemMetrics(SM_YVIRTUALSCREEN);
+    int virtualWidth = ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    int virtualHeight = ::GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+    if ((virtualWidth <= 0) || (virtualHeight <= 0))
+    {
+      virtualLeft = 0;
+      virtualTop = 0;
+      virtualWidth = ::GetSystemMetrics(SM_CXSCREEN);
+      virtualHeight = ::GetSystemMetrics(SM_CYSCREEN);
     }
 
-    return true;
+    const int maxX = virtualLeft + virtualWidth - width;
+    const int maxY = virtualTop + virtualHeight - height;
+
+    if (ioX < virtualLeft)  ioX = virtualLeft;
+    if (ioY < virtualTop)   ioY = virtualTop;
+    if (ioX > maxX)         ioX = maxX;
+    if (ioY > maxY)         ioY = maxY;
   }
 
 #if defined(_MSC_VER)
@@ -1064,6 +1091,10 @@ void TMainWindow::QuitProgram()
       WritePrivateProfileString("Locoyard Window", "Exists", "0", INIFILENAME);
     }
 
+    const int locoyardWidth = (LocoyardHan != NULL) ? LocoyardHan->Attr.W : 200;
+    const int locoyardHeight = (LocoyardHan != NULL) ? LocoyardHan->Attr.H : 120;
+    ClampWindowPosition(LocoyardX, LocoyardY, locoyardWidth, locoyardHeight);
+
     _itoa_s(LocoyardX, TextString, sizeof(TextString), 10);
     WritePrivateProfileString("Locoyard Window", "X position", TextString, INIFILENAME);
     _itoa_s(LocoyardY, TextString, sizeof(TextString), 10);
@@ -1870,12 +1901,21 @@ void TMainWindow::CMWinLocoya()
     // Create a new locoyard window
     if (LocoyardHan == NULL)
     {
+      ClampWindowPosition(LocoyardX, LocoyardY, 200, 120);
       LocoyardHan = new TLocoyard(this, LocoyardX, LocoyardY);
       LocoyardHan->Create();
       LocoyardHan->ShowWindow(SW_SHOWNORMAL);
       SetFocus();
     }
     CheckMenuItem(TheMenu, CM_WINLOCOYA, MF_BYCOMMAND | MF_CHECKED);
+  }
+  else
+  {
+    ::MessageBeep(MB_ICONINFORMATION);
+    ::MessageBox(HWindow,
+                 "The current layout does not provide a Locoyard.",
+                 APPNAME,
+                 MB_OK | MB_ICONINFORMATION);
   }
 
   /**************************************************************************/

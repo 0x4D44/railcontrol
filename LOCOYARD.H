@@ -32,7 +32,17 @@ private:
   int        OldYardLoco[16];        // Old locoyard locos
   int        TheRoute;               // Passed route number parameter
   BOOL       InWhichLoco;            // We are in the which loco routine
+  int        mRowHeight;
+  int        mRowSpacing;
+  int        mClientWidth;
+  int        mClientHeight;
+  int        mContentRight;
+  int        mContentBottom;
 
+  void ResetContentExtents();
+  void UpdateMetrics(HDC dc);
+  void TrackContent(int right, int bottom);
+  void EnsureContentFits();
 
 public:
   TLocoyard(TWindow * AParent, int XPos, int YPos);

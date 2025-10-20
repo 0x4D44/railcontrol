@@ -55,6 +55,9 @@ void TAbout::EvPaint()
   HBITMAP     HOldBitmap;
   PAINTSTRUCT PS;
   HDC         MemDC;
+  BITMAP      locoInfo = {0};
+  BITMAP      dmuInfo = {0};
+  RECT        client = {0};
 
   // Begin paint
   HWND hwnd = GetHandle();
@@ -62,12 +65,28 @@ void TAbout::EvPaint()
   MemDC = CreateCompatibleDC(PS.hdc);
   HOldBitmap = (HBITMAP) SelectObject(MemDC, HLoco1);
 
+  ::GetClientRect(hwnd, &client);
+  ::GetObject(HLoco1, sizeof(BITMAP), &locoInfo);
+  ::GetObject(HLoco2, sizeof(BITMAP), &dmuInfo);
+
+  const int margin = 12;
+  const int locoWidth = (locoInfo.bmWidth > 0) ? locoInfo.bmWidth : 150;
+  const int locoHeight = (locoInfo.bmHeight > 0) ? locoInfo.bmHeight : 130;
+  const int dmuWidth = (dmuInfo.bmWidth > 0) ? dmuInfo.bmWidth : 155;
+  const int dmuHeight = (dmuInfo.bmHeight > 0) ? dmuInfo.bmHeight : 150;
+
+  const int locoX = margin;
+  const int locoY = margin;
+  int dmuX = client.right - margin - dmuWidth;
+  if (dmuX < margin)  dmuX = margin;
+  const int dmuY = margin;
+
   // BitBlt it
-  BitBlt(PS.hdc, 5, 10, 150, 130, MemDC, 0, 0, SRCCOPY);
+  BitBlt(PS.hdc, locoX, locoY, locoWidth, locoHeight, MemDC, 0, 0, SRCCOPY);
 
   // And again...
   SelectObject(MemDC, HLoco2);
-  BitBlt(PS.hdc, 450, 1, 155, 150, MemDC, 0, 0, SRCCOPY);
+  BitBlt(PS.hdc, dmuX, dmuY, dmuWidth, dmuHeight, MemDC, 0, 0, SRCCOPY);
   SelectObject(MemDC, HOldBitmap);
 
   // Delete compatible DC

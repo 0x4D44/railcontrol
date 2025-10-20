@@ -17,11 +17,42 @@
 
 #include "classdef.h"
 
+namespace
+{
+  int MeasureStringWidth(HDC dc, const char* text)
+  {
+    if ((dc == 0) || (text == 0))
+    {
+      return 0;
+    }
+
+    int length = lstrlenA(text);
+    if (length <= 0)
+    {
+      return 0;
+    }
+
+    SIZE extent = {0, 0};
+    if (::GetTextExtentPoint32(dc, text, length, &extent))
+    {
+      return extent.cx;
+    }
+
+    return 0;
+  }
+}
+
 /*************************************************************************/
 /* Methods of TDepartur follow...*/
 
 TDepartur::TDepartur(TWindow * AParent, int XPos, int YPos)
-  : TFrameWindow(AParent, "Departures")
+  : TFrameWindow(AParent, "Departures"),
+    mRowHeight(16),
+    mRowSpacing(18),
+    mClientWidth(0),
+    mClientHeight(0),
+    mContentRight(0),
+    mContentBottom(0)
 {
   // Set up window attributes
   Attr.X = XPos;
@@ -29,11 +60,86 @@ TDepartur::TDepartur(TWindow * AParent, int XPos, int YPos)
   Attr.W = 300;
   Attr.H = 192;
   Attr.Style = WS_DLGFRAME;
+
+  for (int index = 0; index < DISP_NUM_DEPART; index++)
+  {
+    OldStatus[index] = 0;
+  }
 }
 
 
 TDepartur::~TDepartur()
 {
+}
+
+
+void TDepartur::ResetContentExtents()
+{
+  mContentRight = 0;
+  mContentBottom = 0;
+}
+
+
+void TDepartur::UpdateMetrics(HDC dc)
+{
+  if (dc == 0)
+  {
+    return;
+  }
+
+  TEXTMETRIC metrics = {0};
+  if (::GetTextMetrics(dc, &metrics))
+  {
+    mRowHeight = metrics.tmHeight;
+    int gap = metrics.tmExternalLeading;
+    if (gap < 2)  gap = 2;
+    mRowSpacing = mRowHeight + gap;
+  }
+}
+
+
+void TDepartur::TrackContent(int right, int bottom)
+{
+  if (right > mContentRight)  mContentRight = right;
+  if (bottom > mContentBottom)  mContentBottom = bottom;
+}
+
+
+void TDepartur::EnsureContentFits()
+{
+  RECT client = {0, 0, 0, 0};
+  ::GetClientRect(HWindow, &client);
+  const int currentWidth = client.right - client.left;
+  const int currentHeight = client.bottom - client.top;
+
+  int desiredWidth = mContentRight + 5;
+  int desiredHeight = mContentBottom + 5;
+  if (desiredWidth < 0)  desiredWidth = 0;
+  if (desiredHeight < 0)  desiredHeight = 0;
+
+  if ((desiredWidth <= currentWidth) && (desiredHeight <= currentHeight))
+  {
+    return;
+  }
+
+  const int targetWidth = (desiredWidth > currentWidth) ? desiredWidth : currentWidth;
+  const int targetHeight = (desiredHeight > currentHeight) ? desiredHeight : currentHeight;
+  RECT windowRect = {0, 0, targetWidth, targetHeight};
+
+  DWORD style = ::GetWindowLong(HWindow, GWL_STYLE);
+  DWORD exStyle = ::GetWindowLong(HWindow, GWL_EXSTYLE);
+  BOOL hasMenu = (::GetMenu(HWindow) != 0) ? TRUE : FALSE;
+  if (!::AdjustWindowRectEx(&windowRect, style, hasMenu, exStyle))
+  {
+    return;
+  }
+
+  const int windowWidth = windowRect.right - windowRect.left;
+  const int windowHeight = windowRect.bottom - windowRect.top;
+  ::SetWindowPos(HWindow, 0, 0, 0, windowWidth, windowHeight,
+                 SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+  Attr.W = windowWidth;
+  Attr.H = windowHeight;
 }
 
 
@@ -136,14 +242,20 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
   RECT     TheRect;
   int      i;
   int      Dep;
-  char     TextString[40];
   RECT     lrect;
 
   TRC_NRM((TB, "Enter TDepartur::UpdateDisplay (Redraw:%s)", 
            Redraw ? "TRUE" : "FALSE"));
 
-  ::GetClientRect(HWindow, &TheRect);
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+
+  SelectObject(TheDC, frame->mTextFont);
+  UpdateMetrics(TheDC);
+  ResetContentExtents();
+
+  ::GetClientRect(HWindow, &TheRect);
+  mClientWidth = TheRect.right;
+  mClientHeight = TheRect.bottom;
 
   if (Redraw)
   {
@@ -157,6 +269,7 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
     lrect.top    = 24;
     lrect.bottom = TheRect.bottom - 5;
     FillRectOpaque(TheDC, lrect, RGB(0, 0, 0));
+    TrackContent(lrect.right, lrect.bottom);
   }
 
   if (Redraw)
@@ -169,6 +282,20 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
       {130, "Description:"}
     };
 
+    HFONT oldFont = (HFONT) SelectObject(TheDC, frame->mHeaderFont);
+    TEXTMETRIC headerMetrics = {0};
+    if (::GetTextMetrics(TheDC, &headerMetrics))
+    {
+      const int headerBottom = 5 + headerMetrics.tmHeight;
+      for (size_t idx = 0; idx < sizeof(kDepartHeaders) / sizeof(kDepartHeaders[0]); ++idx)
+      {
+        const HeaderLabel& label = kDepartHeaders[idx];
+        int width = MeasureStringWidth(TheDC, label.text);
+        TrackContent(label.x + width, headerBottom);
+      }
+    }
+    SelectObject(TheDC, oldFont);
+
     DrawHeaderLabels(TheDC,
                      frame->mHeaderFont,
                      GetSysColor(COLOR_WINDOWTEXT),
@@ -176,9 +303,9 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
                      5,
                      kDepartHeaders,
                      sizeof(kDepartHeaders) / sizeof(kDepartHeaders[0]));
+    SelectObject(TheDC, frame->mTextFont);
   }
 
-  SelectObject(TheDC, frame->mTextFont);
   ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
   SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
   if (frame->GameInProgress)
@@ -191,12 +318,12 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
         if (Redraw || frame->DisplayHan->DepChng[i] ||
             (frame->DisplayHan->PTimetableInfo[Dep]->GetStatus() != OldStatus[i]))
         {
-          TimeTabInfo(TheDC, Dep, 25+17*i);
+          TimeTabInfo(TheDC, Dep, 25 + (i * mRowSpacing));
         }
       }
       else
       {
-        TimeTabInfo(TheDC, Dep, 25+17*i);
+        TimeTabInfo(TheDC, Dep, 25 + (i * mRowSpacing));
       }
     }
 
@@ -206,6 +333,8 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
       OldStatus[i] = (Dep > 0) ? frame->DisplayHan->PTimetableInfo[Dep]->GetStatus() : 0;
     }
   }
+
+  EnsureContentFits();
 }
 
 
@@ -215,200 +344,181 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
   // <Timetable[TimetabVal]>. It is called exclusively by
   // <UpdateDisplay>
 
-  int      a, i;
-  char     TextString[21], PlatName[10];
-  HBRUSH   hBrush, hOldBrush;
-  HPEN     hPen, hOldPen;
+  int      a = 0;
+  int      i = 0;
+  char     TextString[100];
+  char     PlatName[10];
   RECT     lRect;
-  int      lStatus;
-  COLORREF lColour;
-  BOOL     NotFound;
-  BOOL     lDelayed;
+  COLORREF lColour = RGB(255, 255, 255);
+
+  // Suppress unused-variable warnings in diagnostic-only code paths.
+  (void)TextString;
 
   if (TheDC == 0) return;
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
 
-  /**************************************************************************/
-  /* Blank out the previous data.                                           */
-  /**************************************************************************/
   SetBkColor(TheDC, RGB(0, 0, 0));
   lRect.left   = 9;
-  lRect.top    = (YPos);
-  lRect.right  = 246;
-  lRect.bottom = YPos + 17;
+  lRect.top    = YPos;
+  lRect.right  = (mClientWidth > 5) ? (mClientWidth - 5) : (YPos + mRowHeight);
+  lRect.bottom = YPos + mRowHeight;
   ExtTextOut(TheDC, 9, YPos, ETO_OPAQUE, &lRect, "", 0, NULL);
+  TrackContent(lRect.right, lRect.bottom);
   ::SetTextColor(TheDC, RGB(255, 255, 255));
 
-  if (TabVal > 0)
+  if (TabVal <= 0)
   {
-    // Decide which colour text is to be
-    lStatus = frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus();
+    return;
+  }
 
-    // Departure platform
-    NotFound = TRUE;
-    i = 1;
-    while (i < 50 && NotFound)
+  const int lStatus = frame->DisplayHan->PTimetableInfo[TabVal]->GetStatus();
+
+  BOOL NotFound = TRUE;
+  i = 1;
+  while (i < 50 && NotFound)
+  {
+    if (frame->DisplayHan->PPlatDataInfo[i] != 0)
     {
-      if (frame->DisplayHan->PPlatDataInfo[i] != 0)
+      if ((frame->DisplayHan->PPlatDataInfo[i]->GetTimetable(0) == TabVal) ||
+          (frame->DisplayHan->PPlatDataInfo[i]->GetTimetable(1) == TabVal))
       {
-        if ((frame->DisplayHan->PPlatDataInfo[i]->GetTimetable(0) == TabVal) ||
-            (frame->DisplayHan->PPlatDataInfo[i]->GetTimetable(1) == TabVal))
-        {
-          // Get platform name text
-          a = frame->DisplayHan->PPlatDataInfo[i]->GetSelectorRef();
-          frame->DisplayHan->PSelectorInfo[a]->GetText(PlatName, 4);
-          NotFound = FALSE;
-        }
+        a = frame->DisplayHan->PPlatDataInfo[i]->GetSelectorRef();
+        frame->DisplayHan->PSelectorInfo[a]->GetText(PlatName, 4);
+        NotFound = FALSE;
       }
-      i++;
     }
+    i++;
+  }
 
-    /************************************************************************/
-    /* Figure out if the departure has been delayed.                        */
-    /************************************************************************/
-    a = frame->DisplayHan->PTimetableInfo[TabVal]->GetDepTime();
-    if (frame->DisplayHan->WorkTime > 2*(a - 40*int(a/100)))
+  const int depTime = frame->DisplayHan->PTimetableInfo[TabVal]->GetDepTime();
+  BOOL lDelayed = (frame->DisplayHan->WorkTime > 2*(depTime - 40*int(depTime/100))) ? TRUE : FALSE;
+
+  if (!NotFound)
+  {
+    SetTextAlign(TheDC, TA_CENTER);
+
+    if (lStatus == ST_READYDEP)
     {
-      lDelayed = TRUE;
+      lColour = lDelayed ? RGB(255, 0, 0) : RGB(0, 255, 0);
+
+      HBRUSH hBrush = CreateSolidBrush(lColour);
+      HPEN hPen = CreatePen(PS_SOLID, 1, lColour);
+
+      HBRUSH hOldBrush = (HBRUSH) SelectObject(TheDC, hBrush);
+      HPEN hOldPen = (HPEN) SelectObject(TheDC, hPen);
+
+      const int circleLeft = 91;
+      const int circleRight = circleLeft + mRowHeight;
+      Ellipse(TheDC, circleLeft, YPos, circleRight, YPos + mRowHeight);
+      TrackContent(circleRight, YPos + mRowHeight);
+
+      SelectObject(TheDC, hOldBrush);
+      SelectObject(TheDC, hOldPen);
+      DeleteObject(hBrush);
+      DeleteObject(hPen);
+
+      SetBkColor(TheDC, lColour);
+      ::SetTextColor(TheDC, RGB(0, 0, 0));
+      SelectObject(TheDC, frame->mSmallFont);
+
+      TEXTMETRIC smallMetrics = {0};
+      int textY = YPos + 2;
+      int textBottom = YPos + mRowHeight;
+      if (::GetTextMetrics(TheDC, &smallMetrics))
+      {
+        textY = YPos + ((mRowHeight - smallMetrics.tmHeight) / 2);
+        textBottom = textY + smallMetrics.tmHeight;
+      }
+
+      TextOut(TheDC, 100, textY, PlatName, strlen(PlatName));
+      int platWidth = MeasureStringWidth(TheDC, PlatName);
+      int rightEdge = 100 + ((platWidth + 1) / 2);
+      TrackContent(rightEdge, textBottom);
+
+      SetBkColor(TheDC, RGB(0, 0, 0));
+      SelectObject(TheDC, frame->mTextFont);
     }
     else
     {
-      lDelayed = FALSE;
-    }
-
-    if (!NotFound)
-    {
-      /**********************************************************************/
-      /* Use center text alignment.                                         */
-      /**********************************************************************/
-      SetTextAlign(TheDC, TA_CENTER);
-
-      if (lStatus == ST_READYDEP)
-      {
-        if (lDelayed)
-        {
-          lColour = RGB(255, 0, 0);
-        }
-        else
-        {
-          lColour = RGB(0, 255, 0);
-        }
-
-        /********************************************************************/
-        /* Create and select pen and brush.                                 */
-        /********************************************************************/
-        hBrush = CreateSolidBrush(lColour);
-        hPen   = CreatePen(PS_SOLID, 1, lColour);
-
-        hOldBrush = (HBRUSH) SelectObject(TheDC, hBrush);
-        hOldPen   = (HPEN) SelectObject(TheDC, hPen);
-
-        /********************************************************************/
-        /* Draw the circle.                                                 */
-        /********************************************************************/
-        Ellipse(TheDC, 91, (YPos), 109, (YPos + 17));
-
-        /********************************************************************/
-        /* Tidy up.                                                         */
-        /********************************************************************/
-        SelectObject(TheDC, hOldBrush);
-        SelectObject(TheDC, hOldPen);
-
-        DeleteObject(hBrush);
-        DeleteObject(hPen);
-
-        SetBkColor(TheDC, lColour);
-        ::SetTextColor(TheDC, RGB(0, 0, 0));
-        SelectObject(TheDC, frame->mSmallFont);
-
-        TextOut(TheDC, 100, (YPos + 2), PlatName, strlen(PlatName));
-      }
-      else
-      {
       if (lStatus == ST_STOCKOK)
       {
-        // Train is ready to depart
         ::SetTextColor(TheDC, RGB(255, 255, 255));
         CopyBuffer(TextString, PlatName);
       }
       else
       {
-          /******************************************************************/
-          /* Figure the colour to use to display the train.                 */
-          /******************************************************************/
-          if (lDelayed)
-          {
-            ::SetTextColor(TheDC, RGB(255, 0, 0));
-          }
-          else
-          {
-            if (lStatus == ST_RELEASE)
-            {
-              ::SetTextColor(TheDC, RGB(225, 225, 0));
-            }
-            else
-            {
-              ::SetTextColor(TheDC, RGB(255, 255, 255));
-            }
-          }
-
-          // Train is not ready to depart
-          CopyBuffer(TextString, "(");
-          AppendString(TextString, PlatName);
-          AppendString(TextString, ")");
+        if (lDelayed)
+        {
+          ::SetTextColor(TheDC, RGB(255, 0, 0));
+        }
+        else if (lStatus == ST_RELEASE)
+        {
+          ::SetTextColor(TheDC, RGB(225, 225, 0));
+        }
+        else
+        {
+          ::SetTextColor(TheDC, RGB(255, 255, 255));
         }
 
-        TextOut(TheDC, 100, YPos, TextString, strlen(TextString));
+        CopyBuffer(TextString, "(");
+        AppendString(TextString, PlatName);
+        AppendString(TextString, ")");
       }
 
-      /**********************************************************************/
-      /* Reset text alignment.                                              */
-      /**********************************************************************/
-      SetTextAlign(TheDC, TA_LEFT);
+      TextOut(TheDC, 100, YPos, TextString, strlen(TextString));
+      TrackContent(100 + MeasureStringWidth(TheDC, TextString), YPos + mRowHeight);
     }
 
-    if (NotFound)
-    {
-      ::SetTextColor(TheDC, RGB(128, 128, 128));
-    }
-    else
-    {
-      ::SetTextColor(TheDC, RGB(255, 255, 255));
-    }
-
-    /************************************************************************/
-    /* Ensure background colour is black.                                   */
-    /************************************************************************/
-    SetBkColor(TheDC, RGB(0, 0, 0));
-    SelectObject(TheDC, frame->mTextFont);
-
-    // Departure time
-    ConvertTime(frame->DisplayHan->PTimetableInfo[TabVal]->GetDepTime(),
-                TextString);
-    TextOut(TheDC, 10, YPos, TextString, strlen(TextString));
-
-    // Departure code
-    a = frame->DisplayHan->PTimetableInfo[TabVal]->GetDepCode();
-    if (a == SC_HST) TextOut(TheDC, 55, YPos, "HST", 3);
-    if (a == SC_EMU) TextOut(TheDC, 55, YPos, "EMU", 3);
-    if (a == SC_DELTIC) TextOut(TheDC, 55, YPos, "DEL", 3);
-    if (a == SC_NORMAL) TextOut(TheDC, 55, YPos, "NRM", 3);
-    if (a == SC_RELIEF) TextOut(TheDC, 55, YPos, "RLF", 3);
-    if (a == SC_DMU1) TextOut(TheDC, 55, YPos, "DMU", 3);
-    if (a == SC_DMU150) TextOut(TheDC, 55, YPos, "SPR", 3);
-    if (a == SC_PUSHPULL) TextOut(TheDC, 55, YPos, "P/P", 3);
-    if (a == SC_CLASS37) TextOut(TheDC, 55, YPos, "37/4", 4);
-    if (a == SC_DMU156) TextOut(TheDC, 55, YPos, "156", 3);
-    if (a == SC_DMU158) TextOut(TheDC, 55, YPos, "158", 3);
-    if (a == SC_DMU170) TextOut(TheDC, 55, YPos, "170", 3);
-    if (a == SC_TWIN156) TextOut(TheDC, 55, YPos, "T156", 4);
-    if (a == SC_TWIN158) TextOut(TheDC, 55, YPos, "T158", 4);
-    if (a == SC_TWIN170) TextOut(TheDC, 55, YPos, "T170", 4);
-
-    // Departure description
-    frame->DisplayHan->PTimetableInfo[TabVal]->GetDepDesc(TextString, sizeof(TextString));
-    TextOut(TheDC, 130, YPos, TextString, strlen(TextString));
+    SetTextAlign(TheDC, TA_LEFT);
   }
+
+  if (NotFound)
+  {
+    ::SetTextColor(TheDC, RGB(128, 128, 128));
+  }
+  else
+  {
+    ::SetTextColor(TheDC, RGB(255, 255, 255));
+  }
+
+  SetBkColor(TheDC, RGB(0, 0, 0));
+  SelectObject(TheDC, frame->mTextFont);
+
+  ConvertTime(depTime, TextString);
+  TextOut(TheDC, 10, YPos, TextString, strlen(TextString));
+  TrackContent(10 + MeasureStringWidth(TheDC, TextString), YPos + mRowHeight);
+
+  a = frame->DisplayHan->PTimetableInfo[TabVal]->GetDepCode();
+  const char* codeText = "";
+  switch (a)
+  {
+    case SC_HST:      codeText = "HST"; break;
+    case SC_EMU:      codeText = "EMU"; break;
+    case SC_DELTIC:   codeText = "DEL"; break;
+    case SC_NORMAL:   codeText = "NRM"; break;
+    case SC_RELIEF:   codeText = "RLF"; break;
+    case SC_DMU1:     codeText = "DMU"; break;
+    case SC_DMU150:   codeText = "SPR"; break;
+    case SC_PUSHPULL: codeText = "P/P"; break;
+    case SC_CLASS37:  codeText = "37/4"; break;
+    case SC_DMU156:   codeText = "156"; break;
+    case SC_DMU158:   codeText = "158"; break;
+    case SC_DMU170:   codeText = "170"; break;
+    case SC_TWIN156:  codeText = "T156"; break;
+    case SC_TWIN158:  codeText = "T158"; break;
+    case SC_TWIN170:  codeText = "T170"; break;
+    default:          codeText = ""; break;
+  }
+
+  if (codeText[0] != '\0')
+  {
+    TextOut(TheDC, 55, YPos, codeText, int(strlen(codeText)));
+    TrackContent(55 + MeasureStringWidth(TheDC, codeText), YPos + mRowHeight);
+  }
+
+  frame->DisplayHan->PTimetableInfo[TabVal]->GetDepDesc(TextString, sizeof(TextString));
+  TextOut(TheDC, 130, YPos, TextString, strlen(TextString));
+  TrackContent(130 + MeasureStringWidth(TheDC, TextString), YPos + mRowHeight);
 }
 
 
