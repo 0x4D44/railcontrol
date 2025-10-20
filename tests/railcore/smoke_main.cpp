@@ -3,6 +3,12 @@
 #include <fstream>
 #include <sstream>
 #include <memory>
+#if defined(_MSC_VER)
+#include <crtdbg.h>
+#include <stdlib.h>
+#include <windows.h>
+#endif
+#include <exception>
 
 #include "railcore/engine_factory.h"
 #include "railcore/commands.h"
@@ -18,7 +24,7 @@ using namespace RailCore;
 static std::filesystem::path RepoRootFromOutDir() {
   // Resolve repo root whether running from build/msvc/<Config> or repo root
   std::filesystem::path cwd = std::filesystem::current_path();
-  if (std::filesystem::exists(cwd / "FAST.RCD")) return cwd;
+  if (std::filesystem::exists(cwd / "FAST.RCD") || std::filesystem::exists(cwd / "Game files" / "FAST.RCD")) return cwd;
   return cwd / ".." / ".." / "..";
 }
 
@@ -320,10 +326,20 @@ static int TestReleaseLocoWrongId() {
 }
 
 int main() {
+#if defined(_MSC_VER)
+  _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+  _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+  SetErrorMode(SEM_NOGPFAULTERRORBOX | SEM_FAILCRITICALERRORS);
+  _set_invalid_parameter_handler([](const wchar_t*, const wchar_t*, const wchar_t*, unsigned int, uintptr_t){
+    std::fputs("invalid parameter handler triggered\n", stderr);
+  });
+#endif
+  std::set_terminate([](){ std::fputs("std::terminate called (likely unhandled exception)\n", stderr); std::fflush(stderr); std::exit(199); });
   int rc = 0;
-  if ((rc = TestMissingFile()) != 0) return rc;
-  if ((rc = TestLoadFastRcd()) != 0) return rc;
-  if ((rc = TestLoadKingsxRcd()) != 0) return rc;
+  std::puts("TestMissingFile"); if ((rc = TestMissingFile()) != 0) return rc;
+  std::puts("TestLoadFastRcd"); if ((rc = TestLoadFastRcd()) != 0) return rc;
+  std::puts("TestLoadKingsxRcd"); if ((rc = TestLoadKingsxRcd()) != 0) return rc;
   // Layout ID should differ between FAST and KINGSX
   {
     EngineConfig cfg; auto repo = std::make_shared<RcdLayoutRepository>(); auto engine = CreateEngine(cfg, repo, nullptr, nullptr, nullptr, nullptr);
@@ -335,16 +351,16 @@ int main() {
     std::string id2 = engine->GetLayoutId();
     if (id1.empty() || id2.empty() || id1 == id2) { std::fprintf(stderr, "Expected different layout IDs for FAST and KINGSX\n"); return 112; }
   }
-  if ((rc = TestEngineLifecycle()) != 0) return rc;
-  if ((rc = TestObserverAndDiagnostics()) != 0) return rc;
-  if ((rc = TestZeroChangeTick()) != 0) return rc;
-  if ((rc = TestResetAndLayoutId()) != 0) return rc;
-  if ((rc = TestReleaseLocoWrongId()) != 0) return rc;
-  if ((rc = TestWorldDeltaClockAndClearing()) != 0) return rc;
-  if ((rc = TestReentrantAdvanceBusy()) != 0) return rc;
-  if ((rc = TestDeterministicSeedOnLoad()) != 0) return rc;
-  if ((rc = TestIdCanonicalizationStability()) != 0) return rc;
-  if ((rc = TestTelemetrySinkReceivesDiagnostics()) != 0) return rc;
+  std::puts("TestEngineLifecycle"); if ((rc = TestEngineLifecycle()) != 0) return rc;
+  std::puts("TestObserverAndDiagnostics"); if ((rc = TestObserverAndDiagnostics()) != 0) return rc;
+  std::puts("TestZeroChangeTick"); if ((rc = TestZeroChangeTick()) != 0) return rc;
+  std::puts("TestResetAndLayoutId"); if ((rc = TestResetAndLayoutId()) != 0) return rc;
+  std::puts("TestReleaseLocoWrongId"); if ((rc = TestReleaseLocoWrongId()) != 0) return rc;
+  std::puts("TestWorldDeltaClockAndClearing"); if ((rc = TestWorldDeltaClockAndClearing()) != 0) return rc;
+  std::puts("TestReentrantAdvanceBusy"); if ((rc = TestReentrantAdvanceBusy()) != 0) return rc;
+  std::puts("TestDeterministicSeedOnLoad"); if ((rc = TestDeterministicSeedOnLoad()) != 0) return rc;
+  std::puts("TestIdCanonicalizationStability"); if ((rc = TestIdCanonicalizationStability()) != 0) return rc;
+  std::puts("TestTelemetrySinkReceivesDiagnostics"); if ((rc = TestTelemetrySinkReceivesDiagnostics()) != 0) return rc;
   // EngineConfig max limits should guard load
   {
     EngineConfig cfg; cfg.maxRoutes = 10; // FAST.RCD has > 10 routes
@@ -949,5 +965,6 @@ int main() {
   }
   return 0;
 }
+
 
 
