@@ -42,12 +42,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)Debug\</OutDir>
     <IntDir>$(ProjectDir)intermediate\Debug\</IntDir>
-    <TargetName>railc_msvc</TargetName>
+    <TargetName>railc</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)Release\</OutDir>
     <IntDir>$(ProjectDir)intermediate\Release\</IntDir>
-    <TargetName>railc_msvc</TargetName>
+    <TargetName>railc</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
