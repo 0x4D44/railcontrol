@@ -69,24 +69,43 @@ void TAbout::EvPaint()
   ::GetObject(HLoco1, sizeof(BITMAP), &locoInfo);
   ::GetObject(HLoco2, sizeof(BITMAP), &dmuInfo);
 
-  const int margin = 12;
-  const int locoWidth = (locoInfo.bmWidth > 0) ? locoInfo.bmWidth : 150;
-  const int locoHeight = (locoInfo.bmHeight > 0) ? locoInfo.bmHeight : 130;
-  const int dmuWidth = (dmuInfo.bmWidth > 0) ? dmuInfo.bmWidth : 155;
-  const int dmuHeight = (dmuInfo.bmHeight > 0) ? dmuInfo.bmHeight : 150;
+  const int margin = 10;
+  const int centerWidth = 180; // Leave room for centered text
 
-  const int locoX = margin;
-  const int locoY = margin;
-  int dmuX = client.right - margin - dmuWidth;
-  if (dmuX < margin)  dmuX = margin;
-  const int dmuY = margin;
+  // Compute destination panes for left/right images
+  const int clientWidth = client.right - client.left;
+  const int clientHeight = client.bottom - client.top;
+  const int paneWidth = (clientWidth - (3 * margin) - centerWidth) / 2;
+  const int paneHeight = clientHeight - (2 * margin);
+  const int leftX = margin;
+  const int leftY = margin;
+  const int rightX = margin + paneWidth + centerWidth + margin;
+  const int rightY = margin;
 
-  // BitBlt it
-  BitBlt(PS.hdc, locoX, locoY, locoWidth, locoHeight, MemDC, 0, 0, SRCCOPY);
+  // Helper to scale preserving aspect ratio
+  auto stretchBitmap = [&](HBITMAP bmp, const BITMAP& info, int dx, int dy, int dw, int dh)
+  {
+    int sw = (info.bmWidth > 0) ? info.bmWidth : dw;
+    int sh = (info.bmHeight > 0) ? info.bmHeight : dh;
+    if (sw <= 0 || sh <= 0 || dw <= 0 || dh <= 0)  return;
 
-  // And again...
-  SelectObject(MemDC, HLoco2);
-  BitBlt(PS.hdc, dmuX, dmuY, dmuWidth, dmuHeight, MemDC, 0, 0, SRCCOPY);
+    double sx = double(dw) / double(sw);
+    double sy = double(dh) / double(sh);
+    double s = (sx < sy) ? sx : sy;
+    int tw = int(sw * s);
+    int th = int(sh * s);
+    int tx = dx + (dw - tw) / 2;
+    int ty = dy + (dh - th) / 2;
+
+    HBITMAP old = (HBITMAP) SelectObject(MemDC, bmp);
+    SetStretchBltMode(PS.hdc, HALFTONE);
+    StretchBlt(PS.hdc, tx, ty, tw, th, MemDC, 0, 0, sw, sh, SRCCOPY);
+    SelectObject(MemDC, old);
+  };
+
+  // Draw left and right images fitted into their panes
+  stretchBitmap(HLoco1, locoInfo, leftX, leftY, paneWidth, paneHeight);
+  stretchBitmap(HLoco2, dmuInfo, rightX, rightY, paneWidth, paneHeight);
   SelectObject(MemDC, HOldBitmap);
 
   // Delete compatible DC

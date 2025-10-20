@@ -1399,6 +1399,11 @@ void TMainWindow::CMMnuFilNew()
 
   // Update the display
   DisplayHan->SizeSelectors();
+  // Pre-measure and size child windows to avoid initial size jumps
+  if (ArrivalHan != NULL)    ArrivalHan->UpdateDisplay(0, FALSE);
+  if (DeparturHan != NULL)   DeparturHan->UpdateDisplay(0, FALSE);
+  if (PlatformHan != NULL)   PlatformHan->UpdateDisplay(0, FALSE);
+  if (LocoyardHan != NULL)   LocoyardHan->UpdateDisplay(0, FALSE);
   ::InvalidateRect(DisplayHan->HWindow, 0, TRUE);
 
   while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -1697,63 +1702,57 @@ void TMainWindow::CMOptOptimi()
     case 1024:
     default:
     {
-      if (TheRect.bottom == 600)
-      {
-        /********************************************************************/
-        /* Optimize the main window display - 1024x600.                     */
-        /********************************************************************/
-        MainWinX = 0;
-        MainWinY = 0;
-        lWidth  = 720;
-        lHeight = (600 - 192);
-      }
-      else
-      {
-        // Optimize the main window display - 1024x768 and above
-        lWidth  = 720;
-        lHeight = 480;
+      // Modern displays: arrange dynamically to avoid gaps/overlaps
+      lWidth  = 720;
+      lHeight = 480;
 
-        ::GetWindowRect(HWindow, &lWinRect);
-        MainWinX = lWinRect.left;
-        MainWinY = lWinRect.top;
-      }
+      ::GetWindowRect(HWindow, &lWinRect);
+      MainWinX = lWinRect.left;
+      MainWinY = lWinRect.top;
 
+      const int gap = 8;
       ::MoveWindow(HWindow, MainWinX, MainWinY, lWidth, lHeight, TRUE);
 
-      // Move arrival window
+      // Right column origin
+      const int rightX = MainWinX + lWidth + gap;
+      int rightY = MainWinY;
+
+      // Platform (top-right)
+      if (PlatformHan != NULL)
+      {
+        if (PlatformIcon) OpenIcon(PlatformHan->HWindow);
+        PlatformX = rightX;
+        PlatformY = rightY;
+        ::MoveWindow(PlatformHan->HWindow, PlatformX, PlatformY, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
+        rightY += PlatformHan->Attr.H + gap;
+      }
+
+      // Departures (below platform)
+      if (DeparturHan != NULL)
+      {
+        if (DeparturIcon) OpenIcon(DeparturHan->HWindow);
+        DeparturX = rightX;
+        DeparturY = rightY;
+        ::MoveWindow(DeparturHan->HWindow, DeparturX, DeparturY, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
+        rightY += DeparturHan->Attr.H + gap;
+      }
+
+      // Locoyard (below departures)
+      if (LocoyardHan != NULL)
+      {
+        if (LocoyardIcon) OpenIcon(LocoyardHan->HWindow);
+        LocoyardX = rightX;
+        LocoyardY = rightY;
+        ::MoveWindow(LocoyardHan->HWindow, LocoyardX, LocoyardY, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
+      }
+
+      // Arrivals (below main)
       if (ArrivalHan != NULL)
       {
         if (ArrivalIcon) OpenIcon(ArrivalHan->HWindow);
         ArrivalX = MainWinX;
-        ArrivalY = MainWinY + lHeight;
+        ArrivalY = MainWinY + lHeight + gap;
         ::MoveWindow(ArrivalHan->HWindow, ArrivalX, ArrivalY, ArrivalHan->Attr.W, ArrivalHan->Attr.H, TRUE);
-      }
-
-      // Move departure window
-      if (DeparturHan != NULL)
-      {
-        if (DeparturIcon) OpenIcon(DeparturHan->HWindow);
-        DeparturX = MainWinX + lWidth;
-        DeparturY = MainWinY + 259;
-        ::MoveWindow(DeparturHan->HWindow, DeparturX, DeparturY, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
-      }
-
-      // Move platform window
-      if (PlatformHan != NULL)
-      {
-        if (PlatformIcon) OpenIcon(PlatformHan->HWindow);
-        PlatformX = MainWinX + lWidth;
-        PlatformY = MainWinY;
-        ::MoveWindow(PlatformHan->HWindow, PlatformX, PlatformY, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
-      }
-
-      // Move locoyard window
-      if (LocoyardHan != NULL)
-      {
-        if (LocoyardIcon) OpenIcon(LocoyardHan->HWindow);
-        LocoyardX = MainWinX + lWidth;
-        LocoyardY = MainWinY + 259 + 192;
-        ::MoveWindow(LocoyardHan->HWindow, LocoyardX, LocoyardY, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
       }
     }
     break;
@@ -1810,6 +1809,8 @@ void TMainWindow::CMWinArriva()
     {
       ArrivalHan = new TArrivals(this, ArrivalX, ArrivalY);
       ArrivalHan->Create();
+      // Size correctly before showing to avoid jump
+      ArrivalHan->UpdateDisplay(0, TRUE);
       ArrivalHan->ShowWindow(SW_SHOWNORMAL);
       SetFocus();
     }
@@ -1841,6 +1842,7 @@ void TMainWindow::CMWinDepart()
     {
       DeparturHan = new TDepartur(this, DeparturX, DeparturY);
       DeparturHan->Create();
+      DeparturHan->UpdateDisplay(0, TRUE);
       DeparturHan->ShowWindow(SW_SHOWNORMAL);
       SetFocus();
     }
@@ -1872,6 +1874,7 @@ void TMainWindow::CMWinPlatfo()
     {
       PlatformHan = new TPlatform(this, PlatformX, PlatformY);
       PlatformHan->Create();
+      PlatformHan->UpdateDisplay(0, TRUE);
       PlatformHan->ShowWindow(SW_SHOWNORMAL);
       SetFocus();
     }
@@ -1904,6 +1907,7 @@ void TMainWindow::CMWinLocoya()
       ClampWindowPosition(LocoyardX, LocoyardY, 200, 120);
       LocoyardHan = new TLocoyard(this, LocoyardX, LocoyardY);
       LocoyardHan->Create();
+      LocoyardHan->UpdateDisplay(0, TRUE);
       LocoyardHan->ShowWindow(SW_SHOWNORMAL);
       SetFocus();
     }

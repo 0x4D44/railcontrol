@@ -266,6 +266,12 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
   mClientWidth = TheRect.right;
   mClientHeight = TheRect.bottom;
 
+  // Compute content rect always; draw only on redraw
+  lrect.left   = 4;
+  lrect.right  = TheRect.right - 5;
+  lrect.top    = 24;
+  lrect.bottom = TheRect.bottom - 5;
+  TrackContent(lrect.right, lrect.bottom);
   if (Redraw)
   {
     // Draw a bounding box (3D effect)
@@ -273,24 +279,18 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
     {
       DrawRaisedPanel(TheDC, TheRect, 23);
     }
-
-    lrect.left   = 4;
-    lrect.right  = TheRect.right - 5;
-    lrect.top    = 24;
-    lrect.bottom = TheRect.bottom - 5;
     FillRectOpaque(TheDC, lrect, RGB(0, 0, 0));
-    TrackContent(lrect.right, lrect.bottom);
   }
 
   // Set up text attributes
-  if (Redraw)
+  static const HeaderLabel kPlatformHeaders[] =
   {
-    static const HeaderLabel kPlatformHeaders[] =
-    {
-      {22, "#:"},
-      {43, "Description:"}
-    };
+    {22, "#:"},
+    {43, "Description:"}
+  };
 
+  // Measure header extents always
+  {
     HFONT oldFont = (HFONT) SelectObject(TheDC, frame->mHeaderFont);
     TEXTMETRIC headerMetrics = {0};
     if (::GetTextMetrics(TheDC, &headerMetrics))
@@ -304,7 +304,10 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
       }
     }
     SelectObject(TheDC, oldFont);
+  }
 
+  if (Redraw)
+  {
     DrawHeaderLabels(TheDC,
                      frame->mHeaderFont,
                      GetSysColor(COLOR_WINDOWTEXT),

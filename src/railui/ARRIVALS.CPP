@@ -243,36 +243,36 @@ void TArrivals::UpdateDisplay(HDC TheDC, BOOL Redraw)
   mClientWidth = TheRect.right;
   mClientHeight = TheRect.bottom;
 
+  // Compute panel rect and track extents regardless of redraw
+  RECT panelRect;
+  panelRect.left   = 4;
+  panelRect.right  = TheRect.right - 5;
+  panelRect.top    = 24;
+  panelRect.bottom = TheRect.bottom - 5;
+  TrackContent(panelRect.right, panelRect.bottom);
   if (Redraw)
   {
     if ((TheRect.right > 3) && (TheRect.bottom > 3))
     {
       DrawRaisedPanel(TheDC, TheRect, 23);
     }
-
-    RECT panelRect;
-    panelRect.left   = 4;
-    panelRect.right  = TheRect.right - 5;
-    panelRect.top    = 24;
-    panelRect.bottom = TheRect.bottom - 5;
     FillRectOpaque(TheDC, panelRect, RGB(0, 0, 0));
-    TrackContent(panelRect.right, panelRect.bottom);
   }
 
-  if (Redraw)
+  static const HeaderLabel kArrivalHeaders[] =
   {
-    static const HeaderLabel kArrivalHeaders[] =
-    {
-      {ARR_OFFSET_DUE, "Due:"},
-      {ARR_OFFSET_ON, "On:"},
-      {ARR_OFFSET_LATE, "+:"},
-      {ARR_OFFSET_LOCO, "Loco / MU:"},
-      {ARR_OFFSET_ARRDESC, "Description:"},
-      {ARR_OFFSET_STATUS, "Status:"},
-      {ARR_OFFSET_DEPTIME, "Dep:"},
-      {ARR_OFFSET_DEPDESC, "Description:"}
-    };
+    {ARR_OFFSET_DUE, "Due:"},
+    {ARR_OFFSET_ON, "On:"},
+    {ARR_OFFSET_LATE, "+:"},
+    {ARR_OFFSET_LOCO, "Loco / MU:"},
+    {ARR_OFFSET_ARRDESC, "Description:"},
+    {ARR_OFFSET_STATUS, "Status:"},
+    {ARR_OFFSET_DEPTIME, "Dep:"},
+    {ARR_OFFSET_DEPDESC, "Description:"}
+  };
 
+  // Measure header extents always
+  {
     HFONT oldFont = (HFONT) SelectObject(TheDC, frame->mHeaderFont);
     TEXTMETRIC headerMetrics = {0};
     if (::GetTextMetrics(TheDC, &headerMetrics))
@@ -286,7 +286,10 @@ void TArrivals::UpdateDisplay(HDC TheDC, BOOL Redraw)
       }
     }
     SelectObject(TheDC, oldFont);
+  }
 
+  if (Redraw)
+  {
     DrawHeaderLabels(TheDC,
                      frame->mHeaderFont,
                      GetSysColor(COLOR_WINDOWTEXT),
