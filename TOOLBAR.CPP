@@ -17,30 +17,6 @@
 
 #include "classdef.h"   		// Most important
 
-#if defined(DIAG_SETUP_STACK)
-extern volatile const char* gSetupStackLabel;
-extern volatile unsigned long gSetupStackBefore;
-extern volatile unsigned long gSetupStackAfter;
-
-#define TBAR_STACK_SNAPSHOT(name) unsigned long name = 0; __asm { mov name, esp }
-#define TBAR_STACK_VERIFY(label, before)                                           \
-  {                                                                                \
-    unsigned long _stack_after = 0;                                                \
-    __asm { mov _stack_after, esp }                                                \
-    if (_stack_after != (before))                                                  \
-    {                                                                              \
-      gSetupStackLabel = (label);                                                  \
-      gSetupStackBefore = (before);                                                \
-      gSetupStackAfter = _stack_after;                                             \
-      __debugbreak();                                                              \
-    }                                                                              \
-  }
-#else
-#define TBAR_STACK_SNAPSHOT(name) unsigned long name = 0
-#define TBAR_STACK_VERIFY(label, before) do { (void)(before); } while (0)
-#endif
-
-
 /***************************************************************/
 /* General program methods follow...  */
 
@@ -101,7 +77,6 @@ void TToolbar::SetupWindow()
   for (i=1; i<=NumButt; i++)
   {
     // Create the Toolbar buttons
-    TBAR_STACK_SNAPSHOT(stackBeforeButtonEmplace);
     TToolbutton* button = Buttons.Emplace(i,
                                           this,                      // this application
 				                                  ButtData.XPos[i],          // X position
@@ -113,13 +88,10 @@ void TToolbar::SetupWindow()
 				                                  ButtData.StatWindow[i],    // Window handle to send status bar info to
 				                                  ButtData.UpText[i].Data(),        // Up text
 				                                  ButtData.DownText[i].Data());     // Down text
-    TBAR_STACK_VERIFY("TToolbar::Buttons.Emplace", stackBeforeButtonEmplace);
 
     if (button)
     {
-      TBAR_STACK_SNAPSHOT(stackBeforeButtonCreate);
       button->Create();
-      TBAR_STACK_VERIFY("TToolbar::button->Create", stackBeforeButtonCreate);
     }
   }
 }
