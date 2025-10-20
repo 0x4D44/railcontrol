@@ -16,8 +16,10 @@ jobs:
       - name: Build OWLNext libraries
         run: build\msvc\build_owlnext_msvc.bat
       - name: Build RailControl (Debug Win32)
-        run: build_msvc.bat Debug
+        run: build.cmd Debug
       - name: Build RailControl (Release Win32)
-        run: build_msvc.bat Release
+        run: build.cmd Release
       - name: Lint Memory Guard Gating
         run: tools\lint_memory_guard.bat
+      - name: Run RailCoreTests (Debug)
+        run: build\msvc\Debug\RailCoreTests.exe
