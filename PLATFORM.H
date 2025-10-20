@@ -31,6 +31,17 @@ private:
   int        Timetab[15];            // What is in the platforms at the moment?
   char       Currently[50][40];      // Strings currently displayed on the screen
 // OWLCVT: Implementation of TListBoxData::Strings and TComboBoxData::Strings has changed.
+  int        mRowHeight;
+  int        mRowSpacing;
+  int        mClientWidth;
+  int        mClientHeight;
+  int        mContentRight;
+  int        mContentBottom;
+
+  void ResetContentExtents();
+  void UpdateMetrics(HDC dc);
+  void TrackContent(int right, int bottom);
+  void EnsureContentFits();
 
 public:
   TPlatform(TWindow * AParent, int XPos, int YPos);

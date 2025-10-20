@@ -18,11 +18,42 @@
 #include "classdef.h"
 #include <cstdio>
 
+namespace
+{
+  int MeasureStringWidth(HDC dc, const char* text)
+  {
+    if ((dc == 0) || (text == 0))
+    {
+      return 0;
+    }
+
+    int length = lstrlenA(text);
+    if (length <= 0)
+    {
+      return 0;
+    }
+
+    SIZE extent = {0, 0};
+    if (::GetTextExtentPoint32(dc, text, length, &extent))
+    {
+      return extent.cx;
+    }
+
+    return 0;
+  }
+}
+
 /*************************************************************************/
 /* Methods of TPlatform follow...*/
 
 TPlatform::TPlatform(TWindow* parent, int XPos, int YPos)
-  : TFrameWindow(parent, "Platforms")
+  : TFrameWindow(parent, "Platforms"),
+    mRowHeight(16),
+    mRowSpacing(18),
+    mClientWidth(0),
+    mClientHeight(0),
+    mContentRight(0),
+    mContentBottom(0)
 {
   // Set up window attributes
   Attr.X = XPos;
@@ -35,6 +66,76 @@ TPlatform::TPlatform(TWindow* parent, int XPos, int YPos)
 
 TPlatform::~TPlatform()
 {
+}
+
+
+void TPlatform::ResetContentExtents()
+{
+  mContentRight = 0;
+  mContentBottom = 0;
+}
+
+
+void TPlatform::UpdateMetrics(HDC dc)
+{
+  if (dc == 0)
+  {
+    return;
+  }
+
+  TEXTMETRIC metrics = {0};
+  if (::GetTextMetrics(dc, &metrics))
+  {
+    mRowHeight = metrics.tmHeight;
+    int gap = metrics.tmExternalLeading;
+    if (gap < 2)  gap = 2;
+    mRowSpacing = mRowHeight + gap;
+  }
+}
+
+
+void TPlatform::TrackContent(int right, int bottom)
+{
+  if (right > mContentRight)  mContentRight = right;
+  if (bottom > mContentBottom)  mContentBottom = bottom;
+}
+
+
+void TPlatform::EnsureContentFits()
+{
+  RECT client = {0, 0, 0, 0};
+  ::GetClientRect(HWindow, &client);
+  const int currentWidth = client.right - client.left;
+  const int currentHeight = client.bottom - client.top;
+
+  int desiredWidth = mContentRight + 5;
+  int desiredHeight = mContentBottom + 5;
+  if (desiredWidth < 0)  desiredWidth = 0;
+  if (desiredHeight < 0)  desiredHeight = 0;
+
+  if ((desiredWidth <= currentWidth) && (desiredHeight <= currentHeight))
+  {
+    return;
+  }
+
+  const int targetWidth = (desiredWidth > currentWidth) ? desiredWidth : currentWidth;
+  const int targetHeight = (desiredHeight > currentHeight) ? desiredHeight : currentHeight;
+  RECT windowRect = {0, 0, targetWidth, targetHeight};
+
+  DWORD style = ::GetWindowLong(HWindow, GWL_STYLE);
+  DWORD exStyle = ::GetWindowLong(HWindow, GWL_EXSTYLE);
+  BOOL hasMenu = (::GetMenu(HWindow) != 0) ? TRUE : FALSE;
+  if (!::AdjustWindowRectEx(&windowRect, style, hasMenu, exStyle))
+  {
+    return;
+  }
+
+  const int windowWidth = windowRect.right - windowRect.left;
+  const int windowHeight = windowRect.bottom - windowRect.top;
+  ::SetWindowPos(HWindow, 0, 0, 0, windowWidth, windowHeight,
+                 SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+  Attr.W = windowWidth;
+  Attr.H = windowHeight;
 }
 
 
@@ -157,11 +258,17 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
 
+  SelectObject(TheDC, frame->mTextFont);
+  UpdateMetrics(TheDC);
+  ResetContentExtents();
+
+  ::GetClientRect(HWindow, &TheRect);
+  mClientWidth = TheRect.right;
+  mClientHeight = TheRect.bottom;
+
   if (Redraw)
   {
     // Draw a bounding box (3D effect)
-    ::GetClientRect(HWindow, &TheRect);
-
     if ((TheRect.right > 3) && (TheRect.bottom > 3))
     {
       DrawRaisedPanel(TheDC, TheRect, 23);
@@ -172,6 +279,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
     lrect.top    = 24;
     lrect.bottom = TheRect.bottom - 5;
     FillRectOpaque(TheDC, lrect, RGB(0, 0, 0));
+    TrackContent(lrect.right, lrect.bottom);
   }
 
   // Set up text attributes
@@ -183,6 +291,20 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
       {43, "Description:"}
     };
 
+    HFONT oldFont = (HFONT) SelectObject(TheDC, frame->mHeaderFont);
+    TEXTMETRIC headerMetrics = {0};
+    if (::GetTextMetrics(TheDC, &headerMetrics))
+    {
+      const int headerBottom = 5 + headerMetrics.tmHeight;
+      for (size_t idx = 0; idx < sizeof(kPlatformHeaders) / sizeof(kPlatformHeaders[0]); ++idx)
+      {
+        const HeaderLabel& label = kPlatformHeaders[idx];
+        int width = MeasureStringWidth(TheDC, label.text);
+        TrackContent(label.x + width, headerBottom);
+      }
+    }
+    SelectObject(TheDC, oldFont);
+
     DrawHeaderLabels(TheDC,
                      frame->mHeaderFont,
                      GetSysColor(COLOR_WINDOWTEXT),
@@ -190,10 +312,10 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
                      5,
                      kPlatformHeaders,
                      sizeof(kPlatformHeaders) / sizeof(kPlatformHeaders[0]));
+    SelectObject(TheDC, frame->mTextFont);
   }
 
   // Set Text align to the right
-  SelectObject(TheDC, frame->mTextFont);
   ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
   SetTextAlign(TheDC, TA_RIGHT);
 
@@ -203,6 +325,9 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
     MaxVal = 0;
     for (i = 1; i < 50; i++)
     {
+      const int rowTop = 8 + (i * mRowSpacing);
+      const int rowBottom = rowTop + mRowHeight;
+      const int rowRight = (mClientWidth > 5) ? (mClientWidth - 5) : 241;
       lLocoColour  = RGB(255, 255, 255);
       lTrainColour = RGB(255, 255, 255);
 
@@ -223,7 +348,8 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
             ::SetTextColor(TheDC, RGB(255, 255, 255));
 
             frame->DisplayHan->PSelectorInfo[a]->GetText(TextString, 20);
-            TextOut(TheDC, 33, 8+17*i, TextString, strlen(TextString));
+            TextOut(TheDC, 33, rowTop, TextString, strlen(TextString));
+            TrackContent(33, rowBottom);
           }
           else
           {
@@ -382,9 +508,9 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
           SetBkColor(TheDC, RGB(0, 0, 0));
 
           lRect.left   = 35;
-          lRect.top    = 8+17*i;
-          lRect.right  = 241;
-          lRect.bottom = 24+17*i;
+          lRect.top    = rowTop;
+          lRect.right  = rowRight;
+          lRect.bottom = rowBottom;
 
           /******************************************************************/
           /* Draw loco text at the rightmost of the screen (note that right */
@@ -392,14 +518,16 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
           /******************************************************************/
           ::SetTextColor(TheDC, lLocoColour);
           ExtTextOut(TheDC, lRect.left, lRect.top, ETO_OPAQUE, &lRect, "", 0, NULL);
-          TextOut(TheDC, 240, 8+17*i, LocoName, strlen(LocoName));
+          TrackContent(lRect.right, lRect.bottom);
+          TextOut(TheDC, 240, rowTop, LocoName, strlen(LocoName));
+          TrackContent(240, rowBottom);
 
           /******************************************************************/
           /* Draw the train text to the immediate left of the loco text.    */
           /******************************************************************/
           ::SetTextColor(TheDC, lTrainColour);
           GetTextExtentPoint32(TheDC, LocoName, strlen(LocoName), &wTxtWid);
-          TextOut(TheDC, (240-wTxtWid.cx), 8+17*i, TrainName, strlen(TrainName));
+          TextOut(TheDC, (240-wTxtWid.cx), rowTop, TrainName, strlen(TrainName));
         }
       }
     }
@@ -414,7 +542,11 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
         frame->DisplayHan->HoldLocoChng = FALSE;
         CopyBuffer(TextString, "Hold");
-        TextOut(TheDC, 33, 25+17*MaxVal, TextString, strlen(TextString));
+        const int holdTop = 25 + (MaxVal * mRowSpacing);
+        const int holdBottom = holdTop + mRowHeight;
+        const int rowRight = (mClientWidth > 5) ? (mClientWidth - 5) : 241;
+        TextOut(TheDC, 33, holdTop, TextString, strlen(TextString));
+        TrackContent(33, holdBottom);
         if (frame->DisplayHan->HoldLoco > 0)
         {
           c = frame->DisplayHan->HoldLoco;
@@ -441,15 +573,19 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
         }
 
         lRect.left   = 35;
-        lRect.top    = 25+17*MaxVal;
-        lRect.right  = 241;
-        lRect.bottom = 41+17*MaxVal;
+        lRect.top    = holdTop;
+        lRect.right  = rowRight;
+        lRect.bottom = holdBottom;
         ExtTextOut(TheDC, lRect.left, lRect.top, ETO_OPAQUE, &lRect, "", 0, NULL);
-        TextOut(TheDC, 240, 25+17*MaxVal, TextString, strlen(TextString));
+        TrackContent(lRect.right, lRect.bottom);
+        TextOut(TheDC, 240, holdTop, TextString, strlen(TextString));
+        TrackContent(240, holdBottom);
         CopyBuffer(Currently[MaxVal+1], TextString);
       }
     }
   }
+
+  EnsureContentFits();
 
   // Tidy up
   (void)dcGuard;
