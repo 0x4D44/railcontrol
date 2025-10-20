@@ -130,9 +130,8 @@ void TPlatform::Paint(TDC& dc, bool erase, TRect& rect)
 
 void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
 {
-  BOOL     MadeDC;
+  TReleaseDcGuard dcGuard;
   RECT     TheRect;
-  HPEN     hOldPen, hPen;
   int      a, b, c, i, MaxVal;
   int      lii = 0;
   int      llocoid = 0;
@@ -140,7 +139,6 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
   char     TrainName[100], LocoName[100], TextString[100], lTempStr[100];
   SIZE     wTxtWid;
   RECT     lRect;
-  COLORREF loldBackColour;
   COLORREF lLocoColour;
   COLORREF lTrainColour;
   RECT     lrect;
@@ -148,13 +146,12 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
   if (TheDC == 0)
   {
-   // We need to create a new DC
-   TheDC = GetDC(HWindow);
-   MadeDC = TRUE;
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    TheDC = dcGuard.Get();
   }
-  else
+  if (!TheDC)
   {
-   MadeDC = FALSE;
+    return;
   }
 
   // Get handle to main frame window
@@ -167,52 +164,37 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
     if ((TheRect.right > 3) && (TheRect.bottom > 3))
     {
-      hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT));
-      hOldPen = (HPEN) SelectObject(TheDC, hPen);
-      MoveToEx(TheDC, TheRect.right-4, 23, 0);
-      LineTo(TheDC, TheRect.right-4, TheRect.bottom-4);
-      LineTo(TheDC, 3, TheRect.bottom-4);
-      SelectObject(TheDC, hOldPen);
-      DeleteObject(hPen);
-
-      hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW));
-      hOldPen = (HPEN) SelectObject(TheDC, hPen);
-      LineTo(TheDC, 3, 23);
-      LineTo(TheDC, TheRect.right-4, 23);
-      SelectObject(TheDC, hOldPen);
-      DeleteObject(hPen);
+      DrawRaisedPanel(TheDC, TheRect, 23);
     }
-
-    /************************************************************************/
-    /* Draw a black background to the data box.                             */
-    /************************************************************************/
-    loldBackColour = SetBkColor(TheDC, RGB(0, 0, 0));
 
     lrect.left   = 4;
     lrect.right  = TheRect.right - 5;
     lrect.top    = 24;
     lrect.bottom = TheRect.bottom - 5;
-    ExtTextOut(TheDC, 0, 0, ETO_OPAQUE, &lrect, NULL, 0, NULL);
-
-    SetBkColor(TheDC, loldBackColour);
+    FillRectOpaque(TheDC, lrect, RGB(0, 0, 0));
   }
 
   // Set up text attributes
-  SelectObject(TheDC, frame->mHeaderFont);
-  ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
-  SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
-
-  // Now draw platform header information
   if (Redraw)
   {
-    CopyString(TextString, "#:");
-    TextOut(TheDC, 22, 5, TextString, strlen(TextString));
-    CopyString(TextString, "Description:");
-    TextOut(TheDC, 43, 5, TextString, strlen(TextString));
+    static const HeaderLabel kPlatformHeaders[] =
+    {
+      {22, "#:"},
+      {43, "Description:"}
+    };
+
+    DrawHeaderLabels(TheDC,
+                     frame->mHeaderFont,
+                     GetSysColor(COLOR_WINDOWTEXT),
+                     GetSysColor(COLOR_BTNFACE),
+                     5,
+                     kPlatformHeaders,
+                     sizeof(kPlatformHeaders) / sizeof(kPlatformHeaders[0]));
   }
 
   // Set Text align to the right
   SelectObject(TheDC, frame->mTextFont);
+  ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
   SetTextAlign(TheDC, TA_RIGHT);
 
   if (frame->GameInProgress)
@@ -230,8 +212,8 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
         if (Redraw || (frame->DisplayHan->PPlatDataInfo[i]->GetRedraw()))
         {
           frame->DisplayHan->PPlatDataInfo[i]->SetRedraw(FALSE);
-          CopyString(LocoName, "");
-          CopyString(TrainName, "");
+          CopyBuffer(LocoName, "");
+          CopyBuffer(TrainName, "");
 
           // Draw main platform name text
           a = frame->DisplayHan->PPlatDataInfo[i]->GetSelectorRef();
@@ -259,7 +241,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
             if (a > 0)
             {
               frame->DisplayHan->PLocosInfo[a]->LocoNumStr(LocoName);
-              CopyString(TrainName, "");
+              CopyBuffer(TrainName, "");
 
               /**************************************************************/
               /* Store the loco state so we can determine the colour to use */
@@ -322,12 +304,12 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
               if (c > 0)
               {
                 frame->DisplayHan->PLocosInfo[c]->LocoNumStr(LocoName);
-                CopyString(TrainName, LocoName);
+                CopyBuffer(TrainName, LocoName);
                 AppendString(TrainName, " + ");
               }
               else
               {
-                CopyString(TrainName, "");
+                CopyBuffer(TrainName, "");
               }
 
               frame->DisplayHan->PTimetableInfo[a]->GetDepDesc(LocoName, sizeof(LocoName));
@@ -349,7 +331,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
               }
               else
               {
-                CopyString(LocoName, "");
+                CopyBuffer(LocoName, "");
               }
 
               /**************************************************************/
@@ -431,7 +413,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
         ::SetTextColor(TheDC, RGB(255, 255, 255));
 
         frame->DisplayHan->HoldLocoChng = FALSE;
-        CopyString(TextString, "Hold");
+        CopyBuffer(TextString, "Hold");
         TextOut(TheDC, 33, 25+17*MaxVal, TextString, strlen(TextString));
         if (frame->DisplayHan->HoldLoco > 0)
         {
@@ -450,12 +432,12 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
           }
           else
           {
-            CopyString(TextString, "");
+            CopyBuffer(TextString, "");
           }
         }
         else
         {
-          CopyString(TextString, "");
+          CopyBuffer(TextString, "");
         }
 
         lRect.left   = 35;
@@ -464,13 +446,13 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
         lRect.bottom = 41+17*MaxVal;
         ExtTextOut(TheDC, lRect.left, lRect.top, ETO_OPAQUE, &lRect, "", 0, NULL);
         TextOut(TheDC, 240, 25+17*MaxVal, TextString, strlen(TextString));
-        CopyString(Currently[MaxVal+1], TextString);
+        CopyBuffer(Currently[MaxVal+1], TextString);
       }
     }
   }
 
   // Tidy up
-  if (MadeDC) ReleaseDC(HWindow, TheDC);
+  (void)dcGuard;
 }
 
 
@@ -478,4 +460,3 @@ DEFINE_RESPONSE_TABLE1(TPlatform, TFrameWindow)
     EV_WM_SIZE,
     EV_WM_MOVE,
 END_RESPONSE_TABLE;
-

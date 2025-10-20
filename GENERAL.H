@@ -231,7 +231,101 @@
 #define TRC_ALT(X)
 #define TRC_NRM(X)
 #define TRC_DBG(X)
-#endif
+
+#endif // MDDEBUG
+
+
+template <std::size_t BufferCapacity>
+class TBuffer
+{
+public:
+  TBuffer()
+  {
+    mData[0] = '\0';
+  }
+
+  char* Data()
+  {
+    return mData;
+  }
+
+  const char* Data() const
+  {
+    return mData;
+  }
+
+  constexpr std::size_t Capacity() const
+  {
+    return BufferCapacity;
+  }
+
+  char& operator[](std::size_t index)
+  {
+    return mData[index];
+  }
+
+  const char& operator[](std::size_t index) const
+  {
+    return mData[index];
+  }
+
+  char& operator[](int index)
+  {
+    return mData[index];
+  }
+
+  const char& operator[](int index) const
+  {
+    return mData[index];
+  }
+
+  operator char*()
+  {
+    return mData;
+  }
+
+  operator const char*() const
+  {
+    return mData;
+  }
+
+private:
+  char mData[BufferCapacity];
+};
+
+inline bool CopyBuffer(char* buffer, std::size_t bufferSize, const char* value)
+{
+  if (!buffer || bufferSize == 0)
+  {
+    return false;
+  }
+
+  const char* source = value ? value : "";
+  HRESULT hr = ::StringCchCopyA(buffer, bufferSize, source);
+  if (FAILED(hr))
+  {
+    buffer[bufferSize - 1] = '\0';
+    return false;
+  }
+  return true;
+}
+
+inline bool CopyBuffer(char* buffer, std::size_t bufferSize, const std::string& value)
+{
+  return CopyBuffer(buffer, bufferSize, value.c_str());
+}
+
+template <std::size_t BufferSize>
+inline bool CopyBuffer(char (&buffer)[BufferSize], const char* value)
+{
+  return CopyBuffer(buffer, BufferSize, value);
+}
+
+template <std::size_t BufferCapacity>
+inline bool CopyBuffer(TBuffer<BufferCapacity>& buffer, const char* value)
+{
+  return CopyBuffer(buffer.Data(), buffer.Capacity(), value);
+}
 
 template <std::size_t BufferSize, typename... Args>
 inline void FormatBuffer(char (&buffer)[BufferSize], const char* format, Args... args)
@@ -250,36 +344,47 @@ inline void FormatBuffer(char (&buffer)[BufferSize], const char* format, Args...
   }
 }
 
-template <std::size_t BufferSize>
-inline void CopyString(char (&buffer)[BufferSize], const char* value)
+template <std::size_t BufferCapacity, typename... Args>
+inline bool FormatBuffer(TBuffer<BufferCapacity>& buffer, const char* format, Args... args)
 {
-  const char* source = value ? value : "";
-  HRESULT hr = ::StringCchCopyA(buffer, BufferSize, source);
+  if (!format)
+  {
+    buffer.Data()[0] = '\0';
+    return false;
+  }
+
+  HRESULT hr = ::StringCchPrintfA(buffer.Data(), buffer.Capacity(), format, args...);
   if (FAILED(hr))
   {
-    buffer[BufferSize - 1] = '\0';
+    buffer.Data()[buffer.Capacity() - 1] = '\0';
+    return false;
   }
+  return true;
 }
 
-inline void CopyString(char* buffer, std::size_t bufferSize, const char* value)
-{
-  if (!buffer || bufferSize == 0)
+  #if defined(_MSC_VER)
+  template <std::size_t BufferSize>
+  inline void CopyString(char (&)[BufferSize], const char*) = delete;
+  inline void CopyString(char*, std::size_t, const char*) = delete;
+  inline void CopyString(char*, std::size_t, const std::string&) = delete;
+  #else
+  template <std::size_t BufferSize>
+  inline void CopyString(char (&buffer)[BufferSize], const char* value)
   {
-    return;
+    CopyBuffer(buffer, BufferSize, value);
   }
-
-  const char* source = value ? value : "";
-  HRESULT hr = ::StringCchCopyA(buffer, bufferSize, source);
-  if (FAILED(hr))
+  
+  inline void CopyString(char* buffer, std::size_t bufferSize, const char* value)
   {
-    buffer[bufferSize - 1] = '\0';
+    CopyBuffer(buffer, bufferSize, value);
   }
-}
+  
+  inline void CopyString(char* buffer, std::size_t bufferSize, const std::string& value)
+  {
+    CopyBuffer(buffer, bufferSize, value.c_str());
+  }
+  #endif
 
-inline void CopyString(char* buffer, std::size_t bufferSize, const std::string& value)
-{
-  CopyString(buffer, bufferSize, value.c_str());
-}
 
 template <std::size_t BufferSize>
 inline void AppendString(char (&buffer)[BufferSize], const char* value)
@@ -328,6 +433,8 @@ int checkisspace(char c);
 char* lTrim(char* p);
 char* rTrim(char* p);
 char* Trim(char* p);
+
+#undef RC_DEPRECATED
 
 #endif // GENERAL_H_INCLUDED
 

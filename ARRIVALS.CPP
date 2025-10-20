@@ -121,94 +121,68 @@ void TArrivals::Paint(TDC& dc, bool erase, TRect& rect)
 
 void TArrivals::UpdateDisplay(HDC TheDC, BOOL Redraw)
 {
-  BOOL     MadeDC;
-  HPEN     hOldPen, hPen;
+  TReleaseDcGuard dcGuard;
+  if (TheDC == 0)
+  {
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    TheDC = dcGuard.Get();
+  }
+  if (!TheDC)
+  {
+    return;
+  }
+
   RECT     TheRect;
   int      Exp;
   int      lii = 0;
   char     TextString[40];
-  COLORREF loldBackColour;
   RECT     lrect;
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
 
-  if (TheDC == 0)
-  {
-    // We need to create a new DC
-    TheDC = GetDC(HWindow);
-    MadeDC = TRUE;
-  }
-  else
-  {
-    MadeDC = FALSE;
-  }
-
   if (Redraw)
   {
-    // Draw a bounding box (3D effect)
     ::GetClientRect(HWindow, &TheRect);
 
     if ((TheRect.right > 3) && (TheRect.bottom > 3))
     {
-      hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT));
-      hOldPen = (HPEN) SelectObject(TheDC, hPen);
-      MoveToEx(TheDC, TheRect.right-4, 23, 0);
-      LineTo(TheDC, TheRect.right-4, TheRect.bottom-4);
-      LineTo(TheDC, 3, TheRect.bottom-4);
-      SelectObject(TheDC, hOldPen);
-      DeleteObject(hPen);
-
-      hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW));
-      hOldPen = (HPEN) SelectObject(TheDC, hPen);
-      LineTo(TheDC, 3, 23);
-      LineTo(TheDC, TheRect.right-4, 23);
-      SelectObject(TheDC, hOldPen);
-      DeleteObject(hPen);
+      DrawRaisedPanel(TheDC, TheRect, 23);
     }
-
-    /************************************************************************/
-    /* Draw a black background to the data box.                             */
-    /************************************************************************/
-    loldBackColour = SetBkColor(TheDC, RGB(0, 0, 0));
 
     lrect.left   = 4;
     lrect.right  = TheRect.right - 5;
     lrect.top    = 24;
     lrect.bottom = TheRect.bottom - 5;
-    ExtTextOut(TheDC, 0, 0, ETO_OPAQUE, &lrect, NULL, 0, NULL);
-
-    SetBkColor(TheDC, loldBackColour);
+    FillRectOpaque(TheDC, lrect, RGB(0, 0, 0));
   }
 
-  // Set up text attributes
-  SelectObject(TheDC, frame->mHeaderFont);
-  ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
-  SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
-
-  // Now draw timetable header information
   if (Redraw)
   {
-    CopyString(TextString, "Due:");
-    TextOut(TheDC, ARR_OFFSET_DUE, 5, TextString, strlen(TextString));
-    CopyString(TextString, "On:");
-    TextOut(TheDC, ARR_OFFSET_ON, 5, TextString, strlen(TextString));
-    CopyString(TextString, "+:");
-    TextOut(TheDC, ARR_OFFSET_LATE, 5, TextString, strlen(TextString));
-    CopyString(TextString, "Loco / MU:");
-    TextOut(TheDC, ARR_OFFSET_LOCO, 5, TextString, strlen(TextString));
-    CopyString(TextString, "Description:");
-    TextOut(TheDC, ARR_OFFSET_ARRDESC, 5, TextString, strlen(TextString));
-    CopyString(TextString, "Status:");
-    TextOut(TheDC, ARR_OFFSET_STATUS, 5, TextString, strlen(TextString));
-    CopyString(TextString, "Dep:");
-    TextOut(TheDC, ARR_OFFSET_DEPTIME, 5, TextString, strlen(TextString));
-    CopyString(TextString, "Description:");
-    TextOut(TheDC, ARR_OFFSET_DEPDESC, 5, TextString, strlen(TextString));
+    static const HeaderLabel kArrivalHeaders[] =
+    {
+      {ARR_OFFSET_DUE, "Due:"},
+      {ARR_OFFSET_ON, "On:"},
+      {ARR_OFFSET_LATE, "+:"},
+      {ARR_OFFSET_LOCO, "Loco / MU:"},
+      {ARR_OFFSET_ARRDESC, "Description:"},
+      {ARR_OFFSET_STATUS, "Status:"},
+      {ARR_OFFSET_DEPTIME, "Dep:"},
+      {ARR_OFFSET_DEPDESC, "Description:"}
+    };
+
+    DrawHeaderLabels(TheDC,
+                     frame->mHeaderFont,
+                     GetSysColor(COLOR_WINDOWTEXT),
+                     GetSysColor(COLOR_BTNFACE),
+                     5,
+                     kArrivalHeaders,
+                     sizeof(kArrivalHeaders) / sizeof(kArrivalHeaders[0]));
   }
 
   SelectObject(TheDC, frame->mTextFont);
+  ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
+  SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
   if (frame->GameInProgress)
   {
-   // Now we draw in the timetable information
     for (lii = 0; lii < DISP_NUM_ARRIVAL; lii++)
     {
       if (Redraw | frame->DisplayHan->ExpChng[lii])
@@ -218,11 +192,6 @@ void TArrivals::UpdateDisplay(HDC TheDC, BOOL Redraw)
       }
     }
   }
-
-  // Tidy up
-  if (MadeDC) ReleaseDC(HWindow, TheDC);
-
-  return;
 }
 
 
@@ -277,12 +246,12 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
    }
    else
    {
-     CopyString(TextString, "");
+    CopyBuffer(TextString, "");
    }
    TextOut(TheDC, ARR_OFFSET_LATE, YPos, TextString, strlen(TextString));
 
    // Loco attached
-   CopyString(TextString, "XXXXX");
+  CopyBuffer(TextString, "XXXXX");
    for (lii = 0; lii < 2; lii++)
    {
      llocoid = frame->DisplayHan->PTimetableInfo[TabVal]->GetLoco(lii);
@@ -346,7 +315,7 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
      ::SetTextColor(TheDC, RGB(0, 127, 0));
      a = frame->DisplayHan->PTimetableInfo[TabVal]->GetRoute();
      frame->DisplayHan->PSelectorInfo[frame->DisplayHan->PRoutesInfo[a]->GetTo()]->GetText(Str2, 20);
-     CopyString(TextString, "Set to platform ");
+    CopyBuffer(TextString, "Set to platform ");
      AppendString(TextString, Str2);
      TextOut(TheDC, ARR_OFFSET_STATUS, YPos, TextString, strlen(TextString));
     }
@@ -357,7 +326,7 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
     if (frame->DisplayHan->PTimetableInfo[TabVal]->GetDelayFlag() == DLF_DELAYS_THRU)
     {
       // Through train, so display as such.
-      CopyString(TextString, "THRU");
+      CopyBuffer(TextString, "THRU");
     }
     else
     {
@@ -385,7 +354,7 @@ void TArrivals::ConvertTime(int TimeVal, char *TimeStr)
   if ((TimeVal <= 0) | (TimeVal > 2400))
   {
     // Invalid time specified
-    CopyString(TextString, "XX:XX");
+    CopyBuffer(TextString, "XX:XX");
   }
   else
   { 
@@ -394,12 +363,12 @@ void TArrivals::ConvertTime(int TimeVal, char *TimeStr)
     _itoa_s(Hr, TextStrtwo, sizeof(TextStrtwo), 10);
     if (Hr < 10)
     {
-      CopyString(TextString, "0");
+      CopyBuffer(TextString, "0");
       AppendString(TextString, TextStrtwo);
     }
     else
     {
-      CopyString(TextString, TextStrtwo);
+      CopyBuffer(TextString, TextStrtwo);
     }
     AppendString(TextString, ":");
 
@@ -411,7 +380,7 @@ void TArrivals::ConvertTime(int TimeVal, char *TimeStr)
   }
 
   // Copy time field back to main field
-  CopyString(TimeStr, 7, TextString);
+  CopyBuffer(TimeStr, 7, TextString);
 }
 
 

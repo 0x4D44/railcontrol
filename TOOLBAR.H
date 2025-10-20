@@ -30,13 +30,13 @@ class TToolbar : public TFrameWindow
   public:
     int              NumButt;             // Number of toolbar buttons
     Toolbuttondata   ButtData;            // Struct containing button X position data
-    PToolbutton      PToolbutt[20];       // Handles to up to 20 toolbar buttons
+    TManagedArray<TToolbutton, 20> Buttons; // Managed handles to toolbar buttons
 
-    HBITMAP          ButtBitmap,          // Handle to the button bitmaps
-         	         HUpButt,	            // Handle to 'Up' button bitmap
-							HDownButt;           // Handle to 'Down' button bitmap
+    HBITMAP          ButtBitmap;          // Handle to the button bitmaps
+    TBitmapGuard     HUpButt;             // Handle to 'Up' button bitmap
+    TBitmapGuard     HDownButt;           // Handle to 'Down' button bitmap
 
-    TToolbar(TWindow * AParent, int NumButtons, Toolbuttondata ButtonData, HBITMAP ButtonBitmap);
+    TToolbar(TWindow * AParent, int NumButtons, const Toolbuttondata& ButtonData, HBITMAP ButtonBitmap);
     ~TToolbar();
 	 void SetupWindow();
    virtual void Paint(TDC& dc, bool erase, TRect& rect);
@@ -44,6 +44,8 @@ class TToolbar : public TFrameWindow
    void GetWindowClass(WNDCLASS &WndClass);
    auto GetWindowClassName() -> owl::TWindowClassName override;
    void EvSize(owl::uint sizeType, const TSize& size);
+   TToolbutton* GetButton(int index);
+   const TToolbutton* GetButton(int index) const;
 
 	 DECLARE_RESPONSE_TABLE( TToolbar );
 };

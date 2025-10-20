@@ -17,6 +17,29 @@
 
 #include "classdef.h"   		// Most important
 
+#if defined(DIAG_SETUP_STACK)
+extern volatile const char* gSetupStackLabel;
+extern volatile unsigned long gSetupStackBefore;
+extern volatile unsigned long gSetupStackAfter;
+
+#define TBAR_STACK_SNAPSHOT(name) unsigned long name = 0; __asm { mov name, esp }
+#define TBAR_STACK_VERIFY(label, before)                                           \
+  {                                                                                \
+    unsigned long _stack_after = 0;                                                \
+    __asm { mov _stack_after, esp }                                                \
+    if (_stack_after != (before))                                                  \
+    {                                                                              \
+      gSetupStackLabel = (label);                                                  \
+      gSetupStackBefore = (before);                                                \
+      gSetupStackAfter = _stack_after;                                             \
+      __debugbreak();                                                              \
+    }                                                                              \
+  }
+#else
+#define TBAR_STACK_SNAPSHOT(name) unsigned long name = 0
+#define TBAR_STACK_VERIFY(label, before) do { (void)(before); } while (0)
+#endif
+
 
 /***************************************************************/
 /* General program methods follow...  */
@@ -26,7 +49,7 @@
 /* Methods of TToolbar follow...  */
 
 
-TToolbar::TToolbar(TWindow * AParent, int NumButtons, Toolbuttondata ButtonData, HBITMAP ButtonBitmap)
+TToolbar::TToolbar(TWindow * AParent, int NumButtons, const Toolbuttondata& ButtonData, HBITMAP ButtonBitmap)
 	  :TFrameWindow(AParent, "")
 {
   // Store given information
@@ -47,8 +70,8 @@ TToolbar::TToolbar(TWindow * AParent, int NumButtons, Toolbuttondata ButtonData,
 TToolbar::~TToolbar()
 {
   // Delete objects
-  DeleteObject(HUpButt);
-  DeleteObject(HDownButt);
+  HUpButt.Reset();
+  HDownButt.Reset();
 }
 
 
@@ -78,18 +101,26 @@ void TToolbar::SetupWindow()
   for (i=1; i<=NumButt; i++)
   {
     // Create the Toolbar buttons
-    PToolbutt[i] = new TToolbutton(this,                      // this application
-				   ButtData.XPos[i],          // X position
-				   3,                         // Total num buttons
-				   i,                         // Button num
-				   ButtData.WParam[i],        // WParam
-				   ButtData.LParam[i],        // LParam
-				   ButtData.SentWindow[i],    // Window handle to send message to
-				   ButtData.StatWindow[i],    // Window handle to send status bar info to
-				   ButtData.UpText[i],        // Up text
-				   ButtData.DownText[i]);     // Down text
+    TBAR_STACK_SNAPSHOT(stackBeforeButtonEmplace);
+    TToolbutton* button = Buttons.Emplace(i,
+                                          this,                      // this application
+				                                  ButtData.XPos[i],          // X position
+				                                  3,                         // Total num buttons
+				                                  i,                         // Button num
+				                                  ButtData.WParam[i],        // WParam
+				                                  ButtData.LParam[i],        // LParam
+				                                  ButtData.SentWindow[i],    // Window handle to send message to
+				                                  ButtData.StatWindow[i],    // Window handle to send status bar info to
+				                                  ButtData.UpText[i].Data(),        // Up text
+				                                  ButtData.DownText[i].Data());     // Down text
+    TBAR_STACK_VERIFY("TToolbar::Buttons.Emplace", stackBeforeButtonEmplace);
 
-    PToolbutt[i]->Create();
+    if (button)
+    {
+      TBAR_STACK_SNAPSHOT(stackBeforeButtonCreate);
+      button->Create();
+      TBAR_STACK_VERIFY("TToolbar::button->Create", stackBeforeButtonCreate);
+    }
   }
 }
 
@@ -103,22 +134,13 @@ void TToolbar::Paint(TDC& dc, bool erase, TRect& rect)
 
 void TToolbar::DrawScreen(HDC TheDC)
 {
-  BOOL  MadeDC;
-
-  // Check to see if we need to get a DC
+  TReleaseDcGuard dcGuard;
   if (TheDC == 0)
   {
-    // need to create a new DC
-    TheDC = GetDC(HWindow);
-    MadeDC = TRUE;
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    TheDC = dcGuard.Get();
   }
-  else
-  {
-    MadeDC = FALSE;
-  }
-
-  // Release DC if we were forced to get our own
-  if (MadeDC) ReleaseDC(HWindow, TheDC);
+  (void)TheDC;
 }
 
 
@@ -146,3 +168,23 @@ void TToolbar::EvSize(owl::uint sizeType, const TSize& size)
 DEFINE_RESPONSE_TABLE1(TToolbar, TFrameWindow)
     EV_WM_SIZE,
 END_RESPONSE_TABLE;
+
+
+TToolbutton* TToolbar::GetButton(int index)
+{
+  if (index < 0 || index >= static_cast<int>(Buttons.Size()))
+  {
+    return nullptr;
+  }
+  return Buttons.Get(static_cast<std::size_t>(index));
+}
+
+
+const TToolbutton* TToolbar::GetButton(int index) const
+{
+  if (index < 0 || index >= static_cast<int>(Buttons.Size()))
+  {
+    return nullptr;
+  }
+  return Buttons.Get(static_cast<std::size_t>(index));
+}

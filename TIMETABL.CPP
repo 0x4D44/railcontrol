@@ -177,21 +177,21 @@ TTimetable::~TTimetable()
 void TTimetable::GetArrDesc(char* Text, std::size_t bufferSize)
 {
   // Copy arrival description to <Text>
-  CopyString(Text, bufferSize, mArrDesc);
+  CopyBuffer(Text, bufferSize, mArrDesc);
 }
 
 
 void TTimetable::GetDepDesc(char* Text, std::size_t bufferSize)
 {
   // Copy departure description to <Text>
-  CopyString(Text, bufferSize, mDepDesc);
+  CopyBuffer(Text, bufferSize, mDepDesc);
 }
 
 
 void TTimetable::GetComment(char* Text, std::size_t bufferSize)
 {
   // Copy comment description to <Text>
-  CopyString(Text, bufferSize, mComment);
+  CopyBuffer(Text, bufferSize, mComment);
 }
 
 

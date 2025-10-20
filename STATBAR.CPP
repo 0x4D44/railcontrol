@@ -45,19 +45,19 @@ TStatbar::TStatbar(TWindow * parent)
   TheFontLog.lfClipPrecision = CLIP_DEFAULT_PRECIS;
   TheFontLog.lfQuality = PROOF_QUALITY;
   TheFontLog.lfPitchAndFamily = VARIABLE_PITCH | FF_ROMAN;
-  CopyString(TheFontLog.lfFaceName, "Arial");
+  CopyBuffer(TheFontLog.lfFaceName, "Arial");
 
   // Create the font
   TheFont = CreateFontIndirect(&TheFontLog);
 
-  CopyString(DisplayedText, "");
+  CopyBuffer(DisplayedText, "");
 }
 
 
 TStatbar::~TStatbar()
 {
   // Delete objects created
-  DeleteObject(TheFont);
+  TheFont.Reset();
 }
 
 
@@ -76,55 +76,49 @@ void TStatbar::Paint(TDC& dc, bool erase, TRect& rect)
 
 void TStatbar::DrawScreen(HDC TheDC, BOOL TextChanged)
 {
-  BOOL    MadeDC;              // Were we forced to get our own DC?
-  RECT    lRect;
-  HPEN    hOldPen, hPen;
-
-  // Check to see if we need to get a DC
+  TReleaseDcGuard dcGuard;
   if (TheDC == 0)
   {
-	 // need to create a new DC
-    TheDC = GetDC(HWindow);
-    MadeDC = TRUE;
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    TheDC = dcGuard.Get();
   }
-  else
+  if (!TheDC)
   {
-    MadeDC = FALSE;
+    return;
   }
 
-  // Redraw if the text has changed.
+  RECT    lRect;
+  HPEN    hOldPen;
+
   SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
   if (TextChanged)  
   {
-      lRect.left   = 7;
-      lRect.top    = 4;
-      lRect.right  = Attr.W-9;
-      lRect.bottom = 17;
-      ExtTextOut(TheDC, lRect.left, lRect.top, ETO_OPAQUE, &lRect, "", 0, NULL);
+    lRect.left   = 7;
+    lRect.top    = 4;
+    lRect.right  = Attr.W-9;
+    lRect.bottom = 17;
+    ExtTextOut(TheDC, lRect.left, lRect.top, ETO_OPAQUE, &lRect, "", 0, NULL);
   }
 
-  // Draw the 3d status bar
-  hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW));
-  hOldPen = (HPEN) SelectObject(TheDC, hPen);
-  MoveToEx(TheDC, 5, 18, 0);
-  LineTo(TheDC, 5, 2);
-  LineTo(TheDC, Attr.W-8, 2);
-  SelectObject(TheDC, hOldPen);
-  DeleteObject(hPen);
+  {
+    TPenGuard shadowPen(CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW)));
+    hOldPen = (HPEN) SelectObject(TheDC, shadowPen);
+    MoveToEx(TheDC, 5, 18, 0);
+    LineTo(TheDC, 5, 2);
+    LineTo(TheDC, Attr.W-8, 2);
+    SelectObject(TheDC, hOldPen);
+  }
 
-  hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT));
-  hOldPen = (HPEN) SelectObject(TheDC, hPen);
-  LineTo(TheDC, Attr.W-8, 18);
-  LineTo(TheDC, 5, 18);
-  SelectObject(TheDC, hOldPen);
-  DeleteObject(hPen);
+  {
+    TPenGuard highlightPen(CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT)));
+    hOldPen = (HPEN) SelectObject(TheDC, highlightPen);
+    LineTo(TheDC, Attr.W-8, 18);
+    LineTo(TheDC, 5, 18);
+    SelectObject(TheDC, hOldPen);
+  }
 
-  // Select the appropriate font
   SelectObject(TheDC, TheFont);
   TextOut(TheDC, 9, 3, DisplayedText, strlen(DisplayedText));
-
-  // Release DC if we were forced to get our own
-  if (MadeDC) ReleaseDC(HWindow, TheDC);
 }
 
 
@@ -156,7 +150,7 @@ LRESULT TStatbar::SetText(WPARAM, LPARAM lp)
   TextString = (char*) lp;
 
   // Set the status bar text as specified by <TextString>
-  CopyString(DisplayedText, TextString);
+  CopyBuffer(DisplayedText, TextString);
   DrawScreen(0, TRUE);
   return 0;
 }

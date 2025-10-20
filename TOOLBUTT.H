@@ -24,28 +24,26 @@
 // Define toolbutton data structure
 typedef struct
 {
-  int   XPos[20];           // Button X positions
-  WORD  WParam[20];         // Button response message WParam value
-  long  LParam[20];         // Button response message LParam value
-  HWND  SentWindow[20],     // Handle of window to send message to
-	StatWindow[20];     // Handle of window to send status bar info to
-  char  UpText[20][100],    // Button up position text
-	DownText[20][100];  // Button down position text
+  int   XPos[20];             // Button X positions
+  WORD  WParam[20];           // Button response message WParam value
+  long  LParam[20];           // Button response message LParam value
+  HWND  SentWindow[20],       // Handle of window to send message to
+        StatWindow[20];       // Handle of window to send status bar info to
+  TBuffer<100> UpText[20];    // Button up position text
+  TBuffer<100> DownText[20];  // Button down position text
 } Toolbuttondata;
 
 
 // Define TOOLBUTTON window class
 _CLASSDEF(TToolbutton)
-typedef TToolbutton* PToolbutton;
-
 class TToolbutton : public TFrameWindow
 {
   private:
     BOOL             UpPosition,     // Button is in the 'Up' position
 							Enabled,        // Is the button enabled?
 			            LMseButton;     // Is the left mouse button selected
-	 char	            UpText[100],    // Text for button in up position
-							DownText[100];  // Text for button in down position
+	 TBuffer<100>     UpText;           // Text for button in up position
+	 TBuffer<100>     DownText;         // Text for button in down position
 	 WORD	            WParam;	       // Message WParam value
 	 long             LParam;         // Message LParam value
 	 HWND             SentWindow,     // Handle of window to send message to
@@ -55,8 +53,8 @@ class TToolbutton : public TFrameWindow
 
   public:
     TToolbutton(TWindow * AParent, int XPos, int YPos, int ButtNum, WORD WPAR,
-        long LPAR, HWND SentWin, HWND StatWin, char* UpTxt,
-        char* DownTxt);
+        long LPAR, HWND SentWin, HWND StatWin, const char* UpTxt,
+        const char* DownTxt);
     ~TToolbutton();
    void SetupWindow();
    virtual void Paint(TDC& dc, bool erase, TRect& rect);
@@ -67,8 +65,8 @@ class TToolbutton : public TFrameWindow
    void EvLButtonDown(owl::uint modKeys, const TPoint& point);
    void EvLButtonUp(owl::uint modKeys, const TPoint& point);
    void EvMouseMove(owl::uint modKeys, const TPoint& point);
-   void SetDownText(char* TextString);
-   void SetUpText(char* TextString);
+   void SetDownText(const char* TextString);
+   void SetUpText(const char* TextString);
 
     DECLARE_RESPONSE_TABLE(TToolbutton);
 };

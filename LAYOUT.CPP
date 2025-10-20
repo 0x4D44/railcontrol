@@ -27,6 +27,24 @@ inline int RoundToInt(double value)
   return static_cast<int>(std::lround(value));
 }
 
+template <std::size_t Size>
+void ClearBuffer(TBuffer<Size>& buffer)
+{
+  buffer[0] = '\0';
+}
+
+template <std::size_t Size>
+bool ReadDataLine(std::ifstream& stream, TBuffer<Size>& buffer)
+{
+  ClearBuffer(buffer);
+  if (!stream.getline(buffer.Data(), static_cast<std::streamsize>(buffer.Capacity())))
+  {
+    buffer[0] = '\0';
+    return stream.good() || stream.eof();
+  }
+  return true;
+}
+
 #if defined(DIAG_SETUP_TRACE)
 bool ShouldWriteDiagnosticsLog()
 {
@@ -133,12 +151,12 @@ TLayout::TLayout(owl::TWindow * AParent, int XPos, int YPos, int Width, int Heig
   for (i=0; i<50; i++)    POverlapDataInfo[i] = 0;
   for (i=0; i<50; i++)    PPlatDataInfo[i] = 0;
   for (i=0; i<1000; i++)  PRoutesInfo[i] = 0;
-  for (i=0; i<500; i++)   PLocosInfo[i] = 0;
-  for (i=0; i<MAX_TIMETABLE; i++)   PTimetableInfo[i] = 0;
+  PLocosInfo.Clear();
+  PTimetableInfo.Clear();
   for (i=0; i<10; i++)    PTrackLoco[i] = 0;
 
   // Clear text
-  for (i=0; i<3; i++)  CopyString(StartText[i], "");
+  for (i=0; i<3; i++)  CopyBuffer(StartText[i], "");
 }
 
 
@@ -151,7 +169,7 @@ TLayout::~TLayout()
   ClearData();
 
   // Delete time symbol bitmap
-  DeleteObject(HTimeSym);
+  HTimeSym.Reset();
 #if defined(DIAG_SETUP_TRACE)
   LogLayoutEvent("TLayout:dtor:end", this);
 #endif
@@ -244,12 +262,11 @@ void TLayout::ClearData()
   {
     if (PLocosInfo[i] != 0)
     {
-      delete((PLocos) PLocosInfo[i]);
 #if defined(DIAG_SETUP_TRACE)
       ++deletedLocos;
 #endif
     }
-    PLocosInfo[i] = 0;
+    PLocosInfo.Reset(i);
   }
 
   // Clear timetable information
@@ -257,12 +274,11 @@ void TLayout::ClearData()
   {
     if (PTimetableInfo[i] != 0)
     {
-      delete((PTimetable) PTimetableInfo[i]);
 #if defined(DIAG_SETUP_TRACE)
       ++deletedTimetable;
 #endif
     }
-    PTimetableInfo[i] = 0;
+    PTimetableInfo.Reset(i);
   }
 
   // Clear track loco information
@@ -412,22 +428,22 @@ void TLayout::Paint(TDC& dc, bool erase, TRect& rect)
 
 void TLayout::UpdateDisplay(HDC TheDC)
 {
-  BOOL    MadeDC;
-  HPEN    hOldPen, hPen;
+  HPEN    hOldPen;
   RECT    TheRect;
   int     i;
-  HDC     MemDC;                    // Copied DC
-  HBITMAP HOldBitmap, HLoco1;       // Handle to a bitmap
+  TDcGuard MemDC;                   // Copied DC
+  HBITMAP HOldBitmap;               // Handle to a bitmap
+  TBitmapGuard HLoco1;              // Handle to a bitmap
 
+  TReleaseDcGuard dcGuard;
   if (TheDC == 0)
   {
-    // We need to create a new DC
-    TheDC = GetDC(HWindow);
-    MadeDC = TRUE;
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    TheDC = dcGuard.Get();
   }
-  else
+  if (!TheDC)
   {
-    MadeDC = FALSE;
+    return;
   }
 
   // Get handle to main frame window
@@ -438,20 +454,22 @@ void TLayout::UpdateDisplay(HDC TheDC)
 
   if ((TheRect.right > 3) && (TheRect.bottom > 3))
   {
-    hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT));
-    hOldPen = (HPEN) SelectObject(TheDC, hPen);
-    MoveToEx(TheDC, TheRect.right-2, 1, 0);
-    LineTo(TheDC, TheRect.right-2, TheRect.bottom-1);
-    LineTo(TheDC, 3, TheRect.bottom-1);
-    SelectObject(TheDC, hOldPen);
-    DeleteObject(hPen);
+    {
+      TPenGuard highlightPen(CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT)));
+      hOldPen = (HPEN) SelectObject(TheDC, highlightPen);
+      MoveToEx(TheDC, TheRect.right-2, 1, 0);
+      LineTo(TheDC, TheRect.right-2, TheRect.bottom-1);
+      LineTo(TheDC, 3, TheRect.bottom-1);
+      SelectObject(TheDC, hOldPen);
+    }
 
-    hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW));
-    hOldPen = (HPEN) SelectObject(TheDC, hPen);
-    LineTo(TheDC, 3, 1);
-    LineTo(TheDC, TheRect.right-2, 1);
-    SelectObject(TheDC, hOldPen);
-    DeleteObject(hPen);
+    {
+      TPenGuard shadowPen(CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW)));
+      hOldPen = (HPEN) SelectObject(TheDC, shadowPen);
+      LineTo(TheDC, 3, 1);
+      LineTo(TheDC, TheRect.right-2, 1);
+      SelectObject(TheDC, hOldPen);
+    }
 
     if (frame->GameInProgress)
     {
@@ -486,22 +504,21 @@ void TLayout::UpdateDisplay(HDC TheDC)
       HLoco1 = ::LoadBitmap(GetModule()->GetHandle(), TEXT("LOCO"));
       ::GetClientRect(HWindow, &TheRect);
 
-      MemDC = CreateCompatibleDC(TheDC);
-      HOldBitmap = (HBITMAP) SelectObject(MemDC, HLoco1);
+      MemDC.Reset(CreateCompatibleDC(TheDC));
+      HDC memHandle = MemDC.Get();
+      if (memHandle && HLoco1.IsValid())
+      {
+        HOldBitmap = (HBITMAP) SelectObject(memHandle, HLoco1);
 
-      // StretchBlt it
-      StretchBlt(TheDC, 5, 5, (TheRect.right-TheRect.left-10), (TheRect.bottom-TheRect.top-10),
-                 MemDC, 0, 0, 150, 130, SRCCOPY);
-      SelectObject(MemDC, HOldBitmap);
+        // StretchBlt it
+        StretchBlt(TheDC, 5, 5, (TheRect.right-TheRect.left-10), (TheRect.bottom-TheRect.top-10),
+                   memHandle, 0, 0, 150, 130, SRCCOPY);
+        SelectObject(memHandle, HOldBitmap);
+      }
 
-      // Delete compatible DC
-      DeleteDC(MemDC);
-      DeleteObject(HLoco1);
+      // Delete compatible DC handled by guard
     }
   }
-
-  // Tidy up
-  if (MadeDC) ReleaseDC(HWindow, TheDC);
 }
 
 
@@ -567,7 +584,7 @@ void TLayout::IniVariables()
   }
 
   // Clear text
-  for (i=0; i<3; i++)  CopyString(StartText[i], "");
+  for (i=0; i<3; i++)  CopyBuffer(StartText[i], "");
 
   // Debug controls
   mDrawSelectorNumber = FALSE;
@@ -618,7 +635,7 @@ BOOL TLayout::StartNew()
         *lastSlash = '\0';
       }
       lstrcatA(fallbackPath, "FAST.RCD");
-      CopyString(frame->DataFileName, sizeof(frame->DataFileName), fallbackPath);
+      CopyBuffer(frame->DataFileName, fallbackPath);
       dataLoaded = ReadDataFile();
     }
   }
@@ -750,34 +767,33 @@ void TLayout::HandleTimeChange()
 
   TRC_NRM((TB, "Cycle complete"));
 
-  CopyString(TextString, "Ready");
+  CopyBuffer(TextString, "Ready");
   ::SendMessage(frame->StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) TextString));
 }
 
 
 void TLayout::DrawClock(HDC TheDC, BOOL xiRedraw)
 {
-  BOOL    MadeDC;
-  HPEN    hOldPen, hPen;
-  HDC     MemDC;
+  HPEN    hOldPen;
+  TDcGuard MemDC;
   RECT    lClientRect;
   RECT    lTmpRect;
   float   lDelay;
   int     Val1, Val2, Val3, Val4, Val5;
   int     OldVal1, OldVal2, OldVal3, OldVal4, OldVal5;
   int     XOrigin, YOrigin, Width, Height;
-  HFONT   HTheFont, HOldFont;
+  HFONT   HOldFont;
 
 
+  TReleaseDcGuard dcGuard;
   if (TheDC == 0)
   {
-    // We need to create a new DC
-    TheDC = GetDC(HWindow);
-    MadeDC = TRUE;
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    TheDC = dcGuard.Get();
   }
-  else
+  if (!TheDC)
   {
-    MadeDC = FALSE;
+    return;
   }
 
   // Get handle to main frame window
@@ -787,8 +803,9 @@ void TLayout::DrawClock(HDC TheDC, BOOL xiRedraw)
   ::GetClientRect(HWindow, &lClientRect);
 
   // Create DC and get ready for some bitblt'ing...
-  MemDC = CreateCompatibleDC(TheDC);
-  SelectObject(MemDC, HTimeSym);
+  MemDC.Reset(CreateCompatibleDC(TheDC));
+  HDC memHandle = MemDC.Get();
+  SelectObject(memHandle, HTimeSym);
 
   if (frame->GameInProgress)
   {
@@ -803,20 +820,22 @@ void TLayout::DrawClock(HDC TheDC, BOOL xiRedraw)
       // Only draw the background/box if redraw is TRUE
       if (xiRedraw)
       {
-        hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW));
-        hOldPen = (HPEN) SelectObject(TheDC, hPen);
-        MoveToEx(TheDC, XOrigin, YOrigin+Height, 0);
-        LineTo(TheDC, XOrigin, YOrigin);
-        LineTo(TheDC, XOrigin+Width, YOrigin);
-        SelectObject(TheDC, hOldPen);
-        DeleteObject(hPen);
+        {
+          TPenGuard shadowPen(CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW)));
+          hOldPen = (HPEN) SelectObject(TheDC, shadowPen);
+          MoveToEx(TheDC, XOrigin, YOrigin+Height, 0);
+          LineTo(TheDC, XOrigin, YOrigin);
+          LineTo(TheDC, XOrigin+Width, YOrigin);
+          SelectObject(TheDC, hOldPen);
+        }
 
-        hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT));
-        hOldPen = (HPEN) SelectObject(TheDC, hPen);
-        LineTo(TheDC, XOrigin+Width, YOrigin+Height);
-        LineTo(TheDC, XOrigin, YOrigin+Height);
-        SelectObject(TheDC, hOldPen);
-        DeleteObject(hPen);
+        {
+          TPenGuard highlightPen(CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT)));
+          hOldPen = (HPEN) SelectObject(TheDC, highlightPen);
+          LineTo(TheDC, XOrigin+Width, YOrigin+Height);
+          LineTo(TheDC, XOrigin, YOrigin+Height);
+          SelectObject(TheDC, hOldPen);
+        }
 
         // Fill in the background
         SelectObject(TheDC, GetStockObject(BLACK_BRUSH));
@@ -850,19 +869,19 @@ void TLayout::DrawClock(HDC TheDC, BOOL xiRedraw)
         if (Val1 != 0)
         {
           StretchBlt(TheDC, XOrigin, YOrigin, digitWidth, Height-1,
-                     MemDC, 0, 252-Val1*23, 13, 23, SRCCOPY);
+                     memHandle, 0, 252-Val1*23, 13, 23, SRCCOPY);
         }
         else
         {
           StretchBlt(TheDC, XOrigin, YOrigin, digitWidth, Height-1,
-                     MemDC, 0, 23, 13, 23, SRCCOPY);
+                     memHandle, 0, 23, 13, 23, SRCCOPY);
         }
       }
       if (xiRedraw || (Val2 != OldVal2))
       {
         const int digitWidth = RoundToInt(static_cast<double>(Width) / 4.5);
         StretchBlt(TheDC, XOrigin + RoundToInt(2.0 * Width / 9.0), YOrigin, digitWidth, Height-1,
-                   MemDC, 0, 252-Val2*23, 13, 23, SRCCOPY);
+                   memHandle, 0, 252-Val2*23, 13, 23, SRCCOPY);
       }
 
       // Now stick the double dot seperator on the screen
@@ -870,7 +889,7 @@ void TLayout::DrawClock(HDC TheDC, BOOL xiRedraw)
       {
         const int separatorWidth = RoundToInt(static_cast<double>(Width) / 9.0);
         StretchBlt(TheDC, XOrigin + RoundToInt(4.0 * Width / 9.0), YOrigin, separatorWidth, Height-1,
-                   MemDC, 3, 275+23*Val5, 6, 23, SRCCOPY);
+                   memHandle, 3, 275+23*Val5, 6, 23, SRCCOPY);
       }
 
       // Val3 and Val4
@@ -878,23 +897,23 @@ void TLayout::DrawClock(HDC TheDC, BOOL xiRedraw)
       {
         const int digitWidth = RoundToInt(static_cast<double>(Width) / 4.5);
         StretchBlt(TheDC, XOrigin + RoundToInt(5.0 * Width / 9.0), YOrigin, digitWidth, Height-1,
-                   MemDC, 0, 252-Val3*23, 13, 23, SRCCOPY);
+                   memHandle, 0, 252-Val3*23, 13, 23, SRCCOPY);
       }
       if (xiRedraw || (OldVal4 != Val4))
       {
         const int digitWidth = RoundToInt(static_cast<double>(Width) / 4.5);
         StretchBlt(TheDC, XOrigin + RoundToInt(7.0 * Width / 9.0), YOrigin, digitWidth, Height-1,
-                   MemDC, 0, 252-Val4*23, 13, 23, SRCCOPY);
+                   memHandle, 0, 252-Val4*23, 13, 23, SRCCOPY);
       }
 
                            
       if (xiRedraw)
       {
         // Redraw the font items
-        HTheFont = CreateFont(RoundToInt(0.06 * lClientRect.bottom), 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-              CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, (LPSTR)"Arial");
+        TFontGuard displayFont(CreateFont(RoundToInt(0.06 * lClientRect.bottom), 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+              CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, (LPSTR)"Arial"));
 
-        HOldFont = (HFONT) SelectObject(TheDC, HTheFont);
+        HOldFont = (HFONT) SelectObject(TheDC, displayFont);
         ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
         SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
         SetTextAlign(TheDC, TA_CENTER);
@@ -902,15 +921,10 @@ void TLayout::DrawClock(HDC TheDC, BOOL xiRedraw)
         TextOut(TheDC, RoundToInt(0.1375 * lClientRect.right), RoundToInt(0.8 * lClientRect.bottom), "Arrival delay:", 14);
         TextOut(TheDC, RoundToInt(0.3375 * lClientRect.right), RoundToInt(0.8 * lClientRect.bottom), "Departure delay:", 16);
         SelectObject(TheDC, HOldFont);
-
-        DeleteObject(HTheFont);
       }
 
       // Delete memory DC
-      DeleteDC(MemDC);
-
-      // Tidy up
-      if (MadeDC) ReleaseDC(HWindow, TheDC);
+      MemDC.Reset();
 
       /**********************************************************************/
       /* Now draw in the average arrival delay box.                         */
@@ -970,53 +984,46 @@ void TLayout::DrawClock(HDC TheDC, BOOL xiRedraw)
 /****************************************************************************/
 void TLayout::DrawDelayBox(RECT xiRect, float xiDelay)
 {
-  HDC     lDC                     = NULL;
-  HDC     lMemDC                  = NULL;
-  HPEN    lOldPen                 = NULL;
-  HPEN    lPen                    = NULL;
-  int     lBmpOffset              = 0;
-  int     lVal[4]                 = {0};
-  int     lCharWidth              = 0;
-  int     lCharHeight             = 0;
-  int     lii                     = 0;
+  TReleaseDcGuard dcGuard(HWindow, GetDC(HWindow));
+  HDC lDC = dcGuard.Get();
+  if (!lDC)
+  {
+    return;
+  }
 
-  /**************************************************************************/
-  /* Create a new DC.                                                       */
-  /**************************************************************************/
-  lDC = GetDC(HWindow);
+  TDcGuard memDcGuard(CreateCompatibleDC(lDC));
+  HDC lMemDC = memDcGuard.Get();
+  if (!lMemDC)
+  {
+    return;
+  }
 
-  /**************************************************************************/
-  /* Create DC and get ready for some bitblt'ing...                         */
-  /**************************************************************************/
-  lMemDC = CreateCompatibleDC(lDC);
   SelectObject(lMemDC, HTimeSym);
 
-  lPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW));
-  lOldPen = (HPEN) SelectObject(lDC, lPen);
-  MoveToEx(lDC, xiRect.left, xiRect.bottom, 0);
-  LineTo(lDC, xiRect.left, xiRect.top);
-  LineTo(lDC, xiRect.right, xiRect.top);
-  SelectObject(lDC, lOldPen);
-  DeleteObject(lPen);
+  {
+    TPenGuard shadowPen(CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW)));
+    HPEN lOldPen = (HPEN) SelectObject(lDC, shadowPen);
+    MoveToEx(lDC, xiRect.left, xiRect.bottom, 0);
+    LineTo(lDC, xiRect.left, xiRect.top);
+    LineTo(lDC, xiRect.right, xiRect.top);
+    SelectObject(lDC, lOldPen);
+  }
 
-  lPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT));
-  lOldPen = (HPEN) SelectObject(lDC, lPen);
-  LineTo(lDC, xiRect.right, xiRect.bottom);
-  LineTo(lDC, xiRect.left, xiRect.bottom);
-  SelectObject(lDC, lOldPen);
-  DeleteObject(lPen);
+  {
+    TPenGuard highlightPen(CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT)));
+    HPEN lOldPen = (HPEN) SelectObject(lDC, highlightPen);
+    LineTo(lDC, xiRect.right, xiRect.bottom);
+    LineTo(lDC, xiRect.left, xiRect.bottom);
+    SelectObject(lDC, lOldPen);
+  }
 
-  // Fill in the background
   SelectObject(lDC, GetStockObject(BLACK_BRUSH));
   SelectObject(lDC, GetStockObject(BLACK_PEN));
   Rectangle(lDC, xiRect.left, xiRect.top, xiRect.right, xiRect.bottom);
 
-  /**************************************************************************/
-  /* Calculate individual digit values.  Add 0.05 to the total for          */
-  /* rounding.                                                              */
-  /**************************************************************************/
   xiDelay += 0.05f;
   const int roundedDelay = static_cast<int>(xiDelay);
+  int lVal[4] = {0};
   lVal[0] = roundedDelay / 100;
   lVal[1] = (roundedDelay % 100) / 10;
   lVal[2] = roundedDelay % 10;
@@ -1024,88 +1031,53 @@ void TLayout::DrawDelayBox(RECT xiRect, float xiDelay)
 
   TRC_NRM((TB, "xiDelay:%f lVal:%d.%d.%d.%d", xiDelay, lVal[0], lVal[1], lVal[2], lVal[3]));
 
-  /************************************************************************/
-  /* Calculate bitmap X offset - ie whether we use green or red 'LED's.   */
-  /************************************************************************/
-  if (xiDelay < 5)
-  {
-    /**********************************************************************/
-    /* Use green 'LED's                                                   */
-    /**********************************************************************/
-    lBmpOffset = 13;
-  }
-  else
-  {
-    /**********************************************************************/
-    /* Use red 'LED's.                                                    */
-    /**********************************************************************/
-    lBmpOffset = 0;
-  }
+  const int lBmpOffset = (xiDelay < 5) ? 13 : 0;
 
   const double availableWidth = static_cast<double>(xiRect.right - xiRect.left);
-  lCharWidth  = RoundToInt(availableWidth / 4.25);
-  lCharHeight = (xiRect.bottom - xiRect.top) - 2;
+  const int lCharWidth  = RoundToInt(availableWidth / 4.25);
+  const int lCharHeight = (xiRect.bottom - xiRect.top) - 2;
 
-  for (lii = 0; lii < 3; lii++)
+  for (int lii = 0; lii < 3; ++lii)
   {
-    /************************************************************************/
-    /* Don't draw leading zeros - rather use the "not illuminated"          */
-    /* character.                                                           */
-    /************************************************************************/
-    if ((lii < 2) && (xiDelay < 100) && (lVal[lii] == 0))
-    {
-      StretchBlt(lDC, 
-                 xiRect.left + lCharWidth * lii, xiRect.top + 1, 
-                 lCharWidth, lCharHeight,
-                 lMemDC, 
-                 lBmpOffset, 23, 
-                 13, 23, 
-                 SRCCOPY);
-    }
-    else 
-    {
-      StretchBlt(lDC, 
-                 xiRect.left + lCharWidth * lii, xiRect.top + 1, 
-                 lCharWidth, lCharHeight,
-                 lMemDC, 
-                 lBmpOffset, 253 - (lVal[lii]*23),
-                 13, 23, 
-                 SRCCOPY);
-    }
+    const bool suppressLeading = (lii < 2) && (xiDelay < 100) && (lVal[lii] == 0);
+    const int sourceY = suppressLeading ? 23 : (253 - (lVal[lii] * 23));
+
+    StretchBlt(lDC,
+               xiRect.left + lCharWidth * lii,
+               xiRect.top + 1,
+               lCharWidth,
+               lCharHeight,
+               lMemDC,
+               lBmpOffset,
+               sourceY,
+               13,
+               23,
+               SRCCOPY);
   }
 
-  /**************************************************************************/
-  /* Draw the decimal point.                                                */
-  /**************************************************************************/
   StretchBlt(lDC,
-             xiRect.left + lCharWidth * 3, xiRect.top + 1,
-             lCharWidth, lCharHeight,
+             xiRect.left + lCharWidth * 3,
+             xiRect.top + 1,
+             lCharWidth,
+             lCharHeight,
              lMemDC,
-             lBmpOffset, 322,
-             13, 23,
+             lBmpOffset,
+             322,
+             13,
+             23,
              SRCCOPY);
 
-  /**************************************************************************/
-  /* Draw the final digit.                                                  */
-  /**************************************************************************/
   StretchBlt(lDC,
-             xiRect.left + RoundToInt(static_cast<double>(lCharWidth) * 3.25), xiRect.top + 1,
-             lCharWidth, lCharHeight,
+             xiRect.left + RoundToInt(static_cast<double>(lCharWidth) * 3.25),
+             xiRect.top + 1,
+             lCharWidth,
+             lCharHeight,
              lMemDC,
-             lBmpOffset, 253 - (lVal[3]*23),
-             13, 23,
+             lBmpOffset,
+             253 - (lVal[3] * 23),
+             13,
+             23,
              SRCCOPY);
-
-
-  /**************************************************************************/
-  /* Delete memory DC.                                                      */
-  /**************************************************************************/
-  DeleteDC(lMemDC);
-
-  /**************************************************************************/
-  /* Free the DC.                                                           */
-  /**************************************************************************/
-  ReleaseDC(HWindow, lDC);
 }
 
 
@@ -1114,11 +1086,12 @@ void TLayout::DrawSection(HDC xiDC, int xiSectNum)
   // This routine is responsible for drawing a section
   // on the screen.
 
-  BOOL   lMadeDC;          // Did we make a DC?
+  TReleaseDcGuard dcGuard;
   POINT  lSetPoint[4];     // Temporary point array
   POINT  lTmpPoint[4];     // Temporary point array
   HBRUSH lOldBrush;        // Old DC brush handle
-  HFONT  lFont, lOldFont;
+  TFontGuard lFont;
+  HFONT  lOldFont;
   SIZE   lTextSize;
   char   lSectionText[10];
 
@@ -1128,14 +1101,12 @@ void TLayout::DrawSection(HDC xiDC, int xiSectNum)
   // Do we need to create a new DC?
   if (xiDC == 0)
   {
-    // ...yes we do
-    xiDC = GetDC(HWindow);
-    lMadeDC = TRUE;
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    xiDC = dcGuard.Get();
   }
-  else
+  if (!xiDC)
   {
-    // ...no we don't
-    lMadeDC = FALSE;
+    return;
   }
 
   // Get handle to main frame window
@@ -1171,17 +1142,17 @@ void TLayout::DrawSection(HDC xiDC, int xiSectNum)
     }
     lLabelSection->GetSection(lTmpPoint);
     lFont = CreateFont((2 * (lTmpPoint[3].y - lTmpPoint[0].y)),
-                       0, 0, 0, 
-                       FW_NORMAL, 
-                       0, 0, 0, 
-                       ANSI_CHARSET, 
+                       0, 0, 0,
+                       FW_NORMAL,
+                       0, 0, 0,
+                       ANSI_CHARSET,
                        OUT_DEFAULT_PRECIS,
-                       CLIP_DEFAULT_PRECIS, 
-                       DEFAULT_QUALITY, 
-                       FF_DONTCARE, 
+                       CLIP_DEFAULT_PRECIS,
+                       DEFAULT_QUALITY,
+                       FF_DONTCARE,
                        (LPSTR)"Arial");
-                          
-    lOldFont = (HFONT) SelectObject(xiDC, lFont);
+
+    lOldFont = (HFONT) SelectObject(xiDC, lFont.Get());
 
     /************************************************************************/
     /* Format the section number.                                           */
@@ -1202,15 +1173,12 @@ void TLayout::DrawSection(HDC xiDC, int xiSectNum)
     /* Re-select the old font and delete the one we used to draw with.      */
     /************************************************************************/
     SelectObject(xiDC, lOldFont);
-    DeleteObject(lFont);
-    lFont = NULL;
   }
 
   // Reselect the old brush
   SelectObject(xiDC, lOldBrush);
 
-  // Tidy up
-  if (lMadeDC) ReleaseDC(HWindow, xiDC);
+  (void)dcGuard;
 }
 
 
@@ -1221,7 +1189,7 @@ void TLayout::DrawPlatform(HDC TheDC, int PlatNum)
 
   int    a;
   int    lState;
-  BOOL   MadeDC;          // Did we make a DC?
+  TReleaseDcGuard dcGuard;
   POINT  MSetPoint[4];    // Temporary point array
   HBRUSH OldBrush;        // Old DC brush handle
 
@@ -1234,14 +1202,12 @@ void TLayout::DrawPlatform(HDC TheDC, int PlatNum)
   // Do we need to create a new DC?
   if (TheDC == 0)
   {
-    // ...yes we do
-    TheDC = GetDC(HWindow);
-    MadeDC = TRUE;
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    TheDC = dcGuard.Get();
   }
-  else
+  if (!TheDC)
   {
-    // ...no we don't
-    MadeDC = FALSE;
+    return;
   }
 
   // Select pen for drawing outlines
@@ -1309,7 +1275,7 @@ void TLayout::DrawPlatform(HDC TheDC, int PlatNum)
   SelectObject(TheDC, OldBrush);
 
   // Tidy up
-  if (MadeDC) ReleaseDC(HWindow, TheDC);
+  (void)dcGuard;
 }
 
 
@@ -1424,7 +1390,7 @@ void TLayout::HandleSelectors()
     if (!IsRouteValid(Selector1, Selector2))
     {
       // Update the status bar
-      CopyString(TextString, "Invalid route");
+      CopyBuffer(TextString, "Invalid route");
       ::SendMessage(frame->StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) TextString));
     }
     PSelectorInfo[Selector1]->Release();
@@ -2028,7 +1994,7 @@ BOOL TLayout::IsRouteValid(int Start, int End)
         if (NotFound)
         {
           // Update the status bar
-          CopyString(TextString, "No locos are currently available");
+          CopyBuffer(TextString, "No locos are currently available");
           ::SendMessage(frame->StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) TextString));
 
           // Prevent route being drawn
@@ -2039,7 +2005,7 @@ BOOL TLayout::IsRouteValid(int Start, int End)
           // Update the main window status bar
           if (frame->StatbarHan != NULL)
           {
-            CopyString(TextString, "Select a locomotive from the loco-yard");
+            CopyBuffer(TextString, "Select a locomotive from the loco-yard");
             ::SendMessage(frame->StatbarHan->HWindow,
                           SB_SETTEXT,
                           0,
@@ -2117,11 +2083,11 @@ BOOL TLayout::ReadDataFile()
   // This routine reads an input datafile and copies the data to the
   // appropriate structures
   std::ifstream infile;                  // Input filestream
-  char      szInput[FILE_INPUT_BUFSIZE], // Input string
-            szComment[400],              // Comment string
-            szArrDesc[30],               // Arrival description
-            szText1[400],                // Temporary string 1
-            szText2[400];                // Temporary string 2
+  TBuffer<FILE_INPUT_BUFSIZE> szInput;   // Input string
+  TBuffer<400> szComment;                // Comment string
+  TBuffer<30> szArrDesc;                 // Arrival description
+  TBuffer<400> szText1;                  // Temporary string 1
+  TBuffer<400> szText2;                  // Temporary string 2
   int       IndexRef, i;                 // General usage
   int       lNextPos;                    // Next timetable position
   int       TempX[4], TempY[4];          // Temporary array
@@ -2152,7 +2118,7 @@ BOOL TLayout::ReadDataFile()
     szInput[0] = 0;
     while ((_stricmp(szInput, "[SECTIONS]") != 0) && (!infile.eof()))
     {
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
     }
 
     if (_stricmp(szInput, "[SECTIONS]") != 0)
@@ -2168,14 +2134,13 @@ BOOL TLayout::ReadDataFile()
     else
     {
       // Read the section information in from the datafile
-      szInput[0] = 0;
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
       {
         // Get first part of string - index reference
-        std::istringstream ins(szInput);
-        ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
+        std::istringstream ins(szInput.Data());
+        ins.getline(szInput.Data(), szInput.Capacity(), ',');
         IndexRef = atoi(szInput);
 
         if ((IndexRef > 0) && (IndexRef < 1000))
@@ -2185,7 +2150,7 @@ BOOL TLayout::ReadDataFile()
             // Now get point information
             for (i=0; i<4; i++)
             {
-              ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
+              ins.getline(szInput.Data(), szInput.Capacity(), ',');
               TempX[i] = atoi(szInput);
               ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
               TempY[i] = atoi(szInput);
@@ -2217,7 +2182,7 @@ BOOL TLayout::ReadDataFile()
         }
 
         // Get the next line of data
-        infile.getline(szInput, FILE_INPUT_BUFSIZE);
+        ReadDataLine(infile, szInput);
       }
     }
 
@@ -2231,7 +2196,7 @@ BOOL TLayout::ReadDataFile()
     szInput[0] = 0;
     while ((_stricmp(szInput, "[GENERAL]") != 0) && (!infile.eof()))
     {
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
     }
 
     if (_stricmp(szInput, "[GENERAL]") != 0)
@@ -2248,12 +2213,12 @@ BOOL TLayout::ReadDataFile()
     {
       // Read the general information in from the datafile
       szInput[0] = 0;
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
       {
         // Get first line of text
-        std::istringstream ins(szInput);
+        std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, '=');
 
         if (strcmp(szInput, "StartTime") == 0)
@@ -2272,19 +2237,19 @@ BOOL TLayout::ReadDataFile()
         {
           // Found <StartText[0]>
           ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-          CopyString(StartText[0], szInput);
+          CopyBuffer(StartText[0], szInput);
         }
         else if (strcmp(szInput, "StartText2") == 0)
         {
           // Found <StartText[1]>
           ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-          CopyString(StartText[1], szInput);
+          CopyBuffer(StartText[1], szInput);
         }
         else if (strcmp(szInput, "StartText3") == 0)
         {
           // Found <StartText[2]>
           ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-          CopyString(StartText[2], szInput);
+          CopyBuffer(StartText[2], szInput);
         }
         else if (strcmp(szInput, "DrawSectionNumber") == 0)
         {
@@ -2310,7 +2275,7 @@ BOOL TLayout::ReadDataFile()
         }
 
         // Get the next line of data
-        infile.getline(szInput, FILE_INPUT_BUFSIZE);
+        ReadDataLine(infile, szInput);
       }
 
       // Check that we achieved something
@@ -2342,7 +2307,7 @@ BOOL TLayout::ReadDataFile()
     szInput[0] = 0;
     while ((_stricmp(szInput, "[OVERLAPPING]") != 0) && (!infile.eof()))
     {
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
     }
 
     if (_stricmp(szInput, "[OVERLAPPING]") != 0)
@@ -2359,12 +2324,12 @@ BOOL TLayout::ReadDataFile()
     {
       // Read the overlapping information in from the datafile
       szInput[0] = 0;
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
       {
         // Get first part of string - index reference
-        std::istringstream ins(szInput);
+        std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
         IndexRef = atoi(szInput);
 
@@ -2405,7 +2370,7 @@ BOOL TLayout::ReadDataFile()
         }
 
         // Get the next line of data
-        infile.getline(szInput, FILE_INPUT_BUFSIZE);
+        ReadDataLine(infile, szInput);
       }
     }
 
@@ -2418,7 +2383,7 @@ BOOL TLayout::ReadDataFile()
     szInput[0] = 0;
     while ((_stricmp(szInput, "[PLATFORMS]") != 0) && (!infile.eof()))
     {
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
     }
 
     if (_stricmp(szInput, "[PLATFORMS]") != 0)
@@ -2435,12 +2400,12 @@ BOOL TLayout::ReadDataFile()
     {
       // Read the selector information in from the datafile
       szInput[0] = 0;
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
       {
         // Get first part of string - index reference
-        std::istringstream ins(szInput);
+        std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
         IndexRef = atoi(szInput);
 
@@ -2483,7 +2448,7 @@ BOOL TLayout::ReadDataFile()
         }
 
         // Get the next line of data
-        infile.getline(szInput, FILE_INPUT_BUFSIZE);
+        ReadDataLine(infile, szInput);
       }
     }
 
@@ -2497,7 +2462,7 @@ BOOL TLayout::ReadDataFile()
     szInput[0] = 0;
     while ((_stricmp(szInput, "[SELECTOR]") != 0) && (!infile.eof()))
     {
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
     }
 
     if (_stricmp(szInput, "[SELECTOR]") != 0)
@@ -2514,12 +2479,12 @@ BOOL TLayout::ReadDataFile()
     {
       // Read the selector information in from the datafile
       szInput[0] = 0;
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
       {
         // Get first part of string - index reference
-        std::istringstream ins(szInput);
+        std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
         IndexRef = atoi(szInput);
 
@@ -2611,7 +2576,7 @@ BOOL TLayout::ReadDataFile()
         }
 
         // Get the next line of data
-        infile.getline(szInput, FILE_INPUT_BUFSIZE);
+        ReadDataLine(infile, szInput);
       }
     }
 
@@ -2644,7 +2609,7 @@ BOOL TLayout::ReadDataFile()
     szInput[0] = 0;
     while ((_stricmp(szInput, "[ROUTES]") != 0) && (!infile.eof()))
     {
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
     }
 
     if (_stricmp(szInput, "[ROUTES]") != 0)
@@ -2661,12 +2626,12 @@ BOOL TLayout::ReadDataFile()
     {
       // Read the selector information in from the datafile
       szInput[0] = 0;
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
            (szInput[0] != 0) && (!infile.eof()))
       {
         // Get first part of string - index reference
-        std::istringstream ins(szInput);
+        std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
         IndexRef = atoi(szInput);
 
@@ -2743,7 +2708,7 @@ BOOL TLayout::ReadDataFile()
         }
 
         // Get the next line of data
-        infile.getline(szInput, FILE_INPUT_BUFSIZE);
+        ReadDataLine(infile, szInput);
       }
     }
 
@@ -2756,7 +2721,7 @@ BOOL TLayout::ReadDataFile()
     szInput[0] = 0;
     while ((_stricmp(szInput, "[LOCOS]") != 0) && (!infile.eof()))
     {
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
     }
 
     if (_stricmp(szInput, "[LOCOS]") != 0)
@@ -2773,12 +2738,12 @@ BOOL TLayout::ReadDataFile()
     {
       // Read the selector information in from the datafile
       szInput[0] = 0;
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
       {
         // Get first part of string - index reference
-        std::istringstream ins(szInput);
+        std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
         IndexRef = atoi(szInput);
 
@@ -2819,7 +2784,7 @@ BOOL TLayout::ReadDataFile()
         }
 
         // Get the next line of data
-        infile.getline(szInput, FILE_INPUT_BUFSIZE);
+        ReadDataLine(infile, szInput);
       }
     }
 
@@ -2832,7 +2797,7 @@ BOOL TLayout::ReadDataFile()
     szInput[0] = 0;
     while ((_stricmp(szInput, "[LOCOYARD]") != 0) && (!infile.eof()))
     {
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
     }
 
     if (_stricmp(szInput, "[LOCOYARD]") != 0)
@@ -2849,7 +2814,7 @@ BOOL TLayout::ReadDataFile()
     {
       // Read the selector information in from the datafile
       szInput[0] = 0;
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
 
       /**********************************************************************/
       /* Check for locoyard being disabled.                                 */
@@ -2871,7 +2836,7 @@ BOOL TLayout::ReadDataFile()
                (szInput[0] != 0) && (!infile.eof()))
         {
           // Get first part of string - index reference
-          std::istringstream ins(szInput);
+          std::istringstream ins(szInput.Data());
           IndexRef = 0;
 
           if (IndexRef < 15)
@@ -2905,7 +2870,7 @@ BOOL TLayout::ReadDataFile()
           }
 
           // Get the next line of data
-          infile.getline(szInput, FILE_INPUT_BUFSIZE);
+          ReadDataLine(infile, szInput);
         }
       }
     }
@@ -2918,7 +2883,7 @@ BOOL TLayout::ReadDataFile()
     szInput[0] = 0;
     while ((_stricmp(szInput, "[TIMETABLE]") != 0) && (!infile.eof()))
     {
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
     }
 
     if (_stricmp(szInput, "[TIMETABLE]") != 0)
@@ -2935,12 +2900,12 @@ BOOL TLayout::ReadDataFile()
     {
       // Read the timetable information in from the datafile
       szInput[0] = 0;
-      infile.getline(szInput, FILE_INPUT_BUFSIZE);
+      ReadDataLine(infile, szInput);
       while ((szInput[0] != '[') && (szInput[0] != ' ') &&
              (szInput[0] != 0) && (!infile.eof()))
       {
         // Get first part of string - index reference
-        std::istringstream ins(szInput);
+        std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
         IndexRef = atoi(szInput);
 
@@ -2966,7 +2931,7 @@ BOOL TLayout::ReadDataFile()
                 if (lpstr != NULL)
                 {
                   lpstr++;
-                  CopyString(szComment, sizeof(szComment), lpstr);
+                  CopyBuffer(szComment, lpstr);
                   *lpstr = 0;
                 }
               }
@@ -3114,7 +3079,7 @@ BOOL TLayout::ReadDataFile()
         }
 
         // Get the next line of data
-        infile.getline(szInput, FILE_INPUT_BUFSIZE);
+        ReadDataLine(infile, szInput);
       }
     }
 
@@ -3165,7 +3130,7 @@ BOOL TLayout::ReadDataFile()
         /* Check for "Becomes" comment - if it's present then verify that   */
         /* it refers to the same train as the linked timetable index.       */
         /********************************************************************/
-        PTimetableInfo[i]->GetComment(szComment, sizeof(szComment));
+        PTimetableInfo[i]->GetComment(szComment, szComment.Capacity());
         if (szComment[0] != 0)
         {
           lpstr = strstr(szComment, "Becomes");
@@ -3185,7 +3150,7 @@ BOOL TLayout::ReadDataFile()
 
           if (lNextPos != 0)
           {
-            PTimetableInfo[lNextPos]->GetArrDesc(szArrDesc, sizeof(szArrDesc));
+            PTimetableInfo[lNextPos]->GetArrDesc(szArrDesc, szArrDesc.Capacity());
           }
           else
           {
@@ -3397,7 +3362,7 @@ BOOL TLayout::AssignLoco(int TimetabPos)
       // ...display error box...
       char Str1[200];
       char Str2[32];
-      CopyString(Str1, "An error has occurred: Rail Control was unable to\nassign a loco to a train. The loco type required is: ");
+      CopyBuffer(Str1, "An error has occurred: Rail Control was unable to\nassign a loco to a train. The loco type required is: ");
       FormatBuffer(Str2, "%d", GivenType);
       AppendString(Str1, Str2);
       AppendString(Str1, ".");
@@ -4577,7 +4542,7 @@ int TLayout::CodeCalculate(char* TextString)
   if (_stricmp(InternText, "ST_INPLAT") == 0)  return ST_INPLAT;
   if (_stricmp(InternText, "ST_STOCKOK") == 0)  return ST_STOCKOK;
 
-  CopyString(ErrorText, "Incorrect timetable code error\n\n");
+  CopyBuffer(ErrorText, "Incorrect timetable code error\n\n");
   AppendString(ErrorText, "Arrival description: \n");
  
   ::MessageBox(HWindow, ErrorText, APPNAME, MB_OK);
@@ -4595,7 +4560,7 @@ void TLayout::DebugTrainInfo(char* xiStr, int xiIndex, int xiExpect)
 
   if (lloco == 0)
   {
-    CopyString(llocostr, "XXXXX");
+    CopyBuffer(llocostr, "XXXXX");
   }
   else
   {

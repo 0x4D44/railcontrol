@@ -31,7 +31,7 @@ typedef TStartup* PStartup;
 class TStartup : public TWindow
 {
 public:
-  HBITMAP   HLoader;
+  TBitmapGuard   HLoader;
 
   TStartup(TFrameWindow* parent);
   ~TStartup();

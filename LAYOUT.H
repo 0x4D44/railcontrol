@@ -35,7 +35,7 @@ private:
   int            TimeNum;                         // Total number of timetable items
   char           StockCode[5][20];                // Stock code translation array
   BOOL           SelectOut[NOSELECTORS+1];        // Selector positions up/down
-  HBITMAP        HTimeSym;                        // Handle to the digital time symbols
+  TBitmapGuard   HTimeSym;                        // Handle to the digital time symbols
   int            SkipCount;                       // Count of timer messages
 
   int            RoutesSet[5];                    // Which routes (if any) are currently set?
@@ -55,10 +55,10 @@ public:
   BOOL           DepChng[DISP_NUM_DEPART];        // Have the <Depart> values changed since the last time period?
   int            Depart[DISP_NUM_DEPART];         // Timetable numbers of next n departures
 
-  PTimetable     PTimetableInfo[MAX_TIMETABLE];   // Handles to timetable information
+  TManagedArray<TTimetable, MAX_TIMETABLE> PTimetableInfo;  // Managed timetable entries
   PPlatData      PPlatDataInfo[50];               // Handles to platform information
   POverlapData   POverlapDataInfo[50];            // Handles to overlapping information
-  PLocos         PLocosInfo[500];                 // Handles to loco information
+  TManagedArray<TLocos, 500> PLocosInfo;           // Managed locomotive information
   PRoutes        PRoutesInfo[1000];               // Pointers to routes information
   PSelector      PSelectorInfo[50];               // Pointers to selector windows
 
@@ -69,7 +69,7 @@ public:
                  ArrNum, DepNum;                  // Arrival/dep number
   int            HoldLoco;                        // Loco held at hold point
   BOOL           HoldLocoChng;                    // Has the hold loco changed?
-  char           StartText[3][100];               // Start text descriptions
+  TBuffer<100>   StartText[3];                    // Start text descriptions
 
 
 
