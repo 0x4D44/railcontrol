@@ -122,89 +122,67 @@ void TDepartur::Paint(TDC& dc, bool erase, TRect& rect)
 
 void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
 {
-  BOOL     MadeDC;
-  HPEN     hOldPen, hPen;
+  TReleaseDcGuard dcGuard;
+  if (TheDC == 0)
+  {
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    TheDC = dcGuard.Get();
+  }
+  if (!TheDC)
+  {
+    return;
+  }
+
   RECT     TheRect;
   int      i;
   int      Dep;
   char     TextString[40];
-  COLORREF loldBackColour;
   RECT     lrect;
 
   TRC_NRM((TB, "Enter TDepartur::UpdateDisplay (Redraw:%s)", 
            Redraw ? "TRUE" : "FALSE"));
 
-  if (TheDC == 0)
-  {
-    // We need to create a new DC
-    TheDC = GetDC(HWindow);
-    MadeDC = TRUE;
-  }
-  else
-  {
-    MadeDC = FALSE;
-  }
-
   ::GetClientRect(HWindow, &TheRect);
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
 
-  // Draw a bounding box (3D effect)
   if (Redraw)
   {
     if ((TheRect.right > 3) && (TheRect.bottom > 3))
     {
-      hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT));
-      hOldPen = (HPEN) SelectObject(TheDC, hPen);
-      MoveToEx(TheDC, TheRect.right-4, 23, 0);
-      LineTo(TheDC, TheRect.right-4, TheRect.bottom-4);
-      LineTo(TheDC, 3, TheRect.bottom-4);
-      SelectObject(TheDC, hOldPen);
-      DeleteObject(hPen);
-
-      hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW));
-      hOldPen = (HPEN) SelectObject(TheDC, hPen);
-      LineTo(TheDC, 3, 23);
-      LineTo(TheDC, TheRect.right-4, 23);
-      SelectObject(TheDC, hOldPen);
-      DeleteObject(hPen);
+      DrawRaisedPanel(TheDC, TheRect, 23);
     }
-
-    /************************************************************************/
-    /* Draw a black background to the data box.                             */
-    /************************************************************************/
-    loldBackColour = SetBkColor(TheDC, RGB(0, 0, 0));
 
     lrect.left   = 4;
     lrect.right  = TheRect.right - 5;
     lrect.top    = 24;
     lrect.bottom = TheRect.bottom - 5;
-    ExtTextOut(TheDC, 0, 0, ETO_OPAQUE, &lrect, NULL, 0, NULL);
-
-    SetBkColor(TheDC, loldBackColour);
+    FillRectOpaque(TheDC, lrect, RGB(0, 0, 0));
   }
 
-  // Set up text attributes
-  SelectObject(TheDC, frame->mHeaderFont);
-  ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
-  SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
-
-  // Now draw timetable header information
   if (Redraw)
   {
-    CopyString(TextString, "Dep:");
-    TextOut(TheDC, 10, 5, TextString, strlen(TextString));
-    CopyString(TextString, "Type:");
-    TextOut(TheDC, 50, 5, TextString, strlen(TextString));
-    CopyString(TextString, "Plat:");
-    TextOut(TheDC, 90, 5, TextString, strlen(TextString));
-    CopyString(TextString, "Description:");
-    TextOut(TheDC, 130, 5, TextString, strlen(TextString));
+    static const HeaderLabel kDepartHeaders[] =
+    {
+      {10, "Dep:"},
+      {50, "Type:"},
+      {90, "Plat:"},
+      {130, "Description:"}
+    };
+
+    DrawHeaderLabels(TheDC,
+                     frame->mHeaderFont,
+                     GetSysColor(COLOR_WINDOWTEXT),
+                     GetSysColor(COLOR_BTNFACE),
+                     5,
+                     kDepartHeaders,
+                     sizeof(kDepartHeaders) / sizeof(kDepartHeaders[0]));
   }
 
   SelectObject(TheDC, frame->mTextFont);
+  ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
+  SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
   if (frame->GameInProgress)
   {
-    // Now we draw in the timetable information
     for (i = 0; i < DISP_NUM_DEPART; i++)
     {
       Dep = frame->DisplayHan->Depart[i];
@@ -222,25 +200,12 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
       }
     }
 
-    // Update the status array
     for (i = 0; i < DISP_NUM_DEPART; i++)
     {
       Dep = frame->DisplayHan->Depart[i];
-      if (Dep > 0)
-      {
-        OldStatus[i] = frame->DisplayHan->PTimetableInfo[Dep]->GetStatus();
-      }
-      else
-      {
-        OldStatus[i] = 0;
-      }
+      OldStatus[i] = (Dep > 0) ? frame->DisplayHan->PTimetableInfo[Dep]->GetStatus() : 0;
     }
   }
-
-  // Tidy up
-  if (MadeDC) ReleaseDC(HWindow, TheDC);
-
-  return;
 }
 
 
@@ -364,7 +329,7 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
       {
         // Train is ready to depart
         ::SetTextColor(TheDC, RGB(255, 255, 255));
-        CopyString(TextString, PlatName);
+        CopyBuffer(TextString, PlatName);
       }
       else
       {
@@ -388,7 +353,7 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
           }
 
           // Train is not ready to depart
-          CopyString(TextString, "(");
+          CopyBuffer(TextString, "(");
           AppendString(TextString, PlatName);
           AppendString(TextString, ")");
         }
@@ -458,7 +423,7 @@ void TDepartur::ConvertTime(int TimeVal, char *TimeStr)
   if ((TimeVal < 0) | (TimeVal > 2359))
   {
     // Invalid time specified
-    CopyString(TextString, "XX:XX");
+    CopyBuffer(TextString, "XX:XX");
   }
   else
   { 
@@ -467,12 +432,12 @@ void TDepartur::ConvertTime(int TimeVal, char *TimeStr)
     _itoa_s(Hr, TextStrtwo, sizeof(TextStrtwo), 10);
     if (Hr < 10)
     {
-      CopyString(TextString, "0");
+      CopyBuffer(TextString, "0");
       AppendString(TextString, TextStrtwo);
     }
     else
     {
-      CopyString(TextString, TextStrtwo);
+      CopyBuffer(TextString, TextStrtwo);
     }
     AppendString(TextString, ":");
 
@@ -484,7 +449,7 @@ void TDepartur::ConvertTime(int TimeVal, char *TimeStr)
   }
 
   // Copy time field back to main field
-  CopyString(TimeStr, 7, TextString);
+  CopyBuffer(TimeStr, 7, TextString);
 }
 
 

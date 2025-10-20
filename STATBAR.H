@@ -33,7 +33,7 @@ class TStatbar : public TFrameWindow
   private:
      char      DisplayedText[100];    // Text to display in the status bar
 	 LOGFONT   TheFontLog;            // Logical font structure used
-	 HFONT     TheFont;               // Handle to the font
+	 TFontGuard TheFont;              // Handle to the font
 
   public:
 	 TStatbar(TWindow* AParent);

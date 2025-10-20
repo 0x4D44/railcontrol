@@ -22,6 +22,35 @@
 #if defined(_MSC_VER)
 #include <intrin.h>
 #endif
+#if defined(_MSC_VER)
+#include <windows.h>
+#endif
+#include <new>
+
+#define DIAG_SETUP_STACK 1
+
+#if defined(DIAG_SETUP_STACK)
+volatile const char* gSetupStackLabel = nullptr;
+volatile unsigned long gSetupStackBefore = 0;
+volatile unsigned long gSetupStackAfter = 0;
+
+#define STACK_SNAPSHOT(name) unsigned long name = 0; __asm { mov name, esp }
+#define STACK_VERIFY(label, before)                                               \
+  {                                                                               \
+    unsigned long _stack_after = 0;                                               \
+    __asm { mov _stack_after, esp }                                               \
+    if (_stack_after != (before))                                                 \
+    {                                                                             \
+      gSetupStackLabel = (label);                                                 \
+      gSetupStackBefore = (before);                                               \
+      gSetupStackAfter = _stack_after;                                            \
+      __debugbreak();                                                             \
+    }                                                                             \
+  }
+#else
+#define STACK_SNAPSHOT(name) unsigned long name = 0
+#define STACK_VERIFY(label, before) do { (void)(before); } while (0)
+#endif
 
 
 /*************************************************************************/
@@ -29,6 +58,11 @@
 
 namespace
 {
+  void StartupLog(const char* message)
+  {
+    (void) message;
+  }
+
   void AppendPathLeaf(char* xoPath, size_t xiSize, const char* xiLeaf)
   {
     if ((xoPath == 0) || (xiLeaf == 0) || (xiSize == 0))  return;
@@ -92,6 +126,134 @@ namespace
 
     return true;
   }
+
+#if defined(_MSC_VER)
+  bool ParseIniBoolean(const char* xiValue, bool xiDefault)
+  {
+    if (!xiValue)
+    {
+      return xiDefault;
+    }
+
+    if ((lstrcmpiA(xiValue, "true") == 0) ||
+        (lstrcmpiA(xiValue, "yes") == 0) ||
+        (lstrcmpiA(xiValue, "on") == 0))
+    {
+      return true;
+    }
+
+    if ((lstrcmpiA(xiValue, "false") == 0) ||
+        (lstrcmpiA(xiValue, "no") == 0) ||
+        (lstrcmpiA(xiValue, "off") == 0))
+    {
+      return false;
+    }
+
+    return GetPrivateProfileIntA("Diagnostics",
+                                 "EnableMemoryGuards",
+                                 xiDefault ? 1 : 0,
+                                 INIFILENAME) != 0;
+  }
+
+  bool ReadDiagnosticsGuardFlag(bool* xoWroteDefault)
+  {
+#if defined(_DEBUG)
+    const bool kDefaultValue = true;
+#else
+    const bool kDefaultValue = false;
+#endif
+
+    if (xoWroteDefault)
+    {
+      *xoWroteDefault = false;
+    }
+
+    const char* kSentinel = "__RC_SENTINEL__";
+    char buffer[32] = {0};
+    DWORD read = ::GetPrivateProfileStringA("Diagnostics",
+                                            "EnableMemoryGuards",
+                                            kSentinel,
+                                            buffer,
+                                            static_cast<DWORD>(sizeof(buffer)),
+                                            INIFILENAME);
+    bool missing = (read == 0) || (lstrcmpA(buffer, kSentinel) == 0);
+    if (missing)
+    {
+      if (::WritePrivateProfileStringA("Diagnostics",
+                                       "EnableMemoryGuards",
+                                       kDefaultValue ? "1" : "0",
+                                       INIFILENAME) != 0)
+      {
+        if (xoWroteDefault)
+        {
+          *xoWroteDefault = true;
+        }
+      }
+      return kDefaultValue;
+    }
+
+    return ParseIniBoolean(buffer, kDefaultValue);
+  }
+
+  bool sMemoryGuardInitialised = false;
+
+  void BootstrapMemoryGuardsFromConfig()
+  {
+    if (sMemoryGuardInitialised)
+    {
+      return;
+    }
+
+    bool wroteDefault = false;
+    const bool guardEnabled = ReadDiagnosticsGuardFlag(&wroteDefault);
+
+    DebugMemoryGuard::Options options = {};
+    options.enableGuard = guardEnabled;
+    options.maxFileBytes = 2u * 1024u * 1024u;
+    options.maxFileCount = 5;
+
+    DebugMemoryGuard::Initialise(options);
+    sMemoryGuardInitialised = true;
+
+    if (!DebugMemoryGuard::IsEnabled())
+    {
+      return;
+    }
+
+    DebugMemoryGuard::LogEvent("startup", "memory guard initialised");
+
+    if (wroteDefault)
+    {
+      DebugMemoryGuard::LogEvent("startup", "guard key missing; default enabled flag persisted");
+    }
+
+    if (const char* logDir = DebugMemoryGuard::GetLogDirectory())
+    {
+      if (logDir[0] != '\0')
+      {
+        char buffer[256];
+        FormatBuffer(buffer, "log directory set to %s", logDir);
+        DebugMemoryGuard::LogEvent("startup", buffer);
+      }
+    }
+  }
+
+  void ShutdownMemoryGuards()
+  {
+    if (!sMemoryGuardInitialised)
+    {
+      return;
+    }
+
+    if (DebugMemoryGuard::IsEnabled())
+    {
+      DebugMemoryGuard::LogEvent("shutdown", "memory guard shutting down");
+    }
+
+    DebugMemoryGuard::Shutdown();
+    sMemoryGuardInitialised = false;
+  }
+#endif
 
   void ShowHelpPlaceholder(HWND xiWindow, UINT xiCommand)
   {
@@ -284,8 +446,20 @@ void TManager::InitMainWindow()
 
 int OwlMain(int /*argc*/, tchar* /*argv*/[])
 {
+#if defined(_MSC_VER)
+  BootstrapMemoryGuardsFromConfig();
+#endif
+  StartupLog("OwlMain: after BootstrapMemoryGuards");
   TManager app;
-  return app.Run();
+  StartupLog("OwlMain: before Run");
+  int runResult = app.Run();
+  char runBuf[64];
+  std::snprintf(runBuf, sizeof(runBuf), "OwlMain: Run returned %d", runResult);
+  StartupLog(runBuf);
+#if defined(_MSC_VER)
+  ShutdownMemoryGuards();
+#endif
+  return runResult;
 }
 
 
@@ -296,6 +470,7 @@ int OwlMain(int /*argc*/, tchar* /*argv*/[])
 TMainWindow::TMainWindow(TWindow * AParent, LPCTSTR ATitle)
   : TFrameWindow(AParent, ATitle)
 {
+  StartupLog("TMainWindow ctor begin");
   LOGFONT    lFont = {0}; 
 
 #ifdef MDDEBUG
@@ -326,11 +501,20 @@ TMainWindow::TMainWindow(TWindow * AParent, LPCTSTR ATitle)
   lDbgStates[30] = "ST_TWINASSOC";
 #endif
 
+  StartupLog("Creating startup title window");
   // Display startup title window
   TitleWin = new TStartup(this);
-  TitleWin->Create();
-  ::ShowWindow(TitleWin->GetHandle(), SW_SHOW);
+  if (!TitleWin->Create())
+  {
+    StartupLog("Title window creation failed");
+  }
+  else
+  {
+    StartupLog("Title window created");
+    ::ShowWindow(TitleWin->GetHandle(), SW_SHOW);
+  }
 
+  StartupLog("Main window initialised");
   TRC_NRM((TB, "RAIL CONTROL STARTING"));
   TRC_NRM((TB, "====================="));
 
@@ -382,8 +566,9 @@ TMainWindow::TMainWindow(TWindow * AParent, LPCTSTR ATitle)
   lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
   lFont.lfQuality = PROOF_QUALITY;
   lFont.lfPitchAndFamily = FF_DONTCARE;
-  CopyString(lFont.lfFaceName, "Arial");
+  CopyBuffer(lFont.lfFaceName, "Arial");
   mTextFont = CreateFontIndirect(&lFont);
+  StartupLog("Fonts initialised");
 
    // Header font record
   lFont.lfHeight = 14;
@@ -399,7 +584,7 @@ TMainWindow::TMainWindow(TWindow * AParent, LPCTSTR ATitle)
   lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
   lFont.lfQuality = PROOF_QUALITY;
   lFont.lfPitchAndFamily = FF_DONTCARE;
-  CopyString(lFont.lfFaceName, "Arial");
+  CopyBuffer(lFont.lfFaceName, "Arial");
   mHeaderFont = CreateFontIndirect(&lFont);
 
    // Small font record
@@ -416,7 +601,7 @@ TMainWindow::TMainWindow(TWindow * AParent, LPCTSTR ATitle)
   lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
   lFont.lfQuality = PROOF_QUALITY;
   lFont.lfPitchAndFamily = FF_DONTCARE;
-  CopyString(lFont.lfFaceName, "Arial");
+  CopyBuffer(lFont.lfFaceName, "Arial");
   mSmallFont = CreateFontIndirect(&lFont);
 
   // Initialize variables
@@ -434,21 +619,21 @@ TMainWindow::TMainWindow(TWindow * AParent, LPCTSTR ATitle)
 TMainWindow::~TMainWindow()
 {
   // Delete brushes etc
-  DeleteObject(RedBrush);
-  DeleteObject(GreenBrush);
-  DeleteObject(DkGrayBrush);
-  DeleteObject(BlueBrush);
-  DeleteObject(YellowBrush);
-  DeleteObject(WhiteBrush);
-  DeleteObject(RedPen);
-  DeleteObject(GreenPen);
-  DeleteObject(YellowPen);
-  DeleteObject(DkGrayPen);
-  DeleteObject(LtGrayPen);
-  DeleteObject(ToolbarBitmaps);
-  DeleteObject(mTextFont);
-  DeleteObject(mHeaderFont);
-  DeleteObject(mSmallFont);
+  RedBrush.Reset();
+  GreenBrush.Reset();
+  DkGrayBrush.Reset();
+  BlueBrush.Reset();
+  YellowBrush.Reset();
+  WhiteBrush.Reset();
+  RedPen.Reset();
+  GreenPen.Reset();
+  YellowPen.Reset();
+  DkGrayPen.Reset();
+  LtGrayPen.Reset();
+  ToolbarBitmaps.Reset();
+  mTextFont.Reset();
+  mHeaderFont.Reset();
+  mSmallFont.Reset();
 }
 
 
@@ -468,6 +653,7 @@ auto TMainWindow::GetWindowClassName() -> owl::TWindowClassName
 
 void TMainWindow::SetupWindow()
 {
+  StartupLog("TMainWindow::SetupWindow entry");
   RECT  WinRect;
   int   YPos, Height, Width;
   HMENU TheMenu;
@@ -476,7 +662,13 @@ void TMainWindow::SetupWindow()
   LogSetupEvent("SetupWindow:Start", this);
 #endif
   // Call ancestor method
+  STACK_SNAPSHOT(stackBeforeBaseSetup);
   TFrameWindow::SetupWindow();
+  STACK_VERIFY("after base TFrameWindow::SetupWindow", stackBeforeBaseSetup);
+  char startupBuffer[128];
+  std::snprintf(startupBuffer, sizeof(startupBuffer), "Main window handle after base: %p", GetHandle());
+  StartupLog(startupBuffer);
+  StartupLog("TMainWindow::SetupWindow base done");
 #if defined(DIAG_SETUP_TRACE)
   LogSetupEvent("SetupWindow:AfterBase", this);
 #endif
@@ -487,9 +679,11 @@ void TMainWindow::SetupWindow()
 #if defined(DIAG_SETUP_TRACE)
   LogSetupEvent("SetupWindow:CreateStatbar:pre", this);
 #endif
+  STACK_SNAPSHOT(stackBeforeStatbarCreate);
   StatbarHan = new TStatbar(this);
   StatbarHan->Create();
   StatbarExist = TRUE;
+  STACK_VERIFY("after status bar creation", stackBeforeStatbarCreate);
 #if defined(DIAG_SETUP_TRACE)
   LogSetupEvent("SetupWindow:CreateStatbar:post", StatbarHan);
 #endif
@@ -512,96 +706,96 @@ void TMainWindow::SetupWindow()
   ToolButtData.LParam[1] = 0;
   ToolButtData.SentWindow[1] = HWindow;
   ToolButtData.StatWindow[1] = StatbarHan->HWindow;
-  CopyString(ToolButtData.UpText[1], "");
-  CopyString(ToolButtData.DownText[1], "Start a new session");
+  CopyBuffer(ToolButtData.UpText[1], "");
+  CopyBuffer(ToolButtData.DownText[1], "Start a new session");
 
   ToolButtData.XPos[2] = 34;
   ToolButtData.WParam[2] = CM_MNUFIPAUS;
   ToolButtData.LParam[2] = 0;
   ToolButtData.SentWindow[2] = HWindow;
   ToolButtData.StatWindow[2] = PStatbar(StatbarHan)->HWindow;
-  CopyString(ToolButtData.UpText[2], "");
-  CopyString(ToolButtData.DownText[2], "Restart the current session");
+  CopyBuffer(ToolButtData.UpText[2], "");
+  CopyBuffer(ToolButtData.DownText[2], "Restart the current session");
 
   ToolButtData.XPos[3] = 34;
   ToolButtData.WParam[3] = CM_MNUFIPAUS;
   ToolButtData.LParam[3] = 0;
   ToolButtData.SentWindow[3] = HWindow;
   ToolButtData.StatWindow[3] = PStatbar(StatbarHan)->HWindow;
-  CopyString(ToolButtData.UpText[3], "");
-  CopyString(ToolButtData.DownText[3], "Pause the current session");
+  CopyBuffer(ToolButtData.UpText[3], "");
+  CopyBuffer(ToolButtData.DownText[3], "Pause the current session");
 
   ToolButtData.XPos[4] = 58;
   ToolButtData.WParam[4] = CM_MNUFISTOP;
   ToolButtData.LParam[4] = 0;
   ToolButtData.SentWindow[4] = HWindow;
   ToolButtData.StatWindow[4] = PStatbar(StatbarHan)->HWindow;
-  CopyString(ToolButtData.UpText[4], "");
-  CopyString(ToolButtData.DownText[4], "Stop the current session");
+  CopyBuffer(ToolButtData.UpText[4], "");
+  CopyBuffer(ToolButtData.DownText[4], "Stop the current session");
 
   ToolButtData.XPos[5] = 90;
   ToolButtData.WParam[5] = CM_OPTOPTIMI;
   ToolButtData.LParam[5] = 0;
   ToolButtData.SentWindow[5] = HWindow;
   ToolButtData.StatWindow[5] = PStatbar(StatbarHan)->HWindow;
-  CopyString(ToolButtData.UpText[5], "");
-  CopyString(ToolButtData.DownText[5], "Optimize display of windows");
+  CopyBuffer(ToolButtData.UpText[5], "");
+  CopyBuffer(ToolButtData.DownText[5], "Optimize display of windows");
 
   ToolButtData.XPos[6] = 114;
   ToolButtData.WParam[6] = CM_OPTCONFIG;
   ToolButtData.LParam[6] = 0;
   ToolButtData.SentWindow[6] = HWindow;
   ToolButtData.StatWindow[6] = PStatbar(StatbarHan)->HWindow;
-  CopyString(ToolButtData.UpText[6], "");
-  CopyString(ToolButtData.DownText[6], "Set program configuration");
+  CopyBuffer(ToolButtData.UpText[6], "");
+  CopyBuffer(ToolButtData.DownText[6], "Set program configuration");
 
   ToolButtData.XPos[7] = 146;
   ToolButtData.WParam[7] = CM_WINARRIVA;
   ToolButtData.LParam[7] = 0;
   ToolButtData.SentWindow[7] = HWindow;
   ToolButtData.StatWindow[7] = PStatbar(StatbarHan)->HWindow;
-  CopyString(ToolButtData.UpText[7], "");
-  CopyString(ToolButtData.DownText[7], "Display/hide the Arrivals window");
+  CopyBuffer(ToolButtData.UpText[7], "");
+  CopyBuffer(ToolButtData.DownText[7], "Display/hide the Arrivals window");
 
   ToolButtData.XPos[8] = 170;
   ToolButtData.WParam[8] = CM_WINDEPART;
   ToolButtData.LParam[8] = 0;
   ToolButtData.SentWindow[8] = HWindow;
   ToolButtData.StatWindow[8] = PStatbar(StatbarHan)->HWindow;
-  CopyString(ToolButtData.UpText[8], "");
-  CopyString(ToolButtData.DownText[8], "Display/hide the Departures window");
+  CopyBuffer(ToolButtData.UpText[8], "");
+  CopyBuffer(ToolButtData.DownText[8], "Display/hide the Departures window");
 
   ToolButtData.XPos[9] = 194;
   ToolButtData.WParam[9] = CM_WINPLATFO;
   ToolButtData.LParam[9] = 0;
   ToolButtData.SentWindow[9] = HWindow;
   ToolButtData.StatWindow[9] = PStatbar(StatbarHan)->HWindow;
-  CopyString(ToolButtData.UpText[9], "");
-  CopyString(ToolButtData.DownText[9], "Display/hide the Platforms window");
+  CopyBuffer(ToolButtData.UpText[9], "");
+  CopyBuffer(ToolButtData.DownText[9], "Display/hide the Platforms window");
 
   ToolButtData.XPos[10] = 218;
   ToolButtData.WParam[10] = CM_WINLOCOYA;
   ToolButtData.LParam[10] = 0;
   ToolButtData.SentWindow[10] = HWindow;
   ToolButtData.StatWindow[10] = PStatbar(StatbarHan)->HWindow;
-  CopyString(ToolButtData.UpText[10], "");
-  CopyString(ToolButtData.DownText[10], "Display/hide the Locoyard window");
+  CopyBuffer(ToolButtData.UpText[10], "");
+  CopyBuffer(ToolButtData.DownText[10], "Display/hide the Locoyard window");
 
   ToolButtData.XPos[11] = 250;
   ToolButtData.WParam[11] = CM_MNUHECTNT;
   ToolButtData.LParam[11] = 0;
   ToolButtData.SentWindow[11] = HWindow;
   ToolButtData.StatWindow[11] = PStatbar(StatbarHan)->HWindow;
-  CopyString(ToolButtData.UpText[11], "");
-  CopyString(ToolButtData.DownText[11], "Display the help file contents page");
+  CopyBuffer(ToolButtData.UpText[11], "");
+  CopyBuffer(ToolButtData.DownText[11], "Display the help file contents page");
 
   ToolButtData.XPos[12] = 274;
   ToolButtData.WParam[12] = CM_MNUHEABOT;
   ToolButtData.LParam[12] = 0;
   ToolButtData.SentWindow[12] = HWindow;
   ToolButtData.StatWindow[12] = PStatbar(StatbarHan)->HWindow;
-  CopyString(ToolButtData.UpText[12], "");
-  CopyString(ToolButtData.DownText[12], "Display information about Rail Control");
+  CopyBuffer(ToolButtData.UpText[12], "");
+  CopyBuffer(ToolButtData.DownText[12], "Display information about Rail Control");
 
 #if !defined(DIAG_SKIP_TOOLBAR)
 #if defined(DIAG_SETUP_TRACE)
@@ -614,18 +808,38 @@ void TMainWindow::SetupWindow()
 #if defined(DIAG_SETUP_TRACE)
   LogSetupEvent("SetupWindow:Toolbar:create:pre", this);
 #endif
-  ToolbarHan = new TToolbar(this, 12, ToolButtData, ToolbarBitmaps);
+  TToolbar* toolbarTemp = nullptr;
+#if defined(DIAG_SETUP_STACK)
+  STACK_SNAPSHOT(stackBeforeToolbarAlloc);
+  void* toolbarStorage = ::operator new(sizeof(TToolbar));
+  STACK_VERIFY("after operator new (toolbar)", stackBeforeToolbarAlloc);
+
+  STACK_SNAPSHOT(stackBeforeToolbarCtor);
+  toolbarTemp = new (toolbarStorage) TToolbar(this, 12, ToolButtData, ToolbarBitmaps);
+  STACK_VERIFY("after placement new TToolbar", stackBeforeToolbarCtor);
+#else
+  STACK_SNAPSHOT(stackBeforeToolbarNew);
+  toolbarTemp = new TToolbar(this, 12, ToolButtData, ToolbarBitmaps);
+  STACK_VERIFY("after new TToolbar", stackBeforeToolbarNew);
+#endif
+  ToolbarHan = toolbarTemp;
+
+  STACK_SNAPSHOT(stackBeforeToolbarCreateCall);
   ToolbarHan->Create();
+  STACK_VERIFY("after ToolbarHan->Create()", stackBeforeToolbarCreateCall);
+
+  STACK_SNAPSHOT(stackBeforeToolbarFinalize);
   ToolbarExist = TRUE;
+  STACK_VERIFY("after toolbar finalisation", stackBeforeToolbarFinalize);
 #if defined(DIAG_SETUP_TRACE)
   LogSetupEvent("SetupWindow:Toolbar:create:post", ToolbarHan);
 #endif
 
   // Modify the buttons - hide button 2
-  ToolbarHan->PToolbutt[2]->Enable(FALSE);
-  ToolbarHan->PToolbutt[3]->Enable(FALSE);
-  ToolbarHan->PToolbutt[4]->Enable(FALSE);
-  ::ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
+  if (TToolbutton* button = ToolbarHan->GetButton(2))  button->Enable(FALSE);
+  if (TToolbutton* button = ToolbarHan->GetButton(3))  button->Enable(FALSE);
+  if (TToolbutton* button = ToolbarHan->GetButton(4))  button->Enable(FALSE);
+  if (TToolbutton* button = ToolbarHan->GetButton(2))  ::ShowWindow(button->HWindow, FALSE);
 #else
   ToolbarExist = FALSE;
   ToolbarBitmaps = NULL;
@@ -687,6 +901,7 @@ void TMainWindow::SetupWindow()
   LocoyardX = GetPrivateProfileInt("Locoyard Window", "X position", 0, INIFILENAME);
   LocoyardY = GetPrivateProfileInt("Locoyard Window", "Y position", 0, INIFILENAME);
 
+  STACK_SNAPSHOT(stackBeforeAutoChildren);
   // Check to see if we need to create an arrivals window
   if (BOOL(GetPrivateProfileInt("Arrival Window", "Exists", 1, INIFILENAME)))
   {
@@ -775,6 +990,8 @@ void TMainWindow::SetupWindow()
 #endif
 #endif
 
+  STACK_VERIFY("after auto child/menu setup", stackBeforeAutoChildren);
+
   // Close the title window
 #if !defined(DIAG_SKIP_CLOSE_TITLE)
 #if defined(DIAG_SETUP_TRACE)
@@ -784,7 +1001,9 @@ void TMainWindow::SetupWindow()
     LogSetupPointer("SetupWindow:TitleWin:pre-close", this, TitleWin->GetHandle(), "hwnd");
   }
 #endif
+  STACK_SNAPSHOT(stackBeforeTitleClose);
   TitleWin->CloseWindow();
+  STACK_VERIFY("after TitleWin->CloseWindow()", stackBeforeTitleClose);
 #if defined(DIAG_SETUP_TRACE)
   if (TitleWin != NULL)
   {
@@ -1067,51 +1286,51 @@ void TMainWindow::EvMenuSelect(owl::uint, owl::uint, HMENU)
   hMenu4 = GetSubMenu(::GetMenu(HWindow), 3);
 
   // Get the current status bar text
-  CopyString(OldText, StatbarHan->GetText());
+  CopyBuffer(OldText, StatbarHan->GetText());
 
   switch (Msg.WParam)
   {
-   case CM_MNUFILNEW       : CopyString(TextString, "Start a new session"); break;
+   case CM_MNUFILNEW       : CopyBuffer(TextString, "Start a new session"); break;
    case CM_MNUFIPAUS       : {
         if (GamePaused)
                       {
-          CopyString(TextString, "Continue the current session");
+          CopyBuffer(TextString, "Continue the current session");
         }
         else
         {
-          CopyString(TextString, "Pause the current session");
+          CopyBuffer(TextString, "Pause the current session");
         }
                       break;
                     }
-   case CM_MNUFISTOP       : CopyString(TextString, "Stop the current session"); break;
-   case CM_MNUFISETD       : CopyString(TextString, "Set the RCD data file name"); break;
-   case CM_MNUFIEXIT       : CopyString(TextString, "Exit from Rail Control"); break;
-   case CM_OPTOPTIMI       : CopyString(TextString, "Optimize the display of all windows"); break;
-   case CM_OPTCONFIG       : CopyString(TextString, "Configure game and program options"); break;
-   case CM_WINARRIVA       : CopyString(TextString, "Display or hide the Arrivals window"); break;
-   case CM_WINDEPART       : CopyString(TextString, "Display or hide the Departures window"); break;
-   case CM_WINPLATFO       : CopyString(TextString, "Display or hide the Platform window"); break;
-   case CM_WINLOCOYA       : CopyString(TextString, "Display or hide the Locoyard window"); break;
-   case CM_MNUHECTNT       : CopyString(TextString, "Display the help contents page"); break;
-   case CM_MNUHEHELP       : CopyString(TextString, "Help on using Windows help"); break;
-   case CM_MNUHEABOT       : CopyString(TextString, "Display information about Rail Control"); break;
+   case CM_MNUFISTOP       : CopyBuffer(TextString, "Stop the current session"); break;
+   case CM_MNUFISETD       : CopyBuffer(TextString, "Set the RCD data file name"); break;
+   case CM_MNUFIEXIT       : CopyBuffer(TextString, "Exit from Rail Control"); break;
+   case CM_OPTOPTIMI       : CopyBuffer(TextString, "Optimize the display of all windows"); break;
+   case CM_OPTCONFIG       : CopyBuffer(TextString, "Configure game and program options"); break;
+   case CM_WINARRIVA       : CopyBuffer(TextString, "Display or hide the Arrivals window"); break;
+   case CM_WINDEPART       : CopyBuffer(TextString, "Display or hide the Departures window"); break;
+   case CM_WINPLATFO       : CopyBuffer(TextString, "Display or hide the Platform window"); break;
+   case CM_WINLOCOYA       : CopyBuffer(TextString, "Display or hide the Locoyard window"); break;
+   case CM_MNUHECTNT       : CopyBuffer(TextString, "Display the help contents page"); break;
+   case CM_MNUHEHELP       : CopyBuffer(TextString, "Help on using Windows help"); break;
+   case CM_MNUHEABOT       : CopyBuffer(TextString, "Display information about Rail Control"); break;
 
    default:
     if (::IsIconic(HWindow))
     {
-  CopyString(TextString, OldText);
+  CopyBuffer(TextString, OldText);
     }
     else
     {
-      CopyString(TextString, "");
+      CopyBuffer(TextString, "");
     }
   }
 
   // Check for main menu selections
-  if ((HMENU(Msg.WParam) == hMenu1) && (hMenu1 != 0))  CopyString(TextString, "Game menu");
-  if ((HMENU(Msg.WParam) == hMenu2) && (hMenu2 != 0))  CopyString(TextString, "Options menu");
-  if ((HMENU(Msg.WParam) == hMenu3) && (hMenu3 != 0))  CopyString(TextString, "Window menu");
-  if ((HMENU(Msg.WParam) == hMenu4) && (hMenu4 != 0))  CopyString(TextString, "Help menu");
+  if ((HMENU(Msg.WParam) == hMenu1) && (hMenu1 != 0))  CopyBuffer(TextString, "Game menu");
+  if ((HMENU(Msg.WParam) == hMenu2) && (hMenu2 != 0))  CopyBuffer(TextString, "Options menu");
+  if ((HMENU(Msg.WParam) == hMenu3) && (hMenu3 != 0))  CopyBuffer(TextString, "Window menu");
+  if ((HMENU(Msg.WParam) == hMenu4) && (hMenu4 != 0))  CopyBuffer(TextString, "Help menu");
 
   // Update the status bar
   ::SendMessage(StatbarHan->HWindow,
@@ -1193,7 +1412,7 @@ void TMainWindow::CMMnuFilNew()
   /**************************************************************************/
   if (LocoyardEnabled)
   {
-    ToolbarHan->PToolbutt[10]->Enable(TRUE);
+    if (TToolbutton* button = ToolbarHan->GetButton(10))  button->Enable(TRUE);
   }
   else
   {
@@ -1220,11 +1439,11 @@ void TMainWindow::CMMnuFilNew()
   EnableMenuItem(TheMenu, CM_MNUFISTOP, MF_ENABLED);
 
   // Update the toolbar
-  ToolbarHan->PToolbutt[2]->Enable(TRUE);
-  ToolbarHan->PToolbutt[3]->Enable(TRUE);
-  ToolbarHan->PToolbutt[4]->Enable(TRUE);
-  ::ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
-  ::ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, TRUE);
+  if (TToolbutton* button = ToolbarHan->GetButton(2))  button->Enable(TRUE);
+  if (TToolbutton* button = ToolbarHan->GetButton(3))  button->Enable(TRUE);
+  if (TToolbutton* button = ToolbarHan->GetButton(4))  button->Enable(TRUE);
+  if (TToolbutton* button = ToolbarHan->GetButton(2))  ::ShowWindow(button->HWindow, FALSE);
+  if (TToolbutton* button = ToolbarHan->GetButton(3))  ::ShowWindow(button->HWindow, TRUE);
 
   // Update any child windows as well
   if (ArrivalHan != NULL)
@@ -1263,8 +1482,8 @@ void TMainWindow::CMMnuFiPaus()
     // Modify the menu as well
     ModifyMenu(TheMenu, CM_MNUFIPAUS, MF_BYCOMMAND | MF_STRING, CM_MNUFIPAUS, "&Pause");
     ::DrawMenuBar(HWindow);
-    ::ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
-    ::ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, TRUE);
+    if (TToolbutton* button = ToolbarHan->GetButton(2))  ::ShowWindow(button->HWindow, FALSE);
+    if (TToolbutton* button = ToolbarHan->GetButton(3))  ::ShowWindow(button->HWindow, TRUE);
   }
   else
   {
@@ -1274,8 +1493,8 @@ void TMainWindow::CMMnuFiPaus()
     // Modify the menu as well
     ModifyMenu(TheMenu, CM_MNUFIPAUS, MF_BYCOMMAND | MF_STRING, CM_MNUFIPAUS, "&Restart");
     ::DrawMenuBar(HWindow);
-    ::ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, TRUE);
-    ::ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, FALSE);
+    if (TToolbutton* button = ToolbarHan->GetButton(2))  ::ShowWindow(button->HWindow, TRUE);
+    if (TToolbutton* button = ToolbarHan->GetButton(3))  ::ShowWindow(button->HWindow, FALSE);
   }
 }
 
@@ -1295,11 +1514,11 @@ void TMainWindow::CMMnuFiStop()
   EnableMenuItem(TheMenu, CM_MNUFISTOP, MF_GRAYED);
 
   // Update the toolbar
-  ToolbarHan->PToolbutt[2]->Enable(FALSE);
-  ToolbarHan->PToolbutt[3]->Enable(FALSE);
-  ToolbarHan->PToolbutt[4]->Enable(FALSE);
-  ::ShowWindow(ToolbarHan->PToolbutt[2]->HWindow, FALSE);
-  ::ShowWindow(ToolbarHan->PToolbutt[3]->HWindow, TRUE);
+  if (TToolbutton* button = ToolbarHan->GetButton(2))  button->Enable(FALSE);
+  if (TToolbutton* button = ToolbarHan->GetButton(3))  button->Enable(FALSE);
+  if (TToolbutton* button = ToolbarHan->GetButton(4))  button->Enable(FALSE);
+  if (TToolbutton* button = ToolbarHan->GetButton(2))  ::ShowWindow(button->HWindow, FALSE);
+  if (TToolbutton* button = ToolbarHan->GetButton(3))  ::ShowWindow(button->HWindow, TRUE);
 
   // Clear all the data
   DisplayHan->IniVariables();
@@ -1355,7 +1574,7 @@ void TMainWindow::CMMnuFiSetD()
 
   // Set all structure members to zero
   memset(&ofn, 0, sizeof(OPENFILENAME));
-  CopyString(szName, DataFileName);
+  CopyBuffer(szName, DataFileName);
 
   ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.hwndOwner = HWindow;
@@ -1397,7 +1616,7 @@ void TMainWindow::CMMnuFiSetD()
   else
   {
     // Everything is OK
-    CopyString(DataFileName, szName);
+    CopyBuffer(DataFileName, szName);
 
     // Update the status bar
     ::SendMessage(StatbarHan->HWindow, SB_SETTEXT, 0, (LPARAM) ((LPSTR) ""));
@@ -1721,11 +1940,11 @@ void TMainWindow::CMWinLocoya()
   /**************************************************************************/
   if (LocoyardEnabled)
   {
-    ToolbarHan->PToolbutt[10]->Enable(TRUE);
+    if (TToolbutton* button = ToolbarHan->GetButton(10))  button->Enable(TRUE);
   }
   else
   {
-    ToolbarHan->PToolbutt[10]->Enable(FALSE);
+    if (TToolbutton* button = ToolbarHan->GetButton(10))  button->Enable(FALSE);
   }
 }
 
@@ -1814,4 +2033,3 @@ char* Trim(char* p)
 #if defined(_MSC_VER)
 #pragma optimize("", on)
 #endif
-

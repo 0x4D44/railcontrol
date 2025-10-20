@@ -73,6 +73,9 @@ using namespace owl;
 #endif
 
 // --- PROJECT-SPECIFIC HEADERS ---
+#include "ownership.h"
+#include "handleguard.h"
+#include "uihelpers.h"
 #include "general.h"    
 #include "section.h"
 #include "platdata.h"
@@ -95,5 +98,8 @@ using namespace owl;
 #include "start.h"
 #include "startup.h"
 #include "about.h"
+#if defined(_MSC_VER)
+#include "DEBUGMEMORYGUARD.H"
+#endif
 
 #endif // _CLASSDEF_H_

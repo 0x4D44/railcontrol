@@ -1,4 +1,4 @@
-﻿// OWLCVT 05/11/95 22:39:46
+// OWLCVT 05/11/95 22:39:46
 /* TOOLBUTT.CPP
 *  ============
 *
@@ -26,8 +26,8 @@
 /* Methods of TToolButton follow...  */
 
 TToolbutton::TToolbutton(TWindow* parent, int XPos, int YPos, int ButtNum, WORD WPAR,
-					long LPAR, HWND SentWin, HWND StatWin, char* UpTxt,
-			 char* DownTxt)
+					long LPAR, HWND SentWin, HWND StatWin, const char* UpTxt,
+			 const char* DownTxt)
   :TFrameWindow(parent, "")
 {
   // Set up toolbutton position
@@ -41,8 +41,8 @@ TToolbutton::TToolbutton(TWindow* parent, int XPos, int YPos, int ButtNum, WORD 
 
   // The button is initially in the up position and the left mouse
   // button is not selected.
-  CopyString(UpText, UpTxt ? UpTxt : "");
-  CopyString(DownText, DownTxt ? DownTxt : "");
+  CopyBuffer(UpText, UpTxt ? UpTxt : "");
+  CopyBuffer(DownText, DownTxt ? DownTxt : "");
   WParam = WPAR;
   LParam = LPAR;
   SentWindow = SentWin;
@@ -76,69 +76,57 @@ void TToolbutton::Paint(TDC& dc, bool erase, TRect& rect)
 
 void TToolbutton::DrawScreen(HDC TheDC)
 {
-  BOOL      MadeDC;
-  HDC       MemDC;
-  HBITMAP   OldBitmap;
-  int       XPos, YPos, MemYPos;
-
-  // Check to see if we need to get a DC
+  TReleaseDcGuard dcGuard;
   if (TheDC == 0)
   {
-	 // need to create a new DC
-	 TheDC = GetDC(HWindow);
-	 MadeDC = TRUE;
-  }
-  else
-  {
-	 MadeDC = FALSE;
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    TheDC = dcGuard.Get();
   }
 
-  // Create a compatible DC
-  MemDC = CreateCompatibleDC(TheDC);
+  if (!TheDC)
+  {
+    return;
+  }
+
+  TDcGuard memDcGuard(CreateCompatibleDC(TheDC));
+  HDC MemDC = memDcGuard.Get();
+  if (!MemDC)
+  {
+    return;
+  }
 
   // Get a handle to the parent
   TToolbar* toolbar = TYPESAFE_DOWNCAST(Parent, TToolbar);
 
-  // Is the button up or down?
+  HBITMAP OldBitmap = nullptr;
+  int XPos = 0;
+  int YPos = 0;
+
   if (UpPosition)
   {
-	 OldBitmap = (HBITMAP) SelectObject(MemDC, toolbar->HUpButt);
-	 XPos = 4;
-	 YPos = 3;
+    OldBitmap = (HBITMAP) SelectObject(MemDC, toolbar->HUpButt.Get());
+    XPos = 4;
+    YPos = 3;
   }
   else
   {
-	 OldBitmap = (HBITMAP) SelectObject(MemDC, toolbar->HDownButt);
-	 XPos = 5;
-	 YPos = 4;
+    OldBitmap = (HBITMAP) SelectObject(MemDC, toolbar->HDownButt.Get());
+    XPos = 5;
+    YPos = 4;
   }
 
-  // Draw it
   BitBlt(TheDC, 0, 0, 24, 22, MemDC, 0, 0, SRCCOPY);
 
-  // Draw the button face
   SelectObject(MemDC, toolbar->ButtBitmap);
 
-  if (Enabled)
+  const int MemYPos = Enabled ? 0 : 15;
+
+  BitBlt(TheDC, XPos, YPos, 16, 15, MemDC, (ButtonNum - 1) * 16, MemYPos, SRCCOPY);
+
+  if (OldBitmap)
   {
-	 MemYPos = 0;
+    SelectObject(MemDC, OldBitmap);
   }
-  else
-  {
-	 MemYPos = 15;
-  }
-
-  // Draw the button
-  BitBlt(TheDC, XPos, YPos, 16, 15, MemDC, (ButtonNum-1)*16, MemYPos, SRCCOPY);
-
-  // Reselect the original bitmap
-  SelectObject(MemDC, OldBitmap);
-
-  // Delete the compatible DC
-  DeleteDC(MemDC);
-
-  // Release DC if we were forced to get our own
-  if (MadeDC) ReleaseDC(HWindow, TheDC);
 }
 
 
@@ -184,7 +172,7 @@ void TToolbutton::EvLButtonDown(owl::uint modKeys, const TPoint& pnt)
 		::SendMessage(StatWindow,
 				 SB_SETTEXT,
 				 0,
-				 (LPARAM) ((LPSTR) DownText));
+				 reinterpret_cast<LPARAM>(DownText.Data()));
 	 }
   }
 }
@@ -217,7 +205,7 @@ void TToolbutton::EvLButtonUp(owl::uint, const TPoint&)
       ::SendMessage(StatWindow,
 	          SB_SETTEXT,
 	          0,
-		  (LPARAM) ((LPSTR) UpText));
+		  reinterpret_cast<LPARAM>(UpText.Data()));
     }
   }
 }
@@ -245,17 +233,17 @@ void TToolbutton::EvMouseMove(owl::uint, const TPoint& pnt)
 }
 
 
-void TToolbutton::SetDownText(char* TextString)
+void TToolbutton::SetDownText(const char* TextString)
 {
   // Set the down button text string
-  CopyString(DownText, TextString ? TextString : "");
+      CopyBuffer(DownText, TextString ? TextString : "");
 }
 
 
-void TToolbutton::SetUpText(char* TextString)
+void TToolbutton::SetUpText(const char* TextString)
 {
   // Set the down button text string
-  CopyString(UpText, TextString ? TextString : "");
+      CopyBuffer(UpText, TextString ? TextString : "");
 }
 
 

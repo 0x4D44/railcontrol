@@ -96,7 +96,7 @@ TSelector::TSelector(TWindow * AParent, int XPos, int YPos, int Width, int Heigh
   Font.lfClipPrecision = CLIP_DEFAULT_PRECIS;
   Font.lfQuality = PROOF_QUALITY;
   Font.lfPitchAndFamily = FF_DONTCARE;
-  CopyString(Font.lfFaceName, "Arial");
+  CopyBuffer(Font.lfFaceName, "Arial");
 }
 
 
@@ -143,18 +143,20 @@ void TSelector::Paint(TDC& dc, bool erase, TRect& rect)
 
 void TSelector::PaintButton(HDC TheDC)
 {
-  BOOL    MadeDC;
-  HPEN    hOldPen, hPen;
-  HFONT   HFont, OldFont;
+  HPEN    hOldPen;
+  HFONT   OldFont;
 
   // Check to see that we are given a DC
+  TReleaseDcGuard dcGuard;
   if (TheDC == 0)
   {
-	 TheDC = GetDC(HWindow);
-	 MadeDC = TRUE;
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    TheDC = dcGuard.Get();
   }
-  else
-	 MadeDC = FALSE;
+  if (!TheDC)
+  {
+    return;
+  }
 
   // Get handle to parent windows
   TLayout* layout = TYPESAFE_DOWNCAST(Parent, TLayout);
@@ -165,26 +167,28 @@ void TSelector::PaintButton(HDC TheDC)
   {
     // Draw the 3D box - for our purposes we have to assume that the parent
     // has a dark gray pen on offer (DkGrayPen)
-    hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT));
-    hOldPen = (HPEN) SelectObject(TheDC, hPen);
-    MoveToEx(TheDC, 0, Attr.H-1, 0);
-    LineTo(TheDC, 0, 0);
-    LineTo(TheDC, Attr.W-1, 0);
-    SelectObject(TheDC, hOldPen);
-    DeleteObject(hPen);
+    {
+      TPenGuard highlightPen(CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT)));
+      hOldPen = (HPEN) SelectObject(TheDC, highlightPen);
+      MoveToEx(TheDC, 0, Attr.H-1, 0);
+      LineTo(TheDC, 0, 0);
+      LineTo(TheDC, Attr.W-1, 0);
+      SelectObject(TheDC, hOldPen);
+    }
 
-    hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW));
-    hOldPen = (HPEN) SelectObject(TheDC, hPen);
-    LineTo(TheDC, Attr.W-1, Attr.H-1);
-    LineTo(TheDC, 0, Attr.H-1);
-    SelectObject(TheDC, hOldPen);
-    DeleteObject(hPen);
+    {
+      TPenGuard shadowPen(CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW)));
+      hOldPen = (HPEN) SelectObject(TheDC, shadowPen);
+      LineTo(TheDC, Attr.W-1, Attr.H-1);
+      LineTo(TheDC, 0, Attr.H-1);
+      SelectObject(TheDC, hOldPen);
+    }
 
     // Now draw the text on the window
     Font.lfHeight = (8*Attr.H)/10;
     Font.lfWidth = (8*Attr.W)/30;
-    HFont = CreateFontIndirect(&Font);
-    OldFont = (HFONT) SelectObject(TheDC, HFont);
+    TFontGuard fontGuard(CreateFontIndirect(&Font));
+    OldFont = (HFONT) SelectObject(TheDC, fontGuard.Get());
     SetTextAlign(TheDC, TA_CENTER);
     SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
 
@@ -202,7 +206,7 @@ void TSelector::PaintButton(HDC TheDC)
     TextOut(TheDC, (Attr.W/2), (Attr.H-(8*Attr.H)/10)/2,
 	    MainText, strlen(MainText));
     SelectObject(TheDC, OldFont);
-    DeleteObject(HFont);
+    fontGuard.Reset();
   }
   else
   {
@@ -216,12 +220,12 @@ void TSelector::PaintButton(HDC TheDC)
 	 LineTo(TheDC, Attr.W-1, Attr.H-1);
 	 LineTo(TheDC, 0, Attr.H-1);
 
-	 // Now draw the text on the window
-	 Font.lfHeight = (8*Attr.H)/10;
-	 Font.lfWidth = (8*Attr.W)/30;
-	 HFont = CreateFontIndirect(&Font);
-	 OldFont = (HFONT) SelectObject(TheDC, HFont);
-	 SetTextAlign(TheDC, TA_CENTER);
+   // Now draw the text on the window
+   Font.lfHeight = (8*Attr.H)/10;
+   Font.lfWidth = (8*Attr.W)/30;
+   TFontGuard fontGuard(CreateFontIndirect(&Font));
+   OldFont = (HFONT) SelectObject(TheDC, fontGuard.Get());
+   SetTextAlign(TheDC, TA_CENTER);
    SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
 
 	 // Choose the text colour
@@ -237,11 +241,10 @@ void TSelector::PaintButton(HDC TheDC)
     // Draw the text
     TextOut(TheDC, (Attr.W/2)+1, (Attr.H-(8*Attr.H)/10)/2+1, MainText, strlen(MainText));
     SelectObject(TheDC, OldFont);
-    DeleteObject(HFont);
   }
 
   // Release the DC if we obtained one
-  if (MadeDC) ReleaseDC(HWindow, TheDC);
+  (void)dcGuard;
 }
 
 

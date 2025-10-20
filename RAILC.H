@@ -52,17 +52,17 @@ private:
                   PlatformIcon,                // Is the platform window iconized?
                   LocoyardIcon,                // Is the locoyard window iconized?
                   MainWinIcon;                 // Is the main window iconized?
-  HBRUSH          RedBrush,                    // Handle to a red brush
-                  GreenBrush,                  // Handle to a green brush
-                  DkGrayBrush,                 // Handle to a dark gray brush
-                  BlueBrush,                   // Handle to a blue brush
-                  YellowBrush,                 // Handle to a yellow brush
-                  WhiteBrush;                  // Handle to a white brush
-  HPEN            RedPen,                      // Handle to a red pen
-                  GreenPen,                    // Handle to a green pen
-                  YellowPen,                   // Handle to a yellow pen
-                  DkGrayPen,                   // Handle to a dark gray pen
-                  LtGrayPen;                   // Handle to a light gray pen
+  TBrushGuard     RedBrush;                    // Handle to a red brush
+  TBrushGuard     GreenBrush;                  // Handle to a green brush
+  TBrushGuard     DkGrayBrush;                 // Handle to a dark gray brush
+  TBrushGuard     BlueBrush;                   // Handle to a blue brush
+  TBrushGuard     YellowBrush;                 // Handle to a yellow brush
+  TBrushGuard     WhiteBrush;                  // Handle to a white brush
+  TPenGuard       RedPen;                      // Handle to a red pen
+  TPenGuard       GreenPen;                    // Handle to a green pen
+  TPenGuard       YellowPen;                  // Handle to a yellow pen
+  TPenGuard       DkGrayPen;                   // Handle to a dark gray pen
+  TPenGuard       LtGrayPen;                   // Handle to a light gray pen
   PStatbar        StatbarHan;                  // Handle to the status bar
   PToolbar        ToolbarHan;                  // Handle to the tool bar
   PArrivals       ArrivalHan;                  // Handle to the arrivals window
@@ -74,7 +74,7 @@ private:
                   ToolbarExist,                // Does the tool bar exist?
                   GamePaused,                  // Is the game paused?
                   GameInProgress;              // Is there a game in progress?
-  HBITMAP         ToolbarBitmaps;              // Handle to toolbar bitmaps
+  TBitmapGuard    ToolbarBitmaps;              // Handle to toolbar bitmaps
   Toolbuttondata  ToolButtData;                // X positions of toolbuttons
   TWindow*        TitleWin;                    // Handle to title window (splash window)
 
@@ -88,9 +88,9 @@ public:
                   LocoyardEnabled;             // Is the locoyard enabled?
   char            DataFileName[100];           // Data file name
   PLayout         DisplayHan;                  // Handle to the layout window
-  HFONT           mTextFont;                   // Handle to the main window font
-  HFONT           mHeaderFont;                 // Header font handle
-  HFONT           mSmallFont;                  // Small font handle
+  TFontGuard      mTextFont;                   // Handle to the main window font
+  TFontGuard      mHeaderFont;                 // Header font handle
+  TFontGuard      mSmallFont;                  // Small font handle
 
 #ifdef MDDEBUG
   char*           lDbgStates[90];

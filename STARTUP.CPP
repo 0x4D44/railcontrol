@@ -41,7 +41,7 @@ TStartup::TStartup(TFrameWindow* parent)
 
 TStartup::~TStartup()
 {
-  DeleteObject(HLoader);
+  HLoader.Reset();
 }
 
 
@@ -54,17 +54,17 @@ void TStartup::SetupWindow()
 
 void TStartup::Paint(TDC& dc, bool erase, TRect& rect)
 {
-  HDC   MemDC;
+  TDcGuard memDcGuard(CreateCompatibleDC(dc));
+  HDC memDC = memDcGuard.Get();
+  if (!memDC)
+  {
+    return;
+  }
 
-  // Create a compatible DC
-  MemDC = CreateCompatibleDC(dc);
-  SelectObject(MemDC, HLoader);
+  SelectObject(memDC, HLoader.Get());
 
   // BitBlt it
-  BitBlt(dc, 0, 0, Attr.W, Attr.H, MemDC, 0, 0, SRCCOPY);
-
-  // Delete compatible DC
-  DeleteDC(MemDC);
+  BitBlt(dc, 0, 0, Attr.W, Attr.H, memDC, 0, 0, SRCCOPY);
 }
 
 

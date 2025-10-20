@@ -130,7 +130,6 @@ void TLocoyard::EvLButtonDown(owl::uint modKeys, const TPoint& point)
 void TLocoyard::EvLButtonUp(owl::uint, const TPoint&)
 {
 
-  HDC     TheDC;
   char    TextString[40];
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
 
@@ -142,16 +141,16 @@ void TLocoyard::EvLButtonUp(owl::uint, const TPoint&)
     if ((frame->DisplayHan->LocoyardLoco[OldSelect] > 0) &&
        (frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->GetFlag() != LF_REFUEL))
     {
-      // Deselect the locomotive
-      TheDC = GetDC(HWindow);
-      SelectObject(TheDC, frame->mTextFont);
-      ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
-      SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
+      TReleaseDcGuard dcGuard(HWindow, GetDC(HWindow));
+      if (HDC TheDC = dcGuard.Get())
+      {
+        SelectObject(TheDC, frame->mTextFont);
+        ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
+        SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
 
-      // Get loco number as a character array
-      frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->LocoNumStr(TextString);
-      TextOut(TheDC, OldXPos, OldYPos, TextString, strlen(TextString));
-      ReleaseDC(HWindow, TheDC);
+        frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->LocoNumStr(TextString);
+        TextOut(TheDC, OldXPos, OldYPos, TextString, strlen(TextString));
+      }
 
       // Now set the loco to LF_LIGHT
       frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->SetFlag(LF_LIGHT);
@@ -176,7 +175,6 @@ void TLocoyard::EvLButtonUp(owl::uint, const TPoint&)
 
 void TLocoyard::EvMouseMove(owl::uint, const TPoint& pnt)
 {
-  HDC     TheDC;
   int     LookXPos, LookYPos;
   int     a;
   char    TextString[40];
@@ -210,11 +208,12 @@ void TLocoyard::EvMouseMove(owl::uint, const TPoint& pnt)
     // currently highlighted (by the mouse) loco number
     if (OldSelect != a)
     {
-      // Get a DC and set it up
-      TheDC = GetDC(HWindow);
-      SelectObject(TheDC, frame->mTextFont);
-      ::SetTextColor(TheDC, RGB(255, 255, 255));
-      SetBkColor(TheDC, RGB(0, 0, 0));
+      TReleaseDcGuard dcGuard(HWindow, GetDC(HWindow));
+      if (HDC TheDC = dcGuard.Get())
+      {
+        SelectObject(TheDC, frame->mTextFont);
+        ::SetTextColor(TheDC, RGB(255, 255, 255));
+        SetBkColor(TheDC, RGB(0, 0, 0));
 
       if (OldSelect < 16)
       {
@@ -244,9 +243,7 @@ void TLocoyard::EvMouseMove(owl::uint, const TPoint& pnt)
       OldSelect = a;
       OldXPos = LookXPos;
       OldYPos = LookYPos;
-
-      // Release the DC
-      ReleaseDC(HWindow, TheDC);
+      }
     }
    }
    else
@@ -257,15 +254,16 @@ void TLocoyard::EvMouseMove(owl::uint, const TPoint& pnt)
         (frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->GetFlag() != LF_REFUEL))
       {
        // Get old loco number and reset it
-       TheDC = GetDC(HWindow);
-       SelectObject(TheDC, frame->mTextFont);
-       ::SetTextColor(TheDC, RGB(255, 255, 255));
-       SetBkColor(TheDC, RGB(0, 0, 0));
+       TReleaseDcGuard dcGuard(HWindow, GetDC(HWindow));
+       if (HDC TheDC = dcGuard.Get())
+       {
+         SelectObject(TheDC, frame->mTextFont);
+         ::SetTextColor(TheDC, RGB(255, 255, 255));
+         SetBkColor(TheDC, RGB(0, 0, 0));
 
-       // Get loco number as a character array
-       frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->LocoNumStr(TextString);
-       TextOut(TheDC, OldXPos, OldYPos, TextString, strlen(TextString));
-       ReleaseDC(HWindow, TheDC);
+         frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->LocoNumStr(TextString);
+         TextOut(TheDC, OldXPos, OldYPos, TextString, strlen(TextString));
+       }
 
        OldSelect = 100;
        OldXPos = 0;
@@ -286,24 +284,22 @@ void TLocoyard::Paint(TDC& dc, bool erase, TRect& rect)
 
 void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
 {
-  BOOL     MadeDC, Update;
+  TReleaseDcGuard dcGuard;
+  BOOL     Update;
   RECT     TheRect;
-  HPEN     hOldPen, hPen;
   int      a, i, XPos, YPos;
   char     TextString[40];
-  COLORREF loldBackColour;
   RECT     lrect;
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
 
   if (TheDC == 0)
   {
-    // We need to create a new DC
-    TheDC = GetDC(HWindow);
-    MadeDC = TRUE;
+    dcGuard.Attach(HWindow, GetDC(HWindow));
+    TheDC = dcGuard.Get();
   }
-  else
+  if (!TheDC)
   {
-    MadeDC = FALSE;
+    return;
   }
 
   if (Redraw)
@@ -313,46 +309,31 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
 
     if ((TheRect.right > 3) && (TheRect.bottom > 3))
     {
-      hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNHIGHLIGHT));
-      hOldPen = (HPEN) SelectObject(TheDC, hPen);
-      MoveToEx(TheDC, TheRect.right-4, 23, 0);
-      LineTo(TheDC, TheRect.right-4, TheRect.bottom-4);
-      LineTo(TheDC, 3, TheRect.bottom-4);
-      SelectObject(TheDC, hOldPen);
-      DeleteObject(hPen);
-
-      hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNSHADOW));
-      hOldPen = (HPEN) SelectObject(TheDC, hPen);
-      LineTo(TheDC, 3, 23);
-      LineTo(TheDC, TheRect.right-4, 23);
-      SelectObject(TheDC, hOldPen);
-      DeleteObject(hPen);
+      DrawRaisedPanel(TheDC, TheRect, 23);
     }
-
-    /************************************************************************/
-    /* Draw a black background to the data box.                             */
-    /************************************************************************/
-    loldBackColour = SetBkColor(TheDC, RGB(0, 0, 0));
 
     lrect.left   = 4;
     lrect.right  = TheRect.right - 5;
     lrect.top    = 24;
     lrect.bottom = TheRect.bottom - 5;
-    ExtTextOut(TheDC, 0, 0, ETO_OPAQUE, &lrect, NULL, 0, NULL);
-
-    SetBkColor(TheDC, loldBackColour);
+    FillRectOpaque(TheDC, lrect, RGB(0, 0, 0));
   }
 
   // Set up text attributes
-  SelectObject(TheDC, frame->mHeaderFont);
-  ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
-  SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
-
-  // Now draw timetable header information
   if (Redraw)
   {
-    CopyString(TextString, "Available locos:");
-    TextOut(TheDC, 10, 5, TextString, strlen(TextString));
+    static const HeaderLabel kYardHeaders[] =
+    {
+      {10, "Available locos:"}
+    };
+
+    DrawHeaderLabels(TheDC,
+                     frame->mHeaderFont,
+                     GetSysColor(COLOR_WINDOWTEXT),
+                     GetSysColor(COLOR_BTNFACE),
+                     5,
+                     kYardHeaders,
+                     sizeof(kYardHeaders) / sizeof(kYardHeaders[0]));
   }
 
   ::SetTextColor(TheDC, RGB(255, 255, 255));
@@ -409,7 +390,7 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
   }
 
   // Tidy up
-  if (MadeDC) ReleaseDC(HWindow, TheDC);
+  (void)dcGuard;
 }
 
 

@@ -19,3 +19,5 @@ jobs:
         run: build_msvc.bat Debug
       - name: Build RailControl (Release Win32)
         run: build_msvc.bat Release
+      - name: Lint Memory Guard Gating
+        run: tools\lint_memory_guard.bat
