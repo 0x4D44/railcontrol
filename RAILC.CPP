@@ -25,34 +25,6 @@
 #if defined(_MSC_VER)
 #include <windows.h>
 #endif
-#include <new>
-
-#define DIAG_SETUP_STACK 1
-
-#if defined(DIAG_SETUP_STACK)
-volatile const char* gSetupStackLabel = nullptr;
-volatile unsigned long gSetupStackBefore = 0;
-volatile unsigned long gSetupStackAfter = 0;
-
-#define STACK_SNAPSHOT(name) unsigned long name = 0; __asm { mov name, esp }
-#define STACK_VERIFY(label, before)                                               \
-  {                                                                               \
-    unsigned long _stack_after = 0;                                               \
-    __asm { mov _stack_after, esp }                                               \
-    if (_stack_after != (before))                                                 \
-    {                                                                             \
-      gSetupStackLabel = (label);                                                 \
-      gSetupStackBefore = (before);                                               \
-      gSetupStackAfter = _stack_after;                                            \
-      __debugbreak();                                                             \
-    }                                                                             \
-  }
-#else
-#define STACK_SNAPSHOT(name) unsigned long name = 0
-#define STACK_VERIFY(label, before) do { (void)(before); } while (0)
-#endif
-
-
 /*************************************************************************/
 /* Methods of TManager follow...*/
 
@@ -662,9 +634,7 @@ void TMainWindow::SetupWindow()
   LogSetupEvent("SetupWindow:Start", this);
 #endif
   // Call ancestor method
-  STACK_SNAPSHOT(stackBeforeBaseSetup);
   TFrameWindow::SetupWindow();
-  STACK_VERIFY("after base TFrameWindow::SetupWindow", stackBeforeBaseSetup);
   char startupBuffer[128];
   std::snprintf(startupBuffer, sizeof(startupBuffer), "Main window handle after base: %p", GetHandle());
   StartupLog(startupBuffer);
@@ -679,11 +649,9 @@ void TMainWindow::SetupWindow()
 #if defined(DIAG_SETUP_TRACE)
   LogSetupEvent("SetupWindow:CreateStatbar:pre", this);
 #endif
-  STACK_SNAPSHOT(stackBeforeStatbarCreate);
   StatbarHan = new TStatbar(this);
   StatbarHan->Create();
   StatbarExist = TRUE;
-  STACK_VERIFY("after status bar creation", stackBeforeStatbarCreate);
 #if defined(DIAG_SETUP_TRACE)
   LogSetupEvent("SetupWindow:CreateStatbar:post", StatbarHan);
 #endif
@@ -808,29 +776,9 @@ void TMainWindow::SetupWindow()
 #if defined(DIAG_SETUP_TRACE)
   LogSetupEvent("SetupWindow:Toolbar:create:pre", this);
 #endif
-  TToolbar* toolbarTemp = nullptr;
-#if defined(DIAG_SETUP_STACK)
-  STACK_SNAPSHOT(stackBeforeToolbarAlloc);
-  void* toolbarStorage = ::operator new(sizeof(TToolbar));
-  STACK_VERIFY("after operator new (toolbar)", stackBeforeToolbarAlloc);
-
-  STACK_SNAPSHOT(stackBeforeToolbarCtor);
-  toolbarTemp = new (toolbarStorage) TToolbar(this, 12, ToolButtData, ToolbarBitmaps);
-  STACK_VERIFY("after placement new TToolbar", stackBeforeToolbarCtor);
-#else
-  STACK_SNAPSHOT(stackBeforeToolbarNew);
-  toolbarTemp = new TToolbar(this, 12, ToolButtData, ToolbarBitmaps);
-  STACK_VERIFY("after new TToolbar", stackBeforeToolbarNew);
-#endif
-  ToolbarHan = toolbarTemp;
-
-  STACK_SNAPSHOT(stackBeforeToolbarCreateCall);
+  ToolbarHan = new TToolbar(this, 12, ToolButtData, ToolbarBitmaps);
   ToolbarHan->Create();
-  STACK_VERIFY("after ToolbarHan->Create()", stackBeforeToolbarCreateCall);
-
-  STACK_SNAPSHOT(stackBeforeToolbarFinalize);
   ToolbarExist = TRUE;
-  STACK_VERIFY("after toolbar finalisation", stackBeforeToolbarFinalize);
 #if defined(DIAG_SETUP_TRACE)
   LogSetupEvent("SetupWindow:Toolbar:create:post", ToolbarHan);
 #endif
@@ -901,7 +849,6 @@ void TMainWindow::SetupWindow()
   LocoyardX = GetPrivateProfileInt("Locoyard Window", "X position", 0, INIFILENAME);
   LocoyardY = GetPrivateProfileInt("Locoyard Window", "Y position", 0, INIFILENAME);
 
-  STACK_SNAPSHOT(stackBeforeAutoChildren);
   // Check to see if we need to create an arrivals window
   if (BOOL(GetPrivateProfileInt("Arrival Window", "Exists", 1, INIFILENAME)))
   {
@@ -990,8 +937,6 @@ void TMainWindow::SetupWindow()
 #endif
 #endif
 
-  STACK_VERIFY("after auto child/menu setup", stackBeforeAutoChildren);
-
   // Close the title window
 #if !defined(DIAG_SKIP_CLOSE_TITLE)
 #if defined(DIAG_SETUP_TRACE)
@@ -1001,9 +946,7 @@ void TMainWindow::SetupWindow()
     LogSetupPointer("SetupWindow:TitleWin:pre-close", this, TitleWin->GetHandle(), "hwnd");
   }
 #endif
-  STACK_SNAPSHOT(stackBeforeTitleClose);
   TitleWin->CloseWindow();
-  STACK_VERIFY("after TitleWin->CloseWindow()", stackBeforeTitleClose);
 #if defined(DIAG_SETUP_TRACE)
   if (TitleWin != NULL)
   {
