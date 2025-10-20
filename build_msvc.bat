@@ -37,6 +37,23 @@ call "%VSROOT%\VC\Auxiliary\Build\vcvarsall.bat" x86 || exit /b 1
 msbuild build\msvc\RailControl.vcxproj /p:Configuration=%CONFIG% /p:Platform=Win32
 if errorlevel 1 exit /b %ERRORLEVEL%
 
+REM Build RailCore static library
+msbuild build\msvc\RailCore.vcxproj /p:Configuration=%CONFIG% /p:Platform=Win32
+if errorlevel 1 exit /b %ERRORLEVEL%
+
+REM Build RailCoreTests (placeholder console app)
+msbuild build\msvc\RailCoreTests.vcxproj /p:Configuration=%CONFIG% /p:Platform=Win32
+if errorlevel 1 exit /b %ERRORLEVEL%
+
+REM Optionally run tests for Debug builds
+if /I "%CONFIG%"=="Debug" (
+  if exist "%ROOT%build\msvc\Debug\RailCoreTests.exe" (
+    echo Running RailCoreTests...
+    "%ROOT%build\msvc\Debug\RailCoreTests.exe"
+    if errorlevel 1 exit /b %ERRORLEVEL%
+  )
+)
+
 call :copy_dbghelp "%CONFIG%"
 exit /b %ERRORLEVEL%
 
@@ -74,7 +91,8 @@ if not defined DBGHELP_SRC (
 )
 
 if defined DBGHELP_SRC (
-  copy /Y "%DBGHELP_SRC%" "%TARGET_DIR%\dbghelp.dll" >nul
+  copy /Y "%DBGHELP_SRC" "%TARGET_DIR%\dbghelp.dll" >nul
 )
 
 exit /b 0
+
