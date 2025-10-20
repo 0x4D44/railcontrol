@@ -68,7 +68,7 @@ BEGIN
         CONTROL "Other options:", -1, "button", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 3, 101, 106, 36
         CONTROL "Game options:", -1, "button", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 3, 51, 106, 48
 END
-BEEP RCDATA "beep.wav"
+BEEP WAVE "BEEP.WAV"
 TB_MAINWIN BITMAP "tb_mainwin.bmp"
 STRINGTABLE 
 BEGIN
