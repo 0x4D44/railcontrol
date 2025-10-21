@@ -70,23 +70,29 @@ void TAbout::EvPaint()
   ::GetObject(HLoco2, sizeof(BITMAP), &dmuInfo);
 
   const int margin = 12;
-  const int locoWidth = (locoInfo.bmWidth > 0) ? locoInfo.bmWidth : 150;
-  const int locoHeight = (locoInfo.bmHeight > 0) ? locoInfo.bmHeight : 130;
-  const int dmuWidth = (dmuInfo.bmWidth > 0) ? dmuInfo.bmWidth : 155;
-  const int dmuHeight = (dmuInfo.bmHeight > 0) ? dmuInfo.bmHeight : 150;
+  const int srcLocoW = (locoInfo.bmWidth  > 0) ? locoInfo.bmWidth  : 150;
+  const int srcLocoH = (locoInfo.bmHeight > 0) ? locoInfo.bmHeight : 130;
+  const int srcDmuW  = (dmuInfo.bmWidth   > 0) ? dmuInfo.bmWidth   : 155;
+  const int srcDmuH  = (dmuInfo.bmHeight  > 0) ? dmuInfo.bmHeight  : 150;
+
+  // Target: left image at 90% of original; right image same target size
+  const int tgtW = (int)((srcLocoW * 9 + 5) / 10);  // round(0.9 * w)
+  const int tgtH = (int)((srcLocoH * 9 + 5) / 10);  // round(0.9 * h)
 
   const int locoX = margin;
   const int locoY = margin;
-  int dmuX = client.right - margin - dmuWidth;
+  int dmuX = client.right - margin - tgtW;
   if (dmuX < margin)  dmuX = margin;
   const int dmuY = margin;
 
-  // BitBlt it
-  BitBlt(PS.hdc, locoX, locoY, locoWidth, locoHeight, MemDC, 0, 0, SRCCOPY);
+  // Left bitmap (scaled to 90%)
+  SetStretchBltMode(PS.hdc, HALFTONE);
+  StretchBlt(PS.hdc, locoX, locoY, tgtW, tgtH, MemDC, 0, 0, srcLocoW, srcLocoH, SRCCOPY);
 
-  // And again...
+  // Right bitmap (force same size as left)
   SelectObject(MemDC, HLoco2);
-  BitBlt(PS.hdc, dmuX, dmuY, dmuWidth, dmuHeight, MemDC, 0, 0, SRCCOPY);
+  SetStretchBltMode(PS.hdc, HALFTONE);
+  StretchBlt(PS.hdc, dmuX, dmuY, tgtW, tgtH, MemDC, 0, 0, srcDmuW, srcDmuH, SRCCOPY);
   SelectObject(MemDC, HOldBitmap);
 
   // Delete compatible DC
