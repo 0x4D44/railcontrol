@@ -1,0 +1,5 @@
+if(EXISTS "/home/user/railcontrol/build/coverage/tests/railcore_tests[1]_tests.cmake")
+  include("/home/user/railcontrol/build/coverage/tests/railcore_tests[1]_tests.cmake")
+else()
+  add_test(railcore_tests_NOT_BUILT railcore_tests_NOT_BUILT)
+endif()
