@@ -1,0 +1,1 @@
+genhtml /home/user/railcontrol/build/coverage/coverage/coverage_filtered.info --output-directory /home/user/railcontrol/build/coverage/coverage/html --title 'RailControl Coverage Report' --legend --demangle-cpp --ignore-errors source
