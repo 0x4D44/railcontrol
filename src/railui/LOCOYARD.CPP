@@ -124,6 +124,9 @@ void TLocoyard::EnsureContentFits()
     return;
   }
 
+  RECT beforeRect = {0, 0, 0, 0};
+  ::GetWindowRect(HWindow, &beforeRect);
+
   const int targetWidth = (desiredWidth > currentWidth) ? desiredWidth : currentWidth;
   const int targetHeight = (desiredHeight > currentHeight) ? desiredHeight : currentHeight;
   RECT windowRect = {0, 0, targetWidth, targetHeight};
@@ -138,10 +141,35 @@ void TLocoyard::EnsureContentFits()
 
   const int windowWidth = windowRect.right - windowRect.left;
   const int windowHeight = windowRect.bottom - windowRect.top;
-  ::SetWindowPos(HWindow, 0, 0, 0, windowWidth, windowHeight,
-                 SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
-  Attr.W = windowWidth;
-  Attr.H = windowHeight;
+  const BOOL resized = ::SetWindowPos(HWindow, 0, 0, 0, windowWidth, windowHeight,
+                                      SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+  if (!resized)
+  {
+    return;
+  }
+
+  RECT afterRect = beforeRect;
+  ::GetWindowRect(HWindow, &afterRect);
+
+  const int actualWidth = afterRect.right - afterRect.left;
+  const int actualHeight = afterRect.bottom - afterRect.top;
+  Attr.W = actualWidth;
+  Attr.H = actualHeight;
+
+  const bool sizeChanged = ((actualWidth != (beforeRect.right - beforeRect.left)) ||
+                            (actualHeight != (beforeRect.bottom - beforeRect.top)));
+  if (!sizeChanged)
+  {
+    return;
+  }
+
+  ::InvalidateRect(HWindow, NULL, TRUE);
+
+  TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (frame != NULL)
+  {
+    frame->HandleChildResize(this, beforeRect, afterRect);
+  }
 }
 
 
@@ -396,6 +424,12 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
   SelectObject(TheDC, frame->mTextFont);
   UpdateMetrics(TheDC);
   ResetContentExtents();
+
+  const int columnsPerRow = 4;
+  const int baselineRows = (16 + columnsPerRow - 1) / columnsPerRow;
+  const int baselineRowBottom = 25 + ((baselineRows - 1) * mRowSpacing) + mRowHeight;
+  const int baselineRight = 10 + ((columnsPerRow - 1) * 45) + MeasureStringWidth(TheDC, "47289");
+  TrackContent(baselineRight, baselineRowBottom);
 
   ::GetClientRect(HWindow, &TheRect);
   mClientWidth = TheRect.right;

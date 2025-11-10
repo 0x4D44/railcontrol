@@ -45,6 +45,11 @@ private:
   int   mInitialLocoPlat;       // Initial loco platform (for trains in the station at the start of the simulation)
   int   mNextTimeTabPos;        // The timetable number of the train which inherits this loco.
   int   mTwinAssoc;             // Index of the associated twin timetable entry (if applicable).
+  int   mStage;                 // Stage bucket from telemetry (-1 when unknown)
+  int   mStageIndex;            // Stage index (0..5) or -1
+  int   mStagePrimary;          // Primary section id for current stage
+  int   mStageSecondary;        // Secondary section id for current stage
+  long  mProgressMs;            // Progress in milliseconds within stage (-1 when unknown)
 
 
 public:
@@ -77,8 +82,14 @@ public:
   int   SetRoute(int NewRoute);
   int   SetInitialLocoPlat(int xiPlat);
   int   AddMinLate(int NewMinLate);
+  void  ResetStageTelemetry();
+  void  SetStageTelemetry(int Stage, int StageIndex, int StagePrimary, int StageSecondary, long ProgressMs);
+  int   GetStage() const;
+  int   GetStageIndex() const;
+  int   GetStagePrimary() const;
+  int   GetStageSecondary() const;
+  long  GetProgressMs() const;
 };
 
 
 #endif // _TIMETABL_H_
-

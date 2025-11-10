@@ -46,6 +46,7 @@
 #define CM_SELECT          500
 #define ID_HELP_BUTTON     998
 #define ID_TIMER           2100
+#define ID_CHILD_RESIZE_COALESCE 2101
 
 // Resource definitions
 #define HR_DIGITAL         800

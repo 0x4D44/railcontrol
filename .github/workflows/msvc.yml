@@ -1,4 +1,4 @@
-﻿name: msvc-build
+name: msvc-build
 
 on:
   push:
@@ -8,6 +8,10 @@ on:
 jobs:
   build-msvc:
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [Debug, Release]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -15,11 +19,102 @@ jobs:
         uses: microsoft/setup-msbuild@v1
       - name: Build OWLNext libraries
         run: build\msvc\build_owlnext_msvc.bat
-      - name: Build RailControl (Debug Win32)
-        run: build.cmd Debug
-      - name: Build RailControl (Release Win32)
-        run: build.cmd Release
+      - name: Build RailControl (${{ matrix.config }} Win32)
+        run: build.cmd ${{ matrix.config }}
       - name: Lint Memory Guard Gating
+        if: matrix.config == 'Debug'
         run: tools\lint_memory_guard.bat
-      - name: Run RailCoreTests (Debug)
-        run: build\msvc\Debug\RailCoreTests.exe
+      - name: Run RailCoreTests (${{ matrix.config }})
+        if: matrix.config == 'Debug'
+        shell: powershell
+        run: |
+          $env:RAILCORE_SMOKE_MODE = 'minimal'
+          build\msvc\Debug\RailCoreTests.exe
+      - name: Sanity: railc --rcd-validate (good) (${{ matrix.config }})
+        shell: powershell
+        run: |
+          $env:RCD_CLI_LOG = "build/msvc/${{ matrix.config }}/cli_good.log"
+          & build/msvc/${{ matrix.config }}/railc.exe --rcd-validate "Game files/FAST.RCD"
+          if ($LASTEXITCODE -ne 0) { Write-Error "Expected FAST.RCD to be valid (exit=0), got exit=$LASTEXITCODE"; exit 1 }
+      - name: Sanity: railc --rcd-validate (bad) (${{ matrix.config }})
+        shell: powershell
+        run: |
+          $env:RCD_CLI_LOG = "build/msvc/${{ matrix.config }}/cli_bad.log"
+          & build/msvc/${{ matrix.config }}/railc.exe --rcd-validate bad_tt_arrsel.rcd
+          if ($LASTEXITCODE -eq 0) { Write-Error "Expected bad_tt_arrsel.rcd to be invalid (exit!=0)"; exit 1 }
+      - name: Sanity: railc --rcd-validate (wildcard) (${{ matrix.config }})
+        shell: powershell
+        run: |
+          $env:RCD_CLI_LOG = "build/msvc/${{ matrix.config }}/cli_wc.log"
+          & build/msvc/${{ matrix.config }}/railc.exe --rcd-validate "Game files/*.RCD"
+          if ($LASTEXITCODE -ne 0) { Write-Error "Expected wildcard validation to succeed (exit=0), got exit=$LASTEXITCODE"; exit 1 }
+      - name: Upload CLI logs (${{ matrix.config }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rcd-cli-logs-${{ toLower(matrix.config) }}
+          path: |
+            build/msvc/${{ matrix.config }}/cli_good.log
+            build/msvc/${{ matrix.config }}/cli_bad.log
+            build/msvc/${{ matrix.config }}/cli_wc.log
+      - name: Install OpenCppCoverage
+        if: matrix.config == 'Debug'
+        shell: powershell
+        run: |
+          choco install opencppcoverage -y
+      - name: Coverage (${{ matrix.config }})
+        if: matrix.config == 'Debug'
+        run: build.cmd Debug COVERAGE=1
+      - name: Upload coverage.xml
+        if: matrix.config == 'Debug'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-cobertura
+          path: build/msvc/Debug/coverage.xml
+      - name: Coverage Gate (hard)
+        if: matrix.config == 'Debug'
+        shell: powershell
+        run: |
+          if (Test-Path "build/msvc/Debug/coverage.xml") { tools/coverage_gate.ps1 -CoberturaXml "build/msvc/Debug/coverage.xml" -MinLineRate 0.90 -Hard } else { Write-Error "coverage.xml not found"; exit 1 }
+      - name: Build RailCoreGTest (Debug)
+        if: matrix.config == 'Debug'
+        shell: powershell
+        run: |
+          msbuild build\msvc\RailCoreGTest.vcxproj /restore /p:Configuration=Debug /p:Platform=Win32
+      - name: Run RailCoreGTest (Debug)
+        if: matrix.config == 'Debug'
+        shell: powershell
+        run: |
+          if (!(Test-Path "build/msvc/Debug/RailCoreGTest.exe")) {
+            Write-Error "GTest exe not found; failing CI step"; exit 1
+          }
+          & build/msvc/Debug/RailCoreGTest.exe --gtest_color=no --gtest_output=xml:build/msvc/Debug/gtest-results.xml
+      - name: Upload gtest results (Debug)
+        if: always() && matrix.config == 'Debug'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gtest-results
+          path: build/msvc/Debug/gtest-results.xml
+      - name: Coverage (GTest Debug)
+        if: always() && matrix.config == 'Debug'
+        shell: powershell
+        run: |
+          if (Test-Path "build/msvc/Debug/RailCoreGTest.exe") { tools\coverage.cmd build\msvc\Debug\RailCoreGTest.exe build\msvc\Debug\coverage_gtest.xml } else { Write-Host "GTest exe not found; skipping coverage" }
+      - name: Upload coverage_gtest.xml
+        if: always() && matrix.config == 'Debug'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-cobertura-gtest
+          path: build/msvc/Debug/coverage_gtest.xml
+      - name: Merged Coverage Gate (hard)
+        if: always() && matrix.config == 'Debug'
+        shell: powershell
+        run: |
+          tools/coverage_merge_gate.ps1 -CoberturaXmlA build/msvc/Debug/coverage.xml -CoberturaXmlB build/msvc/Debug/coverage_gtest.xml -MinLineRate 0.90 -Hard
+
+
+
+
+
+
+

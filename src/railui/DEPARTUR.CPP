@@ -40,6 +40,80 @@ namespace
 
     return 0;
   }
+
+  template <size_t BufferSize>
+  bool FormatStageStatusString(TLayout* layout,
+                               int timetableId,
+                               char (&buffer)[BufferSize])
+  {
+    if ((layout == NULL) || (BufferSize == 0))
+    {
+      return false;
+    }
+
+    int stage = -1;
+    int stageIndex = -1;
+    int stagePrimary = 0;
+    int stageSecondary = 0;
+    long progressMs = -1;
+    if (!layout->GetStageTelemetry(timetableId,
+                                   stage,
+                                   stageIndex,
+                                   stagePrimary,
+                                   stageSecondary,
+                                   progressMs))
+    {
+      return false;
+    }
+
+    bool hasText = false;
+    buffer[0] = 0;
+
+    if (stage >= 0)
+    {
+      FormatBuffer(buffer, "Stage %d", stage);
+      hasText = true;
+    }
+
+    if (stageIndex >= 0)
+    {
+      if (hasText)
+      {
+        AppendString(buffer, " (");
+        char tmp[32];
+        FormatBuffer(tmp, "bucket %d", stageIndex + 1);
+        AppendString(buffer, tmp);
+        AppendString(buffer, ")");
+      }
+      else
+      {
+        FormatBuffer(buffer, "Bucket %d", stageIndex + 1);
+      }
+      hasText = true;
+    }
+
+    if ((stagePrimary != 0) || (stageSecondary != 0))
+    {
+      char tmp[48];
+      if (stageSecondary != 0)
+      {
+        FormatBuffer(tmp, "sec %d->%d", stagePrimary, stageSecondary);
+      }
+      else
+      {
+        FormatBuffer(tmp, "sec %d", stagePrimary);
+      }
+
+      if (hasText)
+      {
+        AppendString(buffer, " ");
+      }
+      AppendString(buffer, tmp);
+      hasText = true;
+    }
+
+    return hasText;
+  }
 }
 
 /*************************************************************************/
@@ -122,6 +196,9 @@ void TDepartur::EnsureContentFits()
     return;
   }
 
+  RECT beforeRect = {0, 0, 0, 0};
+  ::GetWindowRect(HWindow, &beforeRect);
+
   const int targetWidth = (desiredWidth > currentWidth) ? desiredWidth : currentWidth;
   const int targetHeight = (desiredHeight > currentHeight) ? desiredHeight : currentHeight;
   RECT windowRect = {0, 0, targetWidth, targetHeight};
@@ -136,10 +213,35 @@ void TDepartur::EnsureContentFits()
 
   const int windowWidth = windowRect.right - windowRect.left;
   const int windowHeight = windowRect.bottom - windowRect.top;
-  ::SetWindowPos(HWindow, 0, 0, 0, windowWidth, windowHeight,
-                 SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
-  Attr.W = windowWidth;
-  Attr.H = windowHeight;
+  const BOOL resized = ::SetWindowPos(HWindow, 0, 0, 0, windowWidth, windowHeight,
+                                      SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+  if (!resized)
+  {
+    return;
+  }
+
+  RECT afterRect = beforeRect;
+  ::GetWindowRect(HWindow, &afterRect);
+
+  const int actualWidth = afterRect.right - afterRect.left;
+  const int actualHeight = afterRect.bottom - afterRect.top;
+  Attr.W = actualWidth;
+  Attr.H = actualHeight;
+
+  const bool sizeChanged = ((actualWidth != (beforeRect.right - beforeRect.left)) ||
+                            (actualHeight != (beforeRect.bottom - beforeRect.top)));
+  if (!sizeChanged)
+  {
+    return;
+  }
+
+  ::InvalidateRect(HWindow, NULL, TRUE);
+
+  TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (frame != NULL)
+  {
+    frame->HandleChildResize(this, beforeRect, afterRect);
+  }
 }
 
 
@@ -252,6 +354,14 @@ void TDepartur::UpdateDisplay(HDC TheDC, BOOL Redraw)
   SelectObject(TheDC, frame->mTextFont);
   UpdateMetrics(TheDC);
   ResetContentExtents();
+
+  const int baselineRowBottom = 25 + ((DISP_NUM_DEPART - 1) * mRowSpacing) + mRowHeight;
+  int baselineRight = 10 + MeasureStringWidth(TheDC, "23:59");
+  int candidateRight = 55 + MeasureStringWidth(TheDC, "T170");
+  if (candidateRight > baselineRight)  baselineRight = candidateRight;
+  candidateRight = 130 + MeasureStringWidth(TheDC, "Express to King's Cross (non-stop)");
+  if (candidateRight > baselineRight)  baselineRight = candidateRight;
+  TrackContent(baselineRight, baselineRowBottom);
 
   ::GetClientRect(HWindow, &TheRect);
   mClientWidth = TheRect.right;
@@ -520,8 +630,18 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
   }
 
   frame->DisplayHan->PTimetableInfo[TabVal]->GetDepDesc(TextString, sizeof(TextString));
+  const int depDescWidth = MeasureStringWidth(TheDC, TextString);
   TextOut(TheDC, 130, YPos, TextString, strlen(TextString));
-  TrackContent(130 + MeasureStringWidth(TheDC, TextString), YPos + mRowHeight);
+  TrackContent(130 + depDescWidth, YPos + mRowHeight);
+
+  char stageBuffer[64];
+  if (FormatStageStatusString(frame->DisplayHan, TabVal, stageBuffer))
+  {
+    ::SetTextColor(TheDC, RGB(192, 192, 192));
+    const int stageX = 130 + depDescWidth + 8;
+    TextOut(TheDC, stageX, YPos, stageBuffer, strlen(stageBuffer));
+    TrackContent(stageX + MeasureStringWidth(TheDC, stageBuffer), YPos + mRowHeight);
+  }
 }
 
 

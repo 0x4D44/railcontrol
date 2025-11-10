@@ -51,7 +51,41 @@ bool ShouldWriteDiagnosticsLog()
   static int sLogFlag = -1;
   if (sLogFlag == -1)
   {
-    sLogFlag = GetPrivateProfileInt("Debug", "EnableDiagnosticsLog", 0, INIFILENAME);
+    const char* kSentinel = "__RC_SENTINEL__";
+    char buffer[8] = {0};
+    DWORD read = ::GetPrivateProfileStringA("Debug",
+                                            "EnableDiagnosticsLog",
+                                            kSentinel,
+                                            buffer,
+                                            static_cast<DWORD>(sizeof(buffer)),
+                                            INIFILENAME);
+    bool missing = (read == 0) || (lstrcmpA(buffer, kSentinel) == 0);
+    if (missing)
+    {
+      sLogFlag = 1;
+      ::WritePrivateProfileStringA("Debug", "EnableDiagnosticsLog", "1", INIFILENAME);
+    }
+    else
+    {
+      if ((::lstrcmpiA(buffer, "0") == 0) ||
+          (::lstrcmpiA(buffer, "false") == 0) ||
+          (::lstrcmpiA(buffer, "off") == 0) ||
+          (::lstrcmpiA(buffer, "no") == 0))
+      {
+        sLogFlag = 0;
+      }
+      else
+      {
+        sLogFlag = 1;
+      }
+    }
+#if defined(_DEBUG)
+    if (sLogFlag == 0)
+    {
+      sLogFlag = 1;
+      ::WritePrivateProfileStringA("Debug", "EnableDiagnosticsLog", "1", INIFILENAME);
+    }
+#endif
   }
   return sLogFlag != 0;
 }
@@ -293,6 +327,8 @@ void TLayout::ClearData()
     }
     PTrackLoco[i] = 0;
   }
+
+  mStageTelemetry.Reset();
 #if defined(DIAG_SETUP_TRACE)
   LogLayoutCounter("TLayout:ClearData:sections", this, "deleted", deletedSections);
   LogLayoutCounter("TLayout:ClearData:overlaps", this, "deleted", deletedOverlaps);
@@ -726,6 +762,9 @@ void TLayout::HandleTimeChange()
 
   TRC_NRM((TB, "AT UpdateSelectors"));
   if (frame->GameInProgress)  UpdateSelectors();
+
+  mStageTelemetry.ApplyPending(*this);
+  RefreshLegacyStageTelemetry();
 
   // Update various windows
   TRC_NRM((TB, "ATR Arrival"));
@@ -3487,6 +3526,235 @@ void TLayout::GetExpecteds()
 }
 
 
+void TLayout::SetTimetableStatus(int TimetableId, int NewStatus)
+{
+  if ((TimetableId <= 0) || (TimetableId >= MAX_TIMETABLE))
+  {
+    return;
+  }
+
+  TTimetable* timetable = PTimetableInfo[TimetableId];
+  if (timetable == 0)
+  {
+    return;
+  }
+
+  int oldStatus = timetable->SetStatus(NewStatus);
+  if (oldStatus == NewStatus)
+  {
+    return;
+  }
+
+  StageTelemetryUpdate update;
+  update.timetableId = TimetableId;
+  if (!BuildLegacyStageTelemetry(TimetableId, update))
+  {
+    update.stage = -1;
+    update.stageIndex = -1;
+    update.stagePrimary = 0;
+    update.stageSecondary = 0;
+    update.progressMs = -1;
+  }
+  QueueStageTelemetryUpdate(update);
+}
+
+
+bool TLayout::BuildLegacyStageTelemetry(int TimetableId, StageTelemetryUpdate& update) const
+{
+  update.timetableId = TimetableId;
+  update.stage = -1;
+  update.stageIndex = -1;
+  update.stagePrimary = 0;
+  update.stageSecondary = 0;
+  update.progressMs = -1;
+
+  if ((TimetableId <= 0) || (TimetableId >= MAX_TIMETABLE))
+  {
+    return false;
+  }
+
+  const TTimetable* timetable = PTimetableInfo[TimetableId];
+  if (timetable == 0)
+  {
+    return false;
+  }
+
+  int status = timetable->GetStatus();
+
+  if (status <= ST_SETPLAT)
+  {
+    update.stage = 0;
+    update.stageIndex = (status >= ST_SETPLAT) ? 1 : 0;
+  }
+  else if ((status >= ST_ARRA) && (status <= ST_INPLAT))
+  {
+    update.stage = 1;
+    if (status >= ST_ARRA && status <= ST_ARRF)
+    {
+      update.stageIndex = (status - ST_ARRA) + 1;
+      if (update.stageIndex > 5)
+      {
+        update.stageIndex = 5;
+      }
+    }
+    else if (status == ST_INPLAT)
+    {
+      update.stageIndex = 5;
+    }
+  }
+  else if ((status >= ST_RELEASE) && (status <= ST_DEPF))
+  {
+    update.stage = 2;
+    if (status >= ST_READYDEP)
+    {
+      update.stageIndex = status - ST_READYDEP;
+      if (update.stageIndex < 0)
+      {
+        update.stageIndex = 0;
+      }
+      if (update.stageIndex > 5)
+      {
+        update.stageIndex = 5;
+      }
+    }
+    else
+    {
+      update.stageIndex = 0;
+    }
+  }
+
+  if ((update.stage < 0) && (update.stageIndex < 0))
+  {
+    update.stage = -1;
+    update.stageIndex = -1;
+    return false;
+  }
+
+  return true;
+}
+
+
+void TLayout::QueueStageTelemetryUpdate(const StageTelemetryUpdate& update)
+{
+  mStageTelemetry.Queue(update);
+}
+
+
+void TLayout::ApplyStageTelemetry(int TimetableId,
+                                  int Stage,
+                                  int StageIndex,
+                                  int StagePrimary,
+                                  int StageSecondary,
+                                  long ProgressMs)
+{
+  if ((TimetableId <= 0) || (TimetableId >= MAX_TIMETABLE))
+  {
+    return;
+  }
+
+  if (PTimetableInfo[TimetableId] == 0)
+  {
+    return;
+  }
+
+  if ((Stage < 0) && (StageIndex < 0) &&
+      (StagePrimary == 0) && (StageSecondary == 0) && (ProgressMs < 0))
+  {
+    PTimetableInfo[TimetableId]->ResetStageTelemetry();
+    return;
+  }
+
+  PTimetableInfo[TimetableId]->SetStageTelemetry(Stage,
+                                                 StageIndex,
+                                                 StagePrimary,
+                                                 StageSecondary,
+                                                 ProgressMs);
+}
+
+
+bool TLayout::GetStageTelemetry(int TimetableId,
+                                int& Stage,
+                                int& StageIndex,
+                                int& StagePrimary,
+                                int& StageSecondary,
+                                long& ProgressMs) const
+{
+  Stage = -1;
+  StageIndex = -1;
+  StagePrimary = 0;
+  StageSecondary = 0;
+  ProgressMs = -1;
+
+  if ((TimetableId <= 0) || (TimetableId >= MAX_TIMETABLE))
+  {
+    return false;
+  }
+
+  const TTimetable* timetable = PTimetableInfo[TimetableId];
+  if (timetable == 0)
+  {
+    return false;
+  }
+
+  Stage = timetable->GetStage();
+  StageIndex = timetable->GetStageIndex();
+  StagePrimary = timetable->GetStagePrimary();
+  StageSecondary = timetable->GetStageSecondary();
+  ProgressMs = timetable->GetProgressMs();
+
+  return (Stage >= 0) || (StageIndex >= 0) ||
+         (StagePrimary != 0) || (StageSecondary != 0) || (ProgressMs >= 0);
+}
+
+
+void TLayout::RefreshLegacyStageTelemetry()
+{
+  for (int id = 1; id < MAX_TIMETABLE; ++id)
+  {
+    if (PTimetableInfo[id] == 0)
+    {
+      continue;
+    }
+
+    int stage = -1;
+    int stageIndex = -1;
+    int stagePrimary = 0;
+    int stageSecondary = 0;
+    long progressMs = -1;
+    if (GetStageTelemetry(id, stage, stageIndex, stagePrimary, stageSecondary, progressMs))
+    {
+      continue;
+    }
+
+    ComputeLegacyStageForTimetable(id);
+  }
+}
+
+
+void TLayout::ComputeLegacyStageForTimetable(int TimetableId)
+{
+  TTimetable* timetable = PTimetableInfo[TimetableId];
+  if (timetable == 0)
+  {
+    return;
+  }
+
+  StageTelemetryUpdate update;
+  update.timetableId = TimetableId;
+  if (!BuildLegacyStageTelemetry(TimetableId, update))
+  {
+    timetable->ResetStageTelemetry();
+    return;
+  }
+
+  timetable->SetStageTelemetry(update.stage,
+                               update.stageIndex,
+                               update.stagePrimary,
+                               update.stageSecondary,
+                               update.progressMs);
+}
+
+
 void TLayout::TimeCheck(int GivArrPnt)
 {
   int   i, j, StateChange;
@@ -3691,7 +3959,7 @@ void TLayout::TimeCheck(int GivArrPnt)
       if (StateChange > 0)  
       {
         TRC_NRM((TB, "State change is %d", StateChange));
-        PTimetableInfo[Expect[i]]->SetStatus(StateChange);
+        SetTimetableStatus(Expect[i], StateChange);
       }
 
 #ifdef MDDEBUG
@@ -3828,7 +4096,7 @@ void TLayout::HandleTracking()
               TRC_NRM((TB, "Loco is headed for the locoyard"));
 
               // OK, so the loco is headed for the locoyard
-              PTimetableInfo[i]->SetStatus(ST_INPLAT);
+              SetTimetableStatus(i, ST_INPLAT);
 
               // Does the loco need refuelling?
               if (PLocosInfo[PTimetableInfo[i]->GetLoco()]->GetFlag() == LF_NEEDFUEL)
@@ -3872,18 +4140,19 @@ void TLayout::HandleTracking()
             else
             {
               // Handle a light loco
-              if (PPlatDataInfo[PSelectorInfo[PRoutesInfo[PTimetableInfo[i]->GetRoute()]->GetTo()]->GetPlatRef()]->GetTimetable() > 0)
+              const int platformTimetable = PPlatDataInfo[PSelectorInfo[PRoutesInfo[PTimetableInfo[i]->GetRoute()]->GetTo()]->GetPlatRef()]->GetTimetable();
+              if (platformTimetable > 0)
               {
                 // There is already a train in the platform
-                PTimetableInfo[PPlatDataInfo[PSelectorInfo[PRoutesInfo[PTimetableInfo[i]->GetRoute()]->GetTo()]->GetPlatRef()]->GetTimetable()]->SetLoco(0, PTimetableInfo[i]->GetLoco());
-                PTimetableInfo[PPlatDataInfo[PSelectorInfo[PRoutesInfo[PTimetableInfo[i]->GetRoute()]->GetTo()]->GetPlatRef()]->GetTimetable()]->SetStatus(ST_STOCKOK);
-                PTimetableInfo[i]->SetStatus(ST_STOCKOK);
+                PTimetableInfo[platformTimetable]->SetLoco(0, PTimetableInfo[i]->GetLoco());
+                SetTimetableStatus(platformTimetable, ST_STOCKOK);
+                SetTimetableStatus(i, ST_STOCKOK);
               }
               else
               {
                 // There is not a train in the platform
                 PPlatDataInfo[PSelectorInfo[PRoutesInfo[PTimetableInfo[i]->GetRoute()]->GetTo()]->GetPlatRef()]->SetLoco(PTimetableInfo[i]->GetLoco());
-                PTimetableInfo[i]->SetStatus(ST_STOCKOK);
+                SetTimetableStatus(i, ST_STOCKOK);
               }
             }
           }
@@ -3893,7 +4162,7 @@ void TLayout::HandleTracking()
             TRC_NRM((TB, "Through train"));
 
             // Set status to the last valid value.
-            PTimetableInfo[i]->SetStatus(ST_DEPF + 1);
+            SetTimetableStatus(i, ST_DEPF + 1);
           }
           else
           {
@@ -3901,7 +4170,7 @@ void TLayout::HandleTracking()
             TRC_NRM((TB, "Normal train"));
 
             PPlatDataInfo[PSelectorInfo[PRoutesInfo[PTimetableInfo[i]->GetRoute()]->GetTo()]->GetPlatRef()]->SetTimetable(0, i);
-            PTimetableInfo[i]->SetStatus(ST_INPLAT);
+            SetTimetableStatus(i, ST_INPLAT);
             PTimetableInfo[i]->SetRelTime(NormTime(PackTime(PTimetableInfo[i]->GetRelTime()) + WorkTime));
 
             /****************************************************************/
@@ -3915,7 +4184,7 @@ void TLayout::HandleTracking()
                   (PTimetableInfo[lkk]->GetStatus() == ST_TWINASSOC) &&
                   (PTimetableInfo[lkk]->GetTwinAssoc() == i))
               {
-                PTimetableInfo[lkk]->SetStatus(ST_INPLAT);
+                SetTimetableStatus(lkk, ST_INPLAT);
                 PPlatDataInfo[PSelectorInfo[PRoutesInfo[PTimetableInfo[i]->GetRoute()]->GetTo()]->GetPlatRef()]->SetTimetable(1, lkk);
                 break;
               }
@@ -3977,7 +4246,8 @@ void TLayout::HandleTracking()
         else
         {
           // Increment status
-          PTimetableInfo[i]->SetStatus(PTimetableInfo[i]->GetStatus()+1);
+          int newStatus = PTimetableInfo[i]->GetStatus() + 1;
+          SetTimetableStatus(i, newStatus);
         }
       }
     }
@@ -4083,7 +4353,7 @@ void TLayout::HandleTracking()
               {
                 // There is already a train in the platform
                 PTimetableInfo[PPlatDataInfo[j]->GetTimetable()]->SetLoco(0, PTrackLoco[i]->GetLoco());
-                PTimetableInfo[PPlatDataInfo[j]->GetTimetable()]->SetStatus(ST_STOCKOK);
+                SetTimetableStatus(PPlatDataInfo[j]->GetTimetable(), ST_STOCKOK);
                 PTrackLoco[i]->SetStatus(ST_STOCKOK);
               }
               else
@@ -4170,7 +4440,7 @@ void TLayout::HandleTracking()
             // Yes it is, so...
             if (PTimetableInfo[a]->GetStatus() == ST_INPLAT)
             {
-              PTimetableInfo[a]->SetStatus(ST_STOCKOK);
+              SetTimetableStatus(a, ST_STOCKOK);
             }
           }
           else
@@ -4178,7 +4448,7 @@ void TLayout::HandleTracking()
             // Just a normal train
             if (PTimetableInfo[a]->GetStatus() == ST_INPLAT)
             {
-              PTimetableInfo[a]->SetStatus(ST_RELEASE);
+              SetTimetableStatus(a, ST_RELEASE);
             }
 
             // Swap locomotive about
@@ -4217,7 +4487,7 @@ void TLayout::HandleTracking()
             // This change of state changes the platform indicator.
             if (PTimetableInfo[a]->GetStatus() == ST_STOCKOK)
             {
-              PTimetableInfo[a]->SetStatus(ST_READYDEP);
+              SetTimetableStatus(a, ST_READYDEP);
               PPlatDataInfo[i]->SetRedraw(TRUE);
               DrawPlatform(0, i);
             }
@@ -4242,7 +4512,7 @@ void TLayout::HandleTracking()
                 {
                   // OK - we have a match
                   PTimetableInfo[a]->SetRoute(RoutesSet[j]);
-                  if (PTimetableInfo[a]->GetStatus() == ST_READYDEP)  PTimetableInfo[a]->SetStatus(ST_STARTDEP);
+                  if (PTimetableInfo[a]->GetStatus() == ST_READYDEP)  SetTimetableStatus(a, ST_STARTDEP);
 
                   // Clear the platform flag
                   RoutesSet[j] = 0;
@@ -4303,7 +4573,8 @@ void TLayout::HandleTracking()
         }
 
         // Increment status
-        PTimetableInfo[i]->SetStatus(PTimetableInfo[i]->GetStatus()+1);
+        int newStatus = PTimetableInfo[i]->GetStatus() + 1;
+        SetTimetableStatus(i, newStatus);
 
         // Check to see if we have reached the last section
         if ((PTimetableInfo[i]->GetStatus()-ST_DEPA+1) == (ST_DEPF-ST_DEPA+1))
@@ -4344,7 +4615,7 @@ void TLayout::HandleTracking()
       // above code for a good reason - it and the ST_STARTDEP state prevent
       // a train clearing the platform section and that immedately preceeding
       // it at the same time when it is departing)
-      if (PTimetableInfo[i]->GetStatus() == ST_STARTDEP)  PTimetableInfo[i]->SetStatus(ST_DEPA);
+      if (PTimetableInfo[i]->GetStatus() == ST_STARTDEP)  SetTimetableStatus(i, ST_DEPA);
     }
 
     // Now check through the locos in the locoyard to see if any are refueling

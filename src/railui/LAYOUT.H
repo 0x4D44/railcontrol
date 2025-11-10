@@ -20,6 +20,8 @@
 #if !defined(_LAYOUT_H_)
 #define _LAYOUT_H_
 
+#include "railui/stage_telemetry_cache.h"
+
 #define FILE_INPUT_BUFSIZE  400
 #define MAX_TIMETABLE       500
 
@@ -70,7 +72,13 @@ public:
   int            HoldLoco;                        // Loco held at hold point
   BOOL           HoldLocoChng;                    // Has the hold loco changed?
   TBuffer<100>   StartText[3];                    // Start text descriptions
+  StageTelemetryCache mStageTelemetry;
 
+private:
+  void SetTimetableStatus(int TimetableId, int NewStatus);
+  bool BuildLegacyStageTelemetry(int TimetableId, StageTelemetryUpdate& update) const;
+
+public:
 
 
   TLayout(owl::TWindow * AParent, int XPos, int YPos, int Width, int Height);
@@ -104,6 +112,21 @@ public:
   void GetDepartures();
   void HandleTracking();
   void LightLoco(int LocoNum, int ArrPnt, int Route, int Status);
+  void QueueStageTelemetryUpdate(const StageTelemetryUpdate& update);
+  void ApplyStageTelemetry(int TimetableId,
+                           int Stage,
+                           int StageIndex,
+                           int StagePrimary,
+                           int StageSecondary,
+                           long ProgressMs);
+  bool GetStageTelemetry(int TimetableId,
+                         int& Stage,
+                         int& StageIndex,
+                         int& StagePrimary,
+                         int& StageSecondary,
+                         long& ProgressMs) const;
+  void RefreshLegacyStageTelemetry();
+  void ComputeLegacyStageForTimetable(int TimetableId);
   int  NormTime(int GivenTime);
   int  PackTime(int GivenTime);
   int  CalcArrivalTime(int TimetableNo);

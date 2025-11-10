@@ -70,6 +70,7 @@ TTimetable::TTimetable(const char* xiArrDesc, const char* xiDepDesc, int xiValue
   mMinLate         = 0;
   mInitialLocoPlat = 0;
   mDelayFlag       = 0;
+  ResetStageTelemetry();
 
   if ((mStatus == ST_INPLAT) || (mStatus == ST_STOCKOK))
   {
@@ -394,6 +395,56 @@ int  TTimetable::AddMinLate(int NewMinLate)
   Temp = mMinLate;
   mMinLate += NewMinLate;
   return Temp;
+}
+
+
+void TTimetable::ResetStageTelemetry()
+{
+  mStage = -1;
+  mStageIndex = -1;
+  mStagePrimary = 0;
+  mStageSecondary = 0;
+  mProgressMs = -1;
+}
+
+
+void TTimetable::SetStageTelemetry(int Stage, int StageIndex, int StagePrimary, int StageSecondary, long ProgressMs)
+{
+  mStage = Stage;
+  mStageIndex = StageIndex;
+  mStagePrimary = StagePrimary;
+  mStageSecondary = StageSecondary;
+  mProgressMs = ProgressMs;
+}
+
+
+int TTimetable::GetStage() const
+{
+  return mStage;
+}
+
+
+int TTimetable::GetStageIndex() const
+{
+  return mStageIndex;
+}
+
+
+int TTimetable::GetStagePrimary() const
+{
+  return mStagePrimary;
+}
+
+
+int TTimetable::GetStageSecondary() const
+{
+  return mStageSecondary;
+}
+
+
+long TTimetable::GetProgressMs() const
+{
+  return mProgressMs;
 }
 
 
