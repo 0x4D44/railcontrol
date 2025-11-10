@@ -67,7 +67,7 @@ public:
   int   GetMinLate();
   int   GetLoco();
   int   GetLoco(int xiIndex);
-  int   GetStatus();
+  int   GetStatus() const;
   int   GetRoute();
   int   GetDelayFlag();
   int   GetInitialLocoPlat();

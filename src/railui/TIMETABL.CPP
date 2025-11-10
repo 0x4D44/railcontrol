@@ -259,7 +259,7 @@ int TTimetable::GetLoco()
 }
 
 
-int TTimetable::GetStatus()
+int TTimetable::GetStatus() const
 {
   // Return loco status flag
   return mStatus;
