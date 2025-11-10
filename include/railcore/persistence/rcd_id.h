@@ -10,10 +10,9 @@ namespace RailCore {
 // - Preserves section/content ordering
 std::string CanonicalizeRcdContent(const std::string& raw);
 
-// Compute a stable 64-bit FNV-1a hex ID over schemaTag + "\n" + canonical content.
-// This is a placeholder for SHA-256; format is 16 lowercase hex chars.
+// Compute a stable SHA-256 hex ID over schemaTag + "\n" + canonical content.
+// Returns 64 lowercase hex characters. Canonicalization must be applied first.
 std::string ComputeRcdIdFromContent(const std::string& canonicalContent,
                                     const char* schemaTag = "rcd:v1");
 
 } // namespace RailCore
-

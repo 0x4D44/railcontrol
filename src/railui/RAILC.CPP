@@ -156,11 +156,7 @@ namespace
 
   bool ReadDiagnosticsGuardFlag(bool* xoWroteDefault)
   {
-#if defined(_DEBUG)
     const bool kDefaultValue = true;
-#else
-    const bool kDefaultValue = false;
-#endif
 
     if (xoWroteDefault)
     {
@@ -191,7 +187,20 @@ namespace
       return kDefaultValue;
     }
 
-    return ParseIniBoolean(buffer, kDefaultValue);
+    bool parsed = ParseIniBoolean(buffer, kDefaultValue);
+#if defined(_DEBUG)
+    if (!parsed)
+    {
+      // Force-enable guards in debug builds to guarantee diagnostics.
+      ::WritePrivateProfileStringA("Diagnostics", "EnableMemoryGuards", "1", INIFILENAME);
+      parsed = true;
+      if (xoWroteDefault)
+      {
+        *xoWroteDefault = true;
+      }
+    }
+#endif
+    return parsed;
   }
 
   bool sMemoryGuardInitialised = false;
@@ -443,8 +452,39 @@ void TManager::InitMainWindow()
 }
 
 
+// Forward decl for CLI validation runner (implemented in cli_validate.cpp)
+#if defined(_MSC_VER)
+extern "C" int RunRcdValidationCli(int argc, wchar_t** argv);
+#endif
+
 int OwlMain(int /*argc*/, tchar* /*argv*/[])
 {
+#if defined(_MSC_VER)
+  // Early CLI dispatch: handle --rcd-validate before any UI or guards
+  int argcW = 0;
+  LPWSTR* argvW = ::CommandLineToArgvW(::GetCommandLineW(), &argcW);
+  if (argvW && argcW > 0)
+  {
+    bool hasValidate = false;
+    for (int i = 1; i < argcW; ++i)
+    {
+      if ((::lstrcmpiW(argvW[i], L"--rcd-validate") == 0) ||
+          (::lstrcmpiW(argvW[i], L"-rcd-validate") == 0) ||
+          (::lstrcmpiW(argvW[i], L"/rcd-validate") == 0))
+      {
+        hasValidate = true;
+        break;
+      }
+    }
+    if (hasValidate)
+    {
+      int exitCode = RunRcdValidationCli(argcW, argvW);
+      ::LocalFree(argvW);
+      return exitCode;
+    }
+  }
+  if (argvW) { ::LocalFree(argvW); }
+#endif
 #if defined(_MSC_VER)
   BootstrapMemoryGuardsFromConfig();
 #endif
@@ -609,6 +649,9 @@ TMainWindow::TMainWindow(TWindow * AParent, LPCTSTR ATitle)
   PlatformHan = NULL;
   LocoyardHan = NULL;
   MainWinIcon = FALSE;
+  mLayoutInProgress = FALSE;
+  mOptimizedLayoutActive = FALSE;
+  mResizeCoalescePending = FALSE;
   GamePaused = FALSE;
   GameInProgress = FALSE;
   LocoyardEnabled = TRUE;
@@ -633,6 +676,7 @@ TMainWindow::~TMainWindow()
   mTextFont.Reset();
   mHeaderFont.Reset();
   mSmallFont.Reset();
+  ::KillTimer(HWindow, ID_CHILD_RESIZE_COALESCE);
 }
 
 
@@ -1610,153 +1654,297 @@ void TMainWindow::CMOptOptimi()
   int  lWidth, lHeight;
 
   ::GetWindowRect(::GetDesktopWindow(), &TheRect);
+  ::GetWindowRect(HWindow, &lWinRect);
+  MainWinX = lWinRect.left;
+  MainWinY = lWinRect.top;
+
+  struct LayoutGuard
+  {
+    TMainWindow* Frame;
+    explicit LayoutGuard(TMainWindow* owner)
+      : Frame(owner)
+    {
+      Frame->mLayoutInProgress = TRUE;
+    }
+
+    ~LayoutGuard()
+    {
+      Frame->mLayoutInProgress = FALSE;
+    }
+  } layoutGuard(this);
+
+  auto moveWindowAndMeasure = [](HWND handle, BOOL iconFlag, int x, int y, int width, int height, int& outX, int& outY) -> RECT
+  {
+    RECT result = {x, y, x + width, y + height};
+    outX = x;
+    outY = y;
+
+    if (handle == NULL)
+    {
+      return result;
+    }
+
+    if (iconFlag)
+    {
+      ::OpenIcon(handle);
+    }
+
+    ::MoveWindow(handle, x, y, width, height, TRUE);
+
+    if (::GetWindowRect(handle, &result) != 0)
+    {
+      outX = result.left;
+      outY = result.top;
+    }
+    else
+    {
+      result.left   = x;
+      result.top    = y;
+      result.right  = x + width;
+      result.bottom = y + height;
+    }
+
+    return result;
+  };
 
   switch (TheRect.right)
   {
     case 640:
-       // Optimize the main window display
-       MainWinX = 0;
-       MainWinY = 0;
-       ::MoveWindow(HWindow, MainWinX, MainWinY, 405, 360, TRUE);
+    {
+      const int mainWidth = 405;
+      const int mainHeight = 360;
+      MainWinX = 0;
+      MainWinY = 0;
+      lWinRect = moveWindowAndMeasure(HWindow, FALSE, MainWinX, MainWinY, mainWidth, mainHeight, MainWinX, MainWinY);
 
-       // Move arrival window
-       if (ArrivalHan != NULL)
-       {
-         if (ArrivalIcon) OpenIcon(ArrivalHan->HWindow);
-         ArrivalX = 0;
-         ArrivalY = 360;
-         ::MoveWindow(ArrivalHan->HWindow, 0, 360, ArrivalHan->Attr.W, ArrivalHan->Attr.H, TRUE);
-       }
+      const int mainRight = lWinRect.right;
+      const int mainBottom = lWinRect.bottom;
+      int stackX = mainRight;
+      int stackY = lWinRect.top;
 
-       // Move departure window
-       if (DeparturHan != NULL)
-       {
-         if (DeparturIcon) OpenIcon(DeparturHan->HWindow);
-         DeparturX = 405;
-         DeparturY = -13;
-         ::MoveWindow(DeparturHan->HWindow, 405, -13, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
-       }
+      // Arrival window sits directly beneath the main window.
+      if (ArrivalHan != NULL)
+      {
+        ArrivalX = MainWinX;
+        ArrivalY = mainBottom;
+        moveWindowAndMeasure(ArrivalHan->HWindow, ArrivalIcon,
+                             ArrivalX, ArrivalY,
+                             ArrivalHan->Attr.W, ArrivalHan->Attr.H,
+                             ArrivalX, ArrivalY);
+      }
 
-       // Move platform window
-       if (PlatformHan != NULL)
-       {
-         if (PlatformIcon) OpenIcon(PlatformHan->HWindow);
-         PlatformX = 405;
-         PlatformY = 107;
-         ::MoveWindow(PlatformHan->HWindow, 405, 107, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
-       }
+      // Right-column windows stacked without gaps.
+      if (DeparturHan != NULL)
+      {
+        DeparturX = stackX;
+        DeparturY = stackY;
+        RECT departRect = moveWindowAndMeasure(DeparturHan->HWindow, DeparturIcon,
+                                               DeparturX, DeparturY,
+                                               DeparturHan->Attr.W, DeparturHan->Attr.H,
+                                               DeparturX, DeparturY);
+        stackY = departRect.bottom;
+      }
 
-       // Move locoyard window
-       if (LocoyardHan != NULL)
-       {
-         if (LocoyardIcon) OpenIcon(LocoyardHan->HWindow);
-         LocoyardX = 455;
-         LocoyardY = 360;
-         ::MoveWindow(LocoyardHan->HWindow, LocoyardX, LocoyardY, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
-       }
-       break;
+      if (PlatformHan != NULL)
+      {
+        PlatformX = stackX;
+        PlatformY = stackY;
+        RECT platformRect = moveWindowAndMeasure(PlatformHan->HWindow, PlatformIcon,
+                                                 PlatformX, PlatformY,
+                                                 PlatformHan->Attr.W, PlatformHan->Attr.H,
+                                                 PlatformX, PlatformY);
+        stackY = platformRect.bottom;
+      }
+
+      if (LocoyardHan != NULL)
+      {
+        LocoyardX = stackX;
+        LocoyardY = stackY;
+        moveWindowAndMeasure(LocoyardHan->HWindow, LocoyardIcon,
+                             LocoyardX, LocoyardY,
+                             LocoyardHan->Attr.W, LocoyardHan->Attr.H,
+                             LocoyardX, LocoyardY);
+      }
+    }
+    break;
 
     case 800:
-       // Optimize the main window display - 800x600 and above
-       MainWinX = 0;
-       MainWinY = 0;
-       ::MoveWindow(HWindow, MainWinX, MainWinY, 550, 373, TRUE);
+    {
+      const int mainWidth = 550;
+      const int mainHeight = 373;
+      MainWinX = 0;
+      MainWinY = 0;
+      lWinRect = moveWindowAndMeasure(HWindow, FALSE, MainWinX, MainWinY, mainWidth, mainHeight, MainWinX, MainWinY);
 
-       // Move arrival window
-       if (ArrivalHan != NULL)
-       {
-         if (ArrivalIcon) OpenIcon(ArrivalHan->HWindow);
-         ArrivalX = 0;
-         ArrivalY = 373;
-         ::MoveWindow(ArrivalHan->HWindow, ArrivalX, ArrivalY, ArrivalHan->Attr.W, ArrivalHan->Attr.H, TRUE);
-       }
+      const int mainRight = lWinRect.right;
+      const int mainBottom = lWinRect.bottom;
+      int stackX = mainRight;
+      int stackY = lWinRect.top;
 
-       // Move departure window
-       if (DeparturHan != NULL)
-       {
-         if (DeparturIcon) OpenIcon(DeparturHan->HWindow);
-         DeparturX = 550;
-         DeparturY = 0;
-         ::MoveWindow(DeparturHan->HWindow, DeparturX, DeparturY, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
-       }
+      if (ArrivalHan != NULL)
+      {
+        ArrivalX = MainWinX;
+        ArrivalY = mainBottom;
+        moveWindowAndMeasure(ArrivalHan->HWindow, ArrivalIcon,
+                             ArrivalX, ArrivalY,
+                             ArrivalHan->Attr.W, ArrivalHan->Attr.H,
+                             ArrivalX, ArrivalY);
+      }
 
-       // Move platform window
-       if (PlatformHan != NULL)
-       {
-         if (PlatformIcon) OpenIcon(PlatformHan->HWindow);
-         PlatformX = 550;
-         PlatformY = 120;
-         ::MoveWindow(PlatformHan->HWindow, PlatformX, PlatformY, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
-       }
+      if (DeparturHan != NULL)
+      {
+        DeparturX = stackX;
+        DeparturY = stackY;
+        RECT departRect = moveWindowAndMeasure(DeparturHan->HWindow, DeparturIcon,
+                                               DeparturX, DeparturY,
+                                               DeparturHan->Attr.W, DeparturHan->Attr.H,
+                                               DeparturX, DeparturY);
+        stackY = departRect.bottom;
+      }
 
-       // Move locoyard window
-       if (LocoyardHan != NULL)
-       {
-         if (LocoyardIcon) OpenIcon(LocoyardHan->HWindow);
-         LocoyardX = 600;
-         LocoyardY = 373;
-         ::MoveWindow(LocoyardHan->HWindow, LocoyardX, LocoyardY, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
-       }
-       break;
+      if (PlatformHan != NULL)
+      {
+        PlatformX = stackX;
+        PlatformY = stackY;
+        RECT platformRect = moveWindowAndMeasure(PlatformHan->HWindow, PlatformIcon,
+                                                 PlatformX, PlatformY,
+                                                 PlatformHan->Attr.W, PlatformHan->Attr.H,
+                                                 PlatformX, PlatformY);
+        stackY = platformRect.bottom;
+      }
+
+      if (LocoyardHan != NULL)
+      {
+        LocoyardX = stackX;
+        LocoyardY = stackY;
+        moveWindowAndMeasure(LocoyardHan->HWindow, LocoyardIcon,
+                             LocoyardX, LocoyardY,
+                             LocoyardHan->Attr.W, LocoyardHan->Attr.H,
+                             LocoyardX, LocoyardY);
+      }
+    }
+    break;
 
     case 1024:
     default:
     {
       // Modern displays: arrange dynamically to avoid gaps/overlaps
-      lWidth  = 720;
-      lHeight = 480;
+      lWidth  = (Attr.W > 720) ? Attr.W : 720;
+      lHeight = (Attr.H > 480) ? Attr.H : 480;
 
-      ::GetWindowRect(HWindow, &lWinRect);
-      MainWinX = lWinRect.left;
-      MainWinY = lWinRect.top;
+      lWinRect = moveWindowAndMeasure(HWindow, FALSE, MainWinX, MainWinY, lWidth, lHeight, MainWinX, MainWinY);
 
-      const int gap = 8;
-      ::MoveWindow(HWindow, MainWinX, MainWinY, lWidth, lHeight, TRUE);
+      const int mainRight = lWinRect.right;
+      const int mainBottom = lWinRect.bottom;
+      int stackX = mainRight;
+      int stackY = lWinRect.top;
 
-      // Right column origin
-      const int rightX = MainWinX + lWidth + gap;
-      int rightY = MainWinY;
-
-      // Platform (top-right)
       if (PlatformHan != NULL)
       {
-        if (PlatformIcon) OpenIcon(PlatformHan->HWindow);
-        PlatformX = rightX;
-        PlatformY = rightY;
-        ::MoveWindow(PlatformHan->HWindow, PlatformX, PlatformY, PlatformHan->Attr.W, PlatformHan->Attr.H, TRUE);
-        rightY += PlatformHan->Attr.H + gap;
+        PlatformX = stackX;
+        PlatformY = stackY;
+        RECT platformRect = moveWindowAndMeasure(PlatformHan->HWindow, PlatformIcon,
+                                                 PlatformX, PlatformY,
+                                                 PlatformHan->Attr.W, PlatformHan->Attr.H,
+                                                 PlatformX, PlatformY);
+        stackY = platformRect.bottom;
       }
 
-      // Departures (below platform)
       if (DeparturHan != NULL)
       {
-        if (DeparturIcon) OpenIcon(DeparturHan->HWindow);
-        DeparturX = rightX;
-        DeparturY = rightY;
-        ::MoveWindow(DeparturHan->HWindow, DeparturX, DeparturY, DeparturHan->Attr.W, DeparturHan->Attr.H, TRUE);
-        rightY += DeparturHan->Attr.H + gap;
+        DeparturX = stackX;
+        DeparturY = stackY;
+        RECT departRect = moveWindowAndMeasure(DeparturHan->HWindow, DeparturIcon,
+                                               DeparturX, DeparturY,
+                                               DeparturHan->Attr.W, DeparturHan->Attr.H,
+                                               DeparturX, DeparturY);
+        stackY = departRect.bottom;
       }
 
-      // Locoyard (below departures)
       if (LocoyardHan != NULL)
       {
-        if (LocoyardIcon) OpenIcon(LocoyardHan->HWindow);
-        LocoyardX = rightX;
-        LocoyardY = rightY;
-        ::MoveWindow(LocoyardHan->HWindow, LocoyardX, LocoyardY, LocoyardHan->Attr.W, LocoyardHan->Attr.H, TRUE);
+        LocoyardX = stackX;
+        LocoyardY = stackY;
+        moveWindowAndMeasure(LocoyardHan->HWindow, LocoyardIcon,
+                             LocoyardX, LocoyardY,
+                             LocoyardHan->Attr.W, LocoyardHan->Attr.H,
+                             LocoyardX, LocoyardY);
       }
 
-      // Arrivals (below main)
       if (ArrivalHan != NULL)
       {
-        if (ArrivalIcon) OpenIcon(ArrivalHan->HWindow);
         ArrivalX = MainWinX;
-        ArrivalY = MainWinY + lHeight + gap;
-        ::MoveWindow(ArrivalHan->HWindow, ArrivalX, ArrivalY, ArrivalHan->Attr.W, ArrivalHan->Attr.H, TRUE);
+        ArrivalY = mainBottom;
+        moveWindowAndMeasure(ArrivalHan->HWindow, ArrivalIcon,
+                             ArrivalX, ArrivalY,
+                             ArrivalHan->Attr.W, ArrivalHan->Attr.H,
+                             ArrivalX, ArrivalY);
       }
     }
     break;
   }
+
+  mOptimizedLayoutActive = TRUE;
+}
+
+
+void TMainWindow::HandleChildResize(TWindow* child, const RECT& oldRect, const RECT& newRect)
+{
+  const int oldWidth = oldRect.right - oldRect.left;
+  const int oldHeight = oldRect.bottom - oldRect.top;
+  const int newWidth = newRect.right - newRect.left;
+  const int newHeight = newRect.bottom - newRect.top;
+
+  if ((oldWidth == newWidth) && (oldHeight == newHeight))
+  {
+    return;
+  }
+
+  if (!mOptimizedLayoutActive)
+  {
+    return;
+  }
+
+  mResizeCoalescePending = TRUE;
+  ::SetTimer(HWindow, ID_CHILD_RESIZE_COALESCE, 75, NULL);
+}
+
+
+void TMainWindow::QueueStageTelemetryUpdate(const StageTelemetryUpdate& update)
+{
+  if (DisplayHan != NULL)
+  {
+    DisplayHan->QueueStageTelemetryUpdate(update);
+  }
+}
+
+
+void TMainWindow::EvTimer(owl::uint timerId)
+{
+  if (timerId == ID_CHILD_RESIZE_COALESCE)
+  {
+    ::KillTimer(HWindow, ID_CHILD_RESIZE_COALESCE);
+
+    if (!mResizeCoalescePending)
+    {
+      return;
+    }
+
+    if (mLayoutInProgress)
+    {
+      ::SetTimer(HWindow, ID_CHILD_RESIZE_COALESCE, 75, NULL);
+      return;
+    }
+
+    mResizeCoalescePending = FALSE;
+    if (mOptimizedLayoutActive)
+    {
+      CMOptOptimi();
+    }
+    return;
+  }
+
+  TFrameWindow::EvTimer(timerId);
 }
 
 
@@ -1967,6 +2155,7 @@ void TMainWindow::CMMnuHeAbot()
 DEFINE_RESPONSE_TABLE1( TMainWindow, TFrameWindow )
     EV_WM_SIZE,
     EV_WM_MOVE,
+    EV_WM_TIMER,
     EV_WM_MENUSELECT,
     EV_COMMAND( 110, CM_FileExit ),
     EV_COMMAND( 100, CMMnuFilNew ),

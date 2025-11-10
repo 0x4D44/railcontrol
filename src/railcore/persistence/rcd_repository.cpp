@@ -106,8 +106,8 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
 
   // Normalize CRLF to LF for scanning
   contents.erase(std::remove(contents.begin(), contents.end(), '\r'), contents.end());
-  // Compute stable ID (placeholder FNV-1a) for future use
-  // Note: We do not store it yet; exposed via rcd_id helpers if needed.
+  // Stable layout ID is computed via SHA-256 over canonicalized content (see rcd_id helpers).
+  // Note: We do not store it here; the ID is exposed to callers via the Load() out descriptor.
 
   // Scan sections, collect IDs for key entities.
   enum class Sec { None, General, Sections, Overlapping, Platforms, Selector, Routes, Locos, Locoyard, Timetable };
@@ -115,6 +115,8 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
   std::set<std::string> present;
   std::map<std::string,int> headerCounts;
   std::set<uint32_t> sectionIds, routeIds, locoIds, ttIds, selectorIds, platformIds;
+  struct RouteParsed { uint32_t id{0}; uint32_t fromSel{0}; uint32_t toSel{0}; uint32_t stages[6][2]{}; };
+  std::map<uint32_t, RouteParsed> routeParsed;
   struct TTRef { uint32_t id; int arrSel{0}; int arrTime{-1}; int depTime{-1}; int nextId{0}; };
   std::vector<TTRef> ttRefs;
   struct OverlapRef { uint32_t id; int a; int b; };
@@ -148,19 +150,29 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
     uint32_t id = 0;
     switch (cur) {
       case Sec::General: {
-        // Expect Key=Value pairs (e.g., StartTime= 0645)
+        // Accept either Key=Value or comma-separated "Key, Value"
+        std::string key;
+        std::string val;
         size_t eq = t.find('=');
         if (eq != std::string::npos) {
-          std::string key = Trim(t.substr(0, eq));
-          std::string val = Trim(t.substr(eq + 1));
+          key = Trim(t.substr(0, eq));
+          val = Trim(t.substr(eq + 1));
+        } else {
+          auto toks = SplitCSV(t);
+          if (toks.size() >= 2) {
+            key = toks[0];
+            val = toks[1];
+          }
+        }
+        if (!key.empty()) {
           if (key == "StartTime") {
             int v = 0; if (!TryParseInt(val, v)) return Status{StatusCode::ValidationError, "Invalid StartTime"};
             if (v < 0 || (v % 100) >= 60) return Status{StatusCode::ValidationError, "StartTime minutes out of range"};
-            haveStart = true; startTime = v;
+            if (!haveStart) { haveStart = true; startTime = v; }
           } else if (key == "StopTime") {
             int v = 0; if (!TryParseInt(val, v)) return Status{StatusCode::ValidationError, "Invalid StopTime"};
             if (v < 0 || (v % 100) >= 60) return Status{StatusCode::ValidationError, "StopTime minutes out of range"};
-            haveStop = true; stopTime = v;
+            if (!haveStop) { haveStop = true; stopTime = v; }
           }
         }
         break; }
@@ -217,9 +229,37 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
             return Status{StatusCode::ValidationError, "Duplicate route id: " + std::to_string(id)};
           // Cross-validate stage tokens that reference sections (tokens 4+)
           auto toks = SplitCSV(t);
-          // Require exactly 6 stage tokens (total tokens == 9)
+          // Require exactly 6 stage tokens (total tokens == 9). Some legacy files may omit a comma
+          // between stage tokens; attempt a conservative repair by splitting whitespace within stage area.
           if (toks.size() != 9) {
-            return Status{StatusCode::ValidationError, "Route " + std::to_string(id) + ": expected exactly 6 stage tokens"};
+            if (toks.size() >= 3) {
+              std::vector<std::string> repaired;
+              repaired.reserve(12);
+              // Keep first three tokens as-is (id, from, to)
+              repaired.push_back(toks[0]);
+              if (toks.size() >= 2) repaired.push_back(toks[1]);
+              if (toks.size() >= 3) repaired.push_back(toks[2]);
+              // Split remaining tokens on whitespace and append
+              for (size_t i = 3; i < toks.size(); ++i) {
+                const std::string& seg = toks[i];
+                size_t p = 0, n = seg.size();
+                while (p < n) {
+                  while (p < n && std::isspace(static_cast<unsigned char>(seg[p]))) ++p;
+                  if (p >= n) break;
+                  size_t q = p;
+                  while (q < n && !std::isspace(static_cast<unsigned char>(seg[q]))) ++q;
+                  repaired.emplace_back(seg.substr(p, q - p));
+                  p = q;
+                }
+              }
+              if (repaired.size() == 9) {
+                toks.swap(repaired);
+              } else {
+                return Status{StatusCode::ValidationError, "Route " + std::to_string(id) + ": expected exactly 6 stage tokens"};
+              }
+            } else {
+              return Status{StatusCode::ValidationError, "Route " + std::to_string(id) + ": expected exactly 6 stage tokens"};
+            }
           }
           // Validate FromSelector/ToSelector exist when provided
           if (toks.size() >= 3) {
@@ -234,6 +274,11 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
             }
           }
           // 0=id, 1=fromSelector, 2=toSelector, 3+=stage tokens (may be direct or encoded primary+1000*secondary)
+          // Capture parsed fields for later world state population
+          RouteParsed rp; rp.id = id;
+          if (toks.size() >= 2) { int v=0; if (TryParseInt(toks[1], v) && v>0) rp.fromSel = static_cast<uint32_t>(v); }
+          if (toks.size() >= 3) { int v=0; if (TryParseInt(toks[2], v) && v>0) rp.toSel = static_cast<uint32_t>(v); }
+          size_t stageIndex = 0;
           for (size_t iTok = 3; iTok < toks.size(); ++iTok) {
             int val = 0;
             if (!TryParseInt(toks[iTok], val)) continue;
@@ -242,21 +287,23 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
             int secondary = val / 1000;
             if (primary != 0 && sectionIds.find(static_cast<uint32_t>(primary)) == sectionIds.end()) {
               return Status{StatusCode::ValidationError,
-                            "Route " + std::to_string(id) + ": unknown section id " + std::to_string(primary)};
+                             "Route " + std::to_string(id) + ": unknown section id " + std::to_string(primary)};
             }
             if (secondary != 0 && sectionIds.find(static_cast<uint32_t>(secondary)) == sectionIds.end()) {
               return Status{StatusCode::ValidationError,
-                            "Route " + std::to_string(id) + ": unknown secondary section id " + std::to_string(secondary)};
+                             "Route " + std::to_string(id) + ": unknown secondary section id " + std::to_string(secondary)};
             }
+            if (stageIndex < 6) { rp.stages[stageIndex][0] = static_cast<uint32_t>(primary); rp.stages[stageIndex][1] = static_cast<uint32_t>(secondary); ++stageIndex; }
           }
+          routeParsed[id] = rp;
         }
         break; }
       case Sec::Locos:
         if (ParseFirstIntToken(t, id)) {
           if (id < 1 || id > 499)
             return Status{StatusCode::ValidationError, "Loco id out of range: " + std::to_string(id)};
-          if (!locoIds.insert(id).second)
-            return Status{StatusCode::ValidationError, "Duplicate loco id: " + std::to_string(id)};
+          // Legacy files may repeat LOCOS lines; keep first occurrence and ignore duplicates.
+          (void)locoIds.insert(id);
         }
         break;
       case Sec::Locoyard: {
@@ -277,8 +324,8 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
         if (ParseFirstIntToken(t, id)) {
           if (id < 1 || id > 499)
             return Status{StatusCode::ValidationError, "Timetable id out of range: " + std::to_string(id)};
-          if (!ttIds.insert(id).second)
-            return Status{StatusCode::ValidationError, "Duplicate timetable id: " + std::to_string(id)};
+          // Allow duplicate timetable IDs in some legacy files; keep first occurrence
+          bool firstSeen = ttIds.insert(id).second;
           auto toks = SplitCSV(t);
           if (toks.size() < 11) {
             return Status{StatusCode::ValidationError, "TIMETABLE " + std::to_string(id) + ": too few fields"};
@@ -288,7 +335,7 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
           if (toks.size() >= 5) { int v=0; if (TryParseInt(toks[4], v)) r.arrTime = v; }
           if (toks.size() >= 7) { int v=0; if (TryParseInt(toks[6], v)) r.depTime = v; }
           if (toks.size() >= 12) { int v=0; if (TryParseInt(toks[11], v)) r.nextId = v; }
-          ttRefs.push_back(r);
+          if (firstSeen) ttRefs.push_back(r);
         }
         break; }
       default:
@@ -359,11 +406,26 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
   ws.sections.reserve(sectionIds.size());
   for (auto sid : sectionIds) ws.sections.push_back(Section{sid, {}});
   ws.routes.reserve(routeIds.size());
-  for (auto rid : routeIds) ws.routes.push_back(Route{rid, {}});
+  for (auto rid : routeIds) {
+    Route r{}; r.id = rid;
+    auto it = routeParsed.find(rid);
+    if (it != routeParsed.end()) {
+      r.fromSelector = it->second.fromSel;
+      r.toSelector = it->second.toSel;
+      for (size_t i = 0; i < 6; ++i) { r.stages[i].primary = it->second.stages[i][0]; r.stages[i].secondary = it->second.stages[i][1]; }
+    }
+    ws.routes.push_back(std::move(r));
+  }
   ws.locos.reserve(locoIds.size());
   for (auto lid : locoIds) ws.locos.push_back(Loco{lid, {}});
+  // Build a map for first-seen TTRef (legacy allows dups; we kept first)
+  std::map<uint32_t,int> ttArrSel;
+  for (const auto& r : ttRefs) { if (ttArrSel.find(r.id) == ttArrSel.end()) ttArrSel[r.id] = r.arrSel; }
   ws.timetable.reserve(ttIds.size());
-  for (auto tid : ttIds) ws.timetable.push_back(TimetableEntry{tid, {}});
+  for (auto tid : ttIds) {
+    TimetableEntry te{}; te.id = tid; te.arrSelector = static_cast<uint32_t>(ttArrSel[tid]);
+    ws.timetable.push_back(std::move(te));
+  }
 
   outState = std::move(ws);
   // Compute and assign stable layout ID

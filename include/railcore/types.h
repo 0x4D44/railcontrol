@@ -14,7 +14,7 @@ using StructuredPayload = std::variant<std::monostate, std::map<std::string, std
 
 enum class DelayMode { None, Randomized, MaintenanceOnly };
 enum class DiagnosticsLevel { Trace, Info, Warning, Error };
-enum class DomainEventId { TrainArrived, LocoAssigned, LocoReleased, DelayChanged };
+enum class DomainEventId { TrainArrived, TrainDeparted, LocoAssigned, LocoReleased, DelayChanged };
 
 struct DelaySettings {
   DelayMode mode {DelayMode::None};
@@ -23,12 +23,21 @@ struct DelaySettings {
 };
 
 struct Section { uint32_t id{}; std::string name; };
-struct Route   { uint32_t id{}; std::string name; };
+struct Route   {
+  uint32_t id{};
+  std::string name;
+  // Optional parsed fields for scheduling awareness
+  uint32_t fromSelector {0};
+  uint32_t toSelector {0};
+  struct Stage { uint32_t primary{0}; uint32_t secondary{0}; };
+  Stage stages[6]{};
+};
 struct Loco    { uint32_t id{}; std::string name; };
 
 struct TimetableEntry {
   uint32_t id{};
   std::string name;
+  uint32_t arrSelector {0}; // optional parsed ArrSelector (1..49)
 };
 
 // Simplified logical simulation clock placeholder

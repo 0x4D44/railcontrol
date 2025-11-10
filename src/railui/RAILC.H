@@ -20,6 +20,8 @@
 #if !defined(_RAILC_H_)
 #define _RAILC_H_
 
+struct StageTelemetryUpdate;
+
 // Define application class
 class TManager : public TApplication
 {
@@ -63,6 +65,9 @@ private:
   TPenGuard       YellowPen;                  // Handle to a yellow pen
   TPenGuard       DkGrayPen;                   // Handle to a dark gray pen
   TPenGuard       LtGrayPen;                   // Handle to a light gray pen
+  BOOL            mLayoutInProgress;           // Are we currently adjusting layout?
+  BOOL            mOptimizedLayoutActive;      // Should child resizes trigger restacking?
+  BOOL            mResizeCoalescePending;      // Is a coalesced resize pending?
   PStatbar        StatbarHan;                  // Handle to the status bar
   PToolbar        ToolbarHan;                  // Handle to the tool bar
   PArrivals       ArrivalHan;                  // Handle to the arrivals window
@@ -123,6 +128,9 @@ public:
   void CMMnuHeCtnt();
   void CMMnuHeHelp();
   void CMMnuHeAbot();
+  void HandleChildResize(TWindow* child, const RECT& oldRect, const RECT& newRect);
+  void QueueStageTelemetryUpdate(const StageTelemetryUpdate& update);
+  void EvTimer(owl::uint timerId);
 
   // Define friend classes
   friend class TLayout;
