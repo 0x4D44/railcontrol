@@ -24,7 +24,7 @@
 TAbout::TAbout(TWindow * parent, LPCTSTR name)
  : TDialog(parent, name)
 {
-  // Load screen bitmaps
+  // SECURITY FIX: Load bitmaps into RAII guards for automatic cleanup
   HINSTANCE hInst = GetModule()->GetHandle();
   HLoco1 = ::LoadBitmap(hInst, TEXT("LOCO"));
   HLoco2 = ::LoadBitmap(hInst, TEXT("DMU"));
@@ -40,9 +40,8 @@ void TAbout::SetupWindow()
 
 void TAbout::CmOk()
 {
-  // Delete bitmaps
-  DeleteObject(HLoco1);
-  DeleteObject(HLoco2);
+  // SECURITY FIX: Bitmap cleanup now handled automatically by TBitmapGuard
+  // (DeleteObject calls removed - RAII guards handle cleanup in destructor)
 
   // Call ancestor method
   TDialog::CmOk();
