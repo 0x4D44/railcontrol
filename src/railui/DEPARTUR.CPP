@@ -514,8 +514,9 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
     {
       lColour = lDelayed ? RGB(255, 0, 0) : RGB(0, 255, 0);
 
-      HBRUSH hBrush = CreateSolidBrush(lColour);
-      HPEN hPen = CreatePen(PS_SOLID, 1, lColour);
+      // SECURITY FIX (MEM-02): Use RAII guards for automatic GDI object cleanup
+      TBrushGuard hBrush(CreateSolidBrush(lColour));
+      TPenGuard hPen(CreatePen(PS_SOLID, 1, lColour));
 
       HBRUSH hOldBrush = (HBRUSH) SelectObject(TheDC, hBrush);
       HPEN hOldPen = (HPEN) SelectObject(TheDC, hPen);
@@ -527,8 +528,7 @@ void TDepartur::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
 
       SelectObject(TheDC, hOldBrush);
       SelectObject(TheDC, hOldPen);
-      DeleteObject(hBrush);
-      DeleteObject(hPen);
+      // DeleteObject calls removed - RAII guards handle cleanup automatically
 
       SetBkColor(TheDC, lColour);
       ::SetTextColor(TheDC, RGB(0, 0, 0));
