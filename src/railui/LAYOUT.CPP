@@ -179,15 +179,15 @@ TLayout::TLayout(owl::TWindow * AParent, int XPos, int YPos, int Width, int Heig
   // Seed the random number generator
   ::srand(static_cast<unsigned int>(::time(0)));
 
-  // Clear all section etc data
-  for (i=0; i<1000; i++)  PSectionInfo[i] = 0;
-  for (i=0; i<50; i++)    PSelectorInfo[i] = 0;
-  for (i=0; i<50; i++)    POverlapDataInfo[i] = 0;
-  for (i=0; i<50; i++)    PPlatDataInfo[i] = 0;
-  for (i=0; i<1000; i++)  PRoutesInfo[i] = 0;
+  // Clear all section etc data - now using TManagedArray which provides automatic RAII management
+  PSectionInfo.Clear();
+  PSelectorInfo.Clear();
+  POverlapDataInfo.Clear();
+  PPlatDataInfo.Clear();
+  PRoutesInfo.Clear();
   PLocosInfo.Clear();
   PTimetableInfo.Clear();
-  for (i=0; i<10; i++)    PTrackLoco[i] = 0;
+  PTrackLoco.Clear();  // SECURITY FIX: Now managed array with 20 slots (increased from 10)
 
   // Clear text
   for (i=0; i<3; i++)  CopyBuffer(StartText[i], "");
@@ -226,107 +226,64 @@ void TLayout::ClearData()
 #endif
 
   // Clear any data that may be currently in the structures
+  // Now using TManagedArray which provides automatic RAII management
+  // SECURITY FIX: No manual delete needed, prevents memory leaks and buffer overflows
+
   // Clear section information
-  for (i=0; i<1000; i++)
-  {
-    if (PSectionInfo[i] != 0)
-    {
-      delete((PSection) PSectionInfo[i]);
 #if defined(DIAG_SETUP_TRACE)
-      ++deletedSections;
+  for (i=0; i<1000; i++)
+    if (PSectionInfo[i] != 0) ++deletedSections;
 #endif
-    }
-    PSectionInfo[i] = 0;
-  }
+  PSectionInfo.Clear();
 
   // Clear overlapping information
-  for (i=0; i<50; i++)
-  {
-    if (POverlapDataInfo[i] != 0)
-    {
-      delete((POverlapData) POverlapDataInfo[i]);
 #if defined(DIAG_SETUP_TRACE)
-      ++deletedOverlaps;
+  for (i=0; i<50; i++)
+    if (POverlapDataInfo[i] != 0) ++deletedOverlaps;
 #endif
-    }
-    POverlapDataInfo[i] = 0;
-  }
+  POverlapDataInfo.Clear();
 
   // Clear selector information
-  for (i=0; i<50; i++)
-  {
-    if (PSelectorInfo[i] != 0)
-    {
-      delete((PSelector) PSelectorInfo[i]);
 #if defined(DIAG_SETUP_TRACE)
-      ++deletedSelectors;
+  for (i=0; i<50; i++)
+    if (PSelectorInfo[i] != 0) ++deletedSelectors;
 #endif
-    }
-    PSelectorInfo[i] = 0;
-  }
+  PSelectorInfo.Clear();
 
   // Clear platform information
-  for (i=0; i<50; i++)
-  {
-    if (PPlatDataInfo[i] != 0)
-    {
-      delete((PPlatData) PPlatDataInfo[i]);
 #if defined(DIAG_SETUP_TRACE)
-      ++deletedPlatData;
+  for (i=0; i<50; i++)
+    if (PPlatDataInfo[i] != 0) ++deletedPlatData;
 #endif
-    }
-    PPlatDataInfo[i] = 0;
-  }
+  PPlatDataInfo.Clear();
 
   // Clear route information
-  for (i=0; i<1000; i++)
-  {
-    if (PRoutesInfo[i] != 0)
-    {
-      delete((PRoutes) PRoutesInfo[i]);
 #if defined(DIAG_SETUP_TRACE)
-      ++deletedRoutes;
+  for (i=0; i<1000; i++)
+    if (PRoutesInfo[i] != 0) ++deletedRoutes;
 #endif
-    }
-    PRoutesInfo[i] = 0;
-  }
+  PRoutesInfo.Clear();
 
   // Clear loco information
-  for (i=0; i<500; i++)
-  {
-    if (PLocosInfo[i] != 0)
-    {
 #if defined(DIAG_SETUP_TRACE)
-      ++deletedLocos;
+  for (i=0; i<500; i++)
+    if (PLocosInfo[i] != 0) ++deletedLocos;
 #endif
-    }
-    PLocosInfo.Reset(i);
-  }
+  PLocosInfo.Clear();
 
   // Clear timetable information
+#if defined(DIAG_SETUP_TRACE)
   for (i=0; i<MAX_TIMETABLE; i++)
-  {
-    if (PTimetableInfo[i] != 0)
-    {
-#if defined(DIAG_SETUP_TRACE)
-      ++deletedTimetable;
+    if (PTimetableInfo[i] != 0) ++deletedTimetable;
 #endif
-    }
-    PTimetableInfo.Reset(i);
-  }
+  PTimetableInfo.Clear();
 
-  // Clear track loco information
-  for (i=0; i<10; i++)
-  {
-    if (PTrackLoco[i] != 0)
-    {
-      delete((PTimetable) PTrackLoco[i]);
+  // Clear track loco information  - SECURITY FIX: Now 20 slots (up from 10)
 #if defined(DIAG_SETUP_TRACE)
-      ++deletedTrackLoco;
+  for (i=0; i<20; i++)
+    if (PTrackLoco[i] != 0) ++deletedTrackLoco;
 #endif
-    }
-    PTrackLoco[i] = 0;
-  }
+  PTrackLoco.Clear();
 
   mStageTelemetry.Reset();
 #if defined(DIAG_SETUP_TRACE)
@@ -645,15 +602,16 @@ BOOL TLayout::StartNew()
   if (FILE* logFile = OpenDiagnosticsLog())
   {
     fprintf(logFile, "=== RAILCONTROL STARTUP ===\n");
-    fprintf(logFile, "Initializing PTrackLoco array with 10 elements...\n");
+    fprintf(logFile, "Initializing PTrackLoco array with 20 elements (SECURITY FIX: increased from 10)...\n");
     fclose(logFile);
   }
 #endif
-  
+
   for (i=0; i<9; i++)  TempArray[i] = 0;
-  for (i=0; i<10; i++)
+  // SECURITY FIX: Increased from 10 to 20 to prevent buffer overflow (CRITICAL-01)
+  for (i=0; i<20; i++)
   {
-    PTrackLoco[i] = new TTimetable("", "", TempArray, "");
+    PTrackLoco.Reset(i, new TTimetable("", "", TempArray, ""));
     PTrackLoco[i]->SetStatus(ST_STOCKOK);
   }
 
@@ -2182,6 +2140,7 @@ BOOL TLayout::ReadDataFile()
         ins.getline(szInput.Data(), szInput.Capacity(), ',');
         IndexRef = atoi(szInput);
 
+        // SECURITY FIX: Bounds checking to prevent buffer overflow (CRITICAL-03)
         if ((IndexRef > 0) && (IndexRef < 1000))
         {
           if (PSectionInfo[IndexRef] == 0)
@@ -2195,8 +2154,8 @@ BOOL TLayout::ReadDataFile()
               TempY[i] = atoi(szInput);
             }
 
-            // Insert the new section
-            PSectionInfo[IndexRef] = new TSection(IndexRef, TempX, TempY);
+            // Insert the new section using TManagedArray (SECURITY FIX)
+            PSectionInfo.Reset(IndexRef, new TSection(IndexRef, TempX, TempY));
           }
           else
           {
@@ -2383,8 +2342,8 @@ BOOL TLayout::ReadDataFile()
               TempSections[i] = atoi(szInput);
             }
 
-            // Insert the new overlap data
-            POverlapDataInfo[IndexRef] = new TOverlapData(TempSections);
+            // Insert the new overlap data using TManagedArray (SECURITY FIX)
+            POverlapDataInfo.Reset(IndexRef, new TOverlapData(TempSections));
           }
           else
           {
@@ -2462,7 +2421,7 @@ BOOL TLayout::ReadDataFile()
             }
 
             // Insert the new section
-            PPlatDataInfo[IndexRef] = new TPlatData(TempX, TempY);
+            PPlatDataInfo.Reset(IndexRef, new TPlatData(TempX, TempY));
           }
           else
           {
@@ -2574,7 +2533,7 @@ BOOL TLayout::ReadDataFile()
            }
 
            // Insert the new selector
-           PSelectorInfo[IndexRef] = new TSelector(this, TempX[0], TempX[1], TempX[2], TempX[3], IndexRef, TempY[0], TempY[1], CM_SELECT, 0, 1);
+           PSelectorInfo.Reset(IndexRef, new TSelector(this, TempX[0], TempX[1], TempX[2], TempX[3], IndexRef, TempY[0], TempY[1], CM_SELECT, 0, 1));
            PSelectorInfo[IndexRef]->Create();
            ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
 
@@ -2691,7 +2650,7 @@ BOOL TLayout::ReadDataFile()
             }
 
             // Insert the new section
-            PRoutesInfo[IndexRef] = new TRoutes(TempX[0], TempX[1], TempClear);
+            PRoutesInfo.Reset(IndexRef, new TRoutes(TempX[0], TempX[1], TempClear));
 
             // Now check the section data
             if ((PSelectorInfo[TempX[0]] == 0) ||
@@ -3013,7 +2972,7 @@ BOOL TLayout::ReadDataFile()
             }
 
             // Insert the new timetable item
-            PTimetableInfo[IndexRef] = new TTimetable(szText1, szText2, TempTime, szComment);
+            PTimetableInfo.Reset(IndexRef, new TTimetable(szText1, szText2, TempTime, szComment));
 
             // Now check to see if the loco is still attached to train
             if (PTimetableInfo[IndexRef]->GetStatus() == ST_INPLAT)
