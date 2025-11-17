@@ -32,8 +32,8 @@ typedef TLayout* PLayout;
 class TLayout : public TFrameWindow
 {
 private:
-  PSection       PSectionInfo[1000];              // Pointers to section information
-  PTimetable     PTrackLoco[10];                  // Pointers to loco track information
+  TManagedArray<TSection, 1000> PSectionInfo;     // Managed array of section information (SECURITY FIX: prevents buffer overflow)
+  TManagedArray<TTimetable, 20> PTrackLoco;       // Managed array of loco track information (SECURITY FIX: increased from 10 to 20, prevents overflow)
   int            TimeNum;                         // Total number of timetable items
   char           StockCode[5][20];                // Stock code translation array
   BOOL           SelectOut[NOSELECTORS+1];        // Selector positions up/down
@@ -58,11 +58,11 @@ public:
   int            Depart[DISP_NUM_DEPART];         // Timetable numbers of next n departures
 
   TManagedArray<TTimetable, MAX_TIMETABLE> PTimetableInfo;  // Managed timetable entries
-  PPlatData      PPlatDataInfo[50];               // Handles to platform information
-  POverlapData   POverlapDataInfo[50];            // Handles to overlapping information
-  TManagedArray<TLocos, 500> PLocosInfo;           // Managed locomotive information
-  PRoutes        PRoutesInfo[1000];               // Pointers to routes information
-  PSelector      PSelectorInfo[50];               // Pointers to selector windows
+  TManagedArray<TPlatData, 50> PPlatDataInfo;     // Managed array of platform information (SECURITY FIX: prevents buffer overflow)
+  TManagedArray<TOverlapData, 50> POverlapDataInfo; // Managed array of overlapping information (SECURITY FIX: prevents buffer overflow)
+  TManagedArray<TLocos, 500> PLocosInfo;          // Managed locomotive information
+  TManagedArray<TRoutes, 1000> PRoutesInfo;       // Managed array of routes information (SECURITY FIX: prevents buffer overflow)
+  TManagedArray<TSelector, 50> PSelectorInfo;     // Managed array of selector windows (SECURITY FIX: prevents buffer overflow)
 
   int            LocoyardLoco[16];                // Locos that are in the locoyard
   int            WorkTime,                        // Current work time

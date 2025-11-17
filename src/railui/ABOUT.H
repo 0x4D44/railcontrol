@@ -27,7 +27,9 @@ typedef TAbout* PAbout;
 class TAbout : public TDialog
 {
 private:
-  HBITMAP  HLoco1, HLoco2;
+  // SECURITY FIX: Use RAII guards for automatic bitmap cleanup
+  TBitmapGuard HLoco1;
+  TBitmapGuard HLoco2;
 
 public:
   TAbout(TWindow* parent, LPCTSTR name);
