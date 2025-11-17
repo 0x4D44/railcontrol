@@ -45,6 +45,140 @@ bool ReadDataLine(std::ifstream& stream, TBuffer<Size>& buffer)
   return true;
 }
 
+// SECURITY FIX (HIGH-01): Safe integer parsing to replace unsafe atoi/atol
+// Returns true on success, false on parse error
+inline bool SafeParseInt(const char* str, int& outValue)
+{
+  if (!str || !*str)
+    return false;
+
+  // Skip leading whitespace
+  while (*str && std::isspace(static_cast<unsigned char>(*str)))
+    ++str;
+
+  if (!*str)
+    return false;
+
+  // Parse sign
+  bool negative = false;
+  if (*str == '-')
+  {
+    negative = true;
+    ++str;
+  }
+  else if (*str == '+')
+  {
+    ++str;
+  }
+
+  // Parse digits
+  if (!std::isdigit(static_cast<unsigned char>(*str)))
+    return false;
+
+  long long value = 0;
+  while (*str && std::isdigit(static_cast<unsigned char>(*str)))
+  {
+    int digit = *str - '0';
+
+    // Check for overflow before multiplying
+    if (value > (LLONG_MAX - digit) / 10)
+      return false;
+
+    value = value * 10 + digit;
+    ++str;
+  }
+
+  // Skip trailing whitespace
+  while (*str && std::isspace(static_cast<unsigned char>(*str)))
+    ++str;
+
+  // If we haven't consumed the whole string, it's invalid
+  if (*str != '\0')
+    return false;
+
+  // Check range for int
+  if (negative)
+  {
+    value = -value;
+    if (value < INT_MIN)
+      return false;
+  }
+  else
+  {
+    if (value > INT_MAX)
+      return false;
+  }
+
+  outValue = static_cast<int>(value);
+  return true;
+}
+
+// Safe long parsing
+inline bool SafeParseLong(const char* str, long& outValue)
+{
+  if (!str || !*str)
+    return false;
+
+  // Skip leading whitespace
+  while (*str && std::isspace(static_cast<unsigned char>(*str)))
+    ++str;
+
+  if (!*str)
+    return false;
+
+  // Parse sign
+  bool negative = false;
+  if (*str == '-')
+  {
+    negative = true;
+    ++str;
+  }
+  else if (*str == '+')
+  {
+    ++str;
+  }
+
+  // Parse digits
+  if (!std::isdigit(static_cast<unsigned char>(*str)))
+    return false;
+
+  long long value = 0;
+  while (*str && std::isdigit(static_cast<unsigned char>(*str)))
+  {
+    int digit = *str - '0';
+
+    // Check for overflow
+    if (value > (LLONG_MAX - digit) / 10)
+      return false;
+
+    value = value * 10 + digit;
+    ++str;
+  }
+
+  // Skip trailing whitespace
+  while (*str && std::isspace(static_cast<unsigned char>(*str)))
+    ++str;
+
+  if (*str != '\0')
+    return false;
+
+  // Check range for long
+  if (negative)
+  {
+    value = -value;
+    if (value < LONG_MIN)
+      return false;
+  }
+  else
+  {
+    if (value > LONG_MAX)
+      return false;
+  }
+
+  outValue = static_cast<long>(value);
+  return true;
+}
+
 #if defined(DIAG_SETUP_TRACE)
 bool ShouldWriteDiagnosticsLog()
 {
@@ -2138,7 +2272,17 @@ BOOL TLayout::ReadDataFile()
         // Get first part of string - index reference
         std::istringstream ins(szInput.Data());
         ins.getline(szInput.Data(), szInput.Capacity(), ',');
-        IndexRef = atoi(szInput);
+
+        // SECURITY FIX (HIGH-01): Safe parsing instead of atoi
+        if (!SafeParseInt(szInput.Data(), IndexRef))
+        {
+          ClearData();
+          ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+          FormatBuffer(szText1, szText2, "[SECTIONS]");
+          MessageBeep(MB_ICONEXCLAMATION);
+          ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+          return FALSE;
+        }
 
         // SECURITY FIX: Bounds checking to prevent buffer overflow (CRITICAL-03)
         if ((IndexRef > 0) && (IndexRef < 1000))
@@ -2149,9 +2293,25 @@ BOOL TLayout::ReadDataFile()
             for (i=0; i<4; i++)
             {
               ins.getline(szInput.Data(), szInput.Capacity(), ',');
-              TempX[i] = atoi(szInput);
+              if (!SafeParseInt(szInput.Data(), TempX[i]))
+              {
+                ClearData();
+                ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+                FormatBuffer(szText1, szText2, "[SECTIONS] coordinate");
+                MessageBeep(MB_ICONEXCLAMATION);
+                ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+                return FALSE;
+              }
               ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-              TempY[i] = atoi(szInput);
+              if (!SafeParseInt(szInput.Data(), TempY[i]))
+              {
+                ClearData();
+                ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+                FormatBuffer(szText1, szText2, "[SECTIONS] coordinate");
+                MessageBeep(MB_ICONEXCLAMATION);
+                ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+                return FALSE;
+              }
             }
 
             // Insert the new section using TManagedArray (SECURITY FIX)
@@ -2223,13 +2383,33 @@ BOOL TLayout::ReadDataFile()
         {
           // Found start time
           ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-          WorkTime = PackTime(atoi(szInput));
+          int tempTime;
+          if (!SafeParseInt(szInput.Data(), tempTime))
+          {
+            ClearData();
+            ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+            FormatBuffer(szText1, szText2, "[GENERAL] StartTime");
+            MessageBeep(MB_ICONEXCLAMATION);
+            ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+            return FALSE;
+          }
+          WorkTime = PackTime(tempTime);
         }
         else if (strcmp(szInput, "StopTime") == 0)
         {
           // Found stop time
           ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-          StopTime = PackTime(atoi(szInput));
+          int tempTime;
+          if (!SafeParseInt(szInput.Data(), tempTime))
+          {
+            ClearData();
+            ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+            FormatBuffer(szText1, szText2, "[GENERAL] StopTime");
+            MessageBeep(MB_ICONEXCLAMATION);
+            ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+            return FALSE;
+          }
+          StopTime = PackTime(tempTime);
         }
         else if (strcmp(szInput, "StartText1") == 0)
         {
@@ -2329,7 +2509,16 @@ BOOL TLayout::ReadDataFile()
         // Get first part of string - index reference
         std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-        IndexRef = atoi(szInput);
+        // SECURITY FIX (HIGH-01): Safe parsing
+        if (!SafeParseInt(szInput.Data(), IndexRef))
+        {
+          ClearData();
+          ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+          FormatBuffer(szText1, szText2, "[OVERLAPPING] index");
+          MessageBeep(MB_ICONEXCLAMATION);
+          ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+          return FALSE;
+        }
 
         if ((IndexRef > 0) && (IndexRef < 50))
         {
@@ -2339,7 +2528,16 @@ BOOL TLayout::ReadDataFile()
             for (i=0; i<2; i++)
             {
               ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-              TempSections[i] = atoi(szInput);
+              // SECURITY FIX (HIGH-01): Safe parsing
+              if (!SafeParseInt(szInput.Data(), TempSections[i]))
+              {
+                ClearData();
+                ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+                FormatBuffer(szText1, szText2, "[OVERLAPPING] section");
+                MessageBeep(MB_ICONEXCLAMATION);
+                ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+                return FALSE;
+              }
             }
 
             // Insert the new overlap data using TManagedArray (SECURITY FIX)
@@ -2405,7 +2603,16 @@ BOOL TLayout::ReadDataFile()
         // Get first part of string - index reference
         std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-        IndexRef = atoi(szInput);
+        // SECURITY FIX (HIGH-01): Safe parsing
+        if (!SafeParseInt(szInput.Data(), IndexRef))
+        {
+          ClearData();
+          ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+          FormatBuffer(szText1, szText2, "[PLATFORMS] index");
+          MessageBeep(MB_ICONEXCLAMATION);
+          ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+          return FALSE;
+        }
 
         if ((IndexRef > 0) && (IndexRef < 50))
         {
@@ -2415,9 +2622,27 @@ BOOL TLayout::ReadDataFile()
             for (i=0; i<4; i++)
             {
               ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-              TempX[i] = atoi(szInput);
+              // SECURITY FIX (HIGH-01): Safe parsing
+              if (!SafeParseInt(szInput.Data(), TempX[i]))
+              {
+                ClearData();
+                ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+                FormatBuffer(szText1, szText2, "[PLATFORMS] X coordinate");
+                MessageBeep(MB_ICONEXCLAMATION);
+                ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+                return FALSE;
+              }
               ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-              TempY[i] = atoi(szInput);
+              // SECURITY FIX (HIGH-01): Safe parsing
+              if (!SafeParseInt(szInput.Data(), TempY[i]))
+              {
+                ClearData();
+                ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+                FormatBuffer(szText1, szText2, "[PLATFORMS] Y coordinate");
+                MessageBeep(MB_ICONEXCLAMATION);
+                ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+                return FALSE;
+              }
             }
 
             // Insert the new section
@@ -2484,7 +2709,16 @@ BOOL TLayout::ReadDataFile()
         // Get first part of string - index reference
         std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-        IndexRef = atoi(szInput);
+        // SECURITY FIX (HIGH-01): Safe parsing
+        if (!SafeParseInt(szInput.Data(), IndexRef))
+        {
+          ClearData();
+          ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+          FormatBuffer(szText1, szText2, "[SELECTOR] index");
+          MessageBeep(MB_ICONEXCLAMATION);
+          ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+          return FALSE;
+        }
 
         if ((IndexRef > 0) && (IndexRef < 50))
         {
@@ -2494,12 +2728,30 @@ BOOL TLayout::ReadDataFile()
            for (i=0; i<4; i++)
            {
              ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-             TempX[i] = atoi(szInput);
+             // SECURITY FIX (HIGH-01): Safe parsing
+             if (!SafeParseInt(szInput.Data(), TempX[i]))
+             {
+               ClearData();
+               ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+               FormatBuffer(szText1, szText2, "[SELECTOR] section reference");
+               MessageBeep(MB_ICONEXCLAMATION);
+               ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+               return FALSE;
+             }
            }
            for (i=0; i<2; i++)
            {
              ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-             TempY[i] = atoi(szInput);
+             // SECURITY FIX (HIGH-01): Safe parsing
+             if (!SafeParseInt(szInput.Data(), TempY[i]))
+             {
+               ClearData();
+               ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+               FormatBuffer(szText1, szText2, "[SELECTOR] type/platform");
+               MessageBeep(MB_ICONEXCLAMATION);
+               ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+               return FALSE;
+             }
            }
 
            if ((TempY[0] == 3) || (TempY[0] == 4))
@@ -2631,7 +2883,16 @@ BOOL TLayout::ReadDataFile()
         // Get first part of string - index reference
         std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-        IndexRef = atoi(szInput);
+        // SECURITY FIX (HIGH-01): Safe parsing
+        if (!SafeParseInt(szInput.Data(), IndexRef))
+        {
+          ClearData();
+          ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+          FormatBuffer(szText1, szText2, "[ROUTES] index");
+          MessageBeep(MB_ICONEXCLAMATION);
+          ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+          return FALSE;
+        }
 
         if ((IndexRef > 0) && (IndexRef < 1000))
         {
@@ -2641,12 +2902,32 @@ BOOL TLayout::ReadDataFile()
             for (i=0; i<2; i++)
             {
               ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-              TempX[i] = atoi(szInput);
+              // SECURITY FIX (HIGH-01): Safe parsing
+              if (!SafeParseInt(szInput.Data(), TempX[i]))
+              {
+                ClearData();
+                ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+                FormatBuffer(szText1, szText2, "[ROUTES] selector");
+                MessageBeep(MB_ICONEXCLAMATION);
+                ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+                return FALSE;
+              }
             }
             for (i=0; i<6; i++)
             {
               ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-              TempClear[i] = atol(szInput);
+              // SECURITY FIX (HIGH-01): Safe parsing
+              long tempLong;
+              if (!SafeParseLong(szInput.Data(), tempLong))
+              {
+                ClearData();
+                ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+                FormatBuffer(szText1, szText2, "[ROUTES] clear stage");
+                MessageBeep(MB_ICONEXCLAMATION);
+                ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+                return FALSE;
+              }
+              TempClear[i] = tempLong;
             }
 
             // Insert the new section
@@ -2743,7 +3024,16 @@ BOOL TLayout::ReadDataFile()
         // Get first part of string - index reference
         std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-        IndexRef = atoi(szInput);
+        // SECURITY FIX (HIGH-01): Safe parsing
+        if (!SafeParseInt(szInput.Data(), IndexRef))
+        {
+          ClearData();
+          ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+          FormatBuffer(szText1, szText2, "[LOCOS] index");
+          MessageBeep(MB_ICONEXCLAMATION);
+          ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+          return FALSE;
+        }
 
         if ((IndexRef > 0) && (IndexRef < 500))
         {
@@ -2753,7 +3043,16 @@ BOOL TLayout::ReadDataFile()
            for (i=0; i<3; i++)
            {
              ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-             TempX[i] = atoi(szInput);
+             // SECURITY FIX (HIGH-01): Safe parsing
+             if (!SafeParseInt(szInput.Data(), TempX[i]))
+             {
+               ClearData();
+               ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+               FormatBuffer(szText1, szText2, "[LOCOS] data");
+               MessageBeep(MB_ICONEXCLAMATION);
+               ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+               return FALSE;
+             }
            }
 
            // Insert the new loco item
@@ -2843,7 +3142,16 @@ BOOL TLayout::ReadDataFile()
             for (i=0; i<2; i++)
             {
               ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-              TempX[i] = atoi(szInput);
+              // SECURITY FIX (HIGH-01): Safe parsing
+              if (!SafeParseInt(szInput.Data(), TempX[i]))
+              {
+                ClearData();
+                ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+                FormatBuffer(szText1, szText2, "[LOCOYARD] data");
+                MessageBeep(MB_ICONEXCLAMATION);
+                ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+                return FALSE;
+              }
             }
             if (((TempX[0] > 0) && (TempX[0] < 7)) ||
                ((TempX[0] > 9) && (TempX[0] < 13)))
@@ -2905,7 +3213,16 @@ BOOL TLayout::ReadDataFile()
         // Get first part of string - index reference
         std::istringstream ins(szInput.Data());
         ins.getline(szInput, FILE_INPUT_BUFSIZE, ',');
-        IndexRef = atoi(szInput);
+        // SECURITY FIX (HIGH-01): Safe parsing
+        if (!SafeParseInt(szInput.Data(), IndexRef))
+        {
+          ClearData();
+          ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+          FormatBuffer(szText1, szText2, "[TIMETABLE] index");
+          MessageBeep(MB_ICONEXCLAMATION);
+          ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+          return FALSE;
+        }
 
         if ((IndexRef > 0) && (IndexRef < MAX_TIMETABLE))
         {
@@ -2937,7 +3254,16 @@ BOOL TLayout::ReadDataFile()
               /**************************************************************/
               /* Store the value.                                           */
               /**************************************************************/
-              TempTime[i] = atoi(szInput);
+              // SECURITY FIX (HIGH-01): Safe parsing
+              if (!SafeParseInt(szInput.Data(), TempTime[i]))
+              {
+                ClearData();
+                ::LoadString(GetModule()->GetHandle(), 10014, szText2, 400);
+                FormatBuffer(szText1, szText2, "[TIMETABLE] time data");
+                MessageBeep(MB_ICONEXCLAMATION);
+                ::MessageBox(HWindow, szText1, APPNAME, MB_ICONEXCLAMATION | MB_OK);
+                return FALSE;
+              }
             }
 
             // Check to ensure that the selector number is an input selector
