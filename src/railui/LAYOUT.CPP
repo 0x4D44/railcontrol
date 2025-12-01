@@ -498,6 +498,7 @@ void TLayout::EvTimer(owl::uint timerID)
 
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (!frame) return;
 
   // Handle timer messages
   if (timerID == ID_TIMER)
@@ -575,6 +576,7 @@ void TLayout::UpdateDisplay(HDC TheDC)
 
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (!frame) return;
 
   // Draw a bounding box (3D effect)
   ::GetClientRect(HWindow, &TheRect);
@@ -838,6 +840,7 @@ void TLayout::HandleTimeChange()
 
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (!frame) return;
 
   // Draw the time
   TRC_NRM((TB, "AT DrawClock"));
@@ -929,6 +932,7 @@ void TLayout::DrawClock(HDC TheDC, BOOL xiRedraw)
 
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (!frame) return;
 
   // Draw the clock panel and fill it with the appropriate time
   ::GetClientRect(HWindow, &lClientRect);
@@ -1242,6 +1246,7 @@ void TLayout::DrawSection(HDC xiDC, int xiSectNum)
 
   // Get handle to main frame window
   TMainWindow* lFrame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (!lFrame) return;
 
   // Select pen for drawing outlines
   SelectObject(xiDC, GetStockObject(BLACK_PEN));
@@ -1329,6 +1334,7 @@ void TLayout::DrawPlatform(HDC TheDC, int PlatNum)
 
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (!frame) return;
 
   // Do we need to create a new DC?
   if (TheDC == 0)
@@ -1473,6 +1479,7 @@ void TLayout::HandleSelectors()
 
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (!frame) return;
 
   // Check to see if we are in a case 1 scenario.
   if (Selector1 == 0)
@@ -1553,6 +1560,7 @@ void TLayout::UpdateSelectors()
 
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (!frame) return;
 
   if (frame->GameInProgress)
   {
@@ -1948,6 +1956,7 @@ BOOL TLayout::IsRouteValid(int Start, int End)
 
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (!frame) return FALSE;
 
   // Run through the list of routes to see if the route is valid
   lii = 1;
@@ -2230,6 +2239,7 @@ BOOL TLayout::ReadDataFile()
 
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (!frame) return FALSE;
 
   // Open the file
   infile.open(frame->DataFileName, std::ios::in);
@@ -3520,6 +3530,7 @@ void TLayout::AssignYardLoco(int LocoFlag, int RefuelTime)
 
   // Get handle to main frame window
   TMainWindow* frame = TYPESAFE_DOWNCAST(Parent, TMainWindow);
+  if (!frame) return;
 
   freeLocos.reserve(32);
   for (i = 1; i < 500; i++)

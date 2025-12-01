@@ -1386,7 +1386,7 @@ void TMainWindow::RedoChildren()
   }
 
   // Move the layout window
-  if (DisplayExist)
+  if (DisplayExist && DisplayHan != NULL)
   {
     if (ToolbarExist)
     {
@@ -1410,6 +1410,8 @@ void TMainWindow::RedoChildren()
 
 void TMainWindow::CMMnuFilNew()
 {
+  // Guard against null display handle
+  if (DisplayHan == NULL) return;
 
   HMENU  TheMenu;
   MSG    msg;
@@ -1492,13 +1494,15 @@ void TMainWindow::CMMnuFilNew()
 
 void TMainWindow::CMMnuFiPaus()
 {
+  // Guard against null display handle
+  if (DisplayHan == NULL) return;
 
   HMENU  TheMenu;
 
   // Pause the current session
   TheMenu = ::GetMenu(HWindow);
   if (GamePaused)
-  {   
+  {
     ::SetTimer(DisplayHan->HWindow, ID_TIMER, 100, NULL);
     GamePaused = FALSE;
 
@@ -1524,6 +1528,8 @@ void TMainWindow::CMMnuFiPaus()
 
 void TMainWindow::CMMnuFiStop()
 {
+  // Guard against null display handle
+  if (DisplayHan == NULL) return;
 
   HMENU TheMenu;
 

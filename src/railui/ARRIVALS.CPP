@@ -608,7 +608,7 @@ void TArrivals::ConvertTime(int TimeVal, char *TimeStr)
   int  Hr, Mn;
   char TextString[7], TextStrtwo[7];
 
-  if ((TimeVal <= 0) | (TimeVal > 2400))
+  if ((TimeVal <= 0) || (TimeVal > 2400))
   {
     // Invalid time specified
     CopyBuffer(TextString, "XX:XX");

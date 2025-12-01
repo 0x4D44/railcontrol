@@ -167,7 +167,7 @@ public:
     SimulationTickResult tickCopy = out.result;
     lock.unlock();
     if (emitClampDiag) { EmitDiagnostics(DiagnosticsLevel::Warning, "Advance dt clamped to maxStep"); }
-    for (auto* o : observersCopy) { o->OnEvents(tickCopy); }
+    for (auto* o : observersCopy) { try { o->OnEvents(tickCopy); } catch (...) { /* observer exception ignored to ensure all observers notified */ } }
     lock.lock();
     inProgress_ = false;
     return out;
@@ -282,7 +282,7 @@ public:
       observers_.push_back(&obs);
       if (state_) { snap.state = state_; snap.snapshotClock = state_->clock; }
     }
-    if (snap.state) obs.OnSnapshot(snap);
+    if (snap.state) { try { obs.OnSnapshot(snap); } catch (...) { /* observer exception ignored */ } }
   }
 
   void Unsubscribe(IObserver& obs) override {
@@ -298,14 +298,14 @@ private:
       std::lock_guard<std::mutex> lock(mu_);
       if (!state_) return; snap.state = state_; snap.snapshotClock = state_->clock; observersCopy = observers_;
     }
-    for (auto* o : observersCopy) o->OnSnapshot(snap);
+    for (auto* o : observersCopy) { try { o->OnSnapshot(snap); } catch (...) { /* observer exception ignored to ensure all observers notified */ } }
   }
 
   void EmitDiagnostics(DiagnosticsLevel level, const std::string& message) {
     DiagnosticsEvent ev; ev.level = level; ev.message = message; ev.timestamp = std::chrono::system_clock::now();
     std::vector<IObserver*> observersCopy; { std::lock_guard<std::mutex> lock(mu_); observersCopy = observers_; }
-    for (auto* o : observersCopy) { o->OnDiagnostics(ev); }
-    if (telemetry_) telemetry_->Emit(ev);
+    for (auto* o : observersCopy) { try { o->OnDiagnostics(ev); } catch (...) { /* observer exception ignored to ensure all observers notified */ } }
+    if (telemetry_) { try { telemetry_->Emit(ev); } catch (...) { /* telemetry exception ignored */ } }
   }
 
   enum class EngineState { Idle, Paused, Running, Stopped };
