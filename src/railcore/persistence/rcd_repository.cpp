@@ -51,16 +51,19 @@ inline bool ParseFirstIntToken(const std::string& line, uint32_t& out) {
 inline bool TryParseInt(const std::string& token, int& out) {
   std::string t = Trim(token);
   if (t.empty()) return false;
-  int sign = 1; size_t i = 0; long long v = 0;
+  size_t i = 0; long long v = 0;
   if (t[0] == '+') i = 1; else if (t[0] == '-') { return false; }
   bool any = false;
   for (; i < t.size(); ++i) {
     if (!std::isdigit(static_cast<unsigned char>(t[i]))) break;
-    any = true; v = v * 10 + (t[i] - '0');
-    if (v > 1000000000LL) break;
+    any = true;
+    long long next = v * 10 + (t[i] - '0');
+    // Check for overflow BEFORE assignment to prevent undefined behavior
+    if (next > static_cast<long long>(INT_MAX)) return false;
+    v = next;
   }
   if (!any) return false;
-  out = static_cast<int>(sign * v);
+  out = static_cast<int>(v);
   return true;
 }
 
@@ -90,6 +93,19 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
       srcPath = alt;
     } else {
       return Status{StatusCode::NotFound, "Layout file not found: " + desc.sourcePath.string()};
+    }
+  }
+
+  // Check file size before reading to prevent DoS via large files
+  constexpr std::uintmax_t MAX_RCD_FILE_SIZE = 100 * 1024 * 1024;  // 100 MB
+  {
+    std::error_code ec;
+    auto fileSize = std::filesystem::file_size(srcPath, ec);
+    if (ec) {
+      return Status{StatusCode::LayoutError, "Unable to determine file size"};
+    }
+    if (fileSize > MAX_RCD_FILE_SIZE) {
+      return Status{StatusCode::ValidationError, "Layout file exceeds maximum size (100 MB)"};
     }
   }
 
@@ -293,7 +309,14 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
               return Status{StatusCode::ValidationError,
                              "Route " + std::to_string(id) + ": unknown secondary section id " + std::to_string(secondary)};
             }
-            if (stageIndex < 6) { rp.stages[stageIndex][0] = static_cast<uint32_t>(primary); rp.stages[stageIndex][1] = static_cast<uint32_t>(secondary); ++stageIndex; }
+            // Return error if route has more than 6 stages instead of silently truncating
+            if (stageIndex >= 6) {
+              return Status{StatusCode::ValidationError,
+                             "Route " + std::to_string(id) + ": exceeds maximum 6 stages"};
+            }
+            rp.stages[stageIndex][0] = static_cast<uint32_t>(primary);
+            rp.stages[stageIndex][1] = static_cast<uint32_t>(secondary);
+            ++stageIndex;
           }
           routeParsed[id] = rp;
         }
@@ -398,6 +421,30 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
     }
     if (r.nextId != 0 && ttIds.find(static_cast<uint32_t>(r.nextId)) == ttIds.end()) {
       return Status{StatusCode::ValidationError, "TIMETABLE " + std::to_string(r.id) + ": NextEntry unknown " + std::to_string(r.nextId)};
+    }
+  }
+
+  // Detect cycles in timetable NextEntry chains to prevent infinite loops
+  {
+    std::map<uint32_t, uint32_t> nextMap;
+    for (const auto& r : ttRefs) {
+      if (r.nextId != 0) {
+        nextMap[r.id] = static_cast<uint32_t>(r.nextId);
+      }
+    }
+    for (const auto& startEntry : nextMap) {
+      std::set<uint32_t> visited;
+      uint32_t current = startEntry.first;
+      while (current != 0) {
+        if (visited.count(current)) {
+          return Status{StatusCode::ValidationError,
+                         "TIMETABLE: cycle detected in NextEntry chain starting at entry " + std::to_string(startEntry.first)};
+        }
+        visited.insert(current);
+        auto it = nextMap.find(current);
+        if (it == nextMap.end()) break;
+        current = it->second;
+      }
     }
   }
 

@@ -125,7 +125,7 @@ TTimetable::TTimetable(const char* xiArrDesc, const char* xiDepDesc, int xiValue
       if ((laa >= 89) && (laa <= 90))  mMinLate = 6;
       if ((laa >= 91) && (laa <= 92))  mMinLate = 7;
       if ((laa >= 93) && (laa <= 94))  mMinLate = 8;
-      if ((laa >= 96) && (laa <= 96))  mMinLate = 9;
+      if ((laa >= 95) && (laa <= 96))  mMinLate = 9;
       if (laa == 97)                   mMinLate = 10;
       if (laa == 98)                   mMinLate = 11;
       if (laa == 99)                   mMinLate = 12;

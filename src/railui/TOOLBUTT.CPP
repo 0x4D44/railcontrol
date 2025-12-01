@@ -134,7 +134,7 @@ void TToolbutton::GetWindowClass(WNDCLASS &WndClass)
 {
   // Call ancestor method 
   TFrameWindow::GetWindowClass(WndClass);
-  WndClass.style = CS_HREDRAW || CS_VREDRAW;
+  WndClass.style = CS_HREDRAW | CS_VREDRAW;
   WndClass.hbrBackground = (HBRUSH) GetStockObject(LTGRAY_BRUSH);
 }
 
