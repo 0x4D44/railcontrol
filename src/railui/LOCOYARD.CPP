@@ -277,7 +277,7 @@ void TLocoyard::EvLButtonUp(owl::uint, const TPoint&)
         ::SetTextColor(TheDC, GetSysColor(COLOR_WINDOWTEXT));
         SetBkColor(TheDC, GetSysColor(COLOR_BTNFACE));
 
-        frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->LocoNumStr(TextString);
+        frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->LocoNumStr(TextString, sizeof(TextString));
         TextOut(TheDC, OldXPos, OldYPos, TextString, strlen(TextString));
       }
 
@@ -351,7 +351,7 @@ void TLocoyard::EvMouseMove(owl::uint, const TPoint& pnt)
         if (frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->GetFlag() != LF_REFUEL)
         {
           // Get loco number as a character array
-          frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->LocoNumStr(TextString);
+          frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->LocoNumStr(TextString, sizeof(TextString));
           TextOut(TheDC, OldXPos, OldYPos, TextString, strlen(TextString));
         }
        }
@@ -363,7 +363,7 @@ void TLocoyard::EvMouseMove(owl::uint, const TPoint& pnt)
        {
         // Get new loco number and output it
         ::SetTextColor(TheDC, RGB(255, 255, 0));
-        frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[a]]->LocoNumStr(TextString);
+        frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[a]]->LocoNumStr(TextString, sizeof(TextString));
         TextOut(TheDC, LookXPos, LookYPos, TextString, strlen(TextString));
        }
       }
@@ -390,7 +390,7 @@ void TLocoyard::EvMouseMove(owl::uint, const TPoint& pnt)
          ::SetTextColor(TheDC, RGB(255, 255, 255));
          SetBkColor(TheDC, RGB(0, 0, 0));
 
-         frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->LocoNumStr(TextString);
+         frame->DisplayHan->PLocosInfo[frame->DisplayHan->LocoyardLoco[OldSelect]]->LocoNumStr(TextString, sizeof(TextString));
          TextOut(TheDC, OldXPos, OldYPos, TextString, strlen(TextString));
        }
 
@@ -525,7 +525,7 @@ void TLocoyard::UpdateDisplay(HDC TheDC, BOOL Redraw)
         if ((a > 0) && (a < 500))
         {
           // Get loco number as a character array
-          frame->DisplayHan->PLocosInfo[a]->LocoNumStr(TextString);
+          frame->DisplayHan->PLocosInfo[a]->LocoNumStr(TextString, sizeof(TextString));
 
           if (frame->DisplayHan->PLocosInfo[a]->GetFlag() == LF_REFUEL)
           {

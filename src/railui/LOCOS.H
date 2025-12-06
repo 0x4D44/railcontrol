@@ -17,6 +17,8 @@
 #if !defined(_LOCOS_H_)
 #define _LOCOS_H_
 
+#include <cstddef>
+
 
 // TLocos class
 class TLocos;
@@ -39,7 +41,7 @@ public:
   int  GetType();
   int  GetRefuelTime();
   int  SetRefuelTime(int NewTime);
-  void LocoNumStr(char* Text);
+  void LocoNumStr(char* Text, size_t BufferSize);
 };
 
 

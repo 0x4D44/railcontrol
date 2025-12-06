@@ -58,6 +58,12 @@ public:
     AdvanceOutcome out{Status{StatusCode::Ok, {}}, {}};
     if (!state_) { out.status = Status{StatusCode::InvalidCommand, "No layout loaded"}; return out; }
     if (engineState_ == EngineState::Stopped) { out.status = Status{StatusCode::InvalidCommand, "Engine stopped"}; return out; }
+    if (engineState_ == EngineState::Paused) {
+      state_->simulationActive = false;
+      out.result.clock = state_->clock;
+      out.result.wallTime = std::chrono::milliseconds{0};
+      return out;
+    }
     if (inProgress_) { out.status = Status{StatusCode::Busy, "Advance in progress"}; return out; }
     if (dt < std::chrono::milliseconds{0}) { out.status = Status{StatusCode::ValidationError, "Negative dt"}; return out; }
 
@@ -207,6 +213,7 @@ public:
         ev.payload = m; pendingEvents_.push_back(std::move(ev));
         pendingGlobalsDelta_["delay.mode"] = m["mode"];
         pendingGlobalsDelta_["delay.thresholdMinutes"] = m["thresholdMinutes"];
+        pendingGlobalsDelta_["delay.threshold_min"] = m["thresholdMinutes"];
         pendingGlobalsDelta_["delay.maintenanceThrough"] = m["maintenanceThrough"];
         return Ok();
       }
@@ -269,7 +276,14 @@ public:
 
   LayoutSnapshot GetSnapshot() const override {
     std::lock_guard<std::mutex> lock(mu_);
-    LayoutSnapshot snap; snap.state = state_ ? state_ : std::make_shared<WorldState>(); snap.snapshotClock = snap.state->clock; return snap;
+    LayoutSnapshot snap;
+    if (state_) {
+      snap.state = std::make_shared<WorldState>(*state_);
+    } else {
+      snap.state = std::make_shared<WorldState>();
+    }
+    snap.snapshotClock = snap.state->clock;
+    return snap;
   }
 
   std::string GetLayoutId() const override {
