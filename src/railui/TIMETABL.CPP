@@ -410,8 +410,21 @@ void TTimetable::ResetStageTelemetry()
 
 void TTimetable::SetStageTelemetry(int Stage, int StageIndex, int StagePrimary, int StageSecondary, long ProgressMs)
 {
-  mStage = Stage;
-  mStageIndex = StageIndex;
+  if (Stage < 0) {
+    mStage = -1;
+  } else if (Stage > 2) {
+    mStage = 2;
+  } else {
+    mStage = Stage;
+  }
+
+  if (StageIndex < 0) {
+    mStageIndex = -1;
+  } else if (StageIndex > 5) {
+    mStageIndex = 5;
+  } else {
+    mStageIndex = StageIndex;
+  }
   mStagePrimary = StagePrimary;
   mStageSecondary = StageSecondary;
   mProgressMs = ProgressMs;

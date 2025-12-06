@@ -161,6 +161,10 @@ std::vector<std::wstring> ExpandInputPath(const std::wstring& arg, CliValidation
   std::vector<std::wstring> files;
   if (ContainsWildcard(arg)) {
     auto matches = ExpandWildcardMatches(arg);
+    if (matches.empty()) {
+      AppendLine(summary, false, L"Invalid: " + arg + L": no .RCD files found");
+      return files;
+    }
     for (const auto& m : matches) {
       if (m.isDirectory) {
         auto expanded = ExpandDirectoryFiles(m.path);
@@ -205,6 +209,11 @@ CliValidationSummary EvaluateRcdValidationForTesting(const std::vector<std::wstr
   for (const auto& arg : rawInputs) {
     auto expanded = ExpandInputPath(arg, summary);
     files.insert(files.end(), expanded.begin(), expanded.end());
+  }
+
+  if (files.empty()) {
+    AppendLine(summary, false, L"Invalid: no .RCD files matched input");
+    return summary;
   }
 
   SortDeterministic(files);

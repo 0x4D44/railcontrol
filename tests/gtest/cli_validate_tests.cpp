@@ -126,6 +126,20 @@ TEST(CliValidate, EmptyDirectoryYieldsInvalid) {
   std::filesystem::remove_all(tmp, ec);
 }
 
+TEST(CliValidate, WildcardWithNoMatchesFails) {
+  std::filesystem::path tmp = std::filesystem::path(GetExeDir()) / L"cli_empty_glob";
+  std::error_code ec;
+  std::filesystem::create_directories(tmp, ec);
+
+  auto pattern = (tmp.wstring() + L"\\*.RCD");
+  auto summary = RunHelper({pattern});
+  EXPECT_TRUE(summary.anyFailure);
+  EXPECT_TRUE(AnyLineStartsWith(summary, L"Invalid: " + pattern + L": no .RCD files found")
+              || AnyLineStartsWith(summary, L"Invalid: no .RCD files matched input"));
+
+  std::filesystem::remove_all(tmp, ec);
+}
+
 TEST(CliValidate, MixedDirectoryValidAndInvalid) {
   std::filesystem::path exeDir = GetExeDir();
   std::filesystem::path tmp = exeDir / L"cli_mix_dir";

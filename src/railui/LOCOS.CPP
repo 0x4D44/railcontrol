@@ -78,15 +78,26 @@ int TLocos::SetRefuelTime(int NewTime)
   return Temp;
 }
 
-void TLocos::LocoNumStr(char* Text)
+void TLocos::LocoNumStr(char* Text, size_t BufferSize)
 {
+  if ((Text == nullptr) || (BufferSize == 0))
+  {
+    return;
+  }
+
   long Temp;
 
   // Calculate loco number, convert it to a string and return it in <Text>
   Temp = 1000*long(Class) + Number;
   const auto locoText = std::to_string(Temp);
-  std::copy(locoText.begin(), locoText.end(), Text);
-  Text[locoText.size()] = '\0';
+  if (BufferSize == 1)
+  {
+    Text[0] = '\0';
+    return;
+  }
+  const size_t toCopy = std::min(BufferSize - 1, locoText.size());
+  std::copy_n(locoText.data(), toCopy, Text);
+  Text[toCopy] = '\0';
 }
 
 

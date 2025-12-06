@@ -403,7 +403,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
             a = frame->DisplayHan->PPlatDataInfo[i]->GetLoco();
             if (a > 0)
             {
-              frame->DisplayHan->PLocosInfo[a]->LocoNumStr(LocoName);
+              frame->DisplayHan->PLocosInfo[a]->LocoNumStr(LocoName, sizeof(LocoName));
               CopyBuffer(TrainName, "");
 
               /**************************************************************/
@@ -436,7 +436,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
                 if (llocoid != 0)
                 {
                   // Get loco number as a character array
-                  frame->DisplayHan->PLocosInfo[llocoid]->LocoNumStr(lTempStr);
+                  frame->DisplayHan->PLocosInfo[llocoid]->LocoNumStr(lTempStr, sizeof(lTempStr));
 
                   if (lii == 0)
                   {
@@ -466,7 +466,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
               c = frame->DisplayHan->PTimetableInfo[a]->GetLoco();
               if (c > 0)
               {
-                frame->DisplayHan->PLocosInfo[c]->LocoNumStr(LocoName);
+                frame->DisplayHan->PLocosInfo[c]->LocoNumStr(LocoName, sizeof(LocoName));
                 CopyBuffer(TrainName, LocoName);
                 AppendString(TrainName, " + ");
               }
@@ -483,7 +483,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
               c = frame->DisplayHan->PPlatDataInfo[i]->GetLoco();
               if (c > 0)
               {
-                frame->DisplayHan->PLocosInfo[c]->LocoNumStr(LocoName);
+                frame->DisplayHan->PLocosInfo[c]->LocoNumStr(LocoName, sizeof(LocoName));
                 AppendString(TrainName, " . ");
 
                 /************************************************************/
@@ -589,7 +589,7 @@ void TPlatform::UpdateDisplay(HDC TheDC, BOOL Redraw)
           c = frame->DisplayHan->HoldLoco;
           if (c > 0)
           {
-            frame->DisplayHan->PLocosInfo[c]->LocoNumStr(TextString);
+            frame->DisplayHan->PLocosInfo[c]->LocoNumStr(TextString, sizeof(TextString));
 
             // Select <LocoName> text colour
             switch (frame->DisplayHan->PLocosInfo[c]->GetFlag())

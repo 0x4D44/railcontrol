@@ -184,10 +184,14 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
           if (key == "StartTime") {
             int v = 0; if (!TryParseInt(val, v)) return Status{StatusCode::ValidationError, "Invalid StartTime"};
             if (v < 0 || (v % 100) >= 60) return Status{StatusCode::ValidationError, "StartTime minutes out of range"};
+            int hours = v / 100;
+            if (hours < 0 || hours > 23) return Status{StatusCode::ValidationError, "StartTime hours out of range"};
             if (!haveStart) { haveStart = true; startTime = v; }
           } else if (key == "StopTime") {
             int v = 0; if (!TryParseInt(val, v)) return Status{StatusCode::ValidationError, "Invalid StopTime"};
             if (v < 0 || (v % 100) >= 60) return Status{StatusCode::ValidationError, "StopTime minutes out of range"};
+            int hours = v / 100;
+            if (hours < 0 || hours > 23) return Status{StatusCode::ValidationError, "StopTime hours out of range"};
             if (!haveStop) { haveStop = true; stopTime = v; }
           }
         }
@@ -295,14 +299,17 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
           if (toks.size() >= 2) { int v=0; if (TryParseInt(toks[1], v) && v>0) rp.fromSel = static_cast<uint32_t>(v); }
           if (toks.size() >= 3) { int v=0; if (TryParseInt(toks[2], v) && v>0) rp.toSel = static_cast<uint32_t>(v); }
           size_t stageIndex = 0;
-          for (size_t iTok = 3; iTok < toks.size(); ++iTok) {
-            int val = 0;
-            if (!TryParseInt(toks[iTok], val)) continue;
-            if (val <= 0) continue;
-            int primary = val % 1000;
-            int secondary = val / 1000;
-            if (primary != 0 && sectionIds.find(static_cast<uint32_t>(primary)) == sectionIds.end()) {
-              return Status{StatusCode::ValidationError,
+        for (size_t iTok = 3; iTok < toks.size(); ++iTok) {
+          int val = 0;
+          if (!TryParseInt(toks[iTok], val)) {
+            return Status{StatusCode::ValidationError,
+                          "Route " + std::to_string(id) + ": non-numeric stage token"};
+          }
+          if (val <= 0) continue;
+          int primary = val % 1000;
+          int secondary = val / 1000;
+          if (primary != 0 && sectionIds.find(static_cast<uint32_t>(primary)) == sectionIds.end()) {
+            return Status{StatusCode::ValidationError,
                              "Route " + std::to_string(id) + ": unknown section id " + std::to_string(primary)};
             }
             if (secondary != 0 && sectionIds.find(static_cast<uint32_t>(secondary)) == sectionIds.end()) {
@@ -479,6 +486,9 @@ Status RcdLayoutRepository::Load(LayoutDescriptor& desc, WorldState& outState) {
   {
     std::string canon = CanonicalizeRcdContent(contents);
     desc.id = ComputeRcdIdFromContent(canon, "rcd:v1");
+    if (desc.id.empty()) {
+      return Status{StatusCode::LayoutError, "Failed to compute layout id"};
+    }
   }
   return Ok();
 }

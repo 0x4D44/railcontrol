@@ -501,7 +501,7 @@ void TArrivals::TimeTabInfo(HDC TheDC, int TabVal, int YPos)
     int llocoid = frame->DisplayHan->PTimetableInfo[TabVal]->GetLoco(lii);
     if (llocoid != 0)
     {
-      frame->DisplayHan->PLocosInfo[llocoid]->LocoNumStr(lTempStr);
+      frame->DisplayHan->PLocosInfo[llocoid]->LocoNumStr(lTempStr, sizeof(lTempStr));
       if (lii == 0)
       {
         FormatBuffer(TextString, "%s", lTempStr);

@@ -3677,7 +3677,7 @@ BOOL TLayout::AssignLoco(int TimetabPos)
           {
             char lLocoNumStr[100];
 
-            PLocosInfo[z]->LocoNumStr(lLocoNumStr);
+            PLocosInfo[z]->LocoNumStr(lLocoNumStr, sizeof(lLocoNumStr));
             TRC_NRM((TB, "Loco idx:%d type:%d flag:%d refueltime:%d ID:%s", 
                          z,
                          PLocosInfo[z]->GetType(),
@@ -3959,6 +3959,10 @@ void TLayout::ApplyStageTelemetry(int TimetableId,
     PTimetableInfo[TimetableId]->ResetStageTelemetry();
     return;
   }
+
+  if (Stage < 0) Stage = 0; else if (Stage > 2) Stage = 2;
+  if (StageIndex < 0) StageIndex = 0; else if (StageIndex > 5) StageIndex = 5;
+  if (ProgressMs < 0) ProgressMs = -1;
 
   PTimetableInfo[TimetableId]->SetStageTelemetry(Stage,
                                                  StageIndex,
@@ -5131,7 +5135,7 @@ void TLayout::DebugTrainInfo(char* xiStr, int xiIndex, int xiExpect)
   }
   else
   {
-    frame->DisplayHan->PLocosInfo[lloco]->LocoNumStr(llocostr);
+    frame->DisplayHan->PLocosInfo[lloco]->LocoNumStr(llocostr, sizeof(llocostr));
   }
 
   TRC_NRM((TB, "EXPECTED (fn:%s) (idx:%d ArrPnt:%d Status:%s Loco:%d '%s')",
