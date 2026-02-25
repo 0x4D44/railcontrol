@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- Avoid NuGet ResolveNuGetPackageAssets flakiness for native projects without PackageReferences.
+       Do not apply to RailCoreGTest which uses GoogleTest via NuGet in CI. -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)'!='RailCoreGTest'">
+    <Restore>false</Restore>
+    <RestorePackages>false</RestorePackages>
+    <RestoreProjectStyle>None</RestoreProjectStyle>
+    <ExcludeRestorePackageImports>true</ExcludeRestorePackageImports>
+    <SkipResolvePackageAssets>true</SkipResolvePackageAssets>
+    <ResolveNuGetPackages>false</ResolveNuGetPackages>
+  </PropertyGroup>
+  <!-- Ensure RailCoreGTest restores cleanly on local machines, too -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)'=='RailCoreGTest'">
+    <Restore>true</Restore>
+    <RestorePackages>true</RestorePackages>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <TargetFramework>native</TargetFramework>
+  </PropertyGroup>
+</Project>

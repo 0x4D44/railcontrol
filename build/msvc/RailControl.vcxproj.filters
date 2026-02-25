@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version='1.0' encoding='utf-8'?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="17.0">
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
@@ -78,7 +78,7 @@
     <ClCompile Include="..\\..\\TOOLBUTT.CPP">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
+  <ClCompile Include="..\..\src\railui\stage_telemetry_cache.cpp"><Filter>Src\railui</Filter></ClCompile><ClCompile Include="..\..\src\railui\stage_telemetry_cache.cpp"><Filter>Src\railui</Filter></ClCompile></ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\\..\\ABOUT.H">
       <Filter>Header Files</Filter>
@@ -152,11 +152,10 @@
     <ClInclude Include="..\\..\\ctl3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
+  <ClInclude Include="..\..\include\railui\stage_telemetry_cache.h"><Filter>Include</Filter></ClInclude></ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\\..\\RESOURCE\\RAILC.RC">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>
-

@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version='1.0' encoding='utf-8'?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="17.0">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -54,7 +54,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;NOMINMAX;_CRT_SECURE_NO_WARNINGS;__DEBUG=0;_ITERATOR_DEBUG_LEVEL=0;_HAS_ITERATOR_DEBUGGING=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..;$(ProjectDir)..\..\third_party\owlnext\include;$(ProjectDir)..\..\third_party\owlnext\include\owlext;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..;$(ProjectDir)..\..\include;$(ProjectDir)..\..\src\railui;$(ProjectDir)..\..\third_party\owlnext\include;$(ProjectDir)..\..\third_party\owlnext\include\owlext;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -65,7 +65,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\third_party\owlnext\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>owl-7.0-v1930-x86-5t.lib;owlext-7.0-v1930-x86-5t.lib;ocf-7.0-v1930-x86-5t.lib;coolprj-7.0-v1930-x86-5t.lib;comctl32.lib;comdlg32.lib;winmm.lib;ole32.lib;oleaut32.lib;shell32.lib;gdi32.lib;user32.lib;advapi32.lib;imm32.lib;msimg32.lib;uuid.lib;vfw32.lib;kernel32.lib;winspool.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>owl-7.0-v1930-x86-5t.lib;owlext-7.0-v1930-x86-5t.lib;ocf-7.0-v1930-x86-5t.lib;coolprj-7.0-v1930-x86-5t.lib;comctl32.lib;comdlg32.lib;winmm.lib;ole32.lib;oleaut32.lib;shell32.lib;gdi32.lib;user32.lib;advapi32.lib;imm32.lib;msimg32.lib;uuid.lib;vfw32.lib;kernel32.lib;winspool.lib;odbc32.lib;odbccp32.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -75,7 +75,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;STRICT;NOMINMAX;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..;$(ProjectDir)..\..\third_party\owlnext\include;$(ProjectDir)..\..\third_party\owlnext\include\owlext;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..;$(ProjectDir)..\..\include;$(ProjectDir)..\..\src\railui;$(ProjectDir)..\..\third_party\owlnext\include;$(ProjectDir)..\..\third_party\owlnext\include\owlext;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -89,68 +89,74 @@
       <OptimizeReferences>true</OptimizeReferences>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\third_party\owlnext\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>owl-7.0-v1930-x86-5t.lib;owlext-7.0-v1930-x86-5t.lib;ocf-7.0-v1930-x86-5t.lib;coolprj-7.0-v1930-x86-5t.lib;comctl32.lib;comdlg32.lib;winmm.lib;ole32.lib;oleaut32.lib;shell32.lib;gdi32.lib;user32.lib;advapi32.lib;imm32.lib;msimg32.lib;uuid.lib;vfw32.lib;kernel32.lib;winspool.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>owl-7.0-v1930-x86-5t.lib;owlext-7.0-v1930-x86-5t.lib;ocf-7.0-v1930-x86-5t.lib;coolprj-7.0-v1930-x86-5t.lib;comctl32.lib;comdlg32.lib;winmm.lib;ole32.lib;oleaut32.lib;shell32.lib;gdi32.lib;user32.lib;advapi32.lib;imm32.lib;msimg32.lib;uuid.lib;vfw32.lib;kernel32.lib;winspool.lib;odbc32.lib;odbccp32.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\\..\\ABOUT.CPP" />
-    <ClCompile Include="..\\..\\ARRIVALS.CPP" />
-    <ClCompile Include="..\\..\\CONFIGUR.CPP" />
-    <ClCompile Include="..\\..\\DEBUGMEMORYGUARD.CPP" />
-    <ClCompile Include="..\\..\\DEPARTUR.CPP" />
-    <ClCompile Include="..\\..\\FINISH.CPP" />
-    <ClCompile Include="..\\..\\LAYOUT.CPP" />
-    <ClCompile Include="..\\..\\LOCOS.CPP" />
-    <ClCompile Include="..\\..\\LOCOYARD.CPP" />
-    <ClCompile Include="..\\..\\OVLPDATA.CPP" />
-    <ClCompile Include="..\\..\\PLATDATA.CPP" />
-    <ClCompile Include="..\\..\\PLATFORM.CPP" />
-    <ClCompile Include="..\\..\\RAILC.CPP">
+    <ClCompile Include="..\\..\\src\\railui\\cli_validate.cpp" />
+    <ClCompile Include="..\\..\\src\\railui\\ABOUT.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\ARRIVALS.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\CONFIGUR.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\DEBUGMEMORYGUARD.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\DEPARTUR.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\FINISH.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\LAYOUT.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\LOCOS.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\LOCOYARD.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\OVLPDATA.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\PLATDATA.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\PLATFORM.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\RAILC.CPP">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Disabled</Optimization>
     </ClCompile>
-    <ClCompile Include="..\\..\\ROUTES.CPP" />
-    <ClCompile Include="..\\..\\SECTION.CPP" />
-    <ClCompile Include="..\\..\\SELECTOR.CPP" />
-    <ClCompile Include="..\\..\\START.CPP" />
-    <ClCompile Include="..\\..\\STARTUP.CPP" />
-    <ClCompile Include="..\\..\\STATBAR.CPP" />
-    <ClCompile Include="..\\..\\TIMETABL.CPP" />
-    <ClCompile Include="..\\..\\TOOLBAR.CPP" />
-    <ClCompile Include="..\\..\\TOOLBUTT.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\ROUTES.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\SECTION.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\SELECTOR.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\START.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\STARTUP.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\STATBAR.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\TIMETABL.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\TOOLBAR.CPP" />
+    <ClCompile Include="..\\..\\src\\railui\\TOOLBUTT.CPP" />
+  <ClCompile Include="..\..\src\railui\stage_telemetry_cache.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\\..\\ABOUT.H" />
-    <ClInclude Include="..\\..\\ARRIVALS.H" />
-    <ClInclude Include="..\\..\\CLASSDEF.H" />
-    <ClInclude Include="..\\..\\CONFIGUR.H" />
-    <ClInclude Include="..\\..\\DEBUGMEMORYGUARD.H" />
-    <ClInclude Include="..\\..\\DEPARTUR.H" />
-    <ClInclude Include="..\\..\\FINISH.H" />
-    <ClInclude Include="..\\..\\GENERAL.H" />
-    <ClInclude Include="..\\..\\LAYOUT.H" />
-    <ClInclude Include="..\\..\\LOCOS.H" />
-    <ClInclude Include="..\\..\\LOCOYARD.H" />
-    <ClInclude Include="..\\..\\OWNERSHIP.H" />
-    <ClInclude Include="..\\..\\OVLPDATA.H" />
-    <ClInclude Include="..\\..\\PLATDATA.H" />
-    <ClInclude Include="..\\..\\PLATFORM.H" />
-    <ClInclude Include="..\\..\\RAILC.H" />
-    <ClInclude Include="..\\..\\ROUTES.H" />
-    <ClInclude Include="..\\..\\SECTION.H" />
-    <ClInclude Include="..\\..\\SELECTOR.H" />
-    <ClInclude Include="..\\..\\START.H" />
-    <ClInclude Include="..\\..\\STARTUP.H" />
-    <ClInclude Include="..\\..\\STATBAR.H" />
-    <ClInclude Include="..\\..\\TIMETABL.H" />
-    <ClInclude Include="..\\..\\TOOLBAR.H" />
-    <ClInclude Include="..\\..\\TOOLBUTT.H" />
-    <ClInclude Include="ctl3d.h" />
-  </ItemGroup>
+    <ClInclude Include="..\\..\\src\\railui\\ABOUT.H" />
+    <ClInclude Include="..\\..\\src\\railui\\ARRIVALS.H" />
+    <ClInclude Include="..\\..\\src\\railui\\CLASSDEF.H" />
+    <ClInclude Include="..\\..\\src\\railui\\CONFIGUR.H" />
+    <ClInclude Include="..\\..\\src\\railui\\DEBUGMEMORYGUARD.H" />
+    <ClInclude Include="..\\..\\src\\railui\\DEPARTUR.H" />
+    <ClInclude Include="..\\..\\src\\railui\\FINISH.H" />
+    <ClInclude Include="..\\..\\src\\railui\\GENERAL.H" />
+    <ClInclude Include="..\\..\\src\\railui\\LAYOUT.H" />
+    <ClInclude Include="..\\..\\src\\railui\\LOCOS.H" />
+    <ClInclude Include="..\\..\\src\\railui\\LOCOYARD.H" />
+    <ClInclude Include="..\\..\\src\\railui\\OWNERSHIP.H" />
+    <ClInclude Include="..\\..\\src\\railui\\OVLPDATA.H" />
+    <ClInclude Include="..\\..\\src\\railui\\PLATDATA.H" />
+    <ClInclude Include="..\\..\\src\\railui\\PLATFORM.H" />
+    <ClInclude Include="..\\..\\src\\railui\\RAILC.H" />
+    <ClInclude Include="..\\..\\src\\railui\\ROUTES.H" />
+    <ClInclude Include="..\\..\\src\\railui\\SECTION.H" />
+    <ClInclude Include="..\\..\\src\\railui\\SELECTOR.H" />
+    <ClInclude Include="..\\..\\src\\railui\\START.H" />
+    <ClInclude Include="..\\..\\src\\railui\\STARTUP.H" />
+    <ClInclude Include="..\\..\\src\\railui\\STATBAR.H" />
+    <ClInclude Include="..\\..\\src\\railui\\TIMETABL.H" />
+    <ClInclude Include="..\\..\\src\\railui\\TOOLBAR.H" />
+    <ClInclude Include="..\\..\\src\\railui\\TOOLBUTT.H" />
+    <ClInclude Include="..\\..\\src\\railui\\CTL3D.H" />
+  <ClInclude Include="..\..\include\railui\stage_telemetry_cache.h" /></ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\\..\\RESOURCE\\RAILC.RC" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="RailCore.vcxproj">
+      <Project>{3E93C8B8-7E3D-4B7A-9D2D-3C1C2C0E1B00}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
-
-

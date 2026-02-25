@@ -45,7 +45,32 @@ CLAUDE.md
 # Web downloads and research files
 *.mht
 
+# MSVC build output (per-project intermediate dirs)
+build/msvc/Debug/
+build/msvc/Release/
+build/msvc/intermediate/
+build/msvc/RailCore/Debug/
+build/msvc/RailCore/Release/
+build/msvc/RailCoreGTest/Debug/
+build/msvc/RailCoreGTest/Release/
+build/msvc/RailCoreTests/Debug/
+build/msvc/RailCoreTests/Release/
+*.tlog/
+*.recipe
+*.ilk
+*.idb
+*.iobj
+*.ipdb
+*.lastbuildstate
+*.pdb
+
 # IDE and environment
+*.sdf
+*.suo
+*.user
+*.ncb
+*.opensdf
+.vs/
 target/
 bin/
 obj/
